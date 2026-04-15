@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "sandcastle": "npx tsx .sandcastle/main.ts"
+    "sandcastle": "npx tsx .sandcastle/main.ts",
+    "git:prune": "git worktree prune && git branch | grep -vE \"^(main|master)$\" | xargs git branch -D"
   },
   "dependencies": {
     "@ai-hero/sandcastle": "^0.4.5",
