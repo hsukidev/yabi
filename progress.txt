@@ -33,3 +33,10 @@
   - selectBoss uses map() for in-family replacement to preserve original array order
   - BossChecklist.tsx was refactored to use selectBoss - future BossCheckboxList should also use it
 ---
+
+## [2026-04-14] - US-004
+- Created placeholder.png (200x300 PNG with character silhouette) in src/assets/
+- Generated using sharp via SVG-to-PNG conversion
+- **Learnings for future iterations:**
+  - Placeholder image is at src/assets/placeholder.png, 200x300px with dark background and grey silhouette
+---
