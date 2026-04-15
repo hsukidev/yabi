@@ -62,7 +62,7 @@ function AppContent() {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--mantine-color-body)' }}>
-      <Header totalWeeklyIncome={totalWeeklyIncome} muleCount={mules.length} />
+      <Header totalWeeklyIncome={totalWeeklyIncome} muleCount={mules.length} abbreviated={abbreviated} />
       <Container size="lg" py="md">
         <Stack gap="md">
           <Paper p="md" radius="md" withBorder>
