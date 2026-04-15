@@ -1,0 +1,16 @@
+## Codebase Patterns
+- Project uses Vitest for testing (configured in vite.config.ts with jsdom environment)
+- Run tests with `npm run test`, typecheck with `npx tsc -b`, build with `npm run build`
+- Test files live in `__tests__` directories next to the source they test
+- Utility functions are in `src/utils/` and `src/data/`
+
+## [2026-04-14] - US-001
+- Set up Vitest with jsdom environment and globals config
+- Added `npm run test` script to package.json
+- Created formatMeso tests covering all acceptance criteria (7 tests, all passing)
+- Files changed: package.json, vite.config.ts, src/utils/__tests__/meso.test.ts
+- **Learnings for future iterations:**
+  - Vitest config goes in vite.config.ts using `/// <reference types="vitest/config" />`
+  - formatMeso takes (value, abbreviated) where abbreviated defaults to true
+  - Build passes but warns about chunk size (>500kb) - can ignore for now
+---
