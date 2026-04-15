@@ -62,3 +62,17 @@
   - BossCheckboxList uses selectBoss from utils, same as the refactored BossChecklist
   - This is a new component distinct from BossChecklist (which uses Radio buttons)
 ---
+
+## [2026-04-14] - US-007
+- Created MuleDetailDrawer component in src/components/MuleDetailDrawer.tsx
+- Drawer opens from right, ~550px wide, with dimmed overlay (blur + opacity)
+- Header shows avatar, name, level, class, and potential income
+- Edit form: TextInput for name, NumberInput for level, TextInput for class
+- BossCheckboxList for boss selection
+- Delete button with confirmation (Alert with Yes/Cancel)
+- Accepts mule, open, onClose, onUpdate, onDelete props
+- **Learnings for future iterations:**
+  - Mantine Drawer component used with position="right" and size={550}
+  - MuleDetailDrawer takes Mule | null and open boolean to control visibility
+  - When deleting, the drawer closes after onDelete is called
+---

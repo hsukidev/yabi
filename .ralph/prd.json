@@ -121,7 +121,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-005 for avatar header, US-006 for BossCheckboxList"
     },
     {
