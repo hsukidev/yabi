@@ -40,3 +40,13 @@
 - **Learnings for future iterations:**
   - Placeholder image is at src/assets/placeholder.png, 200x300px with dark background and grey silhouette
 ---
+
+## [2026-04-14] - US-005
+- Created MuleCharacterCard component in src/components/MuleCharacterCard.tsx
+- Card is 200x300px with 2:3 aspect ratio, top 60% for avatar, bottom 40% for name/level+class/income
+- No drag handle icon - full card is clickable via onClick prop
+- Uses placeholder.png avatar, truncated name, compact level+class line, bold income
+- **Learnings for future iterations:**
+  - MuleCharacterCard takes mule and onClick props (no drag handle)
+  - Uses Mantine Card, Text, Badge, Group components
+---
