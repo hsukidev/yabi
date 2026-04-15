@@ -50,3 +50,15 @@
   - MuleCharacterCard takes mule and onClick props (no drag handle)
   - Uses Mantine Card, Text, Badge, Group components
 ---
+
+## [2026-04-14] - US-006
+- Created BossCheckboxList component in src/components/BossCheckboxList.tsx
+- Uses Mantine Checkbox (not Radio) for each difficulty in a family
+- Search filters by family name and boss name
+- Uses selectBoss for auto-replacement when checking a boss in an occupied family
+- Unchecking deselects entirely via filter
+- Labels show boss name and crystal value
+- **Learnings for future iterations:**
+  - BossCheckboxList uses selectBoss from utils, same as the refactored BossChecklist
+  - This is a new component distinct from BossChecklist (which uses Radio buttons)
+---
