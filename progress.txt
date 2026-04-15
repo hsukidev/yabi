@@ -22,3 +22,14 @@
 - **Learnings for future iterations:**
   - calculatePotentialIncome uses getBossById internally, unknown IDs return 0 value
 ---
+
+## [2026-04-14] - US-003
+- Extracted selectBoss pure function from BossChecklist.tsx handleSelect logic
+- Created src/utils/selectBoss.ts with the extracted function
+- Created src/utils/__tests__/selectBoss.test.ts with 5 tests covering all acceptance criteria
+- Updated BossChecklist.tsx to use selectBoss instead of inline logic
+- Changed replacement logic to use map() instead of filter+concat to preserve array order (matching PRD expectation)
+- **Learnings for future iterations:**
+  - selectBoss uses map() for in-family replacement to preserve original array order
+  - BossChecklist.tsx was refactored to use selectBoss - future BossCheckboxList should also use it
+---
