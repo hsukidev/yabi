@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import { darkCharcoalTheme } from '../theme'
 
+function parseHexColor(hex: string): { r: number; g: number; b: number } {
+  const digits = hex.replace('#', '')
+  return {
+    r: parseInt(digits.substring(0, 2), 16),
+    g: parseInt(digits.substring(2, 4), 16),
+    b: parseInt(digits.substring(4, 6), 16),
+  }
+}
+
 describe('darkCharcoalTheme', () => {
   describe('dark color scale', () => {
     it('has exactly 10 shades in colors.dark', () => {
@@ -11,10 +20,7 @@ describe('darkCharcoalTheme', () => {
     it('uses hex values in the #161616–#252525 range', () => {
       const dark = darkCharcoalTheme.colors?.dark ?? []
       for (const shade of dark) {
-        const hex = shade.replace('#', '')
-        const r = parseInt(hex.substring(0, 2), 16)
-        const g = parseInt(hex.substring(2, 4), 16)
-        const b = parseInt(hex.substring(4, 6), 16)
+        const { r, g, b } = parseHexColor(shade)
         expect(r).toBeGreaterThanOrEqual(0x16)
         expect(r).toBeLessThanOrEqual(0x25)
         expect(g).toBeGreaterThanOrEqual(0x16)
@@ -26,9 +32,11 @@ describe('darkCharcoalTheme', () => {
 
     it('starts with lighter shades and ends with darker shades', () => {
       const dark = darkCharcoalTheme.colors?.dark ?? []
-      const first = parseInt(dark.at(0)!.replace('#', ''), 16)
-      const last = parseInt(dark.at(9)!.replace('#', ''), 16)
-      expect(first).toBeGreaterThan(last)
+      const { r: firstR, g: firstG, b: firstB } = parseHexColor(dark.at(0)!)
+      const { r: lastR, g: lastG, b: lastB } = parseHexColor(dark.at(9)!)
+      const firstValue = (firstR << 16) | (firstG << 8) | firstB
+      const lastValue = (lastR << 16) | (lastG << 8) | lastB
+      expect(firstValue).toBeGreaterThan(lastValue)
     })
   })
 
