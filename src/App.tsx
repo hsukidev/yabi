@@ -10,16 +10,17 @@ import {
   Paper,
   Group,
   Text,
+  SimpleGrid,
 } from '@mantine/core';
-import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor } from '@dnd-kit/core';
+import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { IconPlus } from '@tabler/icons-react';
 import { useState, useCallback } from 'react';
 import { useMules } from './hooks/useMules';
 import { calculatePotentialIncome } from './data/bosses';
 import { formatMeso } from './utils/meso';
-import { SortableMuleCard } from './components/SortableMuleCard';
+import { SortableMuleCharacterCard } from './components/SortableMuleCharacterCard';
+import { MuleDetailDrawer } from './components/MuleDetailDrawer';
 import { Header } from './components/Header';
 import { IncomePieChart } from './components/IncomePieChart';
 
@@ -28,18 +29,13 @@ const theme = createTheme({});
 function AppContent() {
   const { mules, addMule, updateMule, deleteMule, reorderMules } = useMules();
   const [abbreviated, setAbbreviated] = useState(true);
-  const [expandedMuleId, setExpandedMuleId] = useState<string | null>(null);
+  const [selectedMuleId, setSelectedMuleId] = useState<string | null>(null);
+  const sensors = [useSensor(PointerSensor, { activationConstraint: { distance: 5 } })];
 
   const totalWeeklyIncome = mules.reduce(
     (sum, m) => sum + calculatePotentialIncome(m.selectedBosses),
     0,
   );
-
-  const sortedMules = [...mules].sort((a, b) => {
-    const aPotentialIncome = calculatePotentialIncome(a.selectedBosses);
-    const bPotentialIncome = calculatePotentialIncome(b.selectedBosses);
-    return bPotentialIncome - aPotentialIncome;
-  });
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -55,16 +51,18 @@ function AppContent() {
 
   function handleAddMule() {
     const id = addMule();
-    setExpandedMuleId(id);
+    setSelectedMuleId(id);
   }
 
   function handleSliceClick(muleId: string) {
-    setExpandedMuleId(muleId === expandedMuleId ? null : muleId);
+    setSelectedMuleId(muleId);
   }
+
+  const selectedMule = mules.find((m) => m.id === selectedMuleId) ?? null;
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--mantine-color-body)' }}>
-      <Header totalWeeklyIncome={totalWeeklyIncome} muleCount={mules.length} />
+      <Header totalWeeklyIncome={totalWeeklyIncome} muleCount={mules.length} abbreviated={abbreviated} />
       <Container size="lg" py="md">
         <Stack gap="md">
           <Paper p="md" radius="md" withBorder>
@@ -82,7 +80,7 @@ function AppContent() {
               </div>
             </Group>
             <IncomePieChart
-              mules={sortedMules}
+              mules={mules}
               abbreviated={abbreviated}
               onSliceClick={handleSliceClick}
             />
@@ -96,31 +94,34 @@ function AppContent() {
 
           <DndContext
             collisionDetection={closestCenter}
-            modifiers={[restrictToVerticalAxis]}
             onDragEnd={handleDragEnd}
+            sensors={sensors}
           >
-            <SortableContext
-              items={sortedMules.map((m) => m.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <Stack gap="sm">
-                {sortedMules.map((mule) => (
-                  <SortableMuleCard
+            <SortableContext items={mules.map((m) => m.id)} strategy={rectSortingStrategy}>
+              <SimpleGrid
+                cols={{ xl: 4, lg: 3, md: 2, sm: 1 }}
+                spacing="sm"
+              >
+                {mules.map((mule) => (
+                  <SortableMuleCharacterCard
                     key={mule.id}
                     mule={mule}
-                    expanded={mule.id === expandedMuleId}
-                    onExpandChange={(expanded) =>
-                      setExpandedMuleId(expanded ? mule.id : null)
-                    }
-                    onUpdate={updateMule}
-                    onDelete={deleteMule}
+                    onClick={() => setSelectedMuleId(mule.id)}
                   />
                 ))}
-              </Stack>
+              </SimpleGrid>
             </SortableContext>
           </DndContext>
         </Stack>
       </Container>
+
+      <MuleDetailDrawer
+        mule={selectedMule}
+        open={selectedMuleId !== null}
+        onClose={() => setSelectedMuleId(null)}
+        onUpdate={updateMule}
+        onDelete={deleteMule}
+      />
     </div>
   );
 }

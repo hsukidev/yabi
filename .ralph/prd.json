@@ -1,0 +1,165 @@
+{
+  "project": "MS Mule Income Tracker",
+  "branchName": "ralph/portrait-card-grid-drawer",
+  "description": "Redesign mule cards as portrait character cards with grid layout and side drawer",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Set up Vitest and add tests for formatMeso",
+      "description": "As a developer, I want Vitest configured and formatMeso tested so that I can safely refactor and build new features with confidence.",
+      "acceptanceCriteria": [
+        "Vitest is installed and npm run test works",
+        "formatMeso(18000000000, true) returns '18B'",
+        "formatMeso(4410000, true) returns '4.41M'",
+        "formatMeso(1000000, true) returns '1M'",
+        "formatMeso(500000, true) returns '500K'",
+        "formatMeso(4840000, true) returns '4.84M' (trailing zero removed)",
+        "formatMeso(18000000000, false) returns '18,000,000,000'",
+        "formatMeso(4840000, false) returns '4,840,000'",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Add tests for calculatePotentialIncome",
+      "description": "As a developer, I want calculatePotentialIncome tested so that the core income calculation is verified before refactoring the UI.",
+      "acceptanceCriteria": [
+        "calculatePotentialIncome([]) returns 0",
+        "calculatePotentialIncome(['hard-lucid']) returns 504000000",
+        "calculatePotentialIncome(['hard-lucid', 'hard-will']) returns sum of both crystal values",
+        "calculatePotentialIncome with unknown boss ID ignores it and sums rest",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Extract selectBoss pure function with tests",
+      "description": "As a developer, I want the one-per-family boss selection logic extracted as a pure testable function so that BossCheckboxList can use it without duplicating logic.",
+      "acceptanceCriteria": [
+        "selectBoss([], 'hard-lucid', 'lucid') returns ['hard-lucid'] (add to empty family)",
+        "selectBoss(['normal-lucid'], 'hard-lucid', 'lucid') returns ['hard-lucid'] (auto-replace in same family)",
+        "selectBoss(['hard-lucid'], 'hard-lucid', 'lucid') returns [] (toggle off / deselect)",
+        "selectBoss(['hard-lucid'], 'hard-will', 'will') returns ['hard-lucid', 'hard-will'] (different family, no conflict)",
+        "selectBoss(['normal-will', 'hard-lucid'], 'hard-will', 'will') returns ['hard-will', 'hard-lucid'] (replace will, keep lucid)",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Add placeholder avatar asset",
+      "description": "As a developer, I want a placeholder PNG in src/assets/ so that portrait cards can render an avatar image immediately.",
+      "acceptanceCriteria": [
+        "placeholder.png exists in src/assets/",
+        "File is a valid PNG image",
+        "Image depicts a generic character silhouette (not blank)",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Build MuleCharacterCard component",
+      "description": "As a player, I want each mule displayed as a portrait card with avatar, name, level, class, and potential income so that I can identify mules at a glance.",
+      "acceptanceCriteria": [
+        "Card renders at ~200x300px with 2:3 aspect ratio",
+        "Top ~60% shows placeholder avatar image",
+        "Below avatar: mule name (truncated if long), compact 'Lv. X | Class' line, bold potential income",
+        "Card has no drag handle icon (full card is the drag surface)",
+        "Card accepts onClick callback prop for opening drawer",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "Depends on US-004 for placeholder asset"
+    },
+    {
+      "id": "US-006",
+      "title": "Build BossCheckboxList component",
+      "description": "As a player, I want a searchable boss checklist with checkboxes that enforce one-per-family so that I can select and deselect bosses easily.",
+      "acceptanceCriteria": [
+        "Renders searchable list of boss families",
+        "Each family shows checkboxes (not radio buttons) for each difficulty",
+        "Search filters by family name and boss name",
+        "Checking a boss in a family with an existing selection auto-replaces it using selectBoss function",
+        "Unchecking a boss deselects it entirely",
+        "Only one boss per family can be checked at a time",
+        "Each checkbox label shows boss name and crystal value",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "Depends on US-003 for selectBoss function"
+    },
+    {
+      "id": "US-007",
+      "title": "Build MuleDetailDrawer component",
+      "description": "As a player, I want a side drawer that opens from the right with dimmed background so that I can edit mule details without disrupting the grid.",
+      "acceptanceCriteria": [
+        "Drawer opens from the right, ~550px wide, with dimmed overlay",
+        "Top of drawer shows character avatar + name + level + class + income header",
+        "Below header: name (TextInput), level (NumberInput), class (TextInput) edit fields",
+        "Below edit form: BossCheckboxList for boss selection",
+        "At bottom: delete button with confirmation step (Alert with Yes/Cancel)",
+        "Drawer accepts mule data and CRUD callbacks (onUpdate, onDelete) as props",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "Depends on US-005 for avatar header, US-006 for BossCheckboxList"
+    },
+    {
+      "id": "US-008",
+      "title": "Replace vertical list with responsive grid layout",
+      "description": "As a player, I want mule cards in a wrapping grid so that multiple cards are visible at once and the layout is responsive.",
+      "acceptanceCriteria": [
+        "App layout uses Mantine SimpleGrid instead of Stack",
+        "Responsive columns: 4 on xl, 3 on lg, 2 on md, 1 on sm",
+        "Remove income-based sort logic (sortedMules) — display mules in stored order",
+        "Remove restrictToVerticalAxis modifier from DndContext",
+        "Use rectSortingStrategy instead of verticalListSortingStrategy",
+        "Use PointerSensor with activationConstraint { distance: 5 } on DndContext",
+        "expandedMuleId state replaced with selectedMuleId (drives drawer open/close)",
+        "Old MuleCard, SortableMuleCard, BossChecklist components removed",
+        "pie chart slice click sets selectedMuleId to open drawer",
+        "MuleCharacterCard instances render in the grid with useSortable",
+        "npm run build passes with no errors",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "This is the integration slice. Depends on US-005, US-006, US-007. Removes old components and wires everything together."
+    },
+    {
+      "id": "US-009",
+      "title": "Fix Header to use formatMeso consistently",
+      "description": "As a player, I want the header income display to use the same formatting as the rest of the app so that the display is consistent.",
+      "acceptanceCriteria": [
+        "Header uses formatMeso utility instead of raw toLocaleString",
+        "Header income display obeys the abbreviated/full toggle state",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": ""
+    }
+  ]
+}

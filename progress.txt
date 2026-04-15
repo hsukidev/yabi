@@ -1,0 +1,104 @@
+## Codebase Patterns
+- Project uses Vitest for testing (configured in vite.config.ts with jsdom environment)
+- Run tests with `npm run test`, typecheck with `npx tsc -b`, build with `npm run build`
+- Test files live in `__tests__` directories next to the source they test
+- Utility functions are in `src/utils/` and `src/data/`
+
+## [2026-04-14] - US-001
+- Set up Vitest with jsdom environment and globals config
+- Added `npm run test` script to package.json
+- Created formatMeso tests covering all acceptance criteria (7 tests, all passing)
+- Files changed: package.json, vite.config.ts, src/utils/__tests__/meso.test.ts
+- **Learnings for future iterations:**
+  - Vitest config goes in vite.config.ts using `/// <reference types="vitest/config" />`
+  - formatMeso takes (value, abbreviated) where abbreviated defaults to true
+  - Build passes but warns about chunk size (>500kb) - can ignore for now
+---
+
+## [2026-04-14] - US-002
+- Added tests for calculatePotentialIncome in src/data/__tests__/bosses.test.ts
+- Tests cover: empty array, single boss, multiple bosses, unknown boss ID
+- All 11 tests passing (7 formatMeso + 4 calculatePotentialIncome)
+- **Learnings for future iterations:**
+  - calculatePotentialIncome uses getBossById internally, unknown IDs return 0 value
+---
+
+## [2026-04-14] - US-003
+- Extracted selectBoss pure function from BossChecklist.tsx handleSelect logic
+- Created src/utils/selectBoss.ts with the extracted function
+- Created src/utils/__tests__/selectBoss.test.ts with 5 tests covering all acceptance criteria
+- Updated BossChecklist.tsx to use selectBoss instead of inline logic
+- Changed replacement logic to use map() instead of filter+concat to preserve array order (matching PRD expectation)
+- **Learnings for future iterations:**
+  - selectBoss uses map() for in-family replacement to preserve original array order
+  - BossChecklist.tsx was refactored to use selectBoss - future BossCheckboxList should also use it
+---
+
+## [2026-04-14] - US-004
+- Created placeholder.png (200x300 PNG with character silhouette) in src/assets/
+- Generated using sharp via SVG-to-PNG conversion
+- **Learnings for future iterations:**
+  - Placeholder image is at src/assets/placeholder.png, 200x300px with dark background and grey silhouette
+---
+
+## [2026-04-14] - US-005
+- Created MuleCharacterCard component in src/components/MuleCharacterCard.tsx
+- Card is 200x300px with 2:3 aspect ratio, top 60% for avatar, bottom 40% for name/level+class/income
+- No drag handle icon - full card is clickable via onClick prop
+- Uses placeholder.png avatar, truncated name, compact level+class line, bold income
+- **Learnings for future iterations:**
+  - MuleCharacterCard takes mule and onClick props (no drag handle)
+  - Uses Mantine Card, Text, Badge, Group components
+---
+
+## [2026-04-14] - US-006
+- Created BossCheckboxList component in src/components/BossCheckboxList.tsx
+- Uses Mantine Checkbox (not Radio) for each difficulty in a family
+- Search filters by family name and boss name
+- Uses selectBoss for auto-replacement when checking a boss in an occupied family
+- Unchecking deselects entirely via filter
+- Labels show boss name and crystal value
+- **Learnings for future iterations:**
+  - BossCheckboxList uses selectBoss from utils, same as the refactored BossChecklist
+  - This is a new component distinct from BossChecklist (which uses Radio buttons)
+---
+
+## [2026-04-14] - US-007
+- Created MuleDetailDrawer component in src/components/MuleDetailDrawer.tsx
+- Drawer opens from right, ~550px wide, with dimmed overlay (blur + opacity)
+- Header shows avatar, name, level, class, and potential income
+- Edit form: TextInput for name, NumberInput for level, TextInput for class
+- BossCheckboxList for boss selection
+- Delete button with confirmation (Alert with Yes/Cancel)
+- Accepts mule, open, onClose, onUpdate, onDelete props
+- **Learnings for future iterations:**
+  - Mantine Drawer component used with position="right" and size={550}
+  - MuleDetailDrawer takes Mule | null and open boolean to control visibility
+  - When deleting, the drawer closes after onDelete is called
+---
+
+## [2026-04-14] - US-008
+- Replaced App.tsx vertical list layout with SimpleGrid responsive grid
+- Grid cols: 4 on xl, 3 on lg, 2 on md, 1 on sm
+- Removed sortedMules (income sort) — mules displayed in stored order
+- Removed restrictToVerticalAxis modifier; using rectSortingStrategy
+- Using PointerSensor with activationConstraint { distance: 5 }
+- Replaced expandedMuleId with selectedMuleId (drives drawer)
+- Removed old MuleCard, SortableMuleCard, BossChecklist components
+- Created SortableMuleCharacterCard wrapping MuleCharacterCard with useSortable
+- Pie chart slice click sets selectedMuleId to open drawer
+- Added MuleDetailDrawer to App rendering
+- **Learnings for future iterations:**
+  - dnd-kit sensors use useSensor hook, not inline objects
+  - SimpleGrid from Mantine handles responsive columns via cols prop object: { xl: 4, lg: 3, md: 2, sm: 1 }
+  - When removing old components, verify no remaining imports reference them
+---
+
+## [2026-04-14] - US-009
+- Updated Header component to use formatMeso instead of raw toLocaleString
+- Added `abbreviated` prop to Header so it obeys the toggle state
+- Updated App.tsx to pass `abbreviated` to Header
+- **Learnings for future iterations:**
+  - Header now consistently uses formatMeso(weeklyIncome, abbreviated) 
+  - The abbreviated toggle in the paper section also applies to the header now
+---
