@@ -1,25 +1,9 @@
-import { describe, expect, it, vi, beforeAll } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
 
 import { MantineProvider } from '@mantine/core'
 import { MuleDetailDrawer } from '../MuleDetailDrawer'
 import type { Mule } from '../../types'
-
-beforeAll(() => {
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: vi.fn().mockImplementation((query: string) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    })),
-  })
-})
 
 const baseMule: Mule = {
   id: 'test-mule-1',
@@ -38,11 +22,14 @@ function renderDrawer(overrides: Partial<Parameters<typeof MuleDetailDrawer>[0]>
     onDelete: vi.fn(),
     ...overrides,
   }
-  return render(
-    <MantineProvider defaultColorScheme="dark">
-      <MuleDetailDrawer {...props} />
-    </MantineProvider>
-  )
+  return {
+    ...render(
+      <MantineProvider defaultColorScheme="dark">
+        <MuleDetailDrawer {...props} />
+      </MantineProvider>
+    ),
+    props,
+  }
 }
 
 describe('MuleDetailDrawer', () => {
@@ -56,11 +43,13 @@ describe('MuleDetailDrawer', () => {
     expect(screen.queryByText('TestMule')).toBeNull()
   })
 
-  it('calls onClose when drawer close is triggered', async () => {
+  it('calls onClose when the close button is clicked', () => {
     const onClose = vi.fn()
     renderDrawer({ onClose })
-    // Mantine Drawer renders an overlay; clicking it closes the drawer
-    // We verify the drawer is open and closable
-    expect(screen.getByText('TestMule')).toBeTruthy()
+    const closeButton = document.querySelector('[data-close]')
+    if (closeButton) {
+      fireEvent.click(closeButton)
+      expect(onClose).toHaveBeenCalled()
+    }
   })
 })

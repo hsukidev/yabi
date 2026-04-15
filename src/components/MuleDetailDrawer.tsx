@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import {
-  Drawer,
-  TextInput,
-  NumberInput,
-  Button,
   Alert,
+  Button,
+  Drawer,
   Group,
+  NumberInput,
   Stack,
   Text,
-  Group as GroupMantine,
+  TextInput,
 } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
 import type { Mule } from '../types';
@@ -52,7 +51,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
       title={null}
     >
       <Stack gap="md">
-        <GroupMantine align="flex-start" gap="sm">
+        <Group align="flex-start" gap="sm">
           <img
             src={placeholderPng}
             alt={mule.name || 'Mule avatar'}
@@ -68,7 +67,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
               {formatMeso(potentialIncome)}/week
             </Text>
           </div>
-        </GroupMantine>
+        </Group>
 
         <Stack gap="sm">
           <TextInput
