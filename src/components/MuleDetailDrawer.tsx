@@ -48,6 +48,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
       position="right"
       size={550}
       overlayProps={{ backgroundOpacity: 0.5, blur: 2 }}
+      transitionProps={{ duration: 350, timingFunction: 'ease-out' }}
       title={null}
     >
       <Stack gap="md">

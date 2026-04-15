@@ -14,8 +14,9 @@ import {
 } from '@mantine/core';
 import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
+import { restrictToParentElement } from '@dnd-kit/modifiers';
 import { IconPlus } from '@tabler/icons-react';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useMules } from './hooks/useMules';
 import { calculatePotentialIncome } from './data/bosses';
 import { formatMeso } from './utils/meso';
@@ -24,12 +25,29 @@ import { MuleDetailDrawer } from './components/MuleDetailDrawer';
 import { Header } from './components/Header';
 import { IncomePieChart } from './components/IncomePieChart';
 
-const theme = createTheme({});
+const theme = createTheme({
+  colors: {
+    dark: [
+      '#C1C1C1',
+      '#A6A6A6',
+      '#8B8B8B',
+      '#777777',
+      '#5C5C5C',
+      '#404040',
+      '#303030',
+      '#252525',
+      '#1D1D1D',
+      '#161616',
+    ],
+  },
+});
 
 function AppContent() {
   const { mules, addMule, updateMule, deleteMule, reorderMules } = useMules();
   const [abbreviated, setAbbreviated] = useState(true);
   const [selectedMuleId, setSelectedMuleId] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
   const sensors = [useSensor(PointerSensor, { activationConstraint: { distance: 5 } })];
 
   const totalWeeklyIncome = mules.reduce(
@@ -37,9 +55,14 @@ function AppContent() {
     0,
   );
 
+  const handleDragStart = useCallback(() => {
+    setIsDragging(true);
+  }, []);
+
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event;
+      setIsDragging(false);
       if (over && active.id !== over.id) {
         const oldIndex = mules.findIndex((m) => m.id === active.id);
         const newIndex = mules.findIndex((m) => m.id === over.id);
@@ -92,26 +115,38 @@ function AppContent() {
             </Button>
           </Group>
 
-          <DndContext
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-            sensors={sensors}
+          <div
+            ref={gridRef}
+            style={{
+              border: isDragging ? '1px dotted var(--mantine-color-dimmed)' : '1px dotted transparent',
+              borderRadius: 'var(--mantine-radius-sm)',
+              padding: isDragging ? 'var(--mantine-spacing-xs)' : undefined,
+              transition: 'border-color 200ms ease',
+            }}
           >
-            <SortableContext items={mules.map((m) => m.id)} strategy={rectSortingStrategy}>
-              <SimpleGrid
-                cols={{ xl: 4, lg: 3, md: 2, sm: 1 }}
-                spacing="sm"
-              >
-                {mules.map((mule) => (
-                  <SortableMuleCharacterCard
-                    key={mule.id}
-                    mule={mule}
-                    onClick={() => setSelectedMuleId(mule.id)}
-                  />
-                ))}
-              </SimpleGrid>
-            </SortableContext>
-          </DndContext>
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              sensors={sensors}
+              modifiers={[restrictToParentElement]}
+            >
+              <SortableContext items={mules.map((m) => m.id)} strategy={rectSortingStrategy}>
+                <SimpleGrid
+                  cols={{ xl: 4, lg: 3, md: 2, sm: 1 }}
+                  spacing="sm"
+                >
+                  {mules.map((mule) => (
+                    <SortableMuleCharacterCard
+                      key={mule.id}
+                      mule={mule}
+                      onClick={() => setSelectedMuleId(mule.id)}
+                    />
+                  ))}
+                </SimpleGrid>
+              </SortableContext>
+            </DndContext>
+          </div>
         </Stack>
       </Container>
 
