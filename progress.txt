@@ -76,3 +76,20 @@
   - MuleDetailDrawer takes Mule | null and open boolean to control visibility
   - When deleting, the drawer closes after onDelete is called
 ---
+
+## [2026-04-14] - US-008
+- Replaced App.tsx vertical list layout with SimpleGrid responsive grid
+- Grid cols: 4 on xl, 3 on lg, 2 on md, 1 on sm
+- Removed sortedMules (income sort) — mules displayed in stored order
+- Removed restrictToVerticalAxis modifier; using rectSortingStrategy
+- Using PointerSensor with activationConstraint { distance: 5 }
+- Replaced expandedMuleId with selectedMuleId (drives drawer)
+- Removed old MuleCard, SortableMuleCard, BossChecklist components
+- Created SortableMuleCharacterCard wrapping MuleCharacterCard with useSortable
+- Pie chart slice click sets selectedMuleId to open drawer
+- Added MuleDetailDrawer to App rendering
+- **Learnings for future iterations:**
+  - dnd-kit sensors use useSensor hook, not inline objects
+  - SimpleGrid from Mantine handles responsive columns via cols prop object: { xl: 4, lg: 3, md: 2, sm: 1 }
+  - When removing old components, verify no remaining imports reference them
+---
