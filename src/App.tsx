@@ -1,16 +1,3 @@
-import '@mantine/core/styles.css';
-
-import {
-  MantineProvider,
-  createTheme,
-  Container,
-  Stack,
-  Button,
-  Paper,
-  Group,
-  Text,
-  SimpleGrid,
-} from '@mantine/core';
 import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
@@ -24,29 +11,13 @@ import { SortableMuleCharacterCard } from './components/SortableMuleCharacterCar
 import { MuleDetailDrawer } from './components/MuleDetailDrawer';
 import { Header } from './components/Header';
 import { IncomePieChart } from './components/IncomePieChart';
+import { Button } from './components/ui/button';
 
 const dragBoundaryStyle: React.CSSProperties = {
   borderStyle: 'dotted',
   borderWidth: '2px',
-  borderColor: 'var(--mantine-color-dimmed)',
+  borderColor: 'hsl(var(--border))',
 };
-
-const darkCharcoalTheme = createTheme({
-  colors: {
-    dark: [
-      '#252525',
-      '#232323',
-      '#212121',
-      '#1f1f1f',
-      '#1d1d1d',
-      '#1b1b1b',
-      '#1a1a1a',
-      '#191919',
-      '#181818',
-      '#161616',
-    ],
-  },
-});
 
 function AppContent() {
   const { mules, addMule, updateMule, deleteMule, reorderMules } = useMules();
@@ -86,36 +57,35 @@ function AppContent() {
   const selectedMule = mules.find((m) => m.id === selectedMuleId) ?? null;
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--mantine-color-body)' }}>
+    <div className="min-h-screen bg-background">
       <Header totalWeeklyIncome={totalWeeklyIncome} muleCount={mules.length} />
-      <Container size="lg" py="md">
-        <Stack gap="md">
-          <Paper p="md" radius="md" withBorder>
-            <Group justify="space-between" align="center">
+      <div className="container mx-auto max-w-5xl py-4 px-4">
+        <div className="flex flex-col gap-4">
+          <div className="rounded-lg border bg-card p-4">
+            <div className="flex items-center justify-between">
               <div>
-                <Text size="sm" c="dimmed">Total Weekly Income</Text>
-                <Text
-                  size="xl"
-                  fw={700}
-                  style={{ cursor: 'pointer' }}
+                <p className="text-sm text-muted-foreground">Total Weekly Income</p>
+                <p
+                  className="text-xl font-bold cursor-pointer"
                   onClick={() => setAbbreviated(!abbreviated)}
                 >
                   {totalWeeklyIncome} mesos
-                </Text>
+                </p>
               </div>
-            </Group>
+            </div>
             <IncomePieChart
               mules={mules}
               abbreviated={abbreviated}
               onSliceClick={handleSliceClick}
             />
-          </Paper>
+          </div>
 
-          <Group justify="flex-end">
-            <Button leftSection={<IconPlus size={16} />} onClick={handleAddMule}>
+          <div className="flex justify-end">
+            <Button onClick={handleAddMule}>
+              <IconPlus className="mr-1" size={16} />
               Add Mule
             </Button>
-          </Group>
+          </div>
 
           <DndContext
             collisionDetection={closestCenter}
@@ -126,10 +96,7 @@ function AppContent() {
           >
             <SortableContext items={mules.map((m) => m.id)} strategy={rectSortingStrategy}>
               <div style={isDragging ? dragBoundaryStyle : {}}>
-                <SimpleGrid
-                  cols={{ xl: 4, lg: 3, md: 2, sm: 1 }}
-                  spacing="sm"
-                >
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                   {mules.map((mule) => (
                     <SortableMuleCharacterCard
                       key={mule.id}
@@ -137,12 +104,12 @@ function AppContent() {
                       onClick={() => setSelectedMuleId(mule.id)}
                     />
                   ))}
-                </SimpleGrid>
+                </div>
               </div>
             </SortableContext>
           </DndContext>
-        </Stack>
-      </Container>
+        </div>
+      </div>
 
       <MuleDetailDrawer
         mule={selectedMule}
@@ -158,9 +125,7 @@ function AppContent() {
 function App() {
   return (
     <ThemeProvider defaultTheme="dark">
-      <MantineProvider theme={darkCharcoalTheme} defaultColorScheme="dark">
-        <AppContent />
-      </MantineProvider>
+      <AppContent />
     </ThemeProvider>
   );
 }
