@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import type { Mule } from '../types';
-import { ALL_BOSS_IDS } from '../data/bosses';
+import { validateBossSelection } from '../data/bossSelection';
 
 const STORAGE_KEY = 'maplestory-mule-tracker';
 const FALLBACK_KEY = 'maplestory-mule-tracker-fallback';
@@ -27,12 +27,8 @@ export function validateMule(raw: unknown): Mule | null {
     name: obj.name,
     level: obj.level,
     muleClass: obj.muleClass,
-    selectedBosses: cleanSelectedBosses(obj.selectedBosses as string[]),
+    selectedBosses: validateBossSelection(obj.selectedBosses as string[]),
   };
-}
-
-export function cleanSelectedBosses(ids: string[]): string[] {
-  return ids.filter((id) => ALL_BOSS_IDS.has(id));
 }
 
 function loadMules(): Mule[] {
@@ -110,7 +106,7 @@ export function useMules() {
           if (m.id !== id) return m;
           const merged = { ...m, ...updates };
           if (updates.selectedBosses) {
-            merged.selectedBosses = cleanSelectedBosses(
+            merged.selectedBosses = validateBossSelection(
               updates.selectedBosses,
             );
           }

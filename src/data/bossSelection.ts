@@ -1,4 +1,4 @@
-import { bossFamilies, getBossById } from './bosses';
+import { bossFamilies, ALL_BOSS_IDS, getBossById } from './bosses';
 import { formatMeso } from '../utils/meso';
 
 export interface FamilyView {
@@ -11,6 +11,26 @@ export interface FamilyView {
     formattedValue: string;
     selected: boolean;
   }[];
+}
+
+export function validateBossSelection(ids: string[]): string[] {
+  const valid = ids.filter((id) => ALL_BOSS_IDS.has(id));
+  const seenFamilies = new Map<string, string>();
+  for (const id of valid) {
+    const boss = getBossById(id);
+    if (!boss) continue;
+    const existing = seenFamilies.get(boss.family);
+    if (!existing) {
+      seenFamilies.set(boss.family, id);
+    } else {
+      const existingBoss = getBossById(existing)!;
+      if (boss.crystalValue > existingBoss.crystalValue) {
+        seenFamilies.set(boss.family, id);
+      }
+    }
+  }
+  const familySet = new Set(seenFamilies.values());
+  return valid.filter((id) => familySet.has(id));
 }
 
 export function toggleBoss(selectedIds: string[], bossId: string): string[] {

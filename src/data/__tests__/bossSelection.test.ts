@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { toggleBoss, getFamilies } from '../bossSelection'
+import { toggleBoss, getFamilies, validateBossSelection } from '../bossSelection'
 
 describe('toggleBoss', () => {
   it('selects a boss in an empty family', () => {
@@ -119,5 +119,78 @@ describe('getFamilies', () => {
         lucidFamily.bosses[i].crystalValue,
       )
     }
+  })
+})
+
+describe('validateBossSelection', () => {
+  it('removes IDs not in ALL_BOSS_IDS', () => {
+    expect(
+      validateBossSelection(['hard-lucid', 'stale-id', 'another-stale']),
+    ).toEqual(['hard-lucid'])
+  })
+
+  it('returns empty array when all IDs are invalid', () => {
+    expect(validateBossSelection(['stale1', 'stale2'])).toEqual([])
+  })
+
+  it('returns same array when all IDs are valid and no family conflicts', () => {
+    const result = validateBossSelection(['hard-lucid', 'hard-will'])
+    expect(result).toEqual(['hard-lucid', 'hard-will'])
+  })
+
+  it('returns empty array for empty input', () => {
+    expect(validateBossSelection([])).toEqual([])
+  })
+
+  it('keeps highest-value boss per family when duplicates exist', () => {
+    const result = validateBossSelection(['normal-lucid', 'hard-lucid'])
+    expect(result).toEqual(['hard-lucid'])
+  })
+
+  it('keeps highest-value boss and preserves order for other families', () => {
+    const result = validateBossSelection([
+      'normal-lucid',
+      'hard-will',
+      'hard-lucid',
+      'normal-will',
+    ])
+    expect(result).toEqual(['hard-will', 'hard-lucid'])
+  })
+
+  it('preserves original order among kept entries', () => {
+    const result = validateBossSelection([
+      'hard-will',
+      'normal-lucid',
+      'hard-lucid',
+    ])
+    expect(result).toEqual(['hard-will', 'hard-lucid'])
+  })
+
+  it('removes both invalid and duplicate-family entries', () => {
+    const result = validateBossSelection([
+      'fake-boss',
+      'easy-lucid',
+      'hard-lucid',
+      'hard-will',
+    ])
+    expect(result).toEqual(['hard-lucid', 'hard-will'])
+  })
+
+  it('handles three bosses from same family keeping highest', () => {
+    const result = validateBossSelection([
+      'easy-lucid',
+      'normal-lucid',
+      'hard-lucid',
+    ])
+    expect(result).toEqual(['hard-lucid'])
+  })
+
+  it('does not remove a boss when it is the only one in its family', () => {
+    const result = validateBossSelection([
+      'hard-lucid',
+      'hard-will',
+      'hard-damien',
+    ])
+    expect(result).toEqual(['hard-lucid', 'hard-will', 'hard-damien'])
   })
 })
