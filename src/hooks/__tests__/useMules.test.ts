@@ -398,6 +398,12 @@ describe('useMules', () => {
         ['addMule', 'deleteMule', 'mules', 'reorderMules', 'updateMule'],
       )
     })
+
+    it('does not export validateMule or cleanSelectedBosses', () => {
+      const { result } = renderHook(() => useMules())
+      expect('validateMule' in result.current).toBe(false)
+      expect('cleanSelectedBosses' in result.current).toBe(false)
+    })
   })
 })
 
