@@ -1,7 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useMules } from '../useMules'
-import { ALL_BOSS_IDS } from '../../data/bosses'
 
 let localStorageStore: Record<string, string> = {}
 let sessionStorageStore: Record<string, string> = {}
@@ -116,6 +115,21 @@ describe('useMules', () => {
       expect(result.current.mules[0].selectedBosses).toEqual(['hard-lucid'])
     })
 
+    it('enforces one-per-family on load', () => {
+      const mules = [
+        {
+          id: 'a',
+          name: 'Test',
+          level: 200,
+          muleClass: 'Hero',
+          selectedBosses: ['normal-lucid', 'hard-lucid'],
+        },
+      ]
+      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(mules)
+      const { result } = renderHook(() => useMules())
+      expect(result.current.mules[0].selectedBosses).toEqual(['hard-lucid'])
+    })
+
     it('self-heals by saving cleaned data back to localStorage on load', () => {
       const mules = [
         {
@@ -214,6 +228,26 @@ describe('useMules', () => {
       act(() => {
         result.current.updateMule('a', {
           selectedBosses: ['hard-lucid', 'stale-boss-id'],
+        })
+      })
+      expect(result.current.mules[0].selectedBosses).toEqual(['hard-lucid'])
+    })
+
+    it('enforces one-per-family on update', () => {
+      const mules = [
+        {
+          id: 'a',
+          name: 'Test',
+          level: 200,
+          muleClass: 'Hero',
+          selectedBosses: ['hard-lucid'],
+        },
+      ]
+      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(mules)
+      const { result } = renderHook(() => useMules())
+      act(() => {
+        result.current.updateMule('a', {
+          selectedBosses: ['normal-lucid', 'hard-lucid'],
         })
       })
       expect(result.current.mules[0].selectedBosses).toEqual(['hard-lucid'])
@@ -348,29 +382,18 @@ describe('validateMule', () => {
     const mule = { id: 'a', name: '', level: 0, muleClass: '', selectedBosses: [] }
     expect(validateMule(mule)).toEqual(mule)
   })
-})
 
-describe('cleanSelectedBosses', () => {
-  it('removes IDs not in ALL_BOSS_IDS', async () => {
-    const { cleanSelectedBosses } = await import('../useMules')
-    expect(
-      cleanSelectedBosses(['hard-lucid', 'stale-id', 'another-stale']),
-    ).toEqual(['hard-lucid'])
-  })
-
-  it('returns empty array when all IDs are stale', async () => {
-    const { cleanSelectedBosses } = await import('../useMules')
-    expect(cleanSelectedBosses(['stale1', 'stale2'])).toEqual([])
-  })
-
-  it('returns same array when all IDs are valid', async () => {
-    const { cleanSelectedBosses } = await import('../useMules')
-    const allValidBossIds = Array.from(ALL_BOSS_IDS).slice(0, 3)
-    expect(cleanSelectedBosses(allValidBossIds)).toEqual(allValidBossIds)
-  })
-
-  it('returns empty array for empty input', async () => {
-    const { cleanSelectedBosses } = await import('../useMules')
-    expect(cleanSelectedBosses([])).toEqual([])
+  it('enforces one-per-family when validating persisted data', async () => {
+    const { validateMule } = await import('../useMules')
+    const raw = {
+      id: 'a',
+      name: 'Test',
+      level: 200,
+      muleClass: 'Hero',
+      selectedBosses: ['normal-lucid', 'hard-lucid'],
+    }
+    const result = validateMule(raw)
+    expect(result).not.toBeNull()
+    expect(result!.selectedBosses).toEqual(['hard-lucid'])
   })
 })
