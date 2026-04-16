@@ -32,14 +32,14 @@ describe('Header (shadcn/ThemeProvider)', () => {
 
   it('shows sun icon in dark mode and moon icon in light mode', () => {
     const { unmount } = render(<Header totalWeeklyIncome="0" muleCount={0} />, { defaultTheme: 'dark' })
-    expect(screen.getByLabelText('Toggle color scheme').querySelector('svg')).toBeTruthy()
+    expect(screen.getByLabelText('Sun')).toBeTruthy()
 
     unmount()
     localStorage.clear()
     document.documentElement.classList.remove('dark')
 
     render(<Header totalWeeklyIncome="0" muleCount={0} />, { defaultTheme: 'light' })
-    expect(screen.getByLabelText('Toggle color scheme').querySelector('svg')).toBeTruthy()
+    expect(screen.getByLabelText('Moon')).toBeTruthy()
   })
 
   it('toggles theme on button click', () => {

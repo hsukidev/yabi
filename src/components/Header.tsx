@@ -7,15 +7,20 @@ interface HeaderProps {
   muleCount: number
 }
 
+function pluralize(count: number, singular: string, plural: string): string {
+  return count === 1 ? singular : plural
+}
+
 export function Header({ totalWeeklyIncome, muleCount }: HeaderProps) {
   const { theme, toggleTheme } = useTheme()
+  const isDark = theme === 'dark'
 
   return (
     <div className="flex items-center justify-between py-3 px-6">
       <div>
         <h1 className="text-xl font-bold">Mule Crystal Tracker</h1>
         <p className="text-sm text-muted-foreground">
-          {muleCount} mule{muleCount !== 1 ? 's' : ''}
+          {muleCount} {pluralize(muleCount, 'mule', 'mules')}
         </p>
       </div>
       <div className="flex items-center gap-2">
@@ -28,7 +33,7 @@ export function Header({ totalWeeklyIncome, muleCount }: HeaderProps) {
           onClick={toggleTheme}
           aria-label="Toggle color scheme"
         >
-          {theme === 'dark' ? <IconSun size={18} /> : <IconMoon size={18} />}
+          {isDark ? <IconSun size={18} aria-label="Sun" /> : <IconMoon size={18} aria-label="Moon" />}
         </Button>
       </div>
     </div>
