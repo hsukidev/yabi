@@ -95,6 +95,8 @@ export const bossFamilies: BossFamily[] = (() => {
     .sort((a, b) => b.bosses[0].crystalValue - a.bosses[0].crystalValue);
 })();
 
+export const ALL_BOSS_IDS: Set<string> = new Set(bosses.map((b) => b.id));
+
 const bossMap = new Map<string, Boss>(bosses.map((b) => [b.id, b]));
 
 export function getBossById(id: string): Boss | undefined {
