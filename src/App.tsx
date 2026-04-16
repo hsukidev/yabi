@@ -1,7 +1,7 @@
 import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
-import { IconPlus } from '@tabler/icons-react';
+import { Plus } from 'lucide-react';
 import { useState, useCallback } from 'react';
 
 import { ThemeProvider } from './context/ThemeProvider';
@@ -78,7 +78,7 @@ function AppContent() {
 
           <div className="flex justify-end">
             <Button onClick={handleAddMule}>
-              <IconPlus className="mr-1" size={16} />
+              <Plus className="mr-1" size={16} />
               Add Mule
             </Button>
           </div>

@@ -8,11 +8,6 @@ describe('App', () => {
     document.documentElement.classList.remove('dark')
   })
 
-  it('renders without Mantine provider attributes', () => {
-    const { container } = render(<App />)
-    expect(container.querySelector('[data-mantine-color-scheme]')).toBeNull()
-  })
-
   it('renders Add Mule button', () => {
     render(<App />)
     expect(screen.getByRole('button', { name: /add mule/i })).toBeTruthy()

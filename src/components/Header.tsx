@@ -1,4 +1,4 @@
-import { IconSun, IconMoon } from '@tabler/icons-react'
+import { Sun, Moon } from 'lucide-react'
 import { useTheme } from '@/context/ThemeProvider'
 import { Button } from '@/components/ui/button'
 
@@ -33,7 +33,7 @@ export function Header({ totalWeeklyIncome, muleCount }: HeaderProps) {
           onClick={toggleTheme}
           aria-label="Toggle color scheme"
         >
-          {isDark ? <IconSun size={18} aria-label="Sun" /> : <IconMoon size={18} aria-label="Moon" />}
+          {isDark ? <Sun size={18} aria-label="Sun" /> : <Moon size={18} aria-label="Moon" />}
         </Button>
       </div>
     </div>
