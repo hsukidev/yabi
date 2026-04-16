@@ -1,14 +1,14 @@
 import { useState } from 'react';
+import { Alert } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
-  Alert,
-  Button,
-  Drawer,
-  Group,
-  NumberInput,
-  Stack,
-  Text,
-  TextInput,
-} from '@mantine/core';
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet';
 import { IconTrash } from '@tabler/icons-react';
 import type { Mule } from '../types';
 import { getMuleIncome } from '../modules/income';
@@ -26,6 +26,11 @@ interface MuleDetailDrawerProps {
 export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: MuleDetailDrawerProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  function handleClose() {
+    setConfirmDelete(false);
+    onClose();
+  }
+
   function handleDelete(id: string) {
     onDelete(id);
     setConfirmDelete(false);
@@ -37,92 +42,96 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
   const { formatted: potentialIncome } = getMuleIncome(mule.selectedBosses, true);
 
   return (
-    <Drawer
-      opened={open}
-      onClose={() => {
-        setConfirmDelete(false);
-        onClose();
-      }}
-      position="right"
-      size={550}
-      overlayProps={{ backgroundOpacity: 0.5, blur: 2 }}
-      transitionProps={{ duration: 350, timingFunction: 'ease-out' }}
-      title={null}
-    >
-      <Stack gap="md">
-        <Group align="flex-start" gap="sm">
-          <img
-            src={placeholderPng}
-            alt={mule.name || 'Mule avatar'}
-            style={{ width: 80, height: 120, objectFit: 'cover', borderRadius: 'var(--mantine-radius-sm)' }}
-          />
-          <div style={{ minWidth: 0 }}>
-            <Text fw={700} size="lg" truncate>
-              {mule.name || 'Unnamed Mule'}
-            </Text>
-            {mule.level > 0 && <Text size="sm">Lv. {mule.level}</Text>}
-            {mule.muleClass && <Text size="sm">{mule.muleClass}</Text>}
-            <Text size="sm" fw={700} c="yellow">
-              {potentialIncome}/week
-            </Text>
+    <Sheet open={open} onOpenChange={(isOpen) => { if (!isOpen) handleClose() }}>
+      <SheetContent side="right" className="w-[550px] sm:max-w-[550px] overflow-y-auto p-6">
+        <SheetTitle className="sr-only">Mule Details</SheetTitle>
+        <SheetDescription className="sr-only">Edit mule details and boss selection</SheetDescription>
+
+        <div className="flex flex-col gap-4">
+          <div className="flex items-start gap-2">
+            <img
+              src={placeholderPng}
+              alt={mule.name || 'Mule avatar'}
+              className="w-20 h-[120px] object-cover rounded"
+            />
+            <div className="min-w-0">
+              <h2 className="text-lg font-bold truncate">
+                {mule.name || 'Unnamed Mule'}
+              </h2>
+              {mule.level > 0 && <p className="text-sm">Lv. {mule.level}</p>}
+              {mule.muleClass && <p className="text-sm">{mule.muleClass}</p>}
+              <p className="text-sm font-bold text-yellow-500">
+                {potentialIncome}/week
+              </p>
+            </div>
           </div>
-        </Group>
 
-        <Stack gap="sm">
-          <TextInput
-            label="Character Name"
-            placeholder="Enter name"
-            value={mule.name}
-            onChange={(e) => onUpdate(mule.id, { name: e.currentTarget.value })}
-          />
-          <NumberInput
-            label="Level"
-            placeholder="Level"
-            value={mule.level || undefined}
-            onChange={(val) => onUpdate(mule.id, { level: typeof val === 'number' ? val : 0 })}
-            min={0}
-          />
-          <TextInput
-            label="Class"
-            placeholder="Enter class"
-            value={mule.muleClass}
-            onChange={(e) => onUpdate(mule.id, { muleClass: e.currentTarget.value })}
-          />
-        </Stack>
+          <div className="flex flex-col gap-2">
+            <div className="space-y-1">
+              <Label htmlFor="mule-name">Character Name</Label>
+              <Input
+                id="mule-name"
+                placeholder="Enter name"
+                value={mule.name}
+                onChange={(e) => onUpdate(mule.id, { name: e.currentTarget.value })}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="mule-level">Level</Label>
+              <Input
+                id="mule-level"
+                type="number"
+                placeholder="Level"
+                min={0}
+                value={mule.level || ''}
+                onChange={(e) => onUpdate(mule.id, { level: Number(e.currentTarget.value) || 0 })}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="mule-class">Class</Label>
+              <Input
+                id="mule-class"
+                placeholder="Enter class"
+                value={mule.muleClass}
+                onChange={(e) => onUpdate(mule.id, { muleClass: e.currentTarget.value })}
+              />
+            </div>
+          </div>
 
-        <BossCheckboxList
-          selectedBosses={mule.selectedBosses}
-          onChange={(selectedBosses) => onUpdate(mule.id, { selectedBosses })}
-        />
+          <BossCheckboxList
+            selectedBosses={mule.selectedBosses}
+            onChange={(selectedBosses) => onUpdate(mule.id, { selectedBosses })}
+          />
 
-        {confirmDelete ? (
-          <Alert color="red">
-            <Group justify="space-between">
-              <Text size="sm">Delete this mule?</Text>
-              <Group gap="xs">
-                <Button size="xs" color="red" onClick={() => handleDelete(mule.id)}>
-                  Yes
-                </Button>
-                <Button size="xs" variant="outline" onClick={() => setConfirmDelete(false)}>
-                  Cancel
-                </Button>
-              </Group>
-            </Group>
-          </Alert>
-        ) : (
-          <Group justify="flex-end">
-            <Button
-              size="xs"
-              color="red"
-              variant="subtle"
-              leftSection={<IconTrash size={14} />}
-              onClick={() => setConfirmDelete(true)}
-            >
-              Delete
-            </Button>
-          </Group>
-        )}
-      </Stack>
-    </Drawer>
+          {confirmDelete ? (
+            <Alert variant="destructive">
+              <div className="flex items-center justify-between">
+                <p className="text-sm">Delete this mule?</p>
+                <div className="flex gap-1">
+                  <Button size="sm" variant="destructive" onClick={() => handleDelete(mule.id)}>
+                    Yes
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setConfirmDelete(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </Alert>
+          ) : (
+            <div className="flex justify-end">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-red-500 hover:text-red-600"
+                onClick={() => setConfirmDelete(true)}
+              >
+                <IconTrash className="mr-1 h-3.5 w-3.5" />
+                Delete
+              </Button>
+            </div>
+          )}
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
