@@ -125,6 +125,77 @@ describe('App', () => {
     expect(clickable).toBeTruthy()
     fireEvent.click(clickable!)
   })
+
+  describe('selectedMuleId self-healing', () => {
+    it('clears selectedMuleId when the selected mule is deleted', async () => {
+      const mules = [
+        {
+          id: 'mule-a',
+          name: 'DeleteMe',
+          level: 200,
+          muleClass: 'Hero',
+          selectedBosses: [],
+        },
+      ]
+      localStorage.setItem('maplestory-mule-tracker', JSON.stringify(mules))
+      render(<App />)
+
+      fireEvent.click(screen.getByText('DeleteMe'))
+      expect(screen.getByRole('heading', { name: 'DeleteMe' })).toBeTruthy()
+
+      fireEvent.click(screen.getByRole('button', { name: /delete/i }))
+      fireEvent.click(screen.getByRole('button', { name: /yes/i }))
+
+      await waitFor(() => {
+        expect(screen.queryByRole('heading', { name: 'DeleteMe' })).toBeNull()
+      })
+    })
+
+    it('keeps selectedMuleId when a different mule is deleted', async () => {
+      const mules = [
+        {
+          id: 'mule-a',
+          name: 'KeepMe',
+          level: 200,
+          muleClass: 'Hero',
+          selectedBosses: [],
+        },
+        {
+          id: 'mule-b',
+          name: 'DeleteMe',
+          level: 150,
+          muleClass: 'Paladin',
+          selectedBosses: [],
+        },
+      ]
+      localStorage.setItem('maplestory-mule-tracker', JSON.stringify(mules))
+      render(<App />)
+
+      fireEvent.click(screen.getByText('KeepMe'))
+      expect(screen.getByRole('heading', { name: 'KeepMe' })).toBeTruthy()
+
+      const closeButton = screen.getByRole('button', { name: /close/i })
+      fireEvent.click(closeButton)
+      await waitFor(() => {
+        expect(screen.queryByRole('heading', { name: 'KeepMe' })).toBeNull()
+      })
+
+      fireEvent.click(screen.getByText('DeleteMe'))
+      expect(screen.getByRole('heading', { name: 'DeleteMe' })).toBeTruthy()
+
+      fireEvent.click(screen.getByRole('button', { name: /delete/i }))
+      fireEvent.click(screen.getByRole('button', { name: /yes/i }))
+
+      await waitFor(() => {
+        expect(screen.queryByRole('heading', { name: 'DeleteMe' })).toBeNull()
+      })
+
+      fireEvent.click(screen.getByText('KeepMe'))
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'KeepMe' })).toBeTruthy()
+      })
+    })
+  })
 })
 
 describe('App DnD interactions', () => {

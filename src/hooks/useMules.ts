@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import type { Mule } from '../types';
 import { validateBossSelection } from '../data/bossSelection';
@@ -24,8 +24,6 @@ function validateMule(raw: unknown): Mule | null {
 }
 
 export function useMules() {
-  const lastKnownGood = useRef<Mule[] | null>(null);
-
   const saveMules = useCallback((mules: Mule[]): void => {
     const serialized = JSON.stringify(mules);
     try {
@@ -48,17 +46,13 @@ export function useMules() {
       if (data) {
         const parsed: unknown = JSON.parse(data);
         if (!Array.isArray(parsed)) {
-          return lastKnownGood.current ?? [];
+          return [];
         }
         const validated = parsed.map(validateMule);
         const validMules = validated.filter((m): m is Mule => m !== null);
-        lastKnownGood.current = validMules;
         return validMules;
       }
     } catch {
-      if (lastKnownGood.current !== null) {
-        return lastKnownGood.current;
-      }
     }
     return [];
   }

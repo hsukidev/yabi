@@ -2,7 +2,7 @@ import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor 
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
 import { Plus } from 'lucide-react';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 
 import { ThemeProvider } from './context/ThemeProvider';
 import { IncomeProvider } from './modules/IncomeProvider';
@@ -27,11 +27,7 @@ function AppContent() {
   const [selectedMuleId, setSelectedMuleId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  useEffect(() => {
-    if (selectedMuleId && !mules.some((m) => m.id === selectedMuleId)) {
-      setSelectedMuleId(null);
-    }
-  }, [mules, selectedMuleId]);
+  const selectedMule = mules.find((m) => m.id === selectedMuleId) ?? null;
 
   const sensors = [useSensor(PointerSensor, { activationConstraint: { distance: 5 } })];
 
@@ -64,8 +60,6 @@ function AppContent() {
   function handleSliceClick(muleId: string) {
     setSelectedMuleId(muleId);
   }
-
-  const selectedMule = mules.find((m) => m.id === selectedMuleId) ?? null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -120,7 +114,7 @@ function AppContent() {
 
       <MuleDetailDrawer
         mule={selectedMule}
-        open={selectedMuleId !== null}
+        open={selectedMule !== null}
         onClose={() => setSelectedMuleId(null)}
         onUpdate={updateMule}
         onDelete={deleteMule}
