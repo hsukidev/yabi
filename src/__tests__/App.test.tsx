@@ -1,14 +1,15 @@
 import { describe, expect, it, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@/test/test-utils'
 import App from '../App'
+import packageJson from '../../package.json'
 
-describe('App (shadcn/Tailwind, no MantineProvider)', () => {
+describe('App', () => {
   beforeEach(() => {
     localStorage.clear()
     document.documentElement.classList.remove('dark')
   })
 
-  it('renders without MantineProvider', () => {
+  it('renders without legacy Mantine attributes', () => {
     const { container } = render(<App />)
     expect(container.querySelector('[data-mantine-color-scheme]')).toBeNull()
   })
@@ -41,5 +42,21 @@ describe('App (shadcn/Tailwind, no MantineProvider)', () => {
     const clickable = container.querySelector('.cursor-pointer')
     expect(clickable).toBeTruthy()
     fireEvent.click(clickable!)
+  })
+})
+
+describe('Mantine removal verification', () => {
+  it('has no @mantine packages in dependencies', () => {
+    const deps = Object.keys(packageJson.dependencies)
+    const mantineDeps = deps.filter((d) => d.startsWith('@mantine/'))
+    expect(mantineDeps).toEqual([])
+  })
+
+  it('has no mantine postcss plugins in devDependencies', () => {
+    const devDeps = Object.keys(packageJson.devDependencies)
+    const mantinePlugins = devDeps.filter(
+      (d) => d === 'postcss-preset-mantine' || d === 'postcss-simple-vars'
+    )
+    expect(mantinePlugins).toEqual([])
   })
 })
