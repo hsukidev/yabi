@@ -36,15 +36,15 @@ export function BossCheckboxList({ selectedBosses, onChange }: BossCheckboxListP
           </p>
           <div className="flex gap-1 flex-wrap">
             {family.bosses.map((boss) => {
-              const id = `boss-${boss.id}`;
+              const checkboxId = `boss-${boss.id}`;
               return (
                 <div key={boss.id} className="flex items-center gap-2">
                   <Checkbox
-                    id={id}
+                    id={checkboxId}
                     checked={boss.selected}
                     onCheckedChange={() => onChange(toggleBoss(selectedBosses, boss.id))}
                   />
-                  <Label htmlFor={id}>{boss.name} ({boss.formattedValue})</Label>
+                  <Label htmlFor={checkboxId}>{boss.name} ({boss.formattedValue})</Label>
                 </div>
               );
             })}
