@@ -47,8 +47,7 @@ npm run lint     # ESLint
 | `src/utils/meso.ts` | `formatMeso` — abbreviated/full meso formatting |
 | `src/data/bossSelection.ts` | `toggleBoss`, `getFamilies` — one-per-family selection logic |
 | `src/hooks/useMules.ts` | Mule CRUD + reorder + localStorage persistence |
-| `src/components/MuleCharacterCard.tsx` | Portrait card (200x300px, 2:3 ratio) |
-| `src/components/SortableMuleCharacterCard.tsx` | dnd-kit sortable wrapper |
+| `src/components/MuleCharacterCard.tsx` | Portrait card with inline dnd-kit sortable (200×300px, 2:3 ratio) |
 | `src/components/MuleDetailDrawer.tsx` | Right-side drawer for editing |
 | `src/components/BossCheckboxList.tsx` | Searchable boss checklist |
 | `src/components/Header.tsx` | App header with income display + dark mode toggle |

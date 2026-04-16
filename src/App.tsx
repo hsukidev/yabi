@@ -7,7 +7,7 @@ import { useState, useCallback } from 'react';
 import { ThemeProvider } from './context/ThemeProvider';
 import { useMules } from './hooks/useMules';
 import { getTotalIncome } from './modules/income';
-import { SortableMuleCharacterCard } from './components/SortableMuleCharacterCard';
+import { MuleCharacterCard } from './components/MuleCharacterCard';
 import { MuleDetailDrawer } from './components/MuleDetailDrawer';
 import { Header } from './components/Header';
 import { IncomePieChart } from './components/IncomePieChart';
@@ -44,6 +44,10 @@ function AppContent() {
     },
     [mules, reorderMules],
   );
+
+  const handleDragCancel = useCallback(() => {
+    setIsDragging(false);
+  }, []);
 
   function handleAddMule() {
     const id = addMule();
@@ -87,6 +91,7 @@ function AppContent() {
             collisionDetection={closestCenter}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
+            onDragCancel={handleDragCancel}
             sensors={sensors}
             modifiers={[restrictToParentElement]}
           >
@@ -94,7 +99,7 @@ function AppContent() {
               <div style={isDragging ? dragBoundaryStyle : {}}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                   {mules.map((mule) => (
-                    <SortableMuleCharacterCard
+                    <MuleCharacterCard
                       key={mule.id}
                       mule={mule}
                       onClick={() => setSelectedMuleId(mule.id)}

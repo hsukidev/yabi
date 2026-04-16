@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen, fireEvent } from '../../test/test-utils'
+import { DndContext } from '@dnd-kit/core'
+import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { MuleCharacterCard } from '../MuleCharacterCard'
 import type { Mule } from '../../types'
 
@@ -15,7 +17,13 @@ function renderCard(overrides: Partial<Mule> = {}) {
   const onClick = vi.fn()
   const mule = { ...baseMule, ...overrides }
   return {
-    ...render(<MuleCharacterCard mule={mule} onClick={onClick} />),
+    ...render(
+      <DndContext>
+        <SortableContext items={[mule.id]} strategy={rectSortingStrategy}>
+          <MuleCharacterCard mule={mule} onClick={onClick} />
+        </SortableContext>
+      </DndContext>,
+    ),
     onClick,
   }
 }
@@ -61,4 +69,6 @@ describe('MuleCharacterCard', () => {
     renderCard()
     expect(screen.getByText(/0.*\/week/)).toBeTruthy()
   })
+
+
 })

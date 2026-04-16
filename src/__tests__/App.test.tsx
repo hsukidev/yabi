@@ -36,5 +36,5 @@ describe('App', () => {
     const clickable = container.querySelector('.cursor-pointer')
     expect(clickable).toBeTruthy()
     fireEvent.click(clickable!)
-  })
+  }  )
 })
