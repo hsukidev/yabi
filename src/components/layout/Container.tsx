@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from 'react'
+import { cn } from '@/lib/utils'
 
 type ContainerSize = 'sm' | 'md' | 'lg' | 'xl' | 'full'
 
@@ -15,13 +16,9 @@ interface ContainerProps extends HTMLAttributes<HTMLDivElement> {
   size?: ContainerSize
 }
 
-export function Container({ children, size = 'lg', className = '', ...props }: ContainerProps) {
-  const classes = ['mx-auto', 'px-4', 'py-4', sizeMap[size], className]
-    .filter(Boolean)
-    .join(' ')
-
+export function Container({ children, size = 'lg', className, ...props }: ContainerProps) {
   return (
-    <div className={classes} {...props}>
+    <div className={cn('mx-auto px-4 py-4', sizeMap[size], className)} {...props}>
       {children}
     </div>
   )

@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from 'react'
+import { cn } from '@/lib/utils'
 
 type Gap = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
@@ -15,13 +16,9 @@ interface StackProps extends HTMLAttributes<HTMLDivElement> {
   gap?: Gap
 }
 
-export function Stack({ children, gap, className = '', ...props }: StackProps) {
-  const classes = ['flex', 'flex-col', gap ? gapMap[gap] : '', className]
-    .filter(Boolean)
-    .join(' ')
-
+export function Stack({ children, gap, className, ...props }: StackProps) {
   return (
-    <div className={classes} {...props}>
+    <div className={cn('flex flex-col', gap && gapMap[gap], className)} {...props}>
       {children}
     </div>
   )

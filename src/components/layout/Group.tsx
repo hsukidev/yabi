@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from 'react'
+import { cn } from '@/lib/utils'
 
 type Gap = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 type Justify = 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly' | 'stretch'
@@ -38,21 +39,25 @@ interface GroupProps extends HTMLAttributes<HTMLDivElement> {
   wrap?: boolean
 }
 
-export function Group({ children, gap, justify, align, wrap, className = '', ...props }: GroupProps) {
-  const classes = [
-    'flex',
-    'flex-row',
-    gap ? gapMap[gap] : '',
-    justify ? justifyMap[justify] : '',
-    align ? alignMap[align] : '',
-    wrap === true ? 'flex-wrap' : wrap === false ? 'flex-nowrap' : '',
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ')
+function getWrapClass(wrap: boolean | undefined): string {
+  if (wrap === true) return 'flex-wrap'
+  if (wrap === false) return 'flex-nowrap'
+  return ''
+}
 
+export function Group({ children, gap, justify, align, wrap, className, ...props }: GroupProps) {
   return (
-    <div className={classes} {...props}>
+    <div
+      className={cn(
+        'flex flex-row',
+        gap && gapMap[gap],
+        justify && justifyMap[justify],
+        align && alignMap[align],
+        getWrapClass(wrap),
+        className,
+      )}
+      {...props}
+    >
       {children}
     </div>
   )
