@@ -1,14 +1,12 @@
 import { ActionIcon, Group, Text, useMantineColorScheme } from '@mantine/core';
 import { IconSun, IconMoon } from '@tabler/icons-react';
-import { formatMeso } from '../utils/meso';
 
 interface HeaderProps {
-  totalWeeklyIncome: number;
+  totalWeeklyIncome: string;
   muleCount: number;
-  abbreviated: boolean;
 }
 
-export function Header({ totalWeeklyIncome, muleCount, abbreviated }: HeaderProps) {
+export function Header({ totalWeeklyIncome, muleCount }: HeaderProps) {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const dark = colorScheme === 'dark';
 
@@ -19,7 +17,7 @@ export function Header({ totalWeeklyIncome, muleCount, abbreviated }: HeaderProp
         <Text size="sm" c="dimmed">{muleCount} mule{muleCount !== 1 ? 's' : ''}</Text>
       </div>
       <Group>
-        <Text size="lg" fw={600}>Weekly: {formatMeso(totalWeeklyIncome, abbreviated)} mesos</Text>
+        <Text size="lg" fw={600}>Weekly: {totalWeeklyIncome} mesos</Text>
         <ActionIcon
           variant="outline"
           onClick={toggleColorScheme}

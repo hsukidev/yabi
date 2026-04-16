@@ -1,8 +1,7 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { Paper } from '@mantine/core';
 import type { Mule } from '../types';
-import { calculatePotentialIncome } from '../data/bosses';
-import { formatMeso } from '../utils/meso';
+import { getMuleIncome } from '../modules/income';
 
 const COLORS = [
   '#228be6', '#40c057', '#fab005', '#fd7e14', '#be4bdb',
@@ -14,6 +13,7 @@ const COLORS = [
 interface ChartDataItem {
   name: string;
   value: number;
+  formatted: string;
   muleId: string;
   fill: string;
 }
@@ -27,12 +27,16 @@ interface IncomePieChartProps {
 export function IncomePieChart({ mules, abbreviated, onSliceClick }: IncomePieChartProps) {
   const data: ChartDataItem[] = mules
     .filter((m) => m.selectedBosses.length > 0)
-    .map((m, i) => ({
-      name: m.name || 'Unnamed Mule',
-      value: calculatePotentialIncome(m.selectedBosses),
-      muleId: m.id,
-      fill: COLORS[i % COLORS.length],
-    }));
+    .map((m, i) => {
+      const { raw, formatted } = getMuleIncome(m.selectedBosses, abbreviated)
+      return {
+        name: m.name || 'Unnamed Mule',
+        value: raw,
+        formatted,
+        muleId: m.id,
+        fill: COLORS[i % COLORS.length],
+      }
+    });
 
   if (data.length === 0) {
     return (
@@ -69,7 +73,10 @@ export function IncomePieChart({ mules, abbreviated, onSliceClick }: IncomePieCh
             ))}
           </Pie>
           <Tooltip
-            formatter={(value) => formatMeso(Number(value), abbreviated)}
+            formatter={(_value, _name, entry) => {
+              const item = data.find((d) => d.muleId === entry?.payload?.muleId)
+              return item?.formatted ?? String(_value)
+            }}
           />
         </PieChart>
       </ResponsiveContainer>

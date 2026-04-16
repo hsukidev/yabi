@@ -11,8 +11,7 @@ import {
 } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
 import type { Mule } from '../types';
-import { calculatePotentialIncome } from '../data/bosses';
-import { formatMeso } from '../utils/meso';
+import { getMuleIncome } from '../modules/income';
 import { BossCheckboxList } from './BossCheckboxList';
 import placeholderPng from '../assets/placeholder.png';
 
@@ -35,7 +34,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
 
   if (!mule) return null;
 
-  const potentialIncome = calculatePotentialIncome(mule.selectedBosses);
+  const { formatted: potentialIncome } = getMuleIncome(mule.selectedBosses);
 
   return (
     <Drawer
@@ -64,7 +63,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
             {mule.level > 0 && <Text size="sm">Lv. {mule.level}</Text>}
             {mule.muleClass && <Text size="sm">{mule.muleClass}</Text>}
             <Text size="sm" fw={700} c="yellow">
-              {formatMeso(potentialIncome)}/week
+              {potentialIncome}/week
             </Text>
           </div>
         </Group>

@@ -19,8 +19,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { useState, useCallback } from 'react';
 
 import { useMules } from './hooks/useMules';
-import { calculatePotentialIncome } from './data/bosses';
-import { formatMeso } from './utils/meso';
+import { getTotalIncome } from './modules/income';
 import { SortableMuleCharacterCard } from './components/SortableMuleCharacterCard';
 import { MuleDetailDrawer } from './components/MuleDetailDrawer';
 import { Header } from './components/Header';
@@ -56,10 +55,7 @@ function AppContent() {
   const [isDragging, setIsDragging] = useState(false);
   const sensors = [useSensor(PointerSensor, { activationConstraint: { distance: 5 } })];
 
-  const totalWeeklyIncome = mules.reduce(
-    (sum, m) => sum + calculatePotentialIncome(m.selectedBosses),
-    0,
-  );
+  const { formatted: totalWeeklyIncome } = getTotalIncome(mules, abbreviated);
 
   const handleDragStart = useCallback(() => {
     setIsDragging(true);
@@ -91,7 +87,7 @@ function AppContent() {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--mantine-color-body)' }}>
-      <Header totalWeeklyIncome={totalWeeklyIncome} muleCount={mules.length} abbreviated={abbreviated} />
+      <Header totalWeeklyIncome={totalWeeklyIncome} muleCount={mules.length} />
       <Container size="lg" py="md">
         <Stack gap="md">
           <Paper p="md" radius="md" withBorder>
@@ -104,7 +100,7 @@ function AppContent() {
                   style={{ cursor: 'pointer' }}
                   onClick={() => setAbbreviated(!abbreviated)}
                 >
-                  {formatMeso(totalWeeklyIncome, abbreviated)} mesos
+                  {totalWeeklyIncome} mesos
                 </Text>
               </div>
             </Group>

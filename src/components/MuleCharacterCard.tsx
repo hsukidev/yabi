@@ -1,7 +1,6 @@
 import { Card, Text, Badge, Group } from '@mantine/core';
 import type { Mule } from '../types';
-import { calculatePotentialIncome } from '../data/bosses';
-import { formatMeso } from '../utils/meso';
+import { getMuleIncome } from '../modules/income';
 import placeholderPng from '../assets/placeholder.png';
 
 interface MuleCharacterCardProps {
@@ -10,7 +9,7 @@ interface MuleCharacterCardProps {
 }
 
 export function MuleCharacterCard({ mule, onClick }: MuleCharacterCardProps) {
-  const potentialIncome = calculatePotentialIncome(mule.selectedBosses);
+  const { formatted: potentialIncome } = getMuleIncome(mule.selectedBosses);
 
   return (
     <Card
@@ -40,7 +39,7 @@ export function MuleCharacterCard({ mule, onClick }: MuleCharacterCardProps) {
           )}
         </Group>
         <Text size="sm" fw={700} c="yellow">
-          {formatMeso(potentialIncome)}/week
+          {potentialIncome}/week
         </Text>
       </div>
     </Card>
