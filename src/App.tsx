@@ -26,10 +26,11 @@ function AppContent() {
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
-    if (selectedMuleId && !mules.find((m) => m.id === selectedMuleId)) {
+    if (selectedMuleId && !mules.some((m) => m.id === selectedMuleId)) {
       setSelectedMuleId(null);
     }
   }, [mules, selectedMuleId]);
+
   const sensors = [useSensor(PointerSensor, { activationConstraint: { distance: 5 } })];
 
   const { formatted: totalWeeklyIncome } = getTotalIncome(mules, abbreviated);

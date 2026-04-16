@@ -23,22 +23,18 @@ function validateMule(raw: unknown): Mule | null {
   };
 }
 
-
-
 export function useMules() {
   const lastKnownGood = useRef<Mule[] | null>(null);
-  const writeFailedRef = useRef(false);
 
   const saveMules = useCallback((mules: Mule[]): void => {
     const serialized = JSON.stringify(mules);
     try {
       localStorage.setItem(STORAGE_KEY, serialized);
-      writeFailedRef.current = false;
     } catch {
       try {
         sessionStorage.setItem(FALLBACK_KEY, serialized);
       } catch {
-        writeFailedRef.current = true;
+        // Both storages failed; data persists in React state only
       }
     }
   }, []);
