@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Checkbox, Stack, Group, Text, TextInput } from '@mantine/core';
-import { IconSearch } from '@tabler/icons-react';
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { toggleBoss, getFamilies } from '../data/bossSelection';
 
 interface BossCheckboxListProps {
@@ -14,41 +16,44 @@ export function BossCheckboxList({ selectedBosses, onChange }: BossCheckboxListP
   const families = getFamilies(selectedBosses, search);
 
   return (
-    <Stack gap="sm">
-      <TextInput
-        placeholder="Search bosses..."
-        leftSection={<IconSearch size={16} />}
-        value={search}
-        onChange={(e) => setSearch(e.currentTarget.value)}
-      />
+    <div className="flex flex-col gap-2">
+      <div className="relative">
+        <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search bosses..."
+          className="pl-8"
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+        />
+      </div>
       {families.map((family) => (
         <div
           key={family.family}
-          style={{
-            border: '1px solid var(--mantine-color-default-border)',
-            borderRadius: 'var(--mantine-radius-sm)',
-            padding: 'var(--mantine-spacing-xs) var(--mantine-spacing-sm)',
-          }}
+          className="border rounded-md px-2 py-1"
         >
-          <Text size="sm" fw={600} mb={4}>
+          <p className="text-sm font-semibold mb-1">
             {family.displayName}
-          </Text>
-          <Group gap="xs" wrap="wrap">
-            {family.bosses.map((boss) => (
-              <Checkbox
-                key={boss.id}
-                label={`${boss.name} (${boss.formattedValue})`}
-                size="sm"
-                checked={boss.selected}
-                onChange={() => onChange(toggleBoss(selectedBosses, boss.id))}
-              />
-            ))}
-          </Group>
+          </p>
+          <div className="flex gap-1 flex-wrap">
+            {family.bosses.map((boss) => {
+              const id = `boss-${boss.id}`;
+              return (
+                <div key={boss.id} className="flex items-center gap-2">
+                  <Checkbox
+                    id={id}
+                    checked={boss.selected}
+                    onCheckedChange={() => onChange(toggleBoss(selectedBosses, boss.id))}
+                  />
+                  <Label htmlFor={id}>{boss.name} ({boss.formattedValue})</Label>
+                </div>
+              );
+            })}
+          </div>
         </div>
       ))}
       {families.length === 0 && (
-        <Text c="dimmed" ta="center">No bosses found</Text>
+        <p className="text-muted-foreground text-center">No bosses found</p>
       )}
-    </Stack>
+    </div>
   );
 }

@@ -1,14 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
-import { MantineProvider } from '@mantine/core'
+import { render, screen, fireEvent } from '@/test/test-utils'
 import { BossCheckboxList } from '../BossCheckboxList'
 
 function renderList(selectedBosses: string[] = [], onChange = vi.fn()) {
   return {
     ...render(
-      <MantineProvider defaultColorScheme="dark">
-        <BossCheckboxList selectedBosses={selectedBosses} onChange={onChange} />
-      </MantineProvider>,
+      <BossCheckboxList selectedBosses={selectedBosses} onChange={onChange} />,
     ),
     onChange,
   }
@@ -19,7 +16,7 @@ describe('BossCheckboxList', () => {
     const onChange = vi.fn()
     renderList([], onChange)
 
-    const checkbox = screen.getByLabelText(/Hard Lucid/i)
+    const checkbox = screen.getByRole('checkbox', { name: /Hard Lucid/i })
     fireEvent.click(checkbox)
     expect(onChange).toHaveBeenCalledWith(['hard-lucid'])
   })
@@ -28,7 +25,7 @@ describe('BossCheckboxList', () => {
     const onChange = vi.fn()
     renderList(['hard-lucid'], onChange)
 
-    const checkbox = screen.getByLabelText(/Hard Lucid/i)
+    const checkbox = screen.getByRole('checkbox', { name: /Hard Lucid/i })
     fireEvent.click(checkbox)
     expect(onChange).toHaveBeenCalledWith([])
   })
@@ -37,7 +34,7 @@ describe('BossCheckboxList', () => {
     const onChange = vi.fn()
     renderList(['normal-lucid'], onChange)
 
-    const checkbox = screen.getByLabelText(/Hard Lucid/i)
+    const checkbox = screen.getByRole('checkbox', { name: /Hard Lucid/i })
     fireEvent.click(checkbox)
     expect(onChange).toHaveBeenCalledWith(['hard-lucid'])
   })
@@ -45,10 +42,10 @@ describe('BossCheckboxList', () => {
   it('renders checkboxes with selected state from FamilyView', () => {
     renderList(['hard-lucid'])
 
-    const hardCheckbox = screen.getByLabelText(/Hard Lucid/i) as HTMLInputElement
-    const normalCheckbox = screen.getByLabelText(/Normal Lucid/i) as HTMLInputElement
-    expect(hardCheckbox.checked).toBe(true)
-    expect(normalCheckbox.checked).toBe(false)
+    const hardCheckbox = screen.getByRole('checkbox', { name: /Hard Lucid/i })
+    const normalCheckbox = screen.getByRole('checkbox', { name: /Normal Lucid/i })
+    expect(hardCheckbox.getAttribute('aria-checked')).toBe('true')
+    expect(normalCheckbox.getAttribute('aria-checked')).toBe('false')
   })
 
   it('filters families by search', () => {
