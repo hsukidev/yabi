@@ -1,5 +1,4 @@
 import { bossFamilies, getBossById } from './bosses';
-import { selectBoss } from '../utils/selectBoss';
 import { formatMeso } from '../utils/meso';
 
 export interface FamilyView {
@@ -17,7 +16,13 @@ export interface FamilyView {
 export function toggleBoss(selectedIds: string[], bossId: string): string[] {
   const boss = getBossById(bossId);
   if (!boss) return selectedIds;
-  return selectBoss(selectedIds, bossId, boss.family);
+  const existingId = selectedIds.find((id) => {
+    const b = getBossById(id);
+    return b?.family === boss.family;
+  });
+  if (existingId === bossId) return selectedIds.filter((id) => id !== bossId);
+  if (existingId) return selectedIds.map((id) => (id === existingId ? bossId : id));
+  return [...selectedIds, bossId];
 }
 
 const DIFFICULTY_PREFIX = /^(Extreme|Chaos|Hard|Normal|Easy) /;

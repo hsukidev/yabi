@@ -11,7 +11,6 @@ MS Mule Income Tracker - a React + TypeScript app using Mantine UI, dnd-kit for 
 
 ## Architecture
 - `src/utils/meso.ts` - formatMeso utility (abbreviated/full number formatting)
-- `src/utils/selectBoss.ts` - Pure function for one-per-family boss selection logic
 - `src/data/bosses.ts` - Boss data, bossFamilies, and calculatePotentialIncome
 - `src/types/index.ts` - Mule, Boss, BossFamily type definitions
 - `src/hooks/useMules.ts` - Mule CRUD + reorder + localStorage persistence
@@ -23,7 +22,7 @@ MS Mule Income Tracker - a React + TypeScript app using Mantine UI, dnd-kit for 
 - `src/components/IncomePieChart.tsx` - Recharts pie chart for income breakdown
 
 ## Key Patterns
-- Boss selection uses `selectBoss()` from `src/utils/selectBoss.ts` - preserves array order on family replacement (uses map, not filter+concat)
+- Boss selection uses `toggleBoss()` from `src/data/bossSelection.ts` - preserves array order on family replacement (uses map, not filter+concat)
 - MuleCharacterCard takes `onClick` prop (no drag handle; full card is drag surface via Sortable wrapper)
 - DndContext uses PointerSensor with distance:5 activation, rectSortingStrategy, no axis restriction
 - SimpleGrid with responsive cols: { xl: 4, lg: 3, md: 2, sm: 1 }

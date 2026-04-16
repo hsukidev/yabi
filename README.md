@@ -44,7 +44,7 @@ npm run lint     # ESLint
 | `src/data/bosses.ts` | Boss reference data, families, `calculatePotentialIncome` |
 | `src/types/index.ts` | `Mule`, `Boss`, `BossFamily` type definitions |
 | `src/utils/meso.ts` | `formatMeso` — abbreviated/full meso formatting |
-| `src/utils/selectBoss.ts` | `selectBoss` — one-per-family selection logic |
+| `src/data/bossSelection.ts` | `toggleBoss`, `getFamilies` — one-per-family selection logic |
 | `src/hooks/useMules.ts` | Mule CRUD + reorder + localStorage persistence |
 | `src/components/MuleCharacterCard.tsx` | Portrait card (200x300px, 2:3 ratio) |
 | `src/components/SortableMuleCharacterCard.tsx` | dnd-kit sortable wrapper |
