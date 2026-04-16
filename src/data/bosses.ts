@@ -95,8 +95,10 @@ export const bossFamilies: BossFamily[] = (() => {
     .sort((a, b) => b.bosses[0].crystalValue - a.bosses[0].crystalValue);
 })();
 
+const bossMap = new Map<string, Boss>(bosses.map((b) => [b.id, b]));
+
 export function getBossById(id: string): Boss | undefined {
-  return bosses.find((b) => b.id === id);
+  return bossMap.get(id);
 }
 
 export function calculatePotentialIncome(selectedBossIds: string[]): number {
