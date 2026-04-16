@@ -3,14 +3,23 @@ import { render, screen, fireEvent, waitFor } from '@/test/test-utils'
 import App from '../App'
 import type { Mule } from '../types'
 
+const STORAGE_KEY = 'maplestory-mule-tracker'
+
 const testMules: Mule[] = [
   { id: 'mule-a', name: 'Alpha', level: 200, muleClass: 'Hero', selectedBosses: [] },
   { id: 'mule-b', name: 'Beta', level: 180, muleClass: 'Paladin', selectedBosses: [] },
   { id: 'mule-c', name: 'Gamma', level: 160, muleClass: 'Dark Knight', selectedBosses: [] },
 ]
 
+const DEFAULT_RECT = { x: 0, y: 0, width: 800, height: 600, top: 0, right: 800, bottom: 600, left: 0, toJSON: () => ({}) }
+
 function seedMules(mules: Mule[]) {
-  localStorage.setItem('maplestory-mule-tracker', JSON.stringify(mules))
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(mules))
+}
+
+function resetTestEnvironment() {
+  localStorage.clear()
+  document.documentElement.classList.remove('dark')
 }
 
 function mockGetBoundingClientRect() {
@@ -20,20 +29,20 @@ function mockGetBoundingClientRect() {
     const cardId = el.getAttribute('data-mule-card')
     if (cardId) {
       const i = testMules.findIndex((m) => m.id === cardId)
-      const idx = i >= 0 ? i : 0
+      if (i < 0) return { ...DEFAULT_RECT }
       return {
-        x: idx * 220,
+        x: i * 220,
         y: 0,
         width: 200,
         height: 300,
         top: 0,
-        right: idx * 220 + 200,
+        right: i * 220 + 200,
         bottom: 300,
-        left: idx * 220,
+        left: i * 220,
         toJSON: () => ({}),
       }
     }
-    return { x: 0, y: 0, width: 800, height: 600, top: 0, right: 800, bottom: 600, left: 0, toJSON: () => ({}) }
+    return { ...DEFAULT_RECT }
   }
   return () => {
     Element.prototype.getBoundingClientRect = orig
@@ -83,8 +92,7 @@ function simulatePointerDrag(
 
 describe('App', () => {
   beforeEach(() => {
-    localStorage.clear()
-    document.documentElement.classList.remove('dark')
+    resetTestEnvironment()
   })
 
   it('renders Add Mule button', () => {
@@ -123,8 +131,7 @@ describe('App DnD interactions', () => {
   let restoreRect: () => void
 
   beforeEach(() => {
-    localStorage.clear()
-    document.documentElement.classList.remove('dark')
+    resetTestEnvironment()
     seedMules(testMules)
     restoreRect = mockGetBoundingClientRect()
   })
@@ -173,6 +180,7 @@ describe('App DnD interactions', () => {
       clientX: 100,
       clientY: 150,
       button: 0,
+      isPrimary: true,
       bubbles: true,
     })
 
@@ -180,6 +188,7 @@ describe('App DnD interactions', () => {
       pointerId: 1,
       clientX: 110,
       clientY: 150,
+      isPrimary: true,
       bubbles: true,
     })
 
