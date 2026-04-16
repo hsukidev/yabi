@@ -11,7 +11,7 @@ interface BossCheckboxListProps {
 export function BossCheckboxList({ selectedBosses, onChange }: BossCheckboxListProps) {
   const [search, setSearch] = useState('');
 
-  const families = getFamilies(selectedBosses, search || undefined);
+  const families = getFamilies(selectedBosses, search);
 
   return (
     <Stack gap="sm">

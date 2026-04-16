@@ -36,7 +36,7 @@ describe('toggleBoss', () => {
 
 describe('getFamilies', () => {
   it('returns all families with correct selected flags', () => {
-    const families = getFamilies(['hard-lucid'])
+    const families = getFamilies(['hard-lucid'], '')
     const lucidFamily = families.find((f) => f.family === 'lucid')!
     expect(lucidFamily).toBeDefined()
 
@@ -49,7 +49,7 @@ describe('getFamilies', () => {
   })
 
   it('returns families sorted by highest crystal value first', () => {
-    const families = getFamilies([])
+    const families = getFamilies([], '')
     expect(families[0].family).toBe('black-mage')
     for (let i = 1; i < families.length; i++) {
       expect(families[i - 1].bosses[0].crystalValue).toBeGreaterThanOrEqual(
@@ -59,7 +59,7 @@ describe('getFamilies', () => {
   })
 
   it('strips difficulty prefix for displayName', () => {
-    const families = getFamilies([])
+    const families = getFamilies([], '')
     const lucidFamily = families.find((f) => f.family === 'lucid')!
     expect(lucidFamily.displayName).toBe('Lucid')
 
@@ -68,20 +68,20 @@ describe('getFamilies', () => {
   })
 
   it('keeps name intact for bosses without difficulty prefix', () => {
-    const families = getFamilies([])
+    const families = getFamilies([], '')
     const akechiFamily = families.find((f) => f.family === 'akechi-mitsuhide')!
     expect(akechiFamily.displayName).toBe('Akechi Mitsuhide')
   })
 
   it('populates crystalValue on each boss', () => {
-    const families = getFamilies([])
+    const families = getFamilies([], '')
     const lucidFamily = families.find((f) => f.family === 'lucid')!
     const hardLucid = lucidFamily.bosses.find((b) => b.id === 'hard-lucid')!
     expect(hardLucid.crystalValue).toBe(504000000)
   })
 
   it('populates formattedValue on each boss', () => {
-    const families = getFamilies([])
+    const families = getFamilies([], '')
     const lucidFamily = families.find((f) => f.family === 'lucid')!
     const hardLucid = lucidFamily.bosses.find((b) => b.id === 'hard-lucid')!
     expect(hardLucid.formattedValue).toBe('504M')
@@ -106,13 +106,13 @@ describe('getFamilies', () => {
   })
 
   it('empty search returns all families', () => {
-    const all = getFamilies([])
+    const all = getFamilies([], '')
     const withEmptySearch = getFamilies([], '')
     expect(withEmptySearch.length).toBe(all.length)
   })
 
   it('bosses within a family are sorted by crystal value descending', () => {
-    const families = getFamilies([])
+    const families = getFamilies([], '')
     const lucidFamily = families.find((f) => f.family === 'lucid')!
     for (let i = 1; i < lucidFamily.bosses.length; i++) {
       expect(lucidFamily.bosses[i - 1].crystalValue).toBeGreaterThanOrEqual(
