@@ -17,7 +17,7 @@ import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
 import { IconPlus } from '@tabler/icons-react';
 import { useState, useCallback } from 'react';
-import { DragBoundary } from './components/DragBoundary';
+
 import { useMules } from './hooks/useMules';
 import { calculatePotentialIncome } from './data/bosses';
 import { formatMeso } from './utils/meso';
@@ -26,6 +26,12 @@ import { MuleDetailDrawer } from './components/MuleDetailDrawer';
 import { Header } from './components/Header';
 import { IncomePieChart } from './components/IncomePieChart';
 
+
+const dragBoundaryStyle: React.CSSProperties = {
+  borderStyle: 'dotted',
+  borderWidth: '2px',
+  borderColor: 'var(--mantine-color-dimmed)',
+};
 
 const darkCharcoalTheme = createTheme({
   colors: {
@@ -124,7 +130,7 @@ function AppContent() {
             modifiers={[restrictToParentElement]}
           >
             <SortableContext items={mules.map((m) => m.id)} strategy={rectSortingStrategy}>
-              <DragBoundary isDragging={isDragging}>
+              <div style={isDragging ? dragBoundaryStyle : {}}>
                 <SimpleGrid
                   cols={{ xl: 4, lg: 3, md: 2, sm: 1 }}
                   spacing="sm"
@@ -137,7 +143,7 @@ function AppContent() {
                     />
                   ))}
                 </SimpleGrid>
-              </DragBoundary>
+              </div>
             </SortableContext>
           </DndContext>
         </Stack>
