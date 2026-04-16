@@ -27,7 +27,8 @@ export function toggleBoss(selectedIds: string[], bossId: string): string[] {
 
 const DIFFICULTY_PREFIX = /^(Extreme|Chaos|Hard|Normal|Easy) /;
 
-export function getFamilies(selectedIds: string[], search: string): FamilyView[] {
+export function getFamilies(selectedIds: string[], search?: string, options?: { abbreviated?: boolean }): FamilyView[] {
+  const abbreviated = options?.abbreviated ?? true;
   const selectedSet = new Set(selectedIds);
 
   const families: FamilyView[] = bossFamilies.map((bf) => ({
@@ -37,7 +38,7 @@ export function getFamilies(selectedIds: string[], search: string): FamilyView[]
       id: b.id,
       name: b.name,
       crystalValue: b.crystalValue,
-      formattedValue: formatMeso(b.crystalValue),
+      formattedValue: formatMeso(b.crystalValue, abbreviated),
       selected: selectedSet.has(b.id),
     })),
   }));

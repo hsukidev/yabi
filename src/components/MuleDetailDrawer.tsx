@@ -21,9 +21,10 @@ interface MuleDetailDrawerProps {
   onClose: () => void;
   onUpdate: (id: string, updates: Partial<Omit<Mule, 'id'>>) => void;
   onDelete: (id: string) => void;
+  abbreviated?: boolean;
 }
 
-export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: MuleDetailDrawerProps) {
+export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete, abbreviated = true }: MuleDetailDrawerProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   function handleClose() {
@@ -39,7 +40,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
 
   if (!mule) return null;
 
-  const { formatted: potentialIncome } = getMuleIncome(mule.selectedBosses, true);
+  const { formatted: potentialIncome } = getMuleIncome(mule.selectedBosses, abbreviated);
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => { if (!isOpen) handleClose() }}>
@@ -101,6 +102,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
           <BossCheckboxList
             selectedBosses={mule.selectedBosses}
             onChange={(selectedBosses) => onUpdate(mule.id, { selectedBosses })}
+            abbreviated={abbreviated}
           />
 
           {confirmDelete ? (

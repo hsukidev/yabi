@@ -113,6 +113,7 @@ function AppContent() {
         onClose={() => setSelectedMuleId(null)}
         onUpdate={updateMule}
         onDelete={deleteMule}
+        abbreviated={abbreviated}
       />
     </div>
   );

@@ -2,11 +2,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { render, screen, fireEvent } from '@/test/test-utils'
 import { BossCheckboxList } from '../BossCheckboxList'
 
-function renderList(selectedBosses: string[] = [], onChange = vi.fn()) {
+function renderList(selectedBosses: string[] = [], onChange = vi.fn(), abbreviated?: boolean) {
+  const props: React.ComponentProps<typeof BossCheckboxList> = { selectedBosses, onChange }
+  if (abbreviated !== undefined) props.abbreviated = abbreviated
   return {
-    ...render(
-      <BossCheckboxList selectedBosses={selectedBosses} onChange={onChange} />,
-    ),
+    ...render(<BossCheckboxList {...props} />),
     onChange,
   }
 }
@@ -75,5 +75,15 @@ describe('BossCheckboxList', () => {
   it('uses formatMeso for crystal value labels', () => {
     renderList()
     expect(screen.getByText(/504M/)).toBeTruthy()
+  })
+
+  it('shows abbreviated values by default', () => {
+    renderList()
+    expect(screen.getByText(/504M/)).toBeTruthy()
+  })
+
+  it('shows full number values when abbreviated is false', () => {
+    renderList([], vi.fn(), false)
+    expect(screen.getByText(/504,000,000/)).toBeTruthy()
   })
 })

@@ -8,12 +8,13 @@ import { toggleBoss, getFamilies } from '../data/bossSelection';
 interface BossCheckboxListProps {
   selectedBosses: string[];
   onChange: (selectedBosses: string[]) => void;
+  abbreviated?: boolean;
 }
 
-export function BossCheckboxList({ selectedBosses, onChange }: BossCheckboxListProps) {
+export function BossCheckboxList({ selectedBosses, onChange, abbreviated = true }: BossCheckboxListProps) {
   const [search, setSearch] = useState('');
 
-  const families = getFamilies(selectedBosses, search);
+  const families = getFamilies(selectedBosses, search, { abbreviated });
 
   return (
     <div className="flex flex-col gap-2">
