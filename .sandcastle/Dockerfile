@@ -19,15 +19,17 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
 # This keeps UID 1000 so that --userns=keep-id (Podman) and
 # --user 1000:1000 (Docker) map to the correct home directory owner.
 RUN usermod -d /home/agent -m -l agent node
-
-# Install OpenCode CLI (run as root before USER agent)
-RUN npm install -g opencode-ai@latest
-
 USER agent
+
+# Install Claude Code CLI
+RUN curl -fsSL https://claude.ai/install.sh | bash
+
+# Add Claude to PATH
+ENV PATH="/home/agent/.local/bin:$PATH"
 
 WORKDIR /home/agent
 
-# In worktree sandbox mode, Sandcastle bind-mounts the git worktree at ${SANDBOX_WORKSPACE_DIR}
-# and overrides the working directory to ${SANDBOX_WORKSPACE_DIR} at container start.
-# Structure your Dockerfile so that ${SANDBOX_WORKSPACE_DIR} can serve as the project root.
+# In worktree sandbox mode, Sandcastle bind-mounts the git worktree at /home/agent/workspace
+# and overrides the working directory to /home/agent/workspace at container start.
+# Structure your Dockerfile so that /home/agent/workspace can serve as the project root.
 ENTRYPOINT ["sleep", "infinity"]

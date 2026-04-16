@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "sandcastle": "npx tsx .sandcastle/main.ts",
-    "git:prune": "git worktree prune && git branch | grep -vE \"^(main|master)$\" | xargs git branch -D"
+    "worktree:prune": "git worktree prune && git branch | grep -vE \"^(main|master)$\" | xargs git branch -D"
   },
   "dependencies": {
     "@ai-hero/sandcastle": "^0.4.5",
