@@ -1,18 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import type { Mule } from '../types';
 import { ALL_BOSS_IDS } from '../data/bosses';
 
 const STORAGE_KEY = 'maplestory-mule-tracker';
 const FALLBACK_KEY = 'maplestory-mule-tracker-fallback';
-
-const lastKnownGood: { current: Mule[] | null } = { current: null };
-let writeFailedOnce = false;
-
-export function _resetModuleState(): void {
-  lastKnownGood.current = null;
-  writeFailedOnce = false;
-}
 
 export function validateMule(raw: unknown): Mule | null {
   if (typeof raw !== 'object' || raw === null) return null;
@@ -35,61 +27,63 @@ export function cleanSelectedBosses(ids: string[]): string[] {
   return ids.filter((id) => ALL_BOSS_IDS.has(id));
 }
 
-function loadMules(): Mule[] {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (data) {
-      const parsed: unknown = JSON.parse(data);
-      if (!Array.isArray(parsed)) {
-        return lastKnownGood.current ?? [];
-      }
-      const validated = parsed.map(validateMule);
-      const validMules = validated.filter((m): m is Mule => m !== null);
-      const hasInvalidEntries = validMules.length !== parsed.length;
-      const hasPrunedBosses = parsed.some((raw, i) => {
-        const valid = validated[i];
-        if (valid === null) return false;
-        const rawBosses = (raw as Record<string, unknown>).selectedBosses;
-        return (
-          Array.isArray(rawBosses) &&
-          valid.selectedBosses.length !== rawBosses.length
-        );
-      });
-      lastKnownGood.current = validMules;
-      if (hasInvalidEntries || hasPrunedBosses) {
-        saveMules(validMules);
-      }
-      return validMules;
-    }
-  } catch {
-    if (lastKnownGood.current !== null) {
-      return lastKnownGood.current;
-    }
-  }
-  return [];
-}
-
-function saveMules(mules: Mule[]): void {
-  const serialized = JSON.stringify(mules);
-  if (writeFailedOnce) return;
-  try {
-    localStorage.setItem(STORAGE_KEY, serialized);
-    writeFailedOnce = false;
-  } catch {
-    try {
-      sessionStorage.setItem(FALLBACK_KEY, serialized);
-    } catch {
-      writeFailedOnce = true;
-    }
-  }
-}
-
 export function useMules() {
+  const lastKnownGood = useRef<Mule[] | null>(null);
+  const writeFailedRef = useRef(false);
+
+  const loadMules = useCallback((): Mule[] => {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (data) {
+        const parsed: unknown = JSON.parse(data);
+        if (!Array.isArray(parsed)) {
+          return lastKnownGood.current ?? [];
+        }
+        const validated = parsed.map(validateMule);
+        const validMules = validated.filter((m): m is Mule => m !== null);
+        const hasInvalidEntries = validMules.length !== parsed.length;
+        const hasPrunedBosses = parsed.some((raw, i) => {
+          const valid = validated[i];
+          if (valid === null) return false;
+          const rawBosses = (raw as Record<string, unknown>).selectedBosses;
+          return (
+            Array.isArray(rawBosses) &&
+            valid.selectedBosses.length !== rawBosses.length
+          );
+        });
+        lastKnownGood.current = validMules;
+        if (hasInvalidEntries || hasPrunedBosses) {
+          saveMules(validMules);
+        }
+        return validMules;
+      }
+    } catch {
+      if (lastKnownGood.current !== null) {
+        return lastKnownGood.current;
+      }
+    }
+    return [];
+  }, []);
+
+  const saveMules = useCallback((mules: Mule[]): void => {
+    const serialized = JSON.stringify(mules);
+    try {
+      localStorage.setItem(STORAGE_KEY, serialized);
+      writeFailedRef.current = false;
+    } catch {
+      try {
+        sessionStorage.setItem(FALLBACK_KEY, serialized);
+      } catch {
+        writeFailedRef.current = true;
+      }
+    }
+  }, []);
+
   const [mules, setMules] = useState<Mule[]>(loadMules);
 
   useEffect(() => {
     saveMules(mules);
-  }, [mules]);
+  }, [mules, saveMules]);
 
   const addMule = useCallback(() => {
     const newMule: Mule = {

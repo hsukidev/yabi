@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useMules, _resetModuleState } from '../useMules'
+import { useMules } from '../useMules'
 import { ALL_BOSS_IDS } from '../../data/bosses'
 
 let localStorageStore: Record<string, string> = {}
@@ -9,7 +9,6 @@ let sessionStorageStore: Record<string, string> = {}
 beforeEach(() => {
   localStorageStore = {}
   sessionStorageStore = {}
-  _resetModuleState()
   vi.stubGlobal('localStorage', {
     getItem: vi.fn((key: string) => localStorageStore[key] ?? null),
     setItem: vi.fn((key: string, value: string) => {
@@ -70,24 +69,10 @@ describe('useMules', () => {
       expect(result.current.mules).toEqual(mules)
     })
 
-    it('returns lastKnownGood on corrupt JSON', () => {
-      const validMules = [
-        {
-          id: 'a',
-          name: 'Valid',
-          level: 200,
-          muleClass: 'Hero',
-          selectedBosses: ['hard-lucid'],
-        },
-      ]
-      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(validMules)
-
-      const { result } = renderHook(() => useMules())
-      expect(result.current.mules).toEqual(validMules)
-
+    it('returns empty array on corrupt JSON when no previous load', () => {
       localStorageStore['maplestory-mule-tracker'] = '{invalid json'
-      const { result: result2 } = renderHook(() => useMules())
-      expect(result2.current.mules).toEqual(validMules)
+      const { result } = renderHook(() => useMules())
+      expect(result.current.mules).toEqual([])
     })
 
     it('drops structurally invalid mules and keeps valid ones', () => {
