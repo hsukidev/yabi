@@ -4,10 +4,10 @@
 MS Mule Income Tracker - a React + TypeScript app using Mantine UI, dnd-kit for drag-and-drop, and Recharts for pie charts.
 
 ## Build & Test Commands
-- `npm run build` - TypeScript check + Vite production build
-- `npm run test` - Vitest (jsdom environment, globals enabled)
-- `npm run lint` - ESLint
-- `npx tsc -b` - TypeScript type check only
+- `pnpm run build` - TypeScript check + Vite production build
+- `pnpm run test` - Vitest (jsdom environment, globals enabled)
+- `pnpm run lint` - ESLint
+- `pnpm exec tsc -b` - TypeScript type check only
 
 ## Architecture
 - `src/utils/meso.ts` - formatMeso utility (abbreviated/full number formatting)

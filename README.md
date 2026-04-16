@@ -25,16 +25,16 @@ A personal tool for MapleStory GMS Reboot players to track potential weekly meso
 ## Getting Started
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 ## Build & Test
 
 ```bash
-npm run build    # TypeScript check + production build
-npm run test     # Vitest
-npm run lint     # ESLint
+pnpm run build    # TypeScript check + production build
+pnpm run test     # Vitest
+pnpm run lint     # ESLint
 ```
 
 ## Architecture
