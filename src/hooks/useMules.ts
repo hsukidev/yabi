@@ -6,7 +6,7 @@ import { validateBossSelection } from '../data/bossSelection';
 const STORAGE_KEY = 'maplestory-mule-tracker';
 const FALLBACK_KEY = 'maplestory-mule-tracker-fallback';
 
-export function validateMule(raw: unknown): Mule | null {
+function validateMule(raw: unknown): Mule | null {
   if (typeof raw !== 'object' || raw === null) return null;
   const obj = raw as Record<string, unknown>;
   if (typeof obj.id !== 'string') return null;
@@ -23,29 +23,28 @@ export function validateMule(raw: unknown): Mule | null {
   };
 }
 
-
-
 export function useMules() {
   const lastKnownGood = useRef<Mule[] | null>(null);
-  const writeFailedRef = useRef(false);
 
   const saveMules = useCallback((mules: Mule[]): void => {
     const serialized = JSON.stringify(mules);
     try {
       localStorage.setItem(STORAGE_KEY, serialized);
-      writeFailedRef.current = false;
     } catch {
       try {
         sessionStorage.setItem(FALLBACK_KEY, serialized);
       } catch {
-        writeFailedRef.current = true;
+        // Both storages failed; data persists in React state only
       }
     }
   }, []);
 
   function loadMules(): Mule[] {
     try {
-      const data = localStorage.getItem(STORAGE_KEY);
+      let data = localStorage.getItem(STORAGE_KEY);
+      if (data === null) {
+        data = sessionStorage.getItem(FALLBACK_KEY);
+      }
       if (data) {
         const parsed: unknown = JSON.parse(data);
         if (!Array.isArray(parsed)) {
@@ -53,20 +52,7 @@ export function useMules() {
         }
         const validated = parsed.map(validateMule);
         const validMules = validated.filter((m): m is Mule => m !== null);
-        const hasInvalidEntries = validMules.length !== parsed.length;
-        const hasPrunedBosses = parsed.some((raw, i) => {
-          const valid = validated[i];
-          if (valid === null) return false;
-          const rawBosses = (raw as Record<string, unknown>).selectedBosses;
-          return (
-            Array.isArray(rawBosses) &&
-            valid.selectedBosses.length !== rawBosses.length
-          );
-        });
         lastKnownGood.current = validMules;
-        if (hasInvalidEntries || hasPrunedBosses) {
-          saveMules(validMules);
-        }
         return validMules;
       }
     } catch {

@@ -2,7 +2,7 @@ import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor 
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
 import { Plus } from 'lucide-react';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import { ThemeProvider } from './context/ThemeProvider';
 import { IncomeProvider } from './modules/IncomeProvider';
@@ -26,6 +26,13 @@ function AppContent() {
   const { toggle: toggleAbbreviated } = useFormatPreference();
   const [selectedMuleId, setSelectedMuleId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    if (selectedMuleId && !mules.some((m) => m.id === selectedMuleId)) {
+      setSelectedMuleId(null);
+    }
+  }, [mules, selectedMuleId]);
+
   const sensors = [useSensor(PointerSensor, { activationConstraint: { distance: 5 } })];
 
   const handleDragStart = useCallback(() => {

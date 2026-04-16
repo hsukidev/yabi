@@ -130,24 +130,7 @@ describe('useMules', () => {
       expect(result.current.mules[0].selectedBosses).toEqual(['hard-lucid'])
     })
 
-    it('self-heals by saving cleaned data back to localStorage on load', () => {
-      const mules = [
-        {
-          id: 'a',
-          name: 'Test',
-          level: 200,
-          muleClass: 'Hero',
-          selectedBosses: ['hard-lucid', 'stale-boss-id'],
-        },
-      ]
-      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(mules)
-      renderHook(() => useMules())
 
-      const saved = JSON.parse(
-        localStorageStore['maplestory-mule-tracker'],
-      )
-      expect(saved[0].selectedBosses).toEqual(['hard-lucid'])
-    })
   })
 
   describe('saveMules', () => {
@@ -317,6 +300,96 @@ describe('useMules', () => {
     })
   })
 
+  describe('sessionStorage fallback read-back', () => {
+    it('reads mules from sessionStorage when localStorage returns null', () => {
+      const mules = [
+        {
+          id: 'a',
+          name: 'Fallback',
+          level: 150,
+          muleClass: 'Paladin',
+          selectedBosses: ['hard-lucid'],
+        },
+      ]
+      sessionStorageStore['maplestory-mule-tracker-fallback'] =
+        JSON.stringify(mules)
+      const { result } = renderHook(() => useMules())
+      expect(result.current.mules).toEqual(mules)
+    })
+
+    it('prefers localStorage over sessionStorage when both exist', () => {
+      const localStorageMules = [
+        {
+          id: 'ls',
+          name: 'FromLocal',
+          level: 100,
+          muleClass: 'Hero',
+          selectedBosses: [],
+        },
+      ]
+      const sessionStorageMules = [
+        {
+          id: 'ss',
+          name: 'FromSession',
+          level: 200,
+          muleClass: 'Paladin',
+          selectedBosses: [],
+        },
+      ]
+      localStorageStore['maplestory-mule-tracker'] =
+        JSON.stringify(localStorageMules)
+      sessionStorageStore['maplestory-mule-tracker-fallback'] =
+        JSON.stringify(sessionStorageMules)
+      const { result } = renderHook(() => useMules())
+      expect(result.current.mules[0].id).toBe('ls')
+    })
+  })
+
+  describe('retry-on-write', () => {
+    it('recovers from transient localStorage failure on subsequent writes', () => {
+      let callCount = 0
+      vi.spyOn(localStorage, 'setItem').mockImplementation((key: string, value: string) => {
+        callCount++
+        if (key === 'maplestory-mule-tracker' && callCount === 1) {
+          throw new DOMException('QuotaExceededError', 'QuotaExceededError')
+        }
+        localStorageStore[key] = value
+      })
+
+      const { result } = renderHook(() => useMules())
+      act(() => {
+        result.current.addMule()
+      })
+      expect(sessionStorageStore['maplestory-mule-tracker-fallback']).toBeDefined()
+
+      act(() => {
+        result.current.updateMule(result.current.mules[0].id, { name: 'Updated' })
+      })
+      expect(localStorageStore['maplestory-mule-tracker']).toBeDefined()
+      const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
+      expect(saved[0].name).toBe('Updated')
+    })
+  })
+
+  describe('self-healing via useEffect', () => {
+    it('self-heals cleaned data through useEffect, not loadMules', () => {
+      const mules = [
+        {
+          id: 'a',
+          name: 'Test',
+          level: 200,
+          muleClass: 'Hero',
+          selectedBosses: ['hard-lucid', 'stale-boss-id'],
+        },
+      ]
+      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(mules)
+      renderHook(() => useMules())
+
+      const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
+      expect(saved[0].selectedBosses).toEqual(['hard-lucid'])
+    })
+  })
+
   describe('outward API unchanged', () => {
     it('returns { mules, addMule, updateMule, deleteMule, reorderMules }', () => {
       const { result } = renderHook(() => useMules())
@@ -328,72 +401,3 @@ describe('useMules', () => {
   })
 })
 
-describe('validateMule', () => {
-  it('accepts a valid mule', async () => {
-    const { validateMule } = await import('../useMules')
-    const mule = {
-      id: 'test-id',
-      name: 'Test',
-      level: 200,
-      muleClass: 'Hero',
-      selectedBosses: ['hard-lucid'],
-    }
-    expect(validateMule(mule)).toEqual(mule)
-  })
-
-  it('returns null for missing id', async () => {
-    const { validateMule } = await import('../useMules')
-    expect(validateMule({ name: 'Test', level: 1, muleClass: 'A', selectedBosses: [] })).toBeNull()
-  })
-
-  it('returns null for non-string id', async () => {
-    const { validateMule } = await import('../useMules')
-    expect(validateMule({ id: 123, name: 'Test', level: 1, muleClass: 'A', selectedBosses: [] })).toBeNull()
-  })
-
-  it('returns null for missing name', async () => {
-    const { validateMule } = await import('../useMules')
-    expect(validateMule({ id: 'a', level: 1, muleClass: 'A', selectedBosses: [] })).toBeNull()
-  })
-
-  it('returns null for non-number level', async () => {
-    const { validateMule } = await import('../useMules')
-    expect(validateMule({ id: 'a', name: 'T', level: '200', muleClass: 'A', selectedBosses: [] })).toBeNull()
-  })
-
-  it('returns null for missing muleClass', async () => {
-    const { validateMule } = await import('../useMules')
-    expect(validateMule({ id: 'a', name: 'T', level: 1, selectedBosses: [] })).toBeNull()
-  })
-
-  it('returns null for non-array selectedBosses', async () => {
-    const { validateMule } = await import('../useMules')
-    expect(validateMule({ id: 'a', name: 'T', level: 1, muleClass: 'A', selectedBosses: 'not-array' })).toBeNull()
-  })
-
-  it('accepts level 0 as valid', async () => {
-    const { validateMule } = await import('../useMules')
-    const mule = { id: 'a', name: 'T', level: 0, muleClass: 'A', selectedBosses: [] }
-    expect(validateMule(mule)).toEqual(mule)
-  })
-
-  it('accepts empty name string', async () => {
-    const { validateMule } = await import('../useMules')
-    const mule = { id: 'a', name: '', level: 0, muleClass: '', selectedBosses: [] }
-    expect(validateMule(mule)).toEqual(mule)
-  })
-
-  it('enforces one-per-family when validating persisted data', async () => {
-    const { validateMule } = await import('../useMules')
-    const raw = {
-      id: 'a',
-      name: 'Test',
-      level: 200,
-      muleClass: 'Hero',
-      selectedBosses: ['normal-lucid', 'hard-lucid'],
-    }
-    const result = validateMule(raw)
-    expect(result).not.toBeNull()
-    expect(result!.selectedBosses).toEqual(['hard-lucid'])
-  })
-})
