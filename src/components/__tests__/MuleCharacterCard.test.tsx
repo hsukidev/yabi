@@ -13,7 +13,7 @@ const baseMule: Mule = {
   selectedBosses: [],
 }
 
-function renderCard(overrides: Partial<Mule> = {}) {
+function renderCard(overrides: Partial<Mule> = {}, options?: { defaultAbbreviated?: boolean }) {
   const onClick = vi.fn()
   const mule = { ...baseMule, ...overrides }
   return {
@@ -23,6 +23,7 @@ function renderCard(overrides: Partial<Mule> = {}) {
           <MuleCharacterCard mule={mule} onClick={onClick} />
         </SortableContext>
       </DndContext>,
+      options,
     ),
     onClick,
   }
@@ -70,5 +71,13 @@ describe('MuleCharacterCard', () => {
     expect(screen.getByText(/0.*\/week/)).toBeTruthy()
   })
 
+  it('renders abbreviated income by default', () => {
+    renderCard({ selectedBosses: ['hard-lucid'] })
+    expect(screen.getByText(/504M.*\/week/)).toBeTruthy()
+  })
 
+  it('renders full income when abbreviated is false', () => {
+    renderCard({ selectedBosses: ['hard-lucid'] }, { defaultAbbreviated: false })
+    expect(screen.getByText(/504,000,000.*\/week/)).toBeTruthy()
+  })
 })

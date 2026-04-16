@@ -16,7 +16,10 @@ const baseMule: Mule = {
   selectedBosses: [],
 }
 
-function renderDrawer(overrides: Partial<Parameters<typeof MuleDetailDrawer>[0]> = {}) {
+function renderDrawer(
+  overrides: Partial<Parameters<typeof MuleDetailDrawer>[0]> = {},
+  options?: { defaultAbbreviated?: boolean },
+) {
   const props = {
     mule: baseMule,
     open: true,
@@ -26,7 +29,7 @@ function renderDrawer(overrides: Partial<Parameters<typeof MuleDetailDrawer>[0]>
     ...overrides,
   }
   return {
-    ...render(<MuleDetailDrawer {...props} />),
+    ...render(<MuleDetailDrawer {...props} />, options),
     props,
   }
 }
@@ -50,5 +53,18 @@ describe('MuleDetailDrawer', () => {
     await waitFor(() => {
       expect(onClose).toHaveBeenCalled()
     })
+  })
+
+  it('renders abbreviated income by default', () => {
+    renderDrawer({ mule: { ...baseMule, selectedBosses: ['hard-lucid'] } })
+    expect(screen.getByText(/504M.*\/week/)).toBeTruthy()
+  })
+
+  it('renders full income when abbreviated is false', () => {
+    renderDrawer(
+      { mule: { ...baseMule, selectedBosses: ['hard-lucid'] } },
+      { defaultAbbreviated: false },
+    )
+    expect(screen.getByText(/504,000,000.*\/week/)).toBeTruthy()
   })
 })
