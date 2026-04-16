@@ -1,5 +1,6 @@
 import { bossFamilies, getBossById } from './bosses';
 import { selectBoss } from '../utils/selectBoss';
+import { formatMeso } from '../utils/meso';
 
 export interface FamilyView {
   family: string;
@@ -8,6 +9,7 @@ export interface FamilyView {
     id: string;
     name: string;
     crystalValue: number;
+    formattedValue: string;
     selected: boolean;
   }[];
 }
@@ -30,6 +32,7 @@ export function getFamilies(selectedIds: string[], search?: string): FamilyView[
       id: b.id,
       name: b.name,
       crystalValue: b.crystalValue,
+      formattedValue: formatMeso(b.crystalValue),
       selected: selectedSet.has(b.id),
     })),
   }));

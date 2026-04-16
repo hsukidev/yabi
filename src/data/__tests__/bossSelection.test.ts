@@ -80,6 +80,13 @@ describe('getFamilies', () => {
     expect(hardLucid.crystalValue).toBe(504000000)
   })
 
+  it('populates formattedValue on each boss', () => {
+    const families = getFamilies([])
+    const lucidFamily = families.find((f) => f.family === 'lucid')!
+    const hardLucid = lucidFamily.bosses.find((b) => b.id === 'hard-lucid')!
+    expect(hardLucid.formattedValue).toBe('504M')
+  })
+
   it('filters by family name with search', () => {
     const families = getFamilies([], 'lucid')
     expect(families.length).toBe(1)
