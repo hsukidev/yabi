@@ -120,4 +120,27 @@ describe('getFamilies', () => {
       )
     }
   })
+
+  describe('abbreviated option', () => {
+    it('returns abbreviated formatting when abbreviated: true', () => {
+      const families = getFamilies([], '', { abbreviated: true })
+      const lucidFamily = families.find((f) => f.family === 'lucid')!
+      const hardLucid = lucidFamily.bosses.find((b) => b.id === 'hard-lucid')!
+      expect(hardLucid.formattedValue).toBe('504M')
+    })
+
+    it('returns full number formatting when abbreviated: false', () => {
+      const families = getFamilies([], '', { abbreviated: false })
+      const lucidFamily = families.find((f) => f.family === 'lucid')!
+      const hardLucid = lucidFamily.bosses.find((b) => b.id === 'hard-lucid')!
+      expect(hardLucid.formattedValue).toBe('504,000,000')
+    })
+
+    it('full number formatting works for values under 1,000', () => {
+      const families = getFamilies([], '', { abbreviated: false })
+      const zakumFamily = families.find((f) => f.family === 'zakum')!
+      const easyZakum = zakumFamily.bosses.find((b) => b.id === 'easy-zakum')!
+      expect(easyZakum.formattedValue).toBe('1,000,000')
+    })
+  })
 })
