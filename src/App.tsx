@@ -103,6 +103,7 @@ function AppContent() {
                       key={mule.id}
                       mule={mule}
                       onClick={() => setSelectedMuleId(mule.id)}
+                      onDelete={deleteMule}
                     />
                   ))}
                 </div>
