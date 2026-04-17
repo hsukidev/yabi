@@ -7,6 +7,9 @@ import type { Mule } from '../types'
 import { useMuleIncome } from '../modules/income-hooks'
 import placeholderPng from '../assets/placeholder.png'
 
+const DRAG_OPACITY = 0.5
+const HOVER_OPACITY = 0.85
+
 interface MuleCharacterCardProps {
   mule: Mule
   onClick: () => void
@@ -19,10 +22,14 @@ export function MuleCharacterCard({ mule, onClick }: MuleCharacterCardProps) {
   const { formatted: potentialIncome } = useMuleIncome(mule)
   const [isHovered, setIsHovered] = useState(false)
 
+  let opacity = 1
+  if (isDragging) opacity = DRAG_OPACITY
+  else if (isHovered) opacity = HOVER_OPACITY
+
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition: [transition, 'opacity 150ms'].filter(Boolean).join(', '),
-    opacity: isDragging ? 0.5 : isHovered ? 0.85 : 1,
+    opacity,
   }
 
   return (
@@ -30,7 +37,6 @@ export function MuleCharacterCard({ mule, onClick }: MuleCharacterCardProps) {
       ref={setNodeRef}
       style={style}
       data-mule-card={mule.id}
-      className="group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       {...attributes}
