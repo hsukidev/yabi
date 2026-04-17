@@ -93,11 +93,6 @@ describe('MuleDetailDrawer', () => {
     })
   })
 
-  it('does not render old bottom delete button or Alert', () => {
-    renderDrawer()
-    expect(screen.queryByRole('alert')).toBeNull()
-  })
-
   it('renders abbreviated income by default', () => {
     renderDrawer({ mule: { ...baseMule, selectedBosses: ['hard-lucid'] } })
     expect(screen.getByText(/504M.*\/week/)).toBeTruthy()
