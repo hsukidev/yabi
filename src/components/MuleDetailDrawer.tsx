@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Trash2 } from 'lucide-react';
-import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -42,9 +41,31 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => { if (!isOpen) handleClose() }}>
-      <SheetContent side="right" className="w-[550px] sm:max-w-[550px] overflow-y-auto p-6">
+      <SheetContent side="right" showCloseButton={false} className="w-[550px] sm:max-w-[550px] overflow-y-auto p-6">
         <SheetTitle className="sr-only">Mule Details</SheetTitle>
         <SheetDescription className="sr-only">Edit mule details and boss selection</SheetDescription>
+
+        {confirmDelete ? (
+          <div className="absolute top-3 right-3 flex items-center gap-1">
+            <span className="text-sm text-red-500 font-medium">Delete?</span>
+            <Button size="xs" variant="destructive" onClick={() => handleDelete(mule.id)}>
+              Yes
+            </Button>
+            <Button size="xs" variant="outline" onClick={() => setConfirmDelete(false)}>
+              Cancel
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="absolute top-3 right-3 text-red-500 hover:text-red-600"
+            onClick={() => setConfirmDelete(true)}
+          >
+            <Trash2 />
+            <span className="sr-only">Delete</span>
+          </Button>
+        )}
 
         <div className="flex flex-col gap-4">
           <div className="flex items-start gap-2">
@@ -101,34 +122,6 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
             selectedBosses={mule.selectedBosses}
             onChange={(selectedBosses) => onUpdate(mule.id, { selectedBosses })}
           />
-
-          {confirmDelete ? (
-            <Alert variant="destructive">
-              <div className="flex items-center justify-between">
-                <p className="text-sm">Delete this mule?</p>
-                <div className="flex gap-1">
-                  <Button size="sm" variant="destructive" onClick={() => handleDelete(mule.id)}>
-                    Yes
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => setConfirmDelete(false)}>
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </Alert>
-          ) : (
-            <div className="flex justify-end">
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-red-500 hover:text-red-600"
-                onClick={() => setConfirmDelete(true)}
-              >
-                <Trash2 className="mr-1 h-3.5 w-3.5" />
-                Delete
-              </Button>
-            </div>
-          )}
         </div>
       </SheetContent>
     </Sheet>

@@ -45,14 +45,57 @@ describe('MuleDetailDrawer', () => {
     expect(screen.queryByRole('heading', { name: 'TestMule' })).toBeNull()
   })
 
-  it('calls onClose when the close button is clicked', async () => {
-    const onClose = vi.fn()
-    renderDrawer({ onClose })
-    const closeButton = screen.getByRole('button', { name: /close/i })
-    fireEvent.click(closeButton)
+  it('does not render an X close button', () => {
+    renderDrawer()
+    expect(screen.queryByRole('button', { name: /close/i })).toBeNull()
+  })
+
+  it('renders a trash icon button', () => {
+    renderDrawer()
+    expect(screen.getByRole('button', { name: /delete/i })).toBeTruthy()
+  })
+
+  it('clicking trash icon shows inline delete confirmation', async () => {
+    renderDrawer()
+    fireEvent.click(screen.getByRole('button', { name: /delete/i }))
     await waitFor(() => {
+      expect(screen.getByText('Delete?')).toBeTruthy()
+      expect(screen.getByRole('button', { name: 'Yes' })).toBeTruthy()
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeTruthy()
+    })
+  })
+
+  it('clicking Yes calls onDelete and closes the drawer', async () => {
+    const onDelete = vi.fn()
+    const onClose = vi.fn()
+    renderDrawer({ onDelete, onClose })
+    fireEvent.click(screen.getByRole('button', { name: /delete/i }))
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Yes' })).toBeTruthy()
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Yes' }))
+    await waitFor(() => {
+      expect(onDelete).toHaveBeenCalledWith('test-mule-1')
       expect(onClose).toHaveBeenCalled()
     })
+  })
+
+  it('clicking Cancel hides confirmation and shows trash icon again', async () => {
+    renderDrawer()
+    fireEvent.click(screen.getByRole('button', { name: /delete/i }))
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeTruthy()
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+    await waitFor(() => {
+      expect(screen.queryByText('Delete?')).toBeNull()
+      expect(screen.getByRole('button', { name: /delete/i })).toBeTruthy()
+    })
+  })
+
+  it('does not render old bottom delete button or Alert', () => {
+    renderDrawer()
+    expect(screen.queryByRole('alert')).toBeNull()
   })
 
   it('renders abbreviated income by default', () => {

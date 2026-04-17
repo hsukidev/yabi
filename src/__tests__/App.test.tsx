@@ -174,8 +174,8 @@ describe('App', () => {
       fireEvent.click(screen.getByText('KeepMe'))
       expect(screen.getByRole('heading', { name: 'KeepMe' })).toBeTruthy()
 
-      const closeButton = screen.getByRole('button', { name: /close/i })
-      fireEvent.click(closeButton)
+      const overlay = document.querySelector('[data-slot="sheet-overlay"]')!
+      fireEvent.click(overlay)
       await waitFor(() => {
         expect(screen.queryByRole('heading', { name: 'KeepMe' })).toBeNull()
       })
