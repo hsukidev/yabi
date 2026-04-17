@@ -235,6 +235,36 @@ describe('App DnD interactions', () => {
     })
   })
 
+  it('drag opacity (0.5) takes priority over hover opacity (0.85)', async () => {
+    const { container } = render(<App />)
+    const cardA = container.querySelector('[data-mule-card="mule-a"]') as HTMLElement
+
+    fireEvent.mouseEnter(cardA)
+    expect(cardA.style.opacity).toBe('0.85')
+
+    fireEvent.pointerDown(cardA, {
+      pointerId: 1, clientX: 100, clientY: 150,
+      button: 0, isPrimary: true, bubbles: true,
+    })
+    fireEvent.pointerMove(document, {
+      pointerId: 1, clientX: 110, clientY: 150,
+      isPrimary: true, bubbles: true,
+    })
+
+    await waitFor(() => {
+      expect(cardA.style.opacity).toBe('0.5')
+    })
+
+    fireEvent.pointerUp(document, {
+      pointerId: 1, clientX: 110, clientY: 150,
+      isPrimary: true, bubbles: true,
+    })
+
+    await waitFor(() => {
+      expect(cardA.style.opacity).toBe('0.85')
+    })
+  })
+
   it('resets isDragging state on drag cancel, removing dotted border', async () => {
     const { container } = render(<App />)
 

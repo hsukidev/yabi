@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Card } from '@/components/ui/card'
@@ -16,15 +17,25 @@ export function MuleCharacterCard({ mule, onClick }: MuleCharacterCardProps) {
     useSortable({ id: mule.id })
 
   const { formatted: potentialIncome } = useMuleIncome(mule)
+  const [isHovered, setIsHovered] = useState(false)
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
+    transition: [transition, 'opacity 150ms'].filter(Boolean).join(', '),
+    opacity: isDragging ? 0.5 : isHovered ? 0.85 : 1,
   }
 
   return (
-    <div ref={setNodeRef} style={style} data-mule-card={mule.id} {...attributes} {...listeners}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      data-mule-card={mule.id}
+      className="group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      {...attributes}
+      {...listeners}
+    >
       <Card
         className="shadow-sm rounded-lg border w-[200px] h-[300px] cursor-pointer overflow-hidden p-0"
         onClick={onClick}

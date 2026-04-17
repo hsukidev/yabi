@@ -80,4 +80,14 @@ describe('MuleCharacterCard', () => {
     renderCard({ selectedBosses: ['hard-lucid'] }, { defaultAbbreviated: false })
     expect(screen.getByText(/504,000,000.*\/week/)).toBeTruthy()
   })
+
+  it('reduces opacity on hover and restores on mouse leave', () => {
+    const { container } = renderCard()
+    const cardWrapper = container.querySelector('[data-mule-card]') as HTMLElement
+    expect(cardWrapper.style.opacity).toBe('1')
+    fireEvent.mouseEnter(cardWrapper)
+    expect(cardWrapper.style.opacity).toBe('0.85')
+    fireEvent.mouseLeave(cardWrapper)
+    expect(cardWrapper.style.opacity).toBe('1')
+  })
 })
