@@ -20,7 +20,7 @@ export function AddCard({ onClick }: AddCardProps) {
         'flex flex-col items-center justify-center gap-3',
         'transition-[border-color,background-color,box-shadow] duration-200',
         isHovered
-          ? 'border-[var(--maple)] bg-[color-mix(in_oklch,var(--maple)_6%,transparent)] shadow-[0_0_40px_-10px_var(--maple)]'
+          ? 'border-[var(--accent-primary)] bg-[color-mix(in_oklch,var(--accent-primary)_6%,transparent)] shadow-[0_0_40px_-10px_var(--accent-primary)]'
           : 'border-border/60 bg-transparent',
       ].join(' ')}
       onClick={onClick}
@@ -38,7 +38,7 @@ export function AddCard({ onClick }: AddCardProps) {
         className={[
           'flex items-center justify-center h-14 w-14 rounded-full transition-all duration-200',
           isHovered
-            ? 'bg-[color-mix(in_oklch,var(--maple)_15%,transparent)] text-[var(--maple)]'
+            ? 'bg-[color-mix(in_oklch,var(--accent-primary)_15%,transparent)] text-[var(--accent-primary)]'
             : 'bg-muted/40 text-muted-foreground',
         ].join(' ')}
       >

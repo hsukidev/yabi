@@ -67,8 +67,8 @@ export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCard
           'border border-border bg-card',
           'ring-1 ring-inset ring-white/[0.06]',
           'transition-[transform,box-shadow,border-color] duration-200',
-          'hover:-translate-y-0.5 hover:border-[var(--maple)]/60',
-          'hover:shadow-[0_18px_40px_-18px_var(--maple),0_0_0_1px_color-mix(in_oklch,var(--maple)_35%,transparent)]',
+'hover:-translate-y-0.5 hover:border-[var(--accent-primary)]/60',
+'hover:shadow-[0_18px_40px_-18px_var(--accent-primary),0_0_0_1px_color-mix(in_oklch,var(--accent-primary)_35%,transparent)]',
         ].join(' ')}
         role="button"
         tabIndex={0}
@@ -84,8 +84,7 @@ export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCard
             aria-hidden
             className="absolute inset-0"
             style={{
-              background:
-                'linear-gradient(180deg, var(--surface-raised) 0%, var(--card) 100%)',
+              background: 'linear-gradient(180deg, var(--surface-raised) 0%, var(--card) 100%)',
             }}
           />
           <img
@@ -99,7 +98,7 @@ export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCard
             style={{ background: 'linear-gradient(180deg, transparent, var(--card) 92%)' }}
           />
           {mule.level > 0 && (
-            <span className="absolute top-2 left-2 font-mono-nums text-[10px] tracking-wide px-1.5 py-0.5 rounded border border-border/60 bg-background/70 backdrop-blur-sm text-[var(--gold)]">
+            <span className="absolute top-2 left-2 font-mono-nums text-[10px] tracking-wide px-1.5 py-0.5 rounded border border-border/60 bg-background/70 backdrop-blur-sm text-[var(--accent-numeric)]">
               Lv.{mule.level}
             </span>
           )}
@@ -115,7 +114,7 @@ export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCard
           className="absolute left-3 right-3 h-px"
           style={{
             top: '62%',
-            background: 'linear-gradient(90deg, transparent, var(--maple), transparent)',
+            background: 'linear-gradient(90deg, transparent, var(--accent-primary), transparent)',
             opacity: 0.75,
           }}
         />
@@ -125,7 +124,7 @@ export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCard
             <p className="font-display text-base font-bold leading-tight truncate">
               {mule.name || <span className="text-muted-foreground italic font-normal">Unnamed</span>}
             </p>
-            <p className="mt-0.5 font-sans text-[10px] uppercase tracking-[0.22em] text-[var(--leaf)] truncate">
+            <p className="mt-0.5 font-sans text-[10px] uppercase tracking-[0.22em] text-[var(--accent-secondary)] truncate">
               {mule.muleClass || <span className="text-muted-foreground/70">no class</span>}
             </p>
           </div>
@@ -135,7 +134,7 @@ export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCard
             </span>
             <span className={[
               'font-mono-nums text-sm',
-              hasBosses ? 'text-[var(--gold)]' : 'text-muted-foreground/60',
+              hasBosses ? 'text-[var(--accent-numeric)]' : 'text-muted-foreground/60',
             ].join(' ')}>
               {potentialIncome}
             </span>

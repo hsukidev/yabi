@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PieChart, Pie, Cell, Sector } from 'recharts';
+import { PieChart, Pie, Cell } from 'recharts';
 import type { Mule } from '../types';
 import { computeMuleIncome } from '../modules/income';
 import { useFormatPreference } from '../modules/income-hooks';
@@ -24,33 +24,6 @@ interface ChartDataItem {
 interface IncomePieChartProps {
   mules: Mule[];
   onSliceClick?: (muleId: string) => void;
-}
-
-interface ActiveSectorProps {
-  cx: number;
-  cy: number;
-  innerRadius: number;
-  outerRadius: number;
-  startAngle: number;
-  endAngle: number;
-  fill: string;
-}
-
-function ActiveSector(props: unknown) {
-  const p = props as ActiveSectorProps;
-  return (
-    <g style={{ filter: `drop-shadow(0 0 8px ${p.fill})` }}>
-      <Sector
-        cx={p.cx}
-        cy={p.cy}
-        innerRadius={p.innerRadius}
-        outerRadius={p.outerRadius + 6}
-        startAngle={p.startAngle}
-        endAngle={p.endAngle}
-        fill={p.fill}
-      />
-    </g>
-  );
 }
 
 export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
@@ -79,7 +52,7 @@ export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
             className="h-16 w-16 rounded-full border border-dashed border-border/60"
             style={{
               background:
-                'radial-gradient(closest-side, oklch(from var(--maple) l c h / 0.12), transparent 70%)',
+                'radial-gradient(closest-side, oklch(from var(--accent-primary) l c h / 0.12), transparent 70%)',
             }}
           />
           <p className="font-display italic text-sm text-muted-foreground">
@@ -121,11 +94,10 @@ export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
             paddingAngle={2}
             stroke="var(--card)"
             strokeWidth={2}
-            activeIndex={activeIndex}
-            activeShape={ActiveSector as never}
-            onMouseEnter={(_e, index) => setActiveIndex(index)}
+            shape={renderSector as never}
+            onMouseEnter={(_e: unknown, index: number) => setActiveIndex(index)}
             onMouseLeave={() => setActiveIndex(undefined)}
-            onClick={(_event, index) => {
+            onClick={(_event: unknown, index: number) => {
               const muleId = data[index]?.muleId;
               if (muleId != null) onSliceClick?.(muleId);
             }}
@@ -146,7 +118,7 @@ export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
         <span className="font-display text-base font-semibold max-w-[140px] truncate mt-0.5">
           {hoveredName ?? 'Ledger'}
         </span>
-        <span className="font-mono-nums text-sm text-[var(--gold)] mt-1">
+        <span className="font-mono-nums text-sm text-[var(--accent-numeric)] mt-1">
           {hoveredValue ?? (abbreviated
             ? formatCompact(total)
             : total.toLocaleString())}
@@ -154,6 +126,70 @@ export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
       </div>
     </div>
   );
+}
+
+interface SectorShapeProps {
+  cx: number;
+  cy: number;
+  innerRadius: number;
+  outerRadius: number;
+  startAngle: number;
+  endAngle: number;
+  fill: string;
+  isActive: boolean;
+  [key: string]: unknown;
+}
+
+function renderSector(props: SectorShapeProps) {
+  const {
+    cx,
+    cy,
+    innerRadius,
+    outerRadius: baseOuter,
+    startAngle,
+    endAngle,
+    fill,
+    isActive,
+  } = props;
+  const outerRadius = isActive ? baseOuter + 6 : baseOuter;
+  const path = describeArc(cx, cy, innerRadius, outerRadius, startAngle, endAngle);
+  if (isActive) {
+    return (
+      <g style={{ filter: `drop-shadow(0 0 8px ${fill})` }}>
+        <path d={path} fill={fill} stroke="var(--card)" strokeWidth={2} />
+      </g>
+    );
+  }
+  return <path d={path} fill={fill} stroke="var(--card)" strokeWidth={2} />;
+}
+
+function describeArc(cx: number, cy: number, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number): string {
+  const RAD = Math.PI / 180;
+  const largeArc = Math.abs(endAngle - startAngle) > 180 ? 1 : 0;
+  const outerStartX = cx + outerRadius * Math.cos(-startAngle * RAD);
+  const outerStartY = cy + outerRadius * Math.sin(-startAngle * RAD);
+  const outerEndX = cx + outerRadius * Math.cos(-endAngle * RAD);
+  const outerEndY = cy + outerRadius * Math.sin(-endAngle * RAD);
+
+  if (innerRadius > 0) {
+    const innerStartX = cx + innerRadius * Math.cos(-endAngle * RAD);
+    const innerStartY = cy + innerRadius * Math.sin(-endAngle * RAD);
+    const innerEndX = cx + innerRadius * Math.cos(-startAngle * RAD);
+    const innerEndY = cy + innerRadius * Math.sin(-startAngle * RAD);
+    return [
+      `M ${outerStartX} ${outerStartY}`,
+      `A ${outerRadius} ${outerRadius} 0 ${largeArc} 0 ${outerEndX} ${outerEndY}`,
+      `L ${innerStartX} ${innerStartY}`,
+      `A ${innerRadius} ${innerRadius} 0 ${largeArc} 1 ${innerEndX} ${innerEndY}`,
+      'Z',
+    ].join(' ');
+  }
+  return [
+    `M ${cx} ${cy}`,
+    `L ${outerStartX} ${outerStartY}`,
+    `A ${outerRadius} ${outerRadius} 0 ${largeArc} 0 ${outerEndX} ${outerEndY}`,
+    'Z',
+  ].join(' ');
 }
 
 function formatCompact(n: number): string {

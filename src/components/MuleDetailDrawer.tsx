@@ -31,7 +31,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
       <span
         aria-hidden
         className="flex-1 h-px"
-        style={{ background: 'linear-gradient(90deg, color-mix(in oklch, var(--leaf) 55%, transparent), transparent)' }}
+        style={{ background: 'linear-gradient(90deg, color-mix(in oklch, var(--accent-secondary) 55%, transparent), transparent)' }}
       />
     </div>
   );
@@ -68,12 +68,12 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
           <div
             aria-hidden
             className="absolute inset-x-0 -top-px h-px"
-            style={{ background: 'linear-gradient(90deg, transparent, var(--maple), transparent)' }}
+            style={{ background: 'linear-gradient(90deg, transparent, var(--accent-primary), transparent)' }}
           />
           <div
             aria-hidden
             className="absolute -top-24 right-0 h-56 w-56 pointer-events-none blur-3xl opacity-30"
-            style={{ background: 'radial-gradient(closest-side, var(--maple), transparent)' }}
+            style={{ background: 'radial-gradient(closest-side, var(--accent-primary), transparent)' }}
           />
 
           <div className="relative p-6 flex items-start gap-4 border-b border-border/50">
@@ -98,10 +98,10 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
               </h2>
               <div className="mt-1 flex items-center gap-3 text-xs">
                 {mule.level > 0 && (
-                  <span className="font-mono-nums text-[var(--gold)]">Lv.{mule.level}</span>
+                  <span className="font-mono-nums text-[var(--accent-numeric)]">Lv.{mule.level}</span>
                 )}
                 {mule.muleClass && (
-                  <span className="font-sans uppercase tracking-[0.22em] text-[10px] text-[var(--leaf)]">
+                  <span className="font-sans uppercase tracking-[0.22em] text-[10px] text-[var(--accent-secondary)]">
                     {mule.muleClass}
                   </span>
                 )}
@@ -110,7 +110,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                 <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
                   Weekly
                 </span>
-                <span className="font-mono-nums text-base text-[var(--gold)]">{potentialIncome}</span>
+                <span className="font-mono-nums text-base text-[var(--accent-numeric)]">{potentialIncome}</span>
                 <span className="font-display italic text-xs text-muted-foreground">mesos</span>
               </div>
             </div>
@@ -151,7 +151,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                     placeholder="Enter name"
                     value={mule.name}
                     onChange={(e) => onUpdate(mule.id, { name: e.currentTarget.value })}
-                    className="bg-input/40 border-border/60 focus-visible:border-[var(--maple)] focus-visible:ring-[var(--ring)]"
+                    className="bg-input/40 border-border/60 focus-visible:border-[var(--accent-primary)] focus-visible:ring-[var(--ring)]"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -166,7 +166,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                       min={0}
                       value={mule.level || ''}
                       onChange={(e) => onUpdate(mule.id, { level: Number(e.currentTarget.value) || 0 })}
-                      className="bg-input/40 border-border/60 focus-visible:border-[var(--maple)] focus-visible:ring-[var(--ring)] font-mono-nums"
+                      className="bg-input/40 border-border/60 focus-visible:border-[var(--accent-primary)] focus-visible:ring-[var(--ring)] font-mono-nums"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -178,7 +178,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                       placeholder="e.g. Bishop"
                       value={mule.muleClass}
                       onChange={(e) => onUpdate(mule.id, { muleClass: e.currentTarget.value })}
-                      className="bg-input/40 border-border/60 focus-visible:border-[var(--maple)] focus-visible:ring-[var(--ring)]"
+                      className="bg-input/40 border-border/60 focus-visible:border-[var(--accent-primary)] focus-visible:ring-[var(--ring)]"
                     />
                   </div>
                 </div>

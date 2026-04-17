@@ -16,7 +16,7 @@ import { IncomePieChart } from './components/IncomePieChart';
 const dragBoundaryStyle: React.CSSProperties = {
   borderStyle: 'dashed',
   borderWidth: '1.5px',
-  borderColor: 'color-mix(in oklch, var(--maple) 45%, transparent)',
+  borderColor: 'color-mix(in oklch, var(--accent-primary) 45%, transparent)',
   borderRadius: '1rem',
   padding: '0.75rem',
 };
@@ -69,23 +69,23 @@ function AppContent() {
 
       <main className="container mx-auto max-w-7xl px-4 sm:px-6 py-8">
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
-          <div className="lg:col-span-8 relative overflow-hidden rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-8 shadow-[0_0_80px_-28px_var(--maple)]">
+          <div className="lg:col-span-8 relative overflow-hidden rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-8 shadow-[0_0_80px_-28px_var(--accent-primary)]">
             <div
               aria-hidden
               className="absolute -top-24 -right-24 h-64 w-64 rounded-full blur-3xl opacity-40 pointer-events-none"
-              style={{ background: 'radial-gradient(closest-side, var(--maple), transparent)' }}
+              style={{ background: 'radial-gradient(closest-side, var(--accent-primary), transparent)' }}
             />
             <div
               aria-hidden
               className="absolute -bottom-32 -left-20 h-72 w-72 rounded-full blur-3xl opacity-25 pointer-events-none"
-              style={{ background: 'radial-gradient(closest-side, var(--leaf), transparent)' }}
+              style={{ background: 'radial-gradient(closest-side, var(--accent-secondary), transparent)' }}
             />
             <div className="relative flex flex-col gap-4">
               <div className="flex items-center gap-3">
                 <span
                   aria-hidden
                   className="h-1.5 w-10 rounded-full"
-                  style={{ background: 'linear-gradient(90deg, var(--maple), var(--gold))' }}
+                  style={{ background: 'linear-gradient(90deg, var(--accent-primary), var(--accent-numeric))' }}
                 />
                 <p className="font-sans text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
                   Total Weekly Income
@@ -97,7 +97,7 @@ function AppContent() {
                 className="group flex items-baseline gap-3 text-left cursor-pointer"
                 aria-label="Toggle abbreviated meso format"
               >
-                <span className="font-mono-nums text-5xl sm:text-6xl font-medium text-[var(--gold)] leading-none group-hover:drop-shadow-[0_0_12px_var(--maple)] transition-[filter] duration-200">
+                <span className="font-mono-nums text-5xl sm:text-6xl font-medium text-[var(--accent-numeric)] leading-none group-hover:drop-shadow-[0_0_12px_var(--accent-primary)] transition-[filter] duration-200">
                   {totalWeeklyIncome}
                 </span>
                 <span className="font-display italic text-2xl text-muted-foreground group-hover:text-foreground/80 transition-colors">
@@ -106,7 +106,7 @@ function AppContent() {
               </button>
               <div className="flex flex-wrap gap-6 pt-2 border-t border-border/40 mt-2">
                 <Stat label="Mules" value={String(mules.length)} />
-                <Stat label="Active" value={String(activeMuleCount)} accent="leaf" />
+                <Stat label="Active" value={String(activeMuleCount)} accent="secondary" />
                 <Stat
                   label="Avg / Mule"
                   value={activeMuleCount > 0 ? 'see chart' : '\u2014'}
@@ -138,7 +138,7 @@ function AppContent() {
               <span
                 aria-hidden
                 className="h-px w-8"
-                style={{ background: 'linear-gradient(90deg, transparent, var(--leaf))' }}
+                style={{ background: 'linear-gradient(90deg, transparent, var(--accent-secondary))' }}
               />
               <h2 className="font-display text-2xl font-bold tracking-tight">
                 Roster
@@ -195,12 +195,12 @@ function AppContent() {
 interface StatProps {
   label: string;
   value: string;
-  accent?: 'maple' | 'leaf';
+  accent?: 'primary' | 'secondary';
   muted?: boolean;
 }
 
 function Stat({ label, value, accent, muted }: StatProps) {
-  const accentColor = accent === 'leaf' ? 'var(--leaf)' : 'var(--maple)';
+  const accentColor = accent === 'secondary' ? 'var(--accent-secondary)' : 'var(--accent-primary)';
   return (
     <div className="flex flex-col gap-1">
       <span className="font-sans text-[10px] uppercase tracking-[0.22em] text-muted-foreground">

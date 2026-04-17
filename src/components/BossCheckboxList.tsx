@@ -21,12 +21,12 @@ export function BossCheckboxList({ selectedBosses, onChange }: BossCheckboxListP
     <div className="flex flex-col gap-3">
       <div className="relative">
         <Search
-          className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--leaf)]"
+          className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--accent-secondary)]"
           aria-hidden
         />
         <Input
           placeholder="Search bosses..."
-          className="pl-9 bg-input/40 border-border/60 focus-visible:border-[var(--maple)] focus-visible:ring-[var(--ring)]"
+          className="pl-9 bg-input/40 border-border/60 focus-visible:border-[var(--accent-primary)] focus-visible:ring-[var(--ring)]"
           value={search}
           onChange={(e) => setSearch(e.currentTarget.value)}
         />
@@ -41,8 +41,8 @@ export function BossCheckboxList({ selectedBosses, onChange }: BossCheckboxListP
               className="rounded-lg border border-border/50 bg-background/30 pl-3 pr-2 py-2"
               style={{
                 boxShadow: familyHasSelection
-                  ? 'inset 2px 0 0 0 var(--maple)'
-                  : 'inset 2px 0 0 0 color-mix(in oklch, var(--leaf) 35%, transparent)',
+                  ? 'inset 2px 0 0 0 var(--accent-primary)'
+                  : 'inset 2px 0 0 0 color-mix(in oklch, var(--accent-secondary) 35%, transparent)',
               }}
             >
               <div className="flex items-center justify-between mb-1.5">
@@ -50,7 +50,7 @@ export function BossCheckboxList({ selectedBosses, onChange }: BossCheckboxListP
                   {family.displayName}
                 </p>
                 {familyHasSelection && (
-                  <span className="font-sans text-[9px] uppercase tracking-[0.22em] text-[var(--maple)]">
+                  <span className="font-sans text-[9px] uppercase tracking-[0.22em] text-[var(--accent-primary)]">
                     claimed
                   </span>
                 )}
@@ -66,7 +66,7 @@ export function BossCheckboxList({ selectedBosses, onChange }: BossCheckboxListP
                       className={[
                         'flex items-center gap-3 rounded-md px-2 py-1.5 cursor-pointer transition-colors',
                         boss.selected
-                          ? 'bg-[color-mix(in_oklch,var(--maple)_10%,transparent)]'
+                          ? 'bg-[color-mix(in_oklch,var(--accent-primary)_10%,transparent)]'
                           : isLocked
                             ? 'opacity-55 hover:opacity-75'
                             : 'hover:bg-muted/40',
@@ -89,7 +89,7 @@ export function BossCheckboxList({ selectedBosses, onChange }: BossCheckboxListP
                       <span
                         className={[
                           'font-mono-nums text-xs tabular-nums',
-                          boss.selected ? 'text-[var(--gold)]' : 'text-muted-foreground',
+                          boss.selected ? 'text-[var(--accent-numeric)]' : 'text-muted-foreground',
                         ].join(' ')}
                       >
                         {boss.formattedValue}
