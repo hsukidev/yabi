@@ -1,7 +1,6 @@
 import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
-import { Plus } from 'lucide-react';
 import { useState, useCallback } from 'react';
 
 import { ThemeProvider } from './context/ThemeProvider';
@@ -10,9 +9,9 @@ import { useTotalIncome, useFormatPreference } from './modules/income-hooks';
 import { useMules } from './hooks/useMules';
 import { MuleCharacterCard } from './components/MuleCharacterCard';
 import { MuleDetailDrawer } from './components/MuleDetailDrawer';
+import { AddCard } from './components/AddCard';
 import { Header } from './components/Header';
 import { IncomePieChart } from './components/IncomePieChart';
-import { Button } from './components/ui/button';
 
 const dragBoundaryStyle: React.CSSProperties = {
   borderStyle: 'dotted',
@@ -80,13 +79,6 @@ function AppContent() {
             />
           </div>
 
-          <div className="flex justify-end">
-            <Button onClick={handleAddMule}>
-              <Plus className="mr-1" size={16} />
-              Add Mule
-            </Button>
-          </div>
-
           <DndContext
             collisionDetection={closestCenter}
             onDragStart={handleDragStart}
@@ -105,6 +97,7 @@ function AppContent() {
                       onClick={() => setSelectedMuleId(mule.id)}
                     />
                   ))}
+                  <AddCard onClick={handleAddMule} />
                 </div>
               </div>
             </SortableContext>

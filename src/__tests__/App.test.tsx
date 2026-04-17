@@ -95,7 +95,7 @@ describe('App', () => {
     resetTestEnvironment()
   })
 
-  it('renders Add Mule button', () => {
+  it('renders Add Card in the grid with "Add Mule" text', () => {
     render(<App />)
     expect(screen.getByRole('button', { name: /add mule/i })).toBeTruthy()
   })
@@ -112,11 +112,26 @@ describe('App', () => {
     expect(cards.length).toBe(3)
   })
 
-  it('clicking Add Mule adds a new mule', () => {
+  it('Add Card appears as the last item in the grid', () => {
+    seedMules(testMules)
+    const { container } = render(<App />)
+    const grid = container.querySelector('.grid') as HTMLElement
+    const lastChild = grid.lastElementChild as HTMLElement
+    expect(lastChild.hasAttribute('data-add-card')).toBe(true)
+  })
+
+  it('old Add Mule button row above grid is removed', () => {
+    const { container } = render(<App />)
+    const flexEndRow = container.querySelector('.flex.justify-end')
+    expect(flexEndRow).toBeNull()
+  })
+
+  it('clicking Add Card creates a new mule and opens the detail drawer', async () => {
     render(<App />)
-    const gridBefore = screen.queryAllByText(/Unnamed Mule/).length
     fireEvent.click(screen.getByRole('button', { name: /add mule/i }))
-    expect(screen.queryAllByText(/Unnamed Mule/).length).toBeGreaterThan(gridBefore)
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Unnamed Mule' })).toBeTruthy()
+    })
   })
 
   it('toggles income display format on click', () => {
@@ -297,6 +312,27 @@ describe('App DnD interactions', () => {
 
     await waitFor(() => {
       expect(gridWrapper!.style.borderStyle).toBeFalsy()
+    })
+  })
+
+  it('Add Card is not included in DnD sortable items', () => {
+    const { container } = render(<App />)
+    const addCard = container.querySelector('[data-add-card]') as HTMLElement
+    expect(addCard).toBeTruthy()
+    // Add Card should not have dnd-kit sortable attributes
+    expect(addCard.closest('[data-mule-card]')).toBeNull()
+  })
+
+  it('dragging cards does not change Add Card position (stays last)', async () => {
+    const { container } = render(<App />)
+
+    const cardA = container.querySelector('[data-mule-card="mule-a"]') as HTMLElement
+    simulatePointerDrag(cardA, 100, 150, 320, 150)
+
+    await waitFor(() => {
+      const grid = container.querySelector('.grid') as HTMLElement
+      const lastChild = grid.lastElementChild as HTMLElement
+      expect(lastChild.hasAttribute('data-add-card')).toBe(true)
     })
   })
 })
