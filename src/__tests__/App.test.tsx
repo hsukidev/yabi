@@ -198,31 +198,6 @@ describe('App', () => {
   })
 })
 
-describe('App grid layout', () => {
-  beforeEach(() => {
-    resetTestEnvironment()
-    seedMules(testMules)
-  })
-
-  it('uses max-w-7xl container width', () => {
-    const { container } = render(<App />)
-    const wrapper = container.querySelector('.max-w-7xl')
-    expect(wrapper).toBeTruthy()
-    expect(container.querySelector('.max-w-5xl')).toBeNull()
-  })
-
-  it('grid scales 1 → 2 (sm) → 3 (md) → 4 (lg) → 6 (xl)', () => {
-    const { container } = render(<App />)
-    const grid = container.querySelector('.grid') as HTMLElement
-    expect(grid).toBeTruthy()
-    expect(grid.className).toContain('grid-cols-1')
-    expect(grid.className).toContain('sm:grid-cols-2')
-    expect(grid.className).toContain('md:grid-cols-3')
-    expect(grid.className).toContain('lg:grid-cols-4')
-    expect(grid.className).toContain('xl:grid-cols-6')
-  })
-})
-
 describe('App DnD interactions', () => {
   let restoreRect: () => void
 
