@@ -3,7 +3,7 @@ import { PieChart, Pie, Cell } from 'recharts';
 import type { Mule } from '../types';
 import { computeMuleIncome } from '../modules/income';
 import { useFormatPreference } from '../modules/income-hooks';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from './ui/chart';
+import { ChartContainer, type ChartConfig } from './ui/chart';
 
 const CHART_VARS = [
   'var(--chart-1)',
@@ -101,13 +101,13 @@ export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
               const muleId = data[index]?.muleId;
               if (muleId != null) onSliceClick?.(muleId);
             }}
-            style={{ cursor: onSliceClick ? 'pointer' : 'default' }}
+            style={{ cursor: 'pointer' }}
           >
             {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.fill} />
             ))}
           </Pie>
-          <ChartTooltip content={<ChartTooltipContent />} />
+
         </PieChart>
       </ChartContainer>
 
@@ -152,12 +152,12 @@ function renderSector(props: SectorShapeProps) {
   const path = describeArc(cx, cy, innerRadius, outerRadius, startAngle, endAngle);
   if (isActive) {
     return (
-      <g style={{ filter: `drop-shadow(0 0 8px ${fill})` }}>
+      <g style={{ filter: `drop-shadow(0 0 8px ${fill})`, cursor: 'pointer' }}>
         <path d={path} fill={fill} stroke="var(--card)" strokeWidth={2} />
       </g>
     );
   }
-  return <path d={path} fill={fill} stroke="var(--card)" strokeWidth={2} />;
+  return <path d={path} fill={fill} stroke="var(--card)" strokeWidth={2} style={{ cursor: 'pointer' }} />;
 }
 
 function describeArc(cx: number, cy: number, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number): string {

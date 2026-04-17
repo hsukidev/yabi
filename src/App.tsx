@@ -97,10 +97,10 @@ function AppContent() {
                 className="group flex items-baseline gap-3 text-left cursor-pointer"
                 aria-label="Toggle abbreviated meso format"
               >
-                <span className="font-mono-nums text-5xl sm:text-6xl font-medium text-[var(--accent-numeric)] leading-none group-hover:drop-shadow-[0_0_12px_var(--accent-primary)] transition-[filter] duration-200">
+                <span className="font-mono-nums text-5xl sm:text-6xl font-medium text-[var(--accent-numeric)] leading-none group-hover:drop-shadow-[0_0_12px_var(--accent-primary)]">
                   {totalWeeklyIncome}
                 </span>
-                <span className="font-display italic text-2xl text-muted-foreground group-hover:text-foreground/80 transition-colors">
+                <span className="font-display italic text-2xl text-muted-foreground group-hover:text-foreground/80">
                   mesos
                 </span>
               </button>
@@ -113,7 +113,7 @@ function AppContent() {
 
           <div className="lg:col-span-4 relative rounded-2xl border border-border bg-card/60 backdrop-blur-sm p-4 overflow-hidden">
             <div className="flex items-center justify-between px-2 pb-2">
-              <p className="font-display italic text-lg text-foreground/90">
+              <p className="font-display text-lg text-foreground/90">
                 Income Split
               </p>
               <span className="font-sans text-[10px] uppercase tracking-[0.22em] text-muted-foreground">

@@ -59,7 +59,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
       <SheetContent
         side="right"
         showCloseButton={false}
-        className="w-[560px] sm:max-w-[560px] overflow-y-auto p-0 bg-card border-l border-border/70"
+        className="data-[side=right]:w-[640px] data-[side=right]:sm:max-w-[640px] overflow-y-auto p-0 bg-card border-l border-border/70"
       >
         <SheetTitle className="sr-only">Mule Details</SheetTitle>
         <SheetDescription className="sr-only">Edit mule details and boss selection</SheetDescription>
@@ -76,8 +76,8 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
             style={{ background: 'radial-gradient(closest-side, var(--accent-primary), transparent)' }}
           />
 
-          <div className="relative p-6 flex items-start gap-4 border-b border-border/50">
-            <div className="relative h-[108px] w-[76px] rounded-lg overflow-hidden border border-border/60 bg-surface-raised shrink-0">
+          <div className="relative p-8 flex items-start gap-5 border-b border-border/50">
+            <div className="relative h-[132px] w-[92px] rounded-lg overflow-hidden border border-border/60 bg-surface-raised shrink-0">
               <img
                 src={placeholderPng}
                 alt={mule.name || 'Mule avatar'}
@@ -90,9 +90,6 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
               />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="invisible">
-              ""
-              </p>
               <h2 className="mt-1 font-display text-2xl font-bold leading-tight truncate">
                 {mule.name || <span className="text-muted-foreground italic font-normal">Unnamed Mule</span>}
               </h2>

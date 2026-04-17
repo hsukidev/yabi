@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Lock } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -49,11 +49,6 @@ export function BossCheckboxList({ selectedBosses, onChange }: BossCheckboxListP
                 <p className="font-display text-sm font-semibold">
                   {family.displayName}
                 </p>
-                {familyHasSelection && (
-                  <span className="font-sans text-[9px] uppercase tracking-[0.22em] text-[var(--accent-primary)]">
-                    claimed
-                  </span>
-                )}
               </div>
               <div className="flex flex-col gap-0.5">
                 {family.bosses.map((boss) => {
@@ -80,12 +75,6 @@ export function BossCheckboxList({ selectedBosses, onChange }: BossCheckboxListP
                       <span className="flex-1 font-sans text-sm truncate">
                         {boss.name}
                       </span>
-                      {isLocked && (
-                        <Lock
-                          aria-hidden
-                          className="h-3 w-3 text-muted-foreground/60"
-                        />
-                      )}
                       <span
                         className={[
                           'font-mono-nums text-xs tabular-nums',
