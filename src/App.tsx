@@ -65,8 +65,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header totalWeeklyIncome={totalWeeklyIncome} muleCount={mules.length} />
-
+      <Header />
       <main className="container mx-auto max-w-7xl px-4 sm:px-6 py-8">
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
           <div className="lg:col-span-8 relative overflow-hidden rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-8 shadow-[0_0_80px_-28px_var(--accent-primary)]">
