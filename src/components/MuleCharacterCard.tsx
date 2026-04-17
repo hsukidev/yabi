@@ -41,11 +41,7 @@ export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCard
     opacity,
   }
 
-  function handleTrashClick(e: React.MouseEvent) {
-    e.stopPropagation()
-  }
-
-  function handleTrashPointerDown(e: React.PointerEvent) {
+  function stopPropagation(e: React.SyntheticEvent) {
     e.stopPropagation()
   }
 
@@ -90,8 +86,8 @@ export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCard
                   opacity: isHovered || popoverOpen ? 1 : 0,
                   transition: 'opacity 100ms',
                 }}
-                onClick={handleTrashClick}
-                onPointerDown={handleTrashPointerDown}
+                onClick={stopPropagation}
+                onPointerDown={stopPropagation}
               />
             }
           >
@@ -101,8 +97,8 @@ export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCard
             className="w-auto p-3"
             side="bottom"
             align="end"
-            onClick={handleTrashClick}
-            onPointerDown={handleTrashPointerDown}
+            onClick={stopPropagation}
+            onPointerDown={stopPropagation}
           >
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Delete?</span>

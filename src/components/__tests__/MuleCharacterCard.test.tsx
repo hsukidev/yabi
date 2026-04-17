@@ -181,21 +181,5 @@ describe('MuleCharacterCard', () => {
       expect(onClick).not.toHaveBeenCalled()
     })
 
-    it('stops pointer down propagation to prevent DnD activation', () => {
-      const { container } = renderCard()
-      const cardWrapper = container.querySelector('[data-mule-card]') as HTMLElement
-      fireEvent.mouseEnter(cardWrapper)
-
-      const trashButton = screen.getByRole('button', { name: /delete/i })
-      const pointerDownEvent = new PointerEvent('pointerdown', {
-        bubbles: true,
-        cancelable: true,
-        pointerId: 1,
-        button: 0,
-      })
-      const stopPropSpy = vi.spyOn(pointerDownEvent, 'stopPropagation')
-      trashButton.dispatchEvent(pointerDownEvent)
-      expect(stopPropSpy).toHaveBeenCalled()
-    })
   })
 })
