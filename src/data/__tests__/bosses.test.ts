@@ -199,7 +199,7 @@ describe('getLegacyBoss', () => {
   );
 
   it('every resolved uuid points to a real Boss whose difficulty[] contains the resolved tier', () => {
-    for (const [legacyId, expectedTier, expectedCrystalValue] of LEGACY_IDS) {
+    for (const [legacyId, , expectedCrystalValue] of LEGACY_IDS) {
       const { uuid, tier, crystalValue } = getLegacyBoss(legacyId)!;
       const boss = getBossById(uuid) as Boss;
       expect(boss).toBeDefined();
