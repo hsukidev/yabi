@@ -23,6 +23,11 @@ const TIER_HEADER_LABEL: Record<BossTier, string> = {
   extreme: 'Extreme',
 };
 
+const GRID_TEMPLATE = '140px repeat(5, 1fr)';
+
+const STEPPER_BTN_CLASS =
+  'grid place-items-center w-5 h-5 text-sm leading-none text-[var(--muted-raw,var(--muted-foreground))] hover:bg-[var(--surface-2)] hover:text-[var(--accent)] disabled:opacity-40 disabled:cursor-not-allowed';
+
 // Precompute tier → BossDifficulty lookup per family once at module load.
 const tierByBossId = new Map<string, Map<BossTier, BossDifficulty>>(
   bossesByTopCrystalDesc.map((b): [string, Map<BossTier, BossDifficulty>] => [
@@ -40,27 +45,19 @@ interface BossMatrixProps {
 
 function TierHeader({ tier }: { tier: BossTier }) {
   return (
-    <div className="flex items-center justify-center gap-1.5">
+    <div className="flex flex-col items-center gap-1">
       <span
         aria-hidden
         data-difficulty-pip={tier}
-        style={{
-          width: 4,
-          height: 14,
-          borderRadius: 2,
-          background: TIER_COLOR[tier],
-          display: 'inline-block',
-        }}
+        className="inline-block w-[18px] h-[3px] rounded-[2px]"
+        style={{ background: TIER_COLOR[tier] }}
       />
-      <span className="font-sans text-[10px] uppercase tracking-[0.22em] text-[var(--muted-raw,var(--muted-foreground))]">
+      <span className="font-mono-nums text-[10px] uppercase tracking-[0.08em] text-[var(--muted-raw,var(--muted-foreground))]">
         {TIER_HEADER_LABEL[tier]}
       </span>
     </div>
   );
 }
-
-const STEPPER_BTN_CLASS =
-  'px-1.5 py-0.5 font-mono-nums text-[10px] text-[var(--muted-raw,var(--muted-foreground))] hover:text-[var(--accent)] disabled:opacity-40 disabled:cursor-not-allowed';
 
 function PartyStepper({
   family,
@@ -74,8 +71,6 @@ function PartyStepper({
   const atMin = party <= 1;
   const atMax = party >= 6;
 
-  // Step handlers stop propagation so clicks never fall through to the cell
-  // toggle handler on the enclosing row.
   function step(delta: -1 | 1) {
     return (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -91,12 +86,12 @@ function PartyStepper({
       data-testid={`party-stepper-${family}`}
       className="inline-flex items-center gap-1.5"
     >
-      <span className="font-sans text-[9px] uppercase tracking-[0.22em] text-[var(--muted-raw,var(--muted-foreground))]">
+      <span className="font-mono-nums text-[9px] uppercase tracking-[0.1em] text-[var(--muted-raw,var(--muted-foreground))]">
         Party
       </span>
       <div
-        className="inline-flex items-center rounded-md border border-[var(--border)]"
-        style={{ background: 'var(--surface)' }}
+        className="inline-flex items-stretch overflow-hidden rounded-[5px] border border-[var(--border)]"
+        style={{ background: 'var(--surface)', height: 20 }}
       >
         <button
           type="button"
@@ -108,8 +103,10 @@ function PartyStepper({
         >
           −
         </button>
-        <span className="px-1 font-mono-nums text-[10px] tabular-nums min-w-[1.5rem] text-center">
-          {party}P
+        <span
+          className="grid place-items-center px-1 font-mono-nums text-[10px] tabular-nums text-center min-w-[26px] border-x border-[var(--border)]"
+        >
+          {party}
         </span>
         <button
           type="button"
@@ -143,14 +140,18 @@ function FamilyRow({
   return (
     <div
       role="row"
-      className="grid border-b border-border/40 last:border-b-0"
-      style={{ gridTemplateColumns: '1.6fr repeat(5, 1fr)' }}
+      className="grid border-t border-[var(--border)] first:border-t-0"
+      style={{ gridTemplateColumns: GRID_TEMPLATE }}
     >
       <div
         role="rowheader"
-        className="px-3 py-2 flex items-center justify-between gap-2 min-w-0"
+        className="flex flex-col justify-center gap-[5px] px-[10px] py-2 border-r border-[var(--border)] text-[12px] font-medium"
+        style={{ background: 'var(--surface-2)' }}
       >
-        <span className="font-display text-sm font-semibold truncate">
+        <span
+          data-testid="family-name"
+          className="font-display leading-[1.2] truncate"
+        >
           {boss.name}
         </span>
         <PartyStepper
@@ -168,7 +169,7 @@ function FamilyRow({
               role="cell"
               data-testid={`matrix-cell-${boss.id}-${tier}`}
               aria-disabled="true"
-              className="px-2 py-2 flex items-center justify-center font-mono-nums text-[11px] text-[var(--muted-raw,var(--muted-foreground))]"
+              className="grid place-items-center py-[10px] px-1 border-r border-[var(--border)] last:border-r-0 font-mono-nums text-[11px] text-[var(--muted-raw,var(--muted-foreground))]"
               style={{ cursor: 'default', opacity: 0.3 }}
             >
               —
@@ -190,7 +191,7 @@ function FamilyRow({
             data-dim={isDim ? 'true' : undefined}
             onClick={() => onToggleKey(key)}
             className={[
-              'px-2 py-2 flex items-center justify-center font-mono-nums text-[11px] tabular-nums cursor-pointer transition-colors border-l border-border/30',
+              'grid place-items-center py-[10px] px-1 border-r border-[var(--border)] last:border-r-0 font-mono-nums text-[11px] tabular-nums cursor-pointer transition-colors',
               isSelected
                 ? 'bg-[var(--accent-soft)] ring-1 ring-inset ring-[var(--accent)] text-[var(--accent)] font-semibold'
                 : 'text-[var(--muted-raw,var(--muted-foreground))] hover:bg-[var(--surface-2)] hover:text-[var(--text,var(--foreground))]',
@@ -221,17 +222,20 @@ export function BossMatrix({
     <div className="flex flex-col gap-2">
       <div
         role="table"
-        className="rounded-lg border border-border/50 overflow-hidden"
-        style={{ background: 'var(--surface-2)' }}
+        className="rounded-[10px] border border-[var(--border)] overflow-hidden"
+        style={{ background: 'var(--surface)' }}
       >
         <div
           role="row"
-          className="grid border-b border-border/50"
-          style={{ gridTemplateColumns: '1.6fr repeat(5, 1fr)' }}
+          className="grid border-b border-[var(--border)]"
+          style={{
+            gridTemplateColumns: GRID_TEMPLATE,
+            background: 'var(--surface-2)',
+          }}
         >
           <div
             role="columnheader"
-            className="px-3 py-2 font-sans text-[10px] uppercase tracking-[0.22em] text-[var(--muted-raw,var(--muted-foreground))]"
+            className="px-3 py-[10px] border-r border-[var(--border)] font-mono-nums text-[10px] uppercase tracking-[0.08em] text-[var(--muted-raw,var(--muted-foreground))]"
           >
             Boss Family
           </div>
@@ -240,7 +244,7 @@ export function BossMatrix({
               key={tier}
               role="columnheader"
               aria-label={TIER_HEADER_LABEL[tier]}
-              className="px-2 py-2"
+              className="px-2 py-[10px]"
             >
               <TierHeader tier={tier} />
             </div>
@@ -259,7 +263,7 @@ export function BossMatrix({
         ))}
       </div>
 
-      <p className="font-display italic text-xs text-[var(--muted-raw,var(--muted-foreground))]">
+      <p className="font-display italic text-[11px] text-[var(--muted-raw,var(--muted-foreground))]">
         Tap a cell to pick difficulty · adjust party size per family.
       </p>
     </div>

@@ -160,31 +160,59 @@ function renderSector(props: SectorShapeProps) {
   return <path d={path} fill={fill} stroke="var(--card)" strokeWidth={2} style={{ cursor: 'pointer' }} />;
 }
 
-function describeArc(cx: number, cy: number, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number): string {
+export function describeArc(cx: number, cy: number, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number): string {
   const RAD = Math.PI / 180;
-  const largeArc = Math.abs(endAngle - startAngle) > 180 ? 1 : 0;
-  const outerStartX = cx + outerRadius * Math.cos(-startAngle * RAD);
-  const outerStartY = cy + outerRadius * Math.sin(-startAngle * RAD);
-  const outerEndX = cx + outerRadius * Math.cos(-endAngle * RAD);
-  const outerEndY = cy + outerRadius * Math.sin(-endAngle * RAD);
+  const pt = (r: number, a: number) =>
+    [cx + r * Math.cos(-a * RAD), cy + r * Math.sin(-a * RAD)] as const;
+  const span = Math.abs(endAngle - startAngle);
+
+  // SVG can't draw an arc to the same point, so a full circle collapses to
+  // nothing. Split at the midpoint so each sub-arc has distinct endpoints.
+  if (span >= 360) {
+    const mid = startAngle + (endAngle - startAngle) / 2;
+    const [osx, osy] = pt(outerRadius, startAngle);
+    const [omx, omy] = pt(outerRadius, mid);
+    if (innerRadius > 0) {
+      const [isx, isy] = pt(innerRadius, startAngle);
+      const [imx, imy] = pt(innerRadius, mid);
+      return [
+        `M ${osx} ${osy}`,
+        `A ${outerRadius} ${outerRadius} 0 0 0 ${omx} ${omy}`,
+        `A ${outerRadius} ${outerRadius} 0 0 0 ${osx} ${osy}`,
+        `L ${isx} ${isy}`,
+        `A ${innerRadius} ${innerRadius} 0 0 1 ${imx} ${imy}`,
+        `A ${innerRadius} ${innerRadius} 0 0 1 ${isx} ${isy}`,
+        'Z',
+      ].join(' ');
+    }
+    return [
+      `M ${cx} ${cy}`,
+      `L ${osx} ${osy}`,
+      `A ${outerRadius} ${outerRadius} 0 0 0 ${omx} ${omy}`,
+      `A ${outerRadius} ${outerRadius} 0 0 0 ${osx} ${osy}`,
+      'Z',
+    ].join(' ');
+  }
+
+  const largeArc = span > 180 ? 1 : 0;
+  const [osx, osy] = pt(outerRadius, startAngle);
+  const [oex, oey] = pt(outerRadius, endAngle);
 
   if (innerRadius > 0) {
-    const innerStartX = cx + innerRadius * Math.cos(-endAngle * RAD);
-    const innerStartY = cy + innerRadius * Math.sin(-endAngle * RAD);
-    const innerEndX = cx + innerRadius * Math.cos(-startAngle * RAD);
-    const innerEndY = cy + innerRadius * Math.sin(-startAngle * RAD);
+    const [isx, isy] = pt(innerRadius, endAngle);
+    const [iex, iey] = pt(innerRadius, startAngle);
     return [
-      `M ${outerStartX} ${outerStartY}`,
-      `A ${outerRadius} ${outerRadius} 0 ${largeArc} 0 ${outerEndX} ${outerEndY}`,
-      `L ${innerStartX} ${innerStartY}`,
-      `A ${innerRadius} ${innerRadius} 0 ${largeArc} 1 ${innerEndX} ${innerEndY}`,
+      `M ${osx} ${osy}`,
+      `A ${outerRadius} ${outerRadius} 0 ${largeArc} 0 ${oex} ${oey}`,
+      `L ${isx} ${isy}`,
+      `A ${innerRadius} ${innerRadius} 0 ${largeArc} 1 ${iex} ${iey}`,
       'Z',
     ].join(' ');
   }
   return [
     `M ${cx} ${cy}`,
-    `L ${outerStartX} ${outerStartY}`,
-    `A ${outerRadius} ${outerRadius} 0 ${largeArc} 0 ${outerEndX} ${outerEndY}`,
+    `L ${osx} ${osy}`,
+    `A ${outerRadius} ${outerRadius} 0 ${largeArc} 0 ${oex} ${oey}`,
     'Z',
   ].join(' ');
 }

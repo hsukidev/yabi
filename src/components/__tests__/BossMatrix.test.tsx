@@ -56,6 +56,15 @@ describe('BossMatrix', () => {
       }
     })
 
+    it('orders tier columns left-to-right as Extreme, Chaos, Hard, Normal, Easy', () => {
+      renderMatrix()
+      const tierHeaders = screen
+        .getAllByRole('columnheader')
+        .filter((h) => h.getAttribute('aria-label'))
+        .map((h) => h.getAttribute('aria-label'))
+      expect(tierHeaders).toEqual(['Extreme', 'Chaos', 'Hard', 'Normal', 'Easy'])
+    })
+
     it('renders one DiffPip color strip per tier column in the header', () => {
       renderMatrix()
       for (const tier of TIER_ORDER) {
@@ -188,6 +197,26 @@ describe('BossMatrix', () => {
     })
   })
 
+  describe('family cell layout', () => {
+    it('renders boss name before the party stepper in DOM order (stacked)', () => {
+      renderMatrix()
+      const rowHeader = screen
+        .getAllByRole('rowheader')
+        .find((r) => r.textContent?.includes('Lucid'))!
+      const nameEl = rowHeader.querySelector('[data-testid="family-name"]')!
+      const stepper = rowHeader.querySelector(
+        `[data-testid^="party-stepper-"]`,
+      )!
+      expect(nameEl).toBeTruthy()
+      expect(stepper).toBeTruthy()
+      // compareDocumentPosition: FOLLOWING means stepper is after nameEl
+      expect(
+        nameEl.compareDocumentPosition(stepper) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy()
+    })
+  })
+
   describe('party stepper', () => {
     it('renders a Party label per family row', () => {
       renderMatrix()
@@ -195,16 +224,16 @@ describe('BossMatrix', () => {
       expect(labels.length).toBe(bosses.length)
     })
 
-    it('renders a party stepper per family showing "1P" when partySizes is absent', () => {
+    it('renders a party stepper per family showing "1" when partySizes is absent', () => {
       renderMatrix()
       const stepper = screen.getByTestId(`party-stepper-${LUCID_BOSS.family}`)
-      expect(stepper.textContent).toContain('1P')
+      expect(stepper.textContent).toContain('1')
     })
 
     it('uses the provided partySizes value when present', () => {
       renderMatrix([], vi.fn(), { [LUCID_BOSS.family]: 3 })
       const stepper = screen.getByTestId(`party-stepper-${LUCID_BOSS.family}`)
-      expect(stepper.textContent).toContain('3P')
+      expect(stepper.textContent).toContain('3')
     })
 
     it('clicking + calls onChangePartySize with value + 1', () => {

@@ -7,8 +7,8 @@ import { formatMeso } from '../utils/meso';
  * `Mule.selectedBosses`. Use `makeKey` / `parseKey` to construct or decode.
  */
 
-/** Tier order used by the Matrix component (columns, easy → extreme). */
-export const TIER_ORDER: BossTier[] = ['easy', 'normal', 'hard', 'chaos', 'extreme'];
+/** Tier order used by the Matrix component (columns, extreme → easy, hardest first). */
+export const TIER_ORDER: BossTier[] = ['extreme', 'chaos', 'hard', 'normal', 'easy'];
 
 const TIER_SET: ReadonlySet<BossTier> = new Set(TIER_ORDER);
 

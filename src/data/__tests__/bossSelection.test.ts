@@ -26,8 +26,8 @@ const ZAKUM = idForFamily('zakum')
 const KALOS = idForFamily('kalos-the-guardian')
 
 describe('TIER_ORDER', () => {
-  it('exports tiers in easy → extreme order', () => {
-    const expected: BossTier[] = ['easy', 'normal', 'hard', 'chaos', 'extreme']
+  it('exports tiers in extreme → easy order (hardest first)', () => {
+    const expected: BossTier[] = ['extreme', 'chaos', 'hard', 'normal', 'easy']
     expect(TIER_ORDER).toEqual(expected)
   })
 })

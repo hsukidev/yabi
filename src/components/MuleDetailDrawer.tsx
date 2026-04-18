@@ -142,7 +142,6 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
 
           <div className="p-6 flex flex-col gap-5">
             <div className="flex flex-col gap-3">
-              <SectionHeading>Identity</SectionHeading>
               <div className="grid grid-cols-1 gap-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="mule-name" className="font-sans text-xs text-muted-foreground">
@@ -158,6 +157,18 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
+                    <Label htmlFor="mule-class" className="font-sans text-xs text-muted-foreground">
+                      Class
+                    </Label>
+                    <Input
+                      id="mule-class"
+                      placeholder="e.g. Bishop"
+                      value={mule.muleClass}
+                      onChange={(e) => onUpdate(mule.id, { muleClass: e.currentTarget.value })}
+                      className="bg-input/40 border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))] focus-visible:ring-[var(--ring)]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
                     <Label htmlFor="mule-level" className="font-sans text-xs text-muted-foreground">
                       Level
                     </Label>
@@ -169,18 +180,6 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                       value={mule.level || ''}
                       onChange={(e) => onUpdate(mule.id, { level: Number(e.currentTarget.value) || 0 })}
                       className="bg-input/40 border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))] focus-visible:ring-[var(--ring)] font-mono-nums"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="mule-class" className="font-sans text-xs text-muted-foreground">
-                      Class
-                    </Label>
-                    <Input
-                      id="mule-class"
-                      placeholder="e.g. Bishop"
-                      value={mule.muleClass}
-                      onChange={(e) => onUpdate(mule.id, { muleClass: e.currentTarget.value })}
-                      className="bg-input/40 border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))] focus-visible:ring-[var(--ring)]"
                     />
                   </div>
                 </div>

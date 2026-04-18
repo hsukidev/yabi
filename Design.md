@@ -72,10 +72,10 @@ Empty state gradient uses `hsl(from var(--accent-primary) ...)` relative color s
 Hover state `--accent-primary` border, background (`color-mix(in_hsl, ...)`), and warm amber glow shadow.
 
 ### [src/components/MuleDetailDrawer.tsx](src/components/MuleDetailDrawer.tsx)
-Section heading rule `--accent-secondary` (teal). Gradient accents `--accent-primary` (amber). Level badge `--accent-numeric` (gold). Class label `--accent-secondary` (teal). Income badge `--accent-numeric`. Input focus borders `--accent-primary`. `color-mix` uses `in hsl`.
+Right-side sheet, responsive width: full viewport below Tailwind `md` (`<768px`), capped at `560px` at `md+` (`data-[side=right]:w-screen data-[side=right]:md:w-[560px]`). Section heading rule `--accent-secondary` (teal). Gradient accents `--accent-primary` (amber). Level badge `--accent-numeric` (gold). Class label `--accent-secondary` (teal). Income badge `--accent-numeric`. Input focus borders `--accent-primary`. `color-mix` uses `in hsl`. Boss picker is [BossMatrix](src/components/BossMatrix.tsx); party-size clamping (1–6) lives in the drawer wrapper so `BossMatrix` stays a dumb view.
 
-### [src/components/BossCheckboxList.tsx](src/components/BossCheckboxList.tsx)
-Search icon `--accent-secondary` (teal). Input focus `--accent-primary` (amber). Family left accent bar `--accent-primary`/`--accent-secondary` via `color-mix(in hsl, ...)`. Selected row bg `--accent-primary` at 10% opacity. Crystal values `--accent-numeric` (gold).
+### [src/components/BossMatrix.tsx](src/components/BossMatrix.tsx)
+Family × difficulty grid — one row per family, five tier columns (`easy`, `normal`, `hard`, `chaos`, `extreme`). Tier pip colors (hardcoded, not token-driven — they encode tier semantics, not theme): easy `#6fb878` (green), normal `#8fb3d9` (blue), hard `#d98a3a` (orange), chaos `#c94f8f` (magenta), extreme `#e8533a` (red). Header row shows each tier's pip + label. Populated cell renders `formatMeso(crystalValue / partySize, true)` — the **net** meso value after party-size division; no "÷N" hint inside cells. Empty tier cells render a dashed dim `—` and are non-interactive. Selected cell uses `bg-[var(--accent-soft)] ring-1 ring-inset ring-[var(--accent)] text-[var(--accent)]`; other populated cells in that row dim to opacity ~0.35 via `data-dim="true"`. Left column of each row holds family display name plus a compact party-size stepper (`− / NP / +`): monospace label, transparent buttons with `hover:text-[var(--accent)]`, disabled at bounds so out-of-range callbacks cannot fire. Italic caption below the grid: *"Tap a cell to pick difficulty · adjust party size per family."*
 
 ---
 

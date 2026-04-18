@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen, fireEvent } from '@/test/test-utils'
-import { IncomePieChart } from '../IncomePieChart'
+import { IncomePieChart, describeArc } from '../IncomePieChart'
 import type { Mule } from '../../types'
 import { bosses } from '../../data/bosses'
 import { makeKey } from '../../data/bossSelection'
@@ -38,6 +38,23 @@ describe('IncomePieChart', () => {
   it('does not show empty state message when mules have bosses', () => {
     render(<IncomePieChart mules={[muleWithBosses]} />)
     expect(screen.queryByText('No crystals tallied yet')).toBeNull()
+  })
+
+  describe('describeArc', () => {
+    it('renders a full-circle donut without a degenerate zero-length arc', () => {
+      const path = describeArc(150, 150, 60, 100, 90, 450)
+
+      // M <sx> <sy> A <rx> <ry> <rot> <large> <sweep> <ex> <ey> ...
+      const outerCmd = path.match(
+        /M\s*([\d.-]+)\s+([\d.-]+)\s+A\s+[\d.-]+\s+[\d.-]+\s+\d+\s+\d+\s+\d+\s+([\d.-]+)\s+([\d.-]+)/,
+      )
+      expect(outerCmd).not.toBeNull()
+      const [, sx, sy, ex, ey] = outerCmd!
+      const sameStartEnd =
+        Math.abs(parseFloat(sx) - parseFloat(ex)) < 0.01 &&
+        Math.abs(parseFloat(sy) - parseFloat(ey)) < 0.01
+      expect(sameStartEnd).toBe(false)
+    })
   })
 
   it('fires onSliceClick when a pie slice is clicked', () => {
