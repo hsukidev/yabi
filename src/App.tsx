@@ -14,6 +14,7 @@ import { AddCard } from './components/AddCard';
 import { Header } from './components/Header';
 import { KpiCard } from './components/KpiCard';
 import { SplitCard } from './components/SplitCard';
+import { DensityToggle } from './components/DensityToggle';
 
 const dragBoundaryStyle: React.CSSProperties = {
   borderStyle: 'dashed',
@@ -85,19 +86,16 @@ function AppContent() {
               <span
                 aria-hidden
                 className="h-px w-8"
-                style={{ background: 'linear-gradient(90deg, transparent, var(--accent-secondary))' }}
+                style={{ background: 'linear-gradient(90deg, transparent, var(--accent-raw, var(--accent)))' }}
               />
-              <h2 className="font-display text-2xl font-bold tracking-tight">
-                Roster
-              </h2>
-              <span className="font-sans text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-                {mules.length} {mules.length === 1 ? 'mule' : 'mules'}
+              <h2 className="font-display text-2xl font-bold tracking-tight">Roster</h2>
+              <span className="eyebrow-plain">
+                {mules.length} {mules.length === 1 ? 'MULE' : 'MULES'}
               </span>
+              <DensityToggle />
             </div>
             {mules.length > 1 && (
-              <p className="font-sans text-[10px] uppercase tracking-[0.22em] text-muted-foreground/70 hidden sm:block">
-                drag to reorder
-              </p>
+              <p className="eyebrow-plain hidden sm:block" style={{ opacity: 0.6 }}>drag to reorder</p>
             )}
           </div>
 
