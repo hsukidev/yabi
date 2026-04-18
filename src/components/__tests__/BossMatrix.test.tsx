@@ -3,21 +3,36 @@ import { render, screen, fireEvent } from '@/test/test-utils'
 import { BossMatrix } from '../BossMatrix'
 import { bosses } from '../../data/bosses'
 import { makeKey, TIER_ORDER } from '../../data/bossSelection'
+import { formatMeso } from '../../utils/meso'
 
-const LUCID = bosses.find((b) => b.family === 'lucid')!.id
+const LUCID_BOSS = bosses.find((b) => b.family === 'lucid')!
+const LUCID = LUCID_BOSS.id
 const HARD_LUCID = makeKey(LUCID, 'hard')
 const NORMAL_LUCID = makeKey(LUCID, 'normal')
+const LUCID_HARD_VALUE = LUCID_BOSS.difficulty.find((d) => d.tier === 'hard')!.crystalValue
 
-const BLACK_MAGE = bosses.find((b) => b.family === 'black-mage')!.id
+const BLACK_MAGE_BOSS = bosses.find((b) => b.family === 'black-mage')!
+const BLACK_MAGE = BLACK_MAGE_BOSS.id
+const BLACK_MAGE_EXTREME_VALUE = BLACK_MAGE_BOSS.difficulty.find((d) => d.tier === 'extreme')!.crystalValue
 const AKECHI = bosses.find((b) => b.family === 'akechi-mitsuhide')!.id
 
 function renderMatrix(
   selectedKeys: string[] = [],
   onToggleKey = vi.fn(),
+  partySizes: Record<string, number> = {},
+  onChangePartySize = vi.fn(),
 ) {
   return {
-    ...render(<BossMatrix selectedKeys={selectedKeys} onToggleKey={onToggleKey} />),
+    ...render(
+      <BossMatrix
+        selectedKeys={selectedKeys}
+        onToggleKey={onToggleKey}
+        partySizes={partySizes}
+        onChangePartySize={onChangePartySize}
+      />,
+    ),
     onToggleKey,
+    onChangePartySize,
   }
 }
 
@@ -51,20 +66,25 @@ describe('BossMatrix', () => {
 
     it('renders each family row with its display name in the leftmost cell', () => {
       renderMatrix()
-      expect(screen.getByRole('rowheader', { name: 'Black Mage' })).toBeTruthy()
-      expect(screen.getByRole('rowheader', { name: 'Lucid' })).toBeTruthy()
-      expect(screen.getByRole('rowheader', { name: 'Akechi Mitsuhide' })).toBeTruthy()
+      // The rowheader now also contains the Party stepper, so use partial matching.
+      const rowHeaders = screen.getAllByRole('rowheader')
+      const names = rowHeaders.map((r) => r.textContent || '')
+      expect(names.some((n) => n.includes('Black Mage'))).toBe(true)
+      expect(names.some((n) => n.includes('Lucid'))).toBe(true)
+      expect(names.some((n) => n.includes('Akechi Mitsuhide'))).toBe(true)
     })
 
     it('sorts family rows by top-tier crystalValue descending (Black Mage first)', () => {
       renderMatrix()
       const rowHeaders = screen.getAllByRole('rowheader')
-      expect(rowHeaders[0].textContent).toBe('Black Mage')
+      expect(rowHeaders[0].textContent).toContain('Black Mage')
     })
 
-    it('renders the caption "Tap a cell to pick difficulty."', () => {
+    it('renders the caption explaining the grid and stepper', () => {
       renderMatrix()
-      expect(screen.getByText('Tap a cell to pick difficulty.')).toBeTruthy()
+      expect(
+        screen.getByText(/Tap a cell to pick difficulty/i),
+      ).toBeTruthy()
     })
   })
 
@@ -167,6 +187,105 @@ describe('BossMatrix', () => {
       const hardCell = screen.getByTestId(`matrix-cell-${LUCID}-hard`)
       fireEvent.click(hardCell)
       expect(onToggleKey).toHaveBeenCalledWith(HARD_LUCID)
+    })
+  })
+
+  describe('party stepper', () => {
+    it('renders a Party label per family row', () => {
+      renderMatrix()
+      // One "PARTY" label per family row.
+      const labels = screen.getAllByText('Party')
+      expect(labels.length).toBe(bosses.length)
+    })
+
+    it('renders a party stepper per family showing "1P" when partySizes is absent', () => {
+      renderMatrix()
+      const stepper = screen.getByTestId(`party-stepper-${LUCID_BOSS.family}`)
+      expect(stepper.textContent).toContain('1P')
+    })
+
+    it('uses the provided partySizes value when present', () => {
+      renderMatrix([], vi.fn(), { [LUCID_BOSS.family]: 3 })
+      const stepper = screen.getByTestId(`party-stepper-${LUCID_BOSS.family}`)
+      expect(stepper.textContent).toContain('3P')
+    })
+
+    it('clicking + calls onChangePartySize with value + 1', () => {
+      const onChangePartySize = vi.fn()
+      renderMatrix([], vi.fn(), { [LUCID_BOSS.family]: 2 }, onChangePartySize)
+      const incBtn = screen.getByTestId(`party-inc-${LUCID_BOSS.family}`)
+      fireEvent.click(incBtn)
+      expect(onChangePartySize).toHaveBeenCalledWith(LUCID_BOSS.family, 3)
+    })
+
+    it('clicking − calls onChangePartySize with value − 1', () => {
+      const onChangePartySize = vi.fn()
+      renderMatrix([], vi.fn(), { [LUCID_BOSS.family]: 3 }, onChangePartySize)
+      const decBtn = screen.getByTestId(`party-dec-${LUCID_BOSS.family}`)
+      fireEvent.click(decBtn)
+      expect(onChangePartySize).toHaveBeenCalledWith(LUCID_BOSS.family, 2)
+    })
+
+    it('does not call onChangePartySize below 1 (clamped to 1 min)', () => {
+      const onChangePartySize = vi.fn()
+      renderMatrix([], vi.fn(), { [LUCID_BOSS.family]: 1 }, onChangePartySize)
+      const decBtn = screen.getByTestId(`party-dec-${LUCID_BOSS.family}`)
+      fireEvent.click(decBtn)
+      expect(onChangePartySize).not.toHaveBeenCalled()
+    })
+
+    it('does not call onChangePartySize above 6 (clamped to 6 max)', () => {
+      const onChangePartySize = vi.fn()
+      renderMatrix([], vi.fn(), { [LUCID_BOSS.family]: 6 }, onChangePartySize)
+      const incBtn = screen.getByTestId(`party-inc-${LUCID_BOSS.family}`)
+      fireEvent.click(incBtn)
+      expect(onChangePartySize).not.toHaveBeenCalled()
+    })
+
+    it('clicking the + button does NOT toggle the cell (event propagation stopped)', () => {
+      const onToggleKey = vi.fn()
+      const onChangePartySize = vi.fn()
+      renderMatrix([], onToggleKey, { [LUCID_BOSS.family]: 2 }, onChangePartySize)
+      const incBtn = screen.getByTestId(`party-inc-${LUCID_BOSS.family}`)
+      fireEvent.click(incBtn)
+      expect(onChangePartySize).toHaveBeenCalledTimes(1)
+      expect(onToggleKey).not.toHaveBeenCalled()
+    })
+
+    it('clicking the − button does NOT toggle the cell (event propagation stopped)', () => {
+      const onToggleKey = vi.fn()
+      const onChangePartySize = vi.fn()
+      renderMatrix([], onToggleKey, { [LUCID_BOSS.family]: 3 }, onChangePartySize)
+      const decBtn = screen.getByTestId(`party-dec-${LUCID_BOSS.family}`)
+      fireEvent.click(decBtn)
+      expect(onChangePartySize).toHaveBeenCalledTimes(1)
+      expect(onToggleKey).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('party-size division', () => {
+    it('shows the full crystalValue in cells when partySize is 1 (default)', () => {
+      renderMatrix()
+      const cell = screen.getByTestId(`matrix-cell-${BLACK_MAGE}-extreme`)
+      expect(cell.textContent).toBe(formatMeso(BLACK_MAGE_EXTREME_VALUE, true))
+    })
+
+    it('divides the displayed meso value by the family party size', () => {
+      renderMatrix([], vi.fn(), { [LUCID_BOSS.family]: 2 })
+      const cell = screen.getByTestId(`matrix-cell-${LUCID}-hard`)
+      expect(cell.textContent).toBe(formatMeso(LUCID_HARD_VALUE / 2, true))
+    })
+
+    it('cells do not contain any "÷N" hint', () => {
+      renderMatrix([], vi.fn(), { [LUCID_BOSS.family]: 2 })
+      const cell = screen.getByTestId(`matrix-cell-${LUCID}-hard`)
+      expect(cell.textContent).not.toContain('÷')
+    })
+
+    it('party size for one family does not affect another family', () => {
+      renderMatrix([], vi.fn(), { [LUCID_BOSS.family]: 4 })
+      const cell = screen.getByTestId(`matrix-cell-${BLACK_MAGE}-extreme`)
+      expect(cell.textContent).toBe(formatMeso(BLACK_MAGE_EXTREME_VALUE, true))
     })
   })
 })
