@@ -10,9 +10,10 @@ export interface IncomeDisplay {
 /**
  * Sum crystalValues for a list of `<uuid>:<tier>` selection keys.
  *
- * NOTE: contentType filtering (`=== 'weekly'`) lands in slice 1C. For now
- * we sum every matched tier, which preserves current behaviour because
- * slice 1A seeded every tier `contentType: 'weekly'`.
+ * Only tiers whose `contentType === 'weekly'` contribute; daily and monthly
+ * tiers resolve but sum to 0. All slice 1A seed data is `'weekly'`, so this
+ * filter is plumbing that unlocks future daily/monthly boss data without
+ * distorting the current weekly KPI.
  */
 export function sumSelectedKeys(keys: string[]): number {
   let total = 0
@@ -21,7 +22,7 @@ export function sumSelectedKeys(keys: string[]): number {
     if (!parsed) continue
     const boss = getBossById(parsed.bossId)
     const diff = boss?.difficulty.find((d) => d.tier === parsed.tier)
-    if (diff) total += diff.crystalValue
+    if (diff && diff.contentType === 'weekly') total += diff.crystalValue
   }
   return total
 }
