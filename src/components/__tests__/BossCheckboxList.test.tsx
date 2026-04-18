@@ -82,4 +82,25 @@ describe('BossCheckboxList', () => {
     renderList([], vi.fn(), false)
     expect(screen.getByText(/504,000,000/)).toBeTruthy()
   })
+
+  it.each([
+    ['Hard Lucid', 'Hard'],
+    ['Normal Lucid', 'Normal'],
+    ['Easy Lucid', 'Easy'],
+  ])('renders a difficulty pip with data-difficulty-pip="%s"', (bossName, expectedDifficulty) => {
+    renderList()
+    const checkbox = screen.getByRole('checkbox', { name: new RegExp(bossName, 'i') })
+    const row = checkbox.closest('label') as HTMLElement
+    const pip = row.querySelector('[data-difficulty-pip]') as HTMLElement
+    expect(pip).toBeTruthy()
+    expect(pip.getAttribute('data-difficulty-pip')).toBe(expectedDifficulty)
+  })
+
+  it('renders no pip for a boss whose name has no difficulty prefix', () => {
+    renderList()
+    const checkbox = screen.getByRole('checkbox', { name: /Akechi Mitsuhide/i })
+    const row = checkbox.closest('label') as HTMLElement
+    const pip = row.querySelector('[data-difficulty-pip]')
+    expect(pip).toBeNull()
+  })
 })

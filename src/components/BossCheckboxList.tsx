@@ -3,8 +3,16 @@ import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { toggleBoss, getFamilies } from '../data/bossSelection';
+import { toggleBoss, getFamilies, type BossDifficulty } from '../data/bossSelection';
 import { useFormatPreference } from '../modules/income-hooks';
+
+const DIFF_COLOR: Record<BossDifficulty, string> = {
+  Extreme: '#e8533a',
+  Chaos: '#c94f8f',
+  Hard: '#d98a3a',
+  Normal: '#8fb3d9',
+  Easy: '#6fb878',
+};
 
 interface BossCheckboxListProps {
   selectedBosses: string[];
@@ -54,18 +62,15 @@ export function BossCheckboxList({ selectedBosses, onChange }: BossCheckboxListP
               <div className="flex flex-col gap-0.5">
                 {family.bosses.map((boss) => {
                   const checkboxId = `boss-${boss.id}`;
-                  const isLocked = familyHasSelection && !boss.selected;
                   return (
                     <Label
                       key={boss.id}
                       htmlFor={checkboxId}
                       className={[
-                        'flex items-center gap-3 rounded-md px-2 py-1.5 cursor-pointer transition-colors',
+                        'flex items-center gap-2.5 rounded-md px-2 py-1.5 cursor-pointer transition-colors text-[13px]',
                         boss.selected
-                          ? 'bg-[var(--accent-soft)]'
-                          : isLocked
-                            ? 'opacity-55 hover:opacity-75'
-                            : 'hover:bg-muted/40',
+                          ? 'bg-[var(--accent-soft)] text-[var(--text,var(--foreground))]'
+                          : 'text-[var(--muted-raw,var(--muted-foreground))] hover:bg-[var(--surface-2)] hover:text-[var(--text,var(--foreground))]',
                       ].join(' ')}
                     >
                       <Checkbox
@@ -73,13 +78,28 @@ export function BossCheckboxList({ selectedBosses, onChange }: BossCheckboxListP
                         checked={boss.selected}
                         onCheckedChange={() => onChange(toggleBoss(selectedBosses, boss.id))}
                       />
-                      <span className="flex-1 font-sans text-sm truncate">
+                      {boss.difficulty && (
+                        <span
+                          aria-hidden
+                          data-difficulty-pip={boss.difficulty}
+                          style={{
+                            width: 4,
+                            height: 14,
+                            borderRadius: 2,
+                            background: DIFF_COLOR[boss.difficulty],
+                            flexShrink: 0,
+                          }}
+                        />
+                      )}
+                      <span className="flex-1 text-[13px] truncate">
                         {boss.name}
                       </span>
                       <span
                         className={[
-                          'font-mono-nums text-xs tabular-nums',
-                          boss.selected ? 'text-[var(--accent-raw,var(--accent-numeric))]' : 'text-muted-foreground',
+                          'font-mono-nums text-[11px] tabular-nums',
+                          boss.selected
+                            ? 'text-[var(--accent-raw,var(--accent))] font-semibold'
+                            : 'text-[var(--muted-raw,var(--muted-foreground))]',
                         ].join(' ')}
                       >
                         {boss.formattedValue}

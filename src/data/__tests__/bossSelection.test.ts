@@ -1,5 +1,21 @@
 import { describe, expect, it } from 'vitest'
-import { toggleBoss, getFamilies, validateBossSelection } from '../bossSelection'
+import { toggleBoss, getFamilies, validateBossSelection, getDifficulty } from '../bossSelection'
+
+describe('getDifficulty', () => {
+  it.each([
+    ['Extreme Black Mage', 'Extreme'],
+    ['Chaos Papulatus', 'Chaos'],
+    ['Hard Lucid', 'Hard'],
+    ['Normal Damien', 'Normal'],
+    ['Easy Zakum', 'Easy'],
+  ])('parses %s → %s', (name, expected) => {
+    expect(getDifficulty(name)).toBe(expected)
+  })
+
+  it('returns null for names without a difficulty prefix', () => {
+    expect(getDifficulty('Akechi Mitsuhide')).toBeNull()
+  })
+})
 
 describe('toggleBoss', () => {
   it('selects a boss in an empty family', () => {
@@ -78,6 +94,20 @@ describe('getFamilies', () => {
     const lucidFamily = families.find((f) => f.family === 'lucid')!
     const hardLucid = lucidFamily.bosses.find((b) => b.id === 'hard-lucid')!
     expect(hardLucid.crystalValue).toBe(504000000)
+  })
+
+  it('populates difficulty on each boss (parsed from name prefix)', () => {
+    const families = getFamilies([], '')
+    const lucid = families.find((f) => f.family === 'lucid')!
+    expect(lucid.bosses.find((b) => b.id === 'hard-lucid')!.difficulty).toBe('Hard')
+    expect(lucid.bosses.find((b) => b.id === 'normal-lucid')!.difficulty).toBe('Normal')
+    expect(lucid.bosses.find((b) => b.id === 'easy-lucid')!.difficulty).toBe('Easy')
+  })
+
+  it('difficulty is null when boss name has no recognized prefix', () => {
+    const families = getFamilies([], '')
+    const akechi = families.find((f) => f.family === 'akechi-mitsuhide')!
+    expect(akechi.bosses[0].difficulty).toBeNull()
   })
 
   it('populates formattedValue on each boss', () => {

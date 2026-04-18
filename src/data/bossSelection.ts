@@ -1,6 +1,15 @@
 import { bossFamilies, ALL_BOSS_IDS, getBossById } from './bosses';
 import { formatMeso } from '../utils/meso';
 
+const DIFFICULTY_PREFIX = /^(Extreme|Chaos|Hard|Normal|Easy) /;
+
+export type BossDifficulty = 'Extreme' | 'Chaos' | 'Hard' | 'Normal' | 'Easy';
+
+export function getDifficulty(name: string): BossDifficulty | null {
+  const m = name.match(DIFFICULTY_PREFIX);
+  return (m?.[1] as BossDifficulty) ?? null;
+}
+
 export interface FamilyView {
   family: string;
   displayName: string;
@@ -9,6 +18,7 @@ export interface FamilyView {
     name: string;
     crystalValue: number;
     formattedValue: string;
+    difficulty: BossDifficulty | null;
     selected: boolean;
   }[];
 }
@@ -39,8 +49,6 @@ export function toggleBoss(selectedIds: string[], bossId: string): string[] {
   return [...selectedIds, bossId];
 }
 
-const DIFFICULTY_PREFIX = /^(Extreme|Chaos|Hard|Normal|Easy) /;
-
 export function getFamilies(selectedIds: string[], search: string, { abbreviated = true }: { abbreviated?: boolean } = {}): FamilyView[] {
   const selectedSet = new Set(selectedIds);
 
@@ -52,6 +60,7 @@ export function getFamilies(selectedIds: string[], search: string, { abbreviated
       name: b.name,
       crystalValue: b.crystalValue,
       formattedValue: formatMeso(b.crystalValue, abbreviated),
+      difficulty: getDifficulty(b.name),
       selected: selectedSet.has(b.id),
     })),
   }));
