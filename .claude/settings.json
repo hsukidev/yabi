@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit",
+      "Write",
+      "Read",
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(npm test *)",
+      "Bash(npx vitest *)",
+      "Bash(npx playwright *)",
+      "Bash(npx tsc *)",
+      "Bash(git *)",
+      "Bash(gh issue *)",
+      "Bash(gh pr *)"
+    ]
+  }
+}
