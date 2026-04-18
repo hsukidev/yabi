@@ -102,7 +102,7 @@ describe('App', () => {
 
   it('renders weekly income section', () => {
     render(<App />)
-    expect(screen.getByText('Total Weekly Income')).toBeTruthy()
+    expect(screen.getByText(/TOTAL WEEKLY INCOME/i)).toBeTruthy()
   })
 
   it('renders mule card grid', () => {
@@ -129,10 +129,10 @@ describe('App', () => {
   })
 
   it('toggles income display format on click', () => {
-    const { container } = render(<App />)
-    const clickable = container.querySelector('.cursor-pointer')
+    render(<App />)
+    const clickable = screen.getByRole('button', { name: /toggle abbreviated meso format/i })
     expect(clickable).toBeTruthy()
-    fireEvent.click(clickable!)
+    fireEvent.click(clickable)
   })
 
   describe('selectedMuleId self-healing', () => {
@@ -219,22 +219,24 @@ describe('section entrance animations', () => {
     const { container } = render(<App />)
     const incomeCard = container.querySelector('[data-testid="income-card"]')
     expect(incomeCard).toBeTruthy()
-    expect(incomeCard!.className).toContain('animate-in')
-    expect(incomeCard!.className).toContain('fade-in')
-    expect(incomeCard!.className).toContain('slide-in-from-bottom-4')
-    expect(incomeCard!.className).toContain('duration-500')
-    expect(incomeCard!.className).toContain('fill-mode-both')
+    const wrapper = incomeCard!.parentElement!
+    expect(wrapper.className).toContain('animate-in')
+    expect(wrapper.className).toContain('fade-in')
+    expect(wrapper.className).toContain('slide-in-from-bottom-4')
+    expect(wrapper.className).toContain('duration-500')
+    expect(wrapper.className).toContain('fill-mode-both')
   })
 
   it('income chart has slide-up fade-in animation classes', () => {
     const { container } = render(<App />)
     const incomeChart = container.querySelector('[data-testid="income-chart"]')
     expect(incomeChart).toBeTruthy()
-    expect(incomeChart!.className).toContain('animate-in')
-    expect(incomeChart!.className).toContain('fade-in')
-    expect(incomeChart!.className).toContain('slide-in-from-bottom-4')
-    expect(incomeChart!.className).toContain('duration-500')
-    expect(incomeChart!.className).toContain('fill-mode-both')
+    const wrapper = incomeChart!.parentElement!
+    expect(wrapper.className).toContain('animate-in')
+    expect(wrapper.className).toContain('fade-in')
+    expect(wrapper.className).toContain('slide-in-from-bottom-4')
+    expect(wrapper.className).toContain('duration-500')
+    expect(wrapper.className).toContain('fill-mode-both')
   })
 
   it('roster section has slide-up fade-in animation classes', () => {

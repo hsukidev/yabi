@@ -6,13 +6,14 @@ import { useState, useCallback } from 'react';
 import { ThemeProvider } from './context/ThemeProvider';
 import { DensityProvider } from './context/DensityProvider';
 import { IncomeProvider } from './modules/IncomeProvider';
-import { useTotalIncome, useFormatPreference } from './modules/income-hooks';
+import { useFormatPreference } from './modules/income-hooks';
 import { useMules } from './hooks/useMules';
 import { MuleCharacterCard } from './components/MuleCharacterCard';
 import { MuleDetailDrawer } from './components/MuleDetailDrawer';
 import { AddCard } from './components/AddCard';
 import { Header } from './components/Header';
-import { IncomePieChart } from './components/IncomePieChart';
+import { KpiCard } from './components/KpiCard';
+import { SplitCard } from './components/SplitCard';
 
 const dragBoundaryStyle: React.CSSProperties = {
   borderStyle: 'dashed',
@@ -24,13 +25,11 @@ const dragBoundaryStyle: React.CSSProperties = {
 
 function AppContent() {
   const { mules, addMule, updateMule, deleteMule, reorderMules } = useMules();
-  const { formatted: totalWeeklyIncome } = useTotalIncome(mules);
   const { toggle: toggleAbbreviated } = useFormatPreference();
   const [selectedMuleId, setSelectedMuleId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const selectedMule = mules.find((m) => m.id === selectedMuleId) ?? null;
-  const activeMuleCount = mules.filter((m) => m.selectedBosses.length > 0).length;
 
   const sensors = [useSensor(PointerSensor, { activationConstraint: { distance: 5 } })];
 
@@ -72,61 +71,11 @@ function AppContent() {
       <Header />
       <main className="container mx-auto max-w-7xl px-4 sm:px-6 py-8">
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
-          <div data-testid="income-card" className="lg:col-span-8 relative overflow-hidden rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-8 shadow-[0_0_80px_-28px_var(--accent-primary)] animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
-            <div
-              aria-hidden
-              className="absolute -top-24 -right-24 h-64 w-64 rounded-full blur-3xl opacity-40 pointer-events-none"
-              style={{ background: 'radial-gradient(closest-side, var(--accent-primary), transparent)' }}
-            />
-            <div
-              aria-hidden
-              className="absolute -bottom-32 -left-20 h-72 w-72 rounded-full blur-3xl opacity-25 pointer-events-none"
-              style={{ background: 'radial-gradient(closest-side, var(--accent-secondary), transparent)' }}
-            />
-            <div className="relative flex flex-col gap-4">
-              <div className="flex items-center gap-3">
-                <span
-                  aria-hidden
-                  className="h-1.5 w-10 rounded-full"
-                  style={{ background: 'linear-gradient(90deg, var(--accent-primary), var(--accent-numeric))' }}
-                />
-                <p className="font-sans text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
-                  Total Weekly Income
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={toggleAbbreviated}
-                className="group flex items-baseline gap-3 text-left cursor-pointer"
-                aria-label="Toggle abbreviated meso format"
-              >
-                <span className="font-mono-nums text-5xl sm:text-6xl font-medium text-[var(--accent-numeric)] leading-none group-hover:drop-shadow-[0_0_12px_var(--accent-primary)]">
-                  {totalWeeklyIncome}
-                </span>
-                <span className="font-display italic text-2xl text-muted-foreground group-hover:text-foreground/80">
-                  mesos
-                </span>
-              </button>
-              <div className="flex flex-wrap gap-6 pt-2 border-t border-border/40 mt-2">
-                <Stat label="Mules" value={String(mules.length)} />
-                <Stat label="Active" value={String(activeMuleCount)} accent="secondary" />
-              </div>
-            </div>
+          <div className="lg:col-span-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
+            <KpiCard mules={mules} onToggleFormat={toggleAbbreviated} />
           </div>
-
-          <div data-testid="income-chart" className="lg:col-span-4 relative rounded-2xl border border-border bg-card/60 backdrop-blur-sm p-4 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
-            <div className="flex items-center justify-between px-2 pb-2">
-              <p className="font-display text-lg text-foreground/90">
-                Income Split
-              </p>
-              <span className="font-sans text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-                by mule
-              </span>
-            </div>
-            <IncomePieChart
-              mules={mules}
-              onSliceClick={handleSliceClick}
-            />
+          <div className="lg:col-span-4 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
+            <SplitCard mules={mules} onSliceClick={handleSliceClick} />
           </div>
         </section>
 
@@ -187,30 +136,6 @@ function AppContent() {
         onUpdate={updateMule}
         onDelete={deleteMule}
       />
-    </div>
-  );
-}
-
-interface StatProps {
-  label: string;
-  value: string;
-  accent?: 'primary' | 'secondary';
-  muted?: boolean;
-}
-
-function Stat({ label, value, accent, muted }: StatProps) {
-  const accentColor = accent === 'secondary' ? 'var(--accent-secondary)' : 'var(--accent-primary)';
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="font-sans text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-        {label}
-      </span>
-      <span
-        className="font-mono-nums text-xl"
-        style={{ color: muted ? undefined : accentColor }}
-      >
-        {value}
-      </span>
     </div>
   );
 }
