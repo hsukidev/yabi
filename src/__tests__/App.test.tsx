@@ -385,7 +385,7 @@ describe('App DnD interactions', () => {
     const gridWrapper = container.querySelector('[data-drag-boundary]') as HTMLElement
     expect(gridWrapper).toBeTruthy()
 
-    expect(gridWrapper!.style.borderStyle).toBeFalsy()
+    expect(gridWrapper!.style.borderWidth).toBe('0px')
 
     fireEvent.pointerDown(cardA, {
       pointerId: 1,
@@ -407,8 +407,40 @@ describe('App DnD interactions', () => {
     fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' })
 
     await waitFor(() => {
-      expect(gridWrapper!.style.borderStyle).toBeFalsy()
+      expect(gridWrapper!.style.borderWidth).toBe('0px')
     })
+  })
+
+  it('grid wrapper has rounded corners before any drag (no sharp-to-rounded transition)', () => {
+    const { container } = render(<App />)
+    const boundary = container.querySelector('[data-drag-boundary]') as HTMLElement
+    expect(boundary.style.borderRadius).toBe('1rem')
+  })
+
+  it('grid wrapper has dashed border-style before any drag (no solid-to-dashed flicker)', () => {
+    const { container } = render(<App />)
+    const boundary = container.querySelector('[data-drag-boundary]') as HTMLElement
+    expect(boundary.style.borderStyle).toBe('dashed')
+  })
+
+  it('grid wrapper transition does not include border-radius (radius is always 1rem)', () => {
+    const { container } = render(<App />)
+    const boundary = container.querySelector('[data-drag-boundary]') as HTMLElement
+    const parts = boundary.className.split(/\s+/)
+    const transitionClass = parts.find((p: string) => p.startsWith('transition-['))
+    expect(transitionClass).toBeTruthy()
+    const props = transitionClass!.replace('transition-[', '').replace(']', '').split(',')
+    expect(props).not.toContain('border-radius')
+  })
+
+  it('grid wrapper transition does not include border-style (style is always dashed)', () => {
+    const { container } = render(<App />)
+    const boundary = container.querySelector('[data-drag-boundary]') as HTMLElement
+    const parts = boundary.className.split(/\s+/)
+    const transitionClass = parts.find((p: string) => p.startsWith('transition-['))
+    expect(transitionClass).toBeTruthy()
+    const props = transitionClass!.replace('transition-[', '').replace(']', '').split(',')
+    expect(props).not.toContain('border-style')
   })
 
   it('grid wrapper transition does not include padding or all', async () => {

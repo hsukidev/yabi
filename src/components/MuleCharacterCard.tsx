@@ -97,10 +97,10 @@ export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCard
           </div>
         </div>
 
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          marginTop: 10, paddingTop: 8, borderTop: '1px solid var(--border)',
-        }}>
+        <div
+          className="flex flex-col items-start gap-0.5 md:flex-row md:items-center md:justify-between md:gap-0"
+          style={{ marginTop: 10, paddingTop: 8, borderTop: '1px solid var(--border)' }}
+        >
           <span style={{
             color: 'var(--muted-raw, var(--muted-foreground))',
             fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.12em',

@@ -82,6 +82,14 @@ describe('MuleCharacterCard', () => {
     expect(screen.getByText('0')).toBeTruthy()
   })
 
+  it('stacks the WEEKLY label and meso value vertically on mobile, horizontally on md+', () => {
+    renderCard()
+    const weeklyEl = screen.getByText(/weekly/i)
+    const row = weeklyEl.parentElement!
+    expect(row.className).toContain('flex-col')
+    expect(row.className).toContain('md:flex-row')
+  })
+
   it('renders abbreviated income by default', () => {
     renderCard({ selectedBosses: [HARD_LUCID] })
     expect(screen.getByText('504M')).toBeTruthy()

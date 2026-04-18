@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -128,15 +128,26 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                 </Button>
               </div>
             ) : (
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className="absolute top-3 right-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                onClick={() => setConfirmDelete(true)}
-              >
-                <Trash2 />
-                <span className="sr-only">Delete</span>
-              </Button>
+              <div className="absolute top-3 right-3 flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  onClick={() => setConfirmDelete(true)}
+                >
+                  <Trash2 />
+                  <span className="sr-only">Delete</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="md:hidden text-muted-foreground hover:text-foreground hover:bg-muted"
+                  onClick={handleClose}
+                >
+                  <X />
+                  <span className="sr-only">Close</span>
+                </Button>
+              </div>
             )}
           </div>
 

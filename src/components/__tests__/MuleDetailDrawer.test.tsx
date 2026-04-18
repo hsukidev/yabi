@@ -51,9 +51,17 @@ describe('MuleDetailDrawer', () => {
     expect(screen.queryByRole('heading', { name: 'TestMule' })).toBeNull()
   })
 
-  it('does not render an X close button', () => {
+  it('renders a Close button that calls onClose when clicked', () => {
+    const { props } = renderDrawer()
+    const closeBtn = screen.getByRole('button', { name: /^close$/i })
+    fireEvent.click(closeBtn)
+    expect(props.onClose).toHaveBeenCalled()
+  })
+
+  it('hides the Close button on md+ screens (mobile-only)', () => {
     renderDrawer()
-    expect(screen.queryByRole('button', { name: /close/i })).toBeNull()
+    const closeBtn = screen.getByRole('button', { name: /^close$/i })
+    expect(closeBtn.className).toContain('md:hidden')
   })
 
   it('renders a trash icon button', () => {
