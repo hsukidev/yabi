@@ -1,6 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen, fireEvent } from '@/test/test-utils'
 import { BossCheckboxList } from '../BossCheckboxList'
+import { bosses } from '../../data/bosses'
+import { makeKey } from '../../data/bossSelection'
+
+const LUCID = bosses.find((b) => b.family === 'lucid')!.id
+const HARD_LUCID = makeKey(LUCID, 'hard')
+const NORMAL_LUCID = makeKey(LUCID, 'normal')
 
 function renderList(selectedBosses: string[] = [], onChange = vi.fn(), abbreviated?: boolean) {
   return {
@@ -19,12 +25,12 @@ describe('BossCheckboxList', () => {
 
     const checkbox = screen.getByRole('checkbox', { name: /Hard Lucid/i })
     fireEvent.click(checkbox)
-    expect(onChange).toHaveBeenCalledWith(['hard-lucid'])
+    expect(onChange).toHaveBeenCalledWith([HARD_LUCID])
   })
 
   it('calls onChange with toggleBoss for deselect', () => {
     const onChange = vi.fn()
-    renderList(['hard-lucid'], onChange)
+    renderList([HARD_LUCID], onChange)
 
     const checkbox = screen.getByRole('checkbox', { name: /Hard Lucid/i })
     fireEvent.click(checkbox)
@@ -33,15 +39,15 @@ describe('BossCheckboxList', () => {
 
   it('calls onChange with toggleBoss for auto-replace in same family', () => {
     const onChange = vi.fn()
-    renderList(['normal-lucid'], onChange)
+    renderList([NORMAL_LUCID], onChange)
 
     const checkbox = screen.getByRole('checkbox', { name: /Hard Lucid/i })
     fireEvent.click(checkbox)
-    expect(onChange).toHaveBeenCalledWith(['hard-lucid'])
+    expect(onChange).toHaveBeenCalledWith([HARD_LUCID])
   })
 
   it('renders checkboxes with selected state from FamilyView', () => {
-    renderList(['hard-lucid'])
+    renderList([HARD_LUCID])
 
     const hardCheckbox = screen.getByRole('checkbox', { name: /Hard Lucid/i })
     const normalCheckbox = screen.getByRole('checkbox', { name: /Normal Lucid/i })

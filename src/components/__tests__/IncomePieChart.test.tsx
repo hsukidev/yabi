@@ -2,13 +2,18 @@ import { describe, expect, it, vi } from 'vitest'
 import { render, screen, fireEvent } from '@/test/test-utils'
 import { IncomePieChart } from '../IncomePieChart'
 import type { Mule } from '../../types'
+import { bosses } from '../../data/bosses'
+import { makeKey } from '../../data/bossSelection'
+
+const HILLA = bosses.find((b) => b.family === 'hilla')!.id
+const NORMAL_HILLA = makeKey(HILLA, 'normal')
 
 const muleWithBosses: Mule = {
   id: 'mule-1',
   name: 'TestMule',
   level: 200,
   muleClass: 'Hero',
-  selectedBosses: ['normal-hilla'],
+  selectedBosses: [NORMAL_HILLA],
 }
 
 const muleNoBosses: Mule = {

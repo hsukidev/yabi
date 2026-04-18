@@ -3,6 +3,11 @@ import { render, screen, fireEvent, waitFor } from '@/test/test-utils'
 
 import { MuleDetailDrawer } from '../MuleDetailDrawer'
 import type { Mule } from '../../types'
+import { bosses } from '../../data/bosses'
+import { makeKey } from '../../data/bossSelection'
+
+const LUCID = bosses.find((b) => b.family === 'lucid')!.id
+const HARD_LUCID = makeKey(LUCID, 'hard')
 
 vi.mock('../BossCheckboxList', () => ({
   BossCheckboxList: () => <div data-testid="boss-checkbox-list" />,
@@ -122,13 +127,13 @@ describe('MuleDetailDrawer', () => {
   })
 
   it('renders abbreviated income by default', () => {
-    renderDrawer({ mule: { ...baseMule, selectedBosses: ['hard-lucid'] } })
+    renderDrawer({ mule: { ...baseMule, selectedBosses: [HARD_LUCID] } })
     expect(screen.getByText('504M')).toBeTruthy()
   })
 
   it('renders full income when abbreviated is false', () => {
     renderDrawer(
-      { mule: { ...baseMule, selectedBosses: ['hard-lucid'] } },
+      { mule: { ...baseMule, selectedBosses: [HARD_LUCID] } },
       { defaultAbbreviated: false },
     )
     expect(screen.getByText('504,000,000')).toBeTruthy()

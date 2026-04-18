@@ -1,15 +1,22 @@
 import { describe, expect, it } from 'vitest'
 import { computeMuleIncome, computeTotalIncome } from '../income'
+import { bosses } from '../../data/bosses'
+import { makeKey } from '../../data/bossSelection'
+
+const LUCID = bosses.find((b) => b.family === 'lucid')!.id
+const WILL = bosses.find((b) => b.family === 'will')!.id
+const HARD_LUCID = makeKey(LUCID, 'hard')
+const HARD_WILL = makeKey(WILL, 'hard')
 
 describe('computeMuleIncome', () => {
   it('returns correct raw and formatted for a mule with selected bosses (abbreviated)', () => {
-    const result = computeMuleIncome(['hard-lucid', 'hard-will'], true)
+    const result = computeMuleIncome([HARD_LUCID, HARD_WILL], true)
     expect(result.raw).toBe(504000000 + 621810000)
     expect(result.formatted).toBe('1.13B')
   })
 
   it('returns correct raw and formatted for a mule with selected bosses (full)', () => {
-    const result = computeMuleIncome(['hard-lucid', 'hard-will'], false)
+    const result = computeMuleIncome([HARD_LUCID, HARD_WILL], false)
     expect(result.raw).toBe(504000000 + 621810000)
     expect(result.formatted).toBe('1,125,810,000')
   })
@@ -27,29 +34,35 @@ describe('computeMuleIncome', () => {
   })
 
   it('formats with B/M/K suffix when abbreviated is true', () => {
-    const result = computeMuleIncome(['hard-lucid'], true)
+    const result = computeMuleIncome([HARD_LUCID], true)
     expect(result.raw).toBe(504000000)
     expect(result.formatted).toBe('504M')
   })
 
   it('formats with commas when abbreviated is false', () => {
-    const result = computeMuleIncome(['hard-lucid'], false)
+    const result = computeMuleIncome([HARD_LUCID], false)
     expect(result.raw).toBe(504000000)
     expect(result.formatted).toBe('504,000,000')
   })
 
-  it('handles unknown boss ids gracefully', () => {
-    const result = computeMuleIncome(['unknown-boss'], true)
+  it('handles unknown keys gracefully', () => {
+    const result = computeMuleIncome(['unknown-key'], true)
     expect(result.raw).toBe(0)
     expect(result.formatted).toBe('0')
+  })
+
+  it('handles legacy-format keys gracefully (0 meso, no throw)', () => {
+    // A legacy id like "hard-lucid" has no colon; decoder ignores it.
+    const result = computeMuleIncome(['hard-lucid'], true)
+    expect(result.raw).toBe(0)
   })
 })
 
 describe('computeTotalIncome', () => {
   it('sums across multiple mules correctly (abbreviated)', () => {
     const mules = [
-      { selectedBosses: ['hard-lucid'] },
-      { selectedBosses: ['hard-will'] },
+      { selectedBosses: [HARD_LUCID] },
+      { selectedBosses: [HARD_WILL] },
     ]
     const result = computeTotalIncome(mules, true)
     expect(result.raw).toBe(504000000 + 621810000)
@@ -58,8 +71,8 @@ describe('computeTotalIncome', () => {
 
   it('sums across multiple mules correctly (full)', () => {
     const mules = [
-      { selectedBosses: ['hard-lucid'] },
-      { selectedBosses: ['hard-will'] },
+      { selectedBosses: [HARD_LUCID] },
+      { selectedBosses: [HARD_WILL] },
     ]
     const result = computeTotalIncome(mules, false)
     expect(result.raw).toBe(504000000 + 621810000)
@@ -79,20 +92,20 @@ describe('computeTotalIncome', () => {
   })
 
   it('formats with B/M/K suffix when abbreviated is true', () => {
-    const mules = [{ selectedBosses: ['hard-lucid'] }]
+    const mules = [{ selectedBosses: [HARD_LUCID] }]
     const result = computeTotalIncome(mules, true)
     expect(result.formatted).toBe('504M')
   })
 
   it('formats with commas when abbreviated is false', () => {
-    const mules = [{ selectedBosses: ['hard-lucid'] }]
+    const mules = [{ selectedBosses: [HARD_LUCID] }]
     const result = computeTotalIncome(mules, false)
     expect(result.formatted).toBe('504,000,000')
   })
 
   it('handles mules with empty selectedBosses', () => {
     const mules = [
-      { selectedBosses: ['hard-lucid'] },
+      { selectedBosses: [HARD_LUCID] },
       { selectedBosses: [] },
     ]
     const result = computeTotalIncome(mules, true)

@@ -4,6 +4,11 @@ import { DndContext } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { MuleCharacterCard } from '../MuleCharacterCard'
 import type { Mule } from '../../types'
+import { bosses } from '../../data/bosses'
+import { makeKey } from '../../data/bossSelection'
+
+const LUCID = bosses.find((b) => b.family === 'lucid')!.id
+const HARD_LUCID = makeKey(LUCID, 'hard')
 
 const baseMule: Mule = {
   id: 'test-mule-1',
@@ -78,12 +83,12 @@ describe('MuleCharacterCard', () => {
   })
 
   it('renders abbreviated income by default', () => {
-    renderCard({ selectedBosses: ['hard-lucid'] })
+    renderCard({ selectedBosses: [HARD_LUCID] })
     expect(screen.getByText('504M')).toBeTruthy()
   })
 
   it('renders full income when abbreviated is false', () => {
-    renderCard({ selectedBosses: ['hard-lucid'] }, { defaultAbbreviated: false })
+    renderCard({ selectedBosses: [HARD_LUCID] }, { defaultAbbreviated: false })
     expect(screen.getByText('504,000,000')).toBeTruthy()
   })
 

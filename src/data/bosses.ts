@@ -1,7 +1,7 @@
-import type { Boss, BossContentType, BossTier } from '../types';
+import type { Boss } from '../types';
 
 /**
- * Matrix-variant Boss data (slice 1A).
+ * Matrix-variant Boss data.
  *
  * One row per family. Each row holds a stable hard-coded UUIDv4 `id`,
  * a display `name` with no difficulty prefix, and a `difficulty[]` array
@@ -312,7 +312,7 @@ export const bosses: Boss[] = [
 
 export const ALL_BOSS_IDS: ReadonlySet<string> = new Set(bosses.map((b) => b.id));
 
-/** Families whose pre-1A legacy id has no difficulty prefix. */
+/** Families whose pre-1A legacy id had no difficulty prefix. */
 export const TIER_LESS_FAMILIES: ReadonlySet<string> = new Set([
   'akechi-mitsuhide',
   'omni-cln',
@@ -323,47 +323,4 @@ const bossById = new Map<string, Boss>(bosses.map((b) => [b.id, b]));
 
 export function getBossById(id: string): Boss | undefined {
   return bossById.get(id);
-}
-
-/** Legacy id for a (family, tier) pair. Round-trips through getLegacyBoss. */
-export function legacyIdFor(family: string, tier: BossTier): string {
-  return TIER_LESS_FAMILIES.has(family) ? family : `${tier}-${family}`;
-}
-
-/**
- * Legacy-id compatibility shim (slice 1A). Maps every `<tier>-<family>`
- * (and the three tier-less `<family>` ids) from the pre-1A dataset to the
- * corresponding `{ uuid, tier, crystalValue, contentType }` triple.
- */
-export interface LegacyBossRef {
-  uuid: string;
-  tier: BossTier;
-  crystalValue: number;
-  contentType: BossContentType;
-}
-
-const legacyToBoss: ReadonlyMap<string, LegacyBossRef> = (() => {
-  const map = new Map<string, LegacyBossRef>();
-  for (const boss of bosses) {
-    for (const diff of boss.difficulty) {
-      map.set(legacyIdFor(boss.family, diff.tier), {
-        uuid: boss.id,
-        tier: diff.tier,
-        crystalValue: diff.crystalValue,
-        contentType: diff.contentType,
-      });
-    }
-  }
-  return map;
-})();
-
-export function getLegacyBoss(legacyId: string): LegacyBossRef | undefined {
-  return legacyToBoss.get(legacyId);
-}
-
-export function calculatePotentialIncome(selectedLegacyIds: string[]): number {
-  return selectedLegacyIds.reduce((sum, id) => {
-    const ref = getLegacyBoss(id);
-    return sum + (ref?.crystalValue ?? 0);
-  }, 0);
 }

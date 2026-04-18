@@ -9,6 +9,13 @@ import {
   useMuleIncome,
   useTotalIncome,
 } from '../income-hooks'
+import { bosses } from '../../data/bosses'
+import { makeKey } from '../../data/bossSelection'
+
+const LUCID = bosses.find((b) => b.family === 'lucid')!.id
+const WILL = bosses.find((b) => b.family === 'will')!.id
+const HARD_LUCID = makeKey(LUCID, 'hard')
+const HARD_WILL = makeKey(WILL, 'hard')
 
 function FormatPreferenceConsumer() {
   const { abbreviated, toggle } = useFormatPreference()
@@ -61,7 +68,7 @@ describe('useFormatPreference', () => {
 
 describe('useMuleIncome', () => {
   it('returns formatted income using abbreviated from context', () => {
-    const mule = { selectedBosses: ['hard-lucid'] }
+    const mule = { selectedBosses: [HARD_LUCID] }
     const { result } = renderHook(() => useMuleIncome(mule), {
       wrapper: IncomeProvider,
     })
@@ -70,7 +77,7 @@ describe('useMuleIncome', () => {
   })
 
   it('returns full format when abbreviated is false in context', () => {
-    const mule = { selectedBosses: ['hard-lucid'] }
+    const mule = { selectedBosses: [HARD_LUCID] }
     const { result } = renderHook(() => useMuleIncome(mule), {
       wrapper: ({ children }) => <IncomeProvider defaultAbbreviated={false}>{children}</IncomeProvider>,
     })
@@ -90,8 +97,8 @@ describe('useMuleIncome', () => {
 describe('useTotalIncome', () => {
   it('returns formatted total income using abbreviated from context', () => {
     const mules = [
-      { selectedBosses: ['hard-lucid'] },
-      { selectedBosses: ['hard-will'] },
+      { selectedBosses: [HARD_LUCID] },
+      { selectedBosses: [HARD_WILL] },
     ]
     const { result } = renderHook(() => useTotalIncome(mules), {
       wrapper: IncomeProvider,
@@ -101,7 +108,7 @@ describe('useTotalIncome', () => {
   })
 
   it('returns full format when abbreviated is false in context', () => {
-    const mules = [{ selectedBosses: ['hard-lucid'] }]
+    const mules = [{ selectedBosses: [HARD_LUCID] }]
     const { result } = renderHook(() => useTotalIncome(mules), {
       wrapper: ({ children }) => <IncomeProvider defaultAbbreviated={false}>{children}</IncomeProvider>,
     })

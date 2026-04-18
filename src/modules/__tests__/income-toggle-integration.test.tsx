@@ -2,6 +2,13 @@ import { describe, expect, it } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { IncomeProvider } from '../IncomeProvider'
 import { useFormatPreference, useMuleIncome, useTotalIncome } from '../income-hooks'
+import { bosses } from '../../data/bosses'
+import { makeKey } from '../../data/bossSelection'
+
+const LUCID = bosses.find((b) => b.family === 'lucid')!.id
+const WILL = bosses.find((b) => b.family === 'will')!.id
+const HARD_LUCID = makeKey(LUCID, 'hard')
+const HARD_WILL = makeKey(WILL, 'hard')
 
 function MuleIncomeDisplay({ mule, index }: { mule: { selectedBosses: string[] }; index: number }) {
   const income = useMuleIncome(mule)
@@ -25,8 +32,8 @@ function AllDisplays({ mules }: { mules: { selectedBosses: string[] }[] }) {
 }
 
 const mules = [
-  { selectedBosses: ['hard-lucid'] },
-  { selectedBosses: ['hard-will'] },
+  { selectedBosses: [HARD_LUCID] },
+  { selectedBosses: [HARD_WILL] },
 ]
 
 describe('Income toggle integration', () => {

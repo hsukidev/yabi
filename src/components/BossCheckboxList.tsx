@@ -76,7 +76,7 @@ export function BossCheckboxList({ selectedBosses, onChange }: BossCheckboxListP
                       <Checkbox
                         id={checkboxId}
                         checked={boss.selected}
-                        onCheckedChange={() => onChange(toggleBoss(selectedBosses, boss.id))}
+                        onCheckedChange={() => onChange(toggleBoss(selectedBosses, boss.bossId, boss.tier))}
                       />
                       {boss.difficulty && (
                         <span

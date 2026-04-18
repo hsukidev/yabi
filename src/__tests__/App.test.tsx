@@ -11,10 +11,15 @@ const testMules: Mule[] = [
   { id: 'mule-c', name: 'Gamma', level: 160, muleClass: 'Dark Knight', selectedBosses: [] },
 ]
 
+// Persisted root since slice 1B: { schemaVersion, mules }.
+function persistedRoot(mules: Mule[]) {
+  return { schemaVersion: 2, mules }
+}
+
 const DEFAULT_RECT = { x: 0, y: 0, width: 800, height: 600, top: 0, right: 800, bottom: 600, left: 0, toJSON: () => ({}) }
 
 function seedMules(mules: Mule[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(mules))
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(persistedRoot(mules)))
 }
 
 function resetTestEnvironment() {
@@ -146,7 +151,7 @@ describe('App', () => {
           selectedBosses: [],
         },
       ]
-      localStorage.setItem('maplestory-mule-tracker', JSON.stringify(mules))
+      localStorage.setItem('maplestory-mule-tracker', JSON.stringify(persistedRoot(mules)))
       render(<App />)
 
       fireEvent.click(screen.getByText('DeleteMe'))
@@ -177,7 +182,7 @@ describe('App', () => {
           selectedBosses: [],
         },
       ]
-      localStorage.setItem('maplestory-mule-tracker', JSON.stringify(mules))
+      localStorage.setItem('maplestory-mule-tracker', JSON.stringify(persistedRoot(mules)))
       render(<App />)
 
       fireEvent.click(screen.getByText('KeepMe'))
