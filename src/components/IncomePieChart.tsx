@@ -6,11 +6,11 @@ import { useFormatPreference } from '../modules/income-hooks';
 import { ChartContainer, type ChartConfig } from './ui/chart';
 
 const CHART_VARS = [
-  'var(--chart-1)',
-  'var(--chart-2)',
-  'var(--chart-3)',
-  'var(--chart-4)',
-  'var(--chart-5)',
+  'var(--c1)',
+  'var(--c2)',
+  'var(--c3)',
+  'var(--c4)',
+  'var(--c5)',
 ];
 
 interface ChartDataItem {
