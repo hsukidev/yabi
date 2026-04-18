@@ -34,6 +34,8 @@ const tierByBossId = new Map<string, Map<BossTier, BossDifficulty>>(
 interface BossMatrixProps {
   selectedKeys: string[];
   onToggleKey: (key: string) => void;
+  partySizes: Record<string, number>;
+  onChangePartySize: (family: string, n: number) => void;
 }
 
 function TierHeader({ tier }: { tier: BossTier }) {
@@ -57,14 +59,85 @@ function TierHeader({ tier }: { tier: BossTier }) {
   );
 }
 
+const STEPPER_BTN_CLASS =
+  'px-1.5 py-0.5 font-mono-nums text-[10px] text-[var(--muted-raw,var(--muted-foreground))] hover:text-[var(--accent)] disabled:opacity-40 disabled:cursor-not-allowed';
+
+function PartyStepper({
+  family,
+  party,
+  onChangePartySize,
+}: {
+  family: string;
+  party: number;
+  onChangePartySize: (family: string, n: number) => void;
+}) {
+  const atMin = party <= 1;
+  const atMax = party >= 6;
+
+  // Step handlers stop propagation so clicks never fall through to the cell
+  // toggle handler on the enclosing row.
+  function step(delta: -1 | 1) {
+    return (e: React.MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const next = party + delta;
+      if (next < 1 || next > 6) return;
+      onChangePartySize(family, next);
+    };
+  }
+
+  return (
+    <div
+      data-testid={`party-stepper-${family}`}
+      className="inline-flex items-center gap-1.5"
+    >
+      <span className="font-sans text-[9px] uppercase tracking-[0.22em] text-[var(--muted-raw,var(--muted-foreground))]">
+        Party
+      </span>
+      <div
+        className="inline-flex items-center rounded-md border border-[var(--border)]"
+        style={{ background: 'var(--surface)' }}
+      >
+        <button
+          type="button"
+          data-testid={`party-dec-${family}`}
+          aria-label={`Decrease party size for ${family}`}
+          disabled={atMin}
+          onClick={step(-1)}
+          className={STEPPER_BTN_CLASS}
+        >
+          −
+        </button>
+        <span className="px-1 font-mono-nums text-[10px] tabular-nums min-w-[1.5rem] text-center">
+          {party}P
+        </span>
+        <button
+          type="button"
+          data-testid={`party-inc-${family}`}
+          aria-label={`Increase party size for ${family}`}
+          disabled={atMax}
+          onClick={step(1)}
+          className={STEPPER_BTN_CLASS}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function FamilyRow({
   boss,
   selectedTier,
+  partySize,
   onToggleKey,
+  onChangePartySize,
 }: {
   boss: Boss;
   selectedTier: BossTier | undefined;
+  partySize: number;
   onToggleKey: (key: string) => void;
+  onChangePartySize: (family: string, n: number) => void;
 }) {
   const tierMap = tierByBossId.get(boss.id)!;
   return (
@@ -75,9 +148,16 @@ function FamilyRow({
     >
       <div
         role="rowheader"
-        className="px-3 py-2 font-display text-sm font-semibold truncate"
+        className="px-3 py-2 flex items-center justify-between gap-2 min-w-0"
       >
-        {boss.name}
+        <span className="font-display text-sm font-semibold truncate">
+          {boss.name}
+        </span>
+        <PartyStepper
+          family={boss.family}
+          party={partySize}
+          onChangePartySize={onChangePartySize}
+        />
       </div>
       {TIER_ORDER.map((tier) => {
         const diff = tierMap.get(tier);
@@ -117,7 +197,7 @@ function FamilyRow({
             ].join(' ')}
             style={isDim ? { opacity: 0.35 } : undefined}
           >
-            {formatMeso(diff.crystalValue, true)}
+            {formatMeso(diff.crystalValue / partySize, true)}
           </button>
         );
       })}
@@ -125,7 +205,12 @@ function FamilyRow({
   );
 }
 
-export function BossMatrix({ selectedKeys, onToggleKey }: BossMatrixProps) {
+export function BossMatrix({
+  selectedKeys,
+  onToggleKey,
+  partySizes,
+  onChangePartySize,
+}: BossMatrixProps) {
   const selectedTierByBoss = new Map<string, BossTier>();
   for (const key of selectedKeys) {
     const parsed = parseKey(key);
@@ -167,13 +252,15 @@ export function BossMatrix({ selectedKeys, onToggleKey }: BossMatrixProps) {
             key={boss.id}
             boss={boss}
             selectedTier={selectedTierByBoss.get(boss.id)}
+            partySize={partySizes[boss.family] ?? 1}
             onToggleKey={onToggleKey}
+            onChangePartySize={onChangePartySize}
           />
         ))}
       </div>
 
       <p className="font-display italic text-xs text-[var(--muted-raw,var(--muted-foreground))]">
-        Tap a cell to pick difficulty.
+        Tap a cell to pick difficulty · adjust party size per family.
       </p>
     </div>
   );

@@ -60,7 +60,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
       <SheetContent
         side="right"
         showCloseButton={false}
-        className="data-[side=right]:w-[640px] data-[side=right]:sm:max-w-[640px] overflow-y-auto p-0"
+        className="data-[side=right]:w-screen data-[side=right]:md:w-[560px] data-[side=right]:md:max-w-[560px] overflow-y-auto p-0"
         style={{ background: 'var(--surface)', borderLeft: '1px solid var(--border)' }}
       >
         <SheetTitle className="sr-only">Mule Details</SheetTitle>
@@ -200,6 +200,18 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                       parsed.bossId,
                       parsed.tier,
                     ),
+                  });
+                }}
+                partySizes={mule.partySizes ?? {}}
+                onChangePartySize={(family, n) => {
+                  // Clamp here so BossMatrix can stay a dumb view: party size
+                  // is always in [1, 6] by the time it hits storage.
+                  const clamped = Math.max(1, Math.min(6, n));
+                  onUpdate(mule.id, {
+                    partySizes: {
+                      ...(mule.partySizes ?? {}),
+                      [family]: clamped,
+                    },
                   });
                 }}
               />
