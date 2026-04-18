@@ -60,7 +60,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
       <SheetContent
         side="right"
         showCloseButton={false}
-        className="data-[side=right]:w-[640px] data-[side=right]:sm:max-w-[640px] overflow-y-auto p-0"
+        className="data-[side=right]:w-screen data-[side=right]:md:w-[560px] data-[side=right]:md:max-w-[560px] overflow-y-auto p-0"
         style={{ background: 'var(--surface)', borderLeft: '1px solid var(--border)' }}
       >
         <SheetTitle className="sr-only">Mule Details</SheetTitle>

@@ -123,6 +123,21 @@ describe('MuleDetailDrawer', () => {
     expect(document.querySelector('[data-slot="sheet-content"]')).toBeTruthy()
   })
 
+  // jsdom does not simulate viewport breakpoints, so we assert the class
+  // strings are applied to SheetContent rather than measuring visual widths.
+  // Tailwind handles the actual `<768px` vs `>=768px` switch at runtime.
+  it('applies full-screen width below md and 560px at md+', () => {
+    renderDrawer()
+    const content = document.querySelector(
+      '[data-slot="sheet-content"][data-side="right"]',
+    )
+    expect(content).toBeTruthy()
+    const className = content?.className ?? ''
+    expect(className).toContain('data-[side=right]:w-screen')
+    expect(className).toContain('data-[side=right]:md:w-[560px]')
+    expect(className).toContain('data-[side=right]:md:max-w-[560px]')
+  })
+
   it('renders abbreviated income by default', () => {
     renderDrawer({ mule: { ...baseMule, selectedBosses: [HARD_LUCID] } })
     // "504M" now appears both in the KPI pill and in the Matrix cell, so
