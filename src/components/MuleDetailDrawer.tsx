@@ -202,6 +202,18 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                     ),
                   });
                 }}
+                partySizes={mule.partySizes ?? {}}
+                onChangePartySize={(family, n) => {
+                  // Clamp here so BossMatrix can stay a dumb view: party size
+                  // is always in [1, 6] by the time it hits storage.
+                  const clamped = Math.max(1, Math.min(6, n));
+                  onUpdate(mule.id, {
+                    partySizes: {
+                      ...(mule.partySizes ?? {}),
+                      [family]: clamped,
+                    },
+                  });
+                }}
               />
             </div>
           </div>
