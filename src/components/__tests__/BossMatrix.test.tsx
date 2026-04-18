@@ -87,12 +87,6 @@ describe('BossMatrix', () => {
       expect(rowHeaders[0].textContent).toContain('Black Mage')
     })
 
-    it('renders the caption explaining the grid and stepper', () => {
-      renderMatrix()
-      expect(
-        screen.getByText(/Tap a cell to pick difficulty/i),
-      ).toBeTruthy()
-    })
   })
 
   describe('empty cells', () => {
@@ -109,6 +103,12 @@ describe('BossMatrix', () => {
       const cell = screen.getByTestId(`matrix-cell-${BLACK_MAGE}-easy`)
       fireEvent.click(cell)
       expect(onToggleKey).not.toHaveBeenCalled()
+    })
+
+    it('empty cells do not dim their whole box (borders stay at full strength)', () => {
+      renderMatrix()
+      const cell = screen.getByTestId(`matrix-cell-${BLACK_MAGE}-easy`) as HTMLElement
+      expect(cell.style.opacity).not.toBe('0.3')
     })
   })
 
@@ -149,6 +149,12 @@ describe('BossMatrix', () => {
       const cell = screen.getByTestId(`matrix-cell-${BLACK_MAGE}-extreme`)
       expect(cell.getAttribute('data-state')).not.toBe('on')
     })
+
+    it('selected cells do not add an inset ring (keeps grid borders uniform)', () => {
+      renderMatrix([HARD_LUCID])
+      const selected = screen.getByTestId(`matrix-cell-${LUCID}-hard`)
+      expect(selected.className).not.toMatch(/\bring-\S+/)
+    })
   })
 
   describe('dim sibling styling', () => {
@@ -176,6 +182,12 @@ describe('BossMatrix', () => {
       renderMatrix([])
       const cell = screen.getByTestId(`matrix-cell-${LUCID}-hard`)
       expect(cell.getAttribute('data-dim')).not.toBe('true')
+    })
+
+    it('dim sibling cells do not dim their whole box (borders stay at full strength)', () => {
+      renderMatrix([HARD_LUCID])
+      const sibling = screen.getByTestId(`matrix-cell-${LUCID}-normal`) as HTMLElement
+      expect(sibling.style.opacity).toBe('')
     })
   })
 

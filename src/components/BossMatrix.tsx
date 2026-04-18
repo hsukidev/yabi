@@ -170,9 +170,9 @@ function FamilyRow({
               data-testid={`matrix-cell-${boss.id}-${tier}`}
               aria-disabled="true"
               className="grid place-items-center py-[10px] px-1 border-r border-[var(--border)] last:border-r-0 font-mono-nums text-[11px] text-[var(--muted-raw,var(--muted-foreground))]"
-              style={{ cursor: 'default', opacity: 0.3 }}
+              style={{ cursor: 'default' }}
             >
-              —
+              <span style={{ opacity: 0.3 }}>—</span>
             </div>
           );
         }
@@ -193,12 +193,13 @@ function FamilyRow({
             className={[
               'grid place-items-center py-[10px] px-1 border-r border-[var(--border)] last:border-r-0 font-mono-nums text-[11px] tabular-nums cursor-pointer transition-colors',
               isSelected
-                ? 'bg-[var(--accent-soft)] ring-1 ring-inset ring-[var(--accent)] text-[var(--accent)] font-semibold'
+                ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold'
                 : 'text-[var(--muted-raw,var(--muted-foreground))] hover:bg-[var(--surface-2)] hover:text-[var(--text,var(--foreground))]',
             ].join(' ')}
-            style={isDim ? { opacity: 0.35 } : undefined}
           >
-            {formatMeso(diff.crystalValue / partySize, true)}
+            <span style={isDim ? { opacity: 0.35 } : undefined}>
+              {formatMeso(diff.crystalValue / partySize, true)}
+            </span>
           </button>
         );
       })}
@@ -219,12 +220,11 @@ export function BossMatrix({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div
-        role="table"
-        className="rounded-[10px] border border-[var(--border)] overflow-hidden"
-        style={{ background: 'var(--surface)' }}
-      >
+    <div
+      role="table"
+      className="rounded-[10px] border border-[var(--border)] overflow-hidden"
+      style={{ background: 'var(--surface)' }}
+    >
         <div
           role="row"
           className="grid border-b border-[var(--border)]"
@@ -251,21 +251,16 @@ export function BossMatrix({
           ))}
         </div>
 
-        {bossesByTopCrystalDesc.map((boss) => (
-          <FamilyRow
-            key={boss.id}
-            boss={boss}
-            selectedTier={selectedTierByBoss.get(boss.id)}
-            partySize={partySizes[boss.family] ?? 1}
-            onToggleKey={onToggleKey}
-            onChangePartySize={onChangePartySize}
-          />
-        ))}
-      </div>
-
-      <p className="font-display italic text-[11px] text-[var(--muted-raw,var(--muted-foreground))]">
-        Tap a cell to pick difficulty · adjust party size per family.
-      </p>
+      {bossesByTopCrystalDesc.map((boss) => (
+        <FamilyRow
+          key={boss.id}
+          boss={boss}
+          selectedTier={selectedTierByBoss.get(boss.id)}
+          partySize={partySizes[boss.family] ?? 1}
+          onToggleKey={onToggleKey}
+          onChangePartySize={onChangePartySize}
+        />
+      ))}
     </div>
   );
 }
