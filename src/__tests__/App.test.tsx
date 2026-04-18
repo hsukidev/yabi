@@ -207,6 +207,51 @@ describe('App', () => {
   })
 })
 
+describe('section entrance animations', () => {
+  it('Header has slide-up fade-in animation classes', () => {
+    render(<App />)
+    const header = screen.getByRole('banner')
+    expect(header.className).toContain('animate-in')
+    expect(header.className).toContain('fade-in')
+    expect(header.className).toContain('slide-in-from-bottom-4')
+    expect(header.className).toContain('duration-500')
+    expect(header.className).toContain('fill-mode-both')
+  })
+
+  it('income card has slide-up fade-in animation classes', () => {
+    const { container } = render(<App />)
+    const incomeCard = container.querySelector('[data-testid="income-card"]')
+    expect(incomeCard).toBeTruthy()
+    expect(incomeCard!.className).toContain('animate-in')
+    expect(incomeCard!.className).toContain('fade-in')
+    expect(incomeCard!.className).toContain('slide-in-from-bottom-4')
+    expect(incomeCard!.className).toContain('duration-500')
+    expect(incomeCard!.className).toContain('fill-mode-both')
+  })
+
+  it('income chart has slide-up fade-in animation classes', () => {
+    const { container } = render(<App />)
+    const incomeChart = container.querySelector('[data-testid="income-chart"]')
+    expect(incomeChart).toBeTruthy()
+    expect(incomeChart!.className).toContain('animate-in')
+    expect(incomeChart!.className).toContain('fade-in')
+    expect(incomeChart!.className).toContain('slide-in-from-bottom-4')
+    expect(incomeChart!.className).toContain('duration-500')
+    expect(incomeChart!.className).toContain('fill-mode-both')
+  })
+
+  it('roster section has slide-up fade-in animation classes', () => {
+    const { container } = render(<App />)
+    const rosterSection = container.querySelector('[data-testid="roster-section"]')
+    expect(rosterSection).toBeTruthy()
+    expect(rosterSection!.className).toContain('animate-in')
+    expect(rosterSection!.className).toContain('fade-in')
+    expect(rosterSection!.className).toContain('slide-in-from-bottom-4')
+    expect(rosterSection!.className).toContain('duration-500')
+    expect(rosterSection!.className).toContain('fill-mode-both')
+  })
+})
+
 describe('App DnD interactions', () => {
   let restoreRect: () => void
 

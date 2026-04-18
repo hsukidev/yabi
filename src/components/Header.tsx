@@ -8,7 +8,7 @@ export function Header() {
   const isDark = theme === 'dark'
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/60 backdrop-blur-md supports-[backdrop-filter]:bg-background/50">
+    <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/60 backdrop-blur-md supports-[backdrop-filter]:bg-background/50 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
       <div className="container mx-auto max-w-7xl flex items-center justify-between gap-6 px-4 sm:px-6 py-4">
         <div className="flex items-center gap-3 min-w-0">
           <img src={leafImg} alt="" aria-hidden className="h-6 w-8" />

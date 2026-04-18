@@ -71,7 +71,7 @@ function AppContent() {
       <Header />
       <main className="container mx-auto max-w-7xl px-4 sm:px-6 py-8">
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
-          <div className="lg:col-span-8 relative overflow-hidden rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-8 shadow-[0_0_80px_-28px_var(--accent-primary)]">
+          <div data-testid="income-card" className="lg:col-span-8 relative overflow-hidden rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-8 shadow-[0_0_80px_-28px_var(--accent-primary)] animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
             <div
               aria-hidden
               className="absolute -top-24 -right-24 h-64 w-64 rounded-full blur-3xl opacity-40 pointer-events-none"
@@ -113,7 +113,7 @@ function AppContent() {
             </div>
           </div>
 
-          <div className="lg:col-span-4 relative rounded-2xl border border-border bg-card/60 backdrop-blur-sm p-4 overflow-hidden">
+          <div data-testid="income-chart" className="lg:col-span-4 relative rounded-2xl border border-border bg-card/60 backdrop-blur-sm p-4 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
             <div className="flex items-center justify-between px-2 pb-2">
               <p className="font-display text-lg text-foreground/90">
                 Income Split
@@ -129,7 +129,7 @@ function AppContent() {
           </div>
         </section>
 
-        <section>
+        <section data-testid="roster-section" className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
           <div className="flex items-end justify-between mb-4">
             <div className="flex items-center gap-3">
               <span
