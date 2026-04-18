@@ -66,9 +66,7 @@ describe('BossMatrix', () => {
 
     it('renders each family row with its display name in the leftmost cell', () => {
       renderMatrix()
-      // The rowheader now also contains the Party stepper, so use partial matching.
-      const rowHeaders = screen.getAllByRole('rowheader')
-      const names = rowHeaders.map((r) => r.textContent || '')
+      const names = screen.getAllByRole('rowheader').map((r) => r.textContent ?? '')
       expect(names.some((n) => n.includes('Black Mage'))).toBe(true)
       expect(names.some((n) => n.includes('Lucid'))).toBe(true)
       expect(names.some((n) => n.includes('Akechi Mitsuhide'))).toBe(true)
@@ -193,7 +191,6 @@ describe('BossMatrix', () => {
   describe('party stepper', () => {
     it('renders a Party label per family row', () => {
       renderMatrix()
-      // One "PARTY" label per family row.
       const labels = screen.getAllByText('Party')
       expect(labels.length).toBe(bosses.length)
     })

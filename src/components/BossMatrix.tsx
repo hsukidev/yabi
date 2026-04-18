@@ -59,6 +59,9 @@ function TierHeader({ tier }: { tier: BossTier }) {
   );
 }
 
+const STEPPER_BTN_CLASS =
+  'px-1.5 py-0.5 font-mono-nums text-[10px] text-[var(--muted-raw,var(--muted-foreground))] hover:text-[var(--accent)] disabled:opacity-40 disabled:cursor-not-allowed';
+
 function PartyStepper({
   family,
   party,
@@ -71,18 +74,16 @@ function PartyStepper({
   const atMin = party <= 1;
   const atMax = party >= 6;
 
-  function handleDec(e: React.MouseEvent) {
-    e.stopPropagation();
-    e.preventDefault();
-    if (atMin) return;
-    onChangePartySize(family, party - 1);
-  }
-
-  function handleInc(e: React.MouseEvent) {
-    e.stopPropagation();
-    e.preventDefault();
-    if (atMax) return;
-    onChangePartySize(family, party + 1);
+  // Step handlers stop propagation so clicks never fall through to the cell
+  // toggle handler on the enclosing row.
+  function step(delta: -1 | 1) {
+    return (e: React.MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const next = party + delta;
+      if (next < 1 || next > 6) return;
+      onChangePartySize(family, next);
+    };
   }
 
   return (
@@ -102,8 +103,8 @@ function PartyStepper({
           data-testid={`party-dec-${family}`}
           aria-label={`Decrease party size for ${family}`}
           disabled={atMin}
-          onClick={handleDec}
-          className="px-1.5 py-0.5 font-mono-nums text-[10px] text-[var(--muted-raw,var(--muted-foreground))] hover:text-[var(--accent)] disabled:opacity-40 disabled:cursor-not-allowed"
+          onClick={step(-1)}
+          className={STEPPER_BTN_CLASS}
         >
           −
         </button>
@@ -115,8 +116,8 @@ function PartyStepper({
           data-testid={`party-inc-${family}`}
           aria-label={`Increase party size for ${family}`}
           disabled={atMax}
-          onClick={handleInc}
-          className="px-1.5 py-0.5 font-mono-nums text-[10px] text-[var(--muted-raw,var(--muted-foreground))] hover:text-[var(--accent)] disabled:opacity-40 disabled:cursor-not-allowed"
+          onClick={step(1)}
+          className={STEPPER_BTN_CLASS}
         >
           +
         </button>
