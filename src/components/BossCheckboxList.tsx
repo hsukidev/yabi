@@ -3,10 +3,10 @@ import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { toggleBoss, getFamilies, type BossDifficulty } from '../data/bossSelection';
+import { toggleBoss, getFamilies, type BossDifficultyLabel } from '../data/bossSelection';
 import { useFormatPreference } from '../modules/income-hooks';
 
-const DIFF_COLOR: Record<BossDifficulty, string> = {
+const DIFF_COLOR: Record<BossDifficultyLabel, string> = {
   Extreme: '#e8533a',
   Chaos: '#c94f8f',
   Hard: '#d98a3a',

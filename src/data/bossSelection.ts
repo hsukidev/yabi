@@ -1,16 +1,15 @@
 import type { BossTier } from '../types';
-import { bosses, getLegacyBoss } from './bosses';
+import { bosses, getLegacyBoss, legacyIdFor, TIER_LESS_FAMILIES } from './bosses';
 import { formatMeso } from '../utils/meso';
 
 /**
- * Difficulty labels used by the pre-1A UI (capitalized tier words).
- * Kept as strings during slice 1A so BossCheckboxList can keep rendering
- * difficulty pips exactly as before; internally derived from the new
- * lowercase `BossTier` union.
+ * Capitalized difficulty labels used by the pre-1A UI (renders "Hard Lucid",
+ * difficulty pip colors, etc.). Distinct from the `BossDifficulty` *interface*
+ * in `../types` that holds the new `{ tier, crystalValue, contentType }` shape.
  */
-export type BossDifficulty = 'Extreme' | 'Chaos' | 'Hard' | 'Normal' | 'Easy';
+export type BossDifficultyLabel = 'Extreme' | 'Chaos' | 'Hard' | 'Normal' | 'Easy';
 
-const TIER_LABEL: Record<BossTier, BossDifficulty> = {
+const TIER_LABEL: Record<BossTier, BossDifficultyLabel> = {
   easy: 'Easy',
   normal: 'Normal',
   hard: 'Hard',
@@ -18,28 +17,15 @@ const TIER_LABEL: Record<BossTier, BossDifficulty> = {
   extreme: 'Extreme',
 };
 
-const TIER_LESS_FAMILIES = new Set(['akechi-mitsuhide', 'omni-cln', 'princess-no']);
-
 const DIFFICULTY_PREFIX = /^(Extreme|Chaos|Hard|Normal|Easy) /;
 
-/** Pre-1A helper: parse a legacy display name into its difficulty label. */
-export function getDifficulty(name: string): BossDifficulty | null {
+export function getDifficulty(name: string): BossDifficultyLabel | null {
   const m = name.match(DIFFICULTY_PREFIX);
-  return (m?.[1] as BossDifficulty) ?? null;
+  return (m?.[1] as BossDifficultyLabel) ?? null;
 }
 
-/**
- * Reconstruct the legacy display name for a `(family, tier)` pair. Preserves
- * the exact strings the pre-1A UI rendered (e.g. "Hard Lucid", "Akechi Mitsuhide").
- */
 function legacyDisplayName(family: string, tier: BossTier, familyName: string): string {
-  if (TIER_LESS_FAMILIES.has(family)) return familyName;
-  return `${TIER_LABEL[tier]} ${familyName}`;
-}
-
-/** Legacy id for a `(family, tier)` pair. Round-trips through `getLegacyBoss`. */
-function legacyId(family: string, tier: BossTier): string {
-  return TIER_LESS_FAMILIES.has(family) ? family : `${tier}-${family}`;
+  return TIER_LESS_FAMILIES.has(family) ? familyName : `${TIER_LABEL[tier]} ${familyName}`;
 }
 
 export interface FamilyView {
@@ -50,7 +36,7 @@ export interface FamilyView {
     name: string;
     crystalValue: number;
     formattedValue: string;
-    difficulty: BossDifficulty | null;
+    difficulty: BossDifficultyLabel | null;
     selected: boolean;
   }[];
 }
@@ -73,14 +59,16 @@ export function validateBossSelection(ids: string[]): string[] {
 export function toggleBoss(selectedIds: string[], bossLegacyId: string): string[] {
   const ref = getLegacyBoss(bossLegacyId);
   if (!ref) return selectedIds;
-  const existingId = selectedIds.find((id) => {
-    const r = getLegacyBoss(id);
-    return r?.uuid === ref.uuid;
-  });
+  const existingId = selectedIds.find((id) => getLegacyBoss(id)?.uuid === ref.uuid);
   if (existingId === bossLegacyId) return selectedIds.filter((id) => id !== bossLegacyId);
   if (existingId) return selectedIds.map((id) => (id === existingId ? bossLegacyId : id));
   return [...selectedIds, bossLegacyId];
 }
+
+// Precomputed top crystalValue per family → sort comparator stays O(1) lookup.
+const familyTopCrystal = new Map<string, number>(
+  bosses.map((b) => [b.family, Math.max(...b.difficulty.map((d) => d.crystalValue))]),
+);
 
 export function getFamilies(
   selectedIds: string[],
@@ -89,16 +77,9 @@ export function getFamilies(
 ): FamilyView[] {
   const selectedSet = new Set(selectedIds);
 
-  // Build FamilyView rows from the new Boss[] shape. Each family produces
-  // one row whose `bosses` list is a sorted (crystalValue desc) expansion
-  // of the difficulty[] array — mirroring the pre-1A per-tier rows.
   const families: FamilyView[] = bosses
     .slice()
-    .sort((a, b) => {
-      const topA = Math.max(...a.difficulty.map((d) => d.crystalValue));
-      const topB = Math.max(...b.difficulty.map((d) => d.crystalValue));
-      return topB - topA;
-    })
+    .sort((a, b) => familyTopCrystal.get(b.family)! - familyTopCrystal.get(a.family)!)
     .map((boss) => ({
       family: boss.family,
       displayName: boss.name,
@@ -106,7 +87,7 @@ export function getFamilies(
         .slice()
         .sort((a, b) => b.crystalValue - a.crystalValue)
         .map((diff) => {
-          const id = legacyId(boss.family, diff.tier);
+          const id = legacyIdFor(boss.family, diff.tier);
           return {
             id,
             name: legacyDisplayName(boss.family, diff.tier, boss.name),

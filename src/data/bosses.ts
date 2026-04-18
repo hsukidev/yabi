@@ -1,4 +1,4 @@
-import type { Boss, BossContentType, BossFamily, BossTier } from '../types';
+import type { Boss, BossContentType, BossTier } from '../types';
 
 /**
  * Matrix-variant Boss data (slice 1A).
@@ -310,35 +310,25 @@ export const bosses: Boss[] = [
   },
 ];
 
-export const ALL_BOSS_IDS: Set<string> = new Set(bosses.map((b) => b.id));
+export const ALL_BOSS_IDS: ReadonlySet<string> = new Set(bosses.map((b) => b.id));
+
+/** Families whose pre-1A legacy id has no difficulty prefix. */
+export const TIER_LESS_FAMILIES: ReadonlySet<string> = new Set([
+  'akechi-mitsuhide',
+  'omni-cln',
+  'princess-no',
+]);
 
 const bossById = new Map<string, Boss>(bosses.map((b) => [b.id, b]));
-const bossByFamily = new Map<string, Boss>(bosses.map((b) => [b.family, b]));
 
 export function getBossById(id: string): Boss | undefined {
   return bossById.get(id);
 }
 
-/**
- * Look up a tier within a family's difficulty[] array. Returns undefined
- * if the family has no entry for the requested tier.
- */
-export function getBossTier(bossId: string, tier: BossTier): import('../types').BossDifficulty | undefined {
-  return bossById.get(bossId)?.difficulty.find((d) => d.tier === tier);
+/** Legacy id for a (family, tier) pair. Round-trips through getLegacyBoss. */
+export function legacyIdFor(family: string, tier: BossTier): string {
+  return TIER_LESS_FAMILIES.has(family) ? family : `${tier}-${family}`;
 }
-
-/**
- * Highest-crystalValue tier for a family, used as the "representative"
- * entry when ordering families or surfacing a single value.
- */
-export function getTopTier(boss: Boss): import('../types').BossDifficulty {
-  return boss.difficulty.reduce((a, b) => (a.crystalValue >= b.crystalValue ? a : b));
-}
-
-export const bossFamilies: BossFamily[] = bosses
-  .slice()
-  .sort((a, b) => getTopTier(b).crystalValue - getTopTier(a).crystalValue)
-  .map((b) => ({ family: b.family, bosses: [b] }));
 
 /**
  * Legacy-id compatibility shim (slice 1A). Maps every `<tier>-<family>`
@@ -352,20 +342,11 @@ export interface LegacyBossRef {
   contentType: BossContentType;
 }
 
-/** Families whose pre-1A legacy id had no difficulty prefix. */
-const TIER_LESS_FAMILIES: ReadonlySet<string> = new Set([
-  'akechi-mitsuhide',
-  'omni-cln',
-  'princess-no',
-]);
-
-const legacyToBoss: Map<string, LegacyBossRef> = (() => {
+const legacyToBoss: ReadonlyMap<string, LegacyBossRef> = (() => {
   const map = new Map<string, LegacyBossRef>();
   for (const boss of bosses) {
-    const tierless = TIER_LESS_FAMILIES.has(boss.family);
     for (const diff of boss.difficulty) {
-      const legacyId = tierless ? boss.family : `${diff.tier}-${boss.family}`;
-      map.set(legacyId, {
+      map.set(legacyIdFor(boss.family, diff.tier), {
         uuid: boss.id,
         tier: diff.tier,
         crystalValue: diff.crystalValue,
@@ -378,11 +359,6 @@ const legacyToBoss: Map<string, LegacyBossRef> = (() => {
 
 export function getLegacyBoss(legacyId: string): LegacyBossRef | undefined {
   return legacyToBoss.get(legacyId);
-}
-
-/** Family lookup by slug (helper for consumers still on legacy ids). */
-export function getBossByFamily(family: string): Boss | undefined {
-  return bossByFamily.get(family);
 }
 
 export function calculatePotentialIncome(selectedLegacyIds: string[]): number {
