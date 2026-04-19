@@ -356,7 +356,7 @@ describe('BossMatrix', () => {
       // regardless of party size.
       renderMatrix([], vi.fn(), { [VELLUM_BOSS.family]: 4 })
       const cell = screen.getByTestId(`matrix-cell-${VELLUM}-normal`)
-      expect(cell.textContent).toBe(formatMeso(VELLUM_NORMAL_VALUE, true))
+      expect(cell.textContent).toContain(formatMeso(VELLUM_NORMAL_VALUE, true))
     })
 
     it('still divides weekly tier cells on a mixed boss by the party size', () => {
@@ -479,7 +479,7 @@ describe('BossMatrix', () => {
     it('daily cells on a mixed boss (Normal Vellum) ignore party size', () => {
       renderMatrix([], vi.fn(), { [VELLUM_BOSS.family]: 3 })
       const normalCell = screen.getByTestId(`matrix-cell-${VELLUM}-normal`)
-      expect(normalCell.textContent).toBe(formatMeso(VELLUM_NORMAL_VALUE, true))
+      expect(normalCell.textContent).toContain(formatMeso(VELLUM_NORMAL_VALUE, true))
     })
 
     it('changing party size from 1 to 3 updates only the weekly-tier cell display', () => {
@@ -508,7 +508,7 @@ describe('BossMatrix', () => {
       expect(chaosAt3).not.toBe(chaosAt1)
       expect(chaosAt3).toBe(formatMeso(VELLUM_CHAOS_VALUE / 3, true))
       expect(normalAt3).toBe(normalAt1)
-      expect(normalAt3).toBe(formatMeso(VELLUM_NORMAL_VALUE, true))
+      expect(normalAt3).toContain(formatMeso(VELLUM_NORMAL_VALUE, true))
     })
 
     it.each(['easy', 'normal', 'chaos'] as const)(
@@ -517,8 +517,28 @@ describe('BossMatrix', () => {
         renderMatrix([], vi.fn(), { [HORNTAIL_BOSS.family]: 4 })
         const cell = screen.getByTestId(`matrix-cell-${HORNTAIL}-${tier}`)
         const diff = HORNTAIL_BOSS.difficulty.find((d) => d.tier === tier)!
-        expect(cell.textContent).toBe(formatMeso(diff.crystalValue, true))
+        expect(cell.textContent).toContain(formatMeso(diff.crystalValue, true))
       },
     )
+  })
+
+  describe('daily x7 hint', () => {
+    it('daily cells show an "x 7" hint next to the meso value', () => {
+      renderMatrix()
+      const cell = screen.getByTestId(`matrix-cell-${VELLUM}-normal`)
+      expect(cell.textContent).toMatch(/x\s*7/)
+    })
+
+    it('weekly cells do NOT show the "x 7" hint', () => {
+      renderMatrix()
+      const cell = screen.getByTestId(`matrix-cell-${VELLUM}-chaos`)
+      expect(cell.textContent).not.toMatch(/x\s*7/)
+    })
+
+    it('empty (no-tier) cells do NOT show the "x 7" hint', () => {
+      renderMatrix()
+      const cell = screen.getByTestId(`matrix-cell-${BLACK_MAGE}-easy`)
+      expect(cell.textContent).not.toMatch(/x\s*7/)
+    })
   })
 })

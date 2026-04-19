@@ -12,7 +12,7 @@ export function Header() {
         backdropFilter: 'blur(12px)',
       }}
     >
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6">
+      <div className="container mx-auto max-w-[88rem] px-4 sm:px-6">
         <div className="flex h-14 items-center justify-between">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div

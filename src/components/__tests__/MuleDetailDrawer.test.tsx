@@ -138,7 +138,7 @@ describe('MuleDetailDrawer', () => {
   // jsdom does not simulate viewport breakpoints, so we assert the class
   // strings are applied to SheetContent rather than measuring visual widths.
   // Tailwind handles the actual `<768px` vs `>=768px` switch at runtime.
-  it('applies full-screen width below md and 560px at md+', () => {
+  it('applies full-screen width below md and 640px at md+', () => {
     renderDrawer()
     const content = document.querySelector(
       '[data-slot="sheet-content"][data-side="right"]',
@@ -146,8 +146,21 @@ describe('MuleDetailDrawer', () => {
     expect(content).toBeTruthy()
     const className = content?.className ?? ''
     expect(className).toContain('data-[side=right]:w-screen')
-    expect(className).toContain('data-[side=right]:md:w-[560px]')
-    expect(className).toContain('data-[side=right]:md:max-w-[560px]')
+    expect(className).toContain('data-[side=right]:md:w-[640px]')
+    expect(className).toContain('data-[side=right]:md:max-w-[640px]')
+  })
+
+  // Guard against the base Sheet's `sm:max-w-sm` capping the drawer to 384px
+  // between the sm (640px) and md (768px) breakpoints — that band would squish
+  // the matrix. Our override must neutralize it so the drawer stays full-screen
+  // until the md breakpoint takes over at 640px.
+  it('does not cap the drawer at sm:max-w-sm (avoids 384px squish band)', () => {
+    renderDrawer()
+    const content = document.querySelector(
+      '[data-slot="sheet-content"][data-side="right"]',
+    )
+    const className = content?.className ?? ''
+    expect(className).not.toContain('data-[side=right]:sm:max-w-sm')
   })
 
   it('renders abbreviated income by default', () => {

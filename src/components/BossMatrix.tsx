@@ -164,12 +164,19 @@ function FamilyRow({
         >
           {boss.name}
         </span>
-        {hasWeeklyTier && (
+        {hasWeeklyTier ? (
           <PartyStepper
             family={boss.family}
             party={partySize}
             onChangePartySize={onChangePartySize}
           />
+        ) : (
+          <div
+            className="inline-flex items-center font-mono-nums text-[9px] uppercase tracking-[0.1em] text-[var(--muted-raw,var(--muted-foreground))]"
+            style={{ height: 20 }}
+          >
+            Solo
+          </div>
         )}
       </div>
       {TIER_ORDER.map((tier) => {
@@ -215,6 +222,9 @@ function FamilyRow({
           >
             <span style={isDim ? { opacity: 0.35 } : undefined}>
               {formatMeso(displayedValue, true)}
+              {diff.cadence === 'daily' && (
+                <span className="ml-1 text-[9px] opacity-60">x 7</span>
+              )}
             </span>
           </button>
         );
