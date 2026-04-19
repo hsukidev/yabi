@@ -1,8 +1,38 @@
 import { describe, expect, it } from 'vitest';
 import { bosses, getBossById, ALL_BOSS_IDS } from '../bosses';
-import type { BossTier, BossContentType } from '../../types';
+import type { BossTier } from '../../types';
 
 const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/**
+ * PRD §2 daily-tier classification — 23 `(family, tier)` pairs that MUST have
+ * `cadence: 'daily'`. All other tiers MUST be `'weekly'`. See issue #118.
+ */
+const DAILY_PAIRS: ReadonlyArray<readonly [string, BossTier]> = [
+  ['mori-ranmaru', 'hard'],
+  ['papulatus', 'normal'],
+  ['magnus', 'normal'],
+  ['arkarium', 'normal'],
+  ['von-leon', 'hard'],
+  ['von-leon', 'normal'],
+  ['pink-bean', 'normal'],
+  ['horntail', 'chaos'],
+  ['omni-cln', 'normal'],
+  ['arkarium', 'easy'],
+  ['von-leon', 'easy'],
+  ['horntail', 'normal'],
+  ['pierre', 'normal'],
+  ['von-bon', 'normal'],
+  ['crimson-queen', 'normal'],
+  ['vellum', 'normal'],
+  ['horntail', 'easy'],
+  ['mori-ranmaru', 'normal'],
+  ['hilla', 'normal'],
+  ['magnus', 'easy'],
+  ['papulatus', 'easy'],
+  ['zakum', 'normal'],
+  ['zakum', 'easy'],
+];
 
 describe('bosses data (Matrix schema)', () => {
   it('exposes exactly one Boss per family', () => {
@@ -35,13 +65,6 @@ describe('bosses data (Matrix schema)', () => {
     expect(kalos.name).toBe('Kalos the Guardian');
   });
 
-  it('every boss is seeded with contentType "weekly"', () => {
-    const expected: BossContentType = 'weekly';
-    for (const boss of bosses) {
-      expect(boss.contentType).toBe(expected);
-    }
-  });
-
   it('every difficulty entry has a valid BossTier', () => {
     const validTiers: BossTier[] = ['easy', 'normal', 'hard', 'chaos', 'extreme'];
     for (const boss of bosses) {
@@ -51,13 +74,41 @@ describe('bosses data (Matrix schema)', () => {
     }
   });
 
+  it('every difficulty entry has a valid cadence (daily|weekly)', () => {
+    for (const boss of bosses) {
+      for (const d of boss.difficulty) {
+        expect(
+          ['daily', 'weekly'],
+          `${boss.family} ${d.tier} must have daily|weekly cadence`,
+        ).toContain(d.cadence);
+      }
+    }
+  });
+
+  it('classifies the 23 PRD daily tiers as cadence: "daily" and all others as "weekly"', () => {
+    const dailyLookup = new Set(DAILY_PAIRS.map(([f, t]) => `${f}:${t}`));
+    expect(dailyLookup.size).toBe(23);
+
+    let dailyCount = 0;
+    for (const boss of bosses) {
+      for (const d of boss.difficulty) {
+        const expected = dailyLookup.has(`${boss.family}:${d.tier}`) ? 'daily' : 'weekly';
+        expect(
+          d.cadence,
+          `${boss.family} ${d.tier} expected cadence=${expected}`,
+        ).toBe(expected);
+        if (d.cadence === 'daily') dailyCount++;
+      }
+    }
+    expect(dailyCount).toBe(23);
+  });
+
   it('tier-less bosses collapse to a single { tier: "normal", ... } entry', () => {
     for (const family of ['akechi-mitsuhide', 'omni-cln', 'princess-no']) {
       const boss = bosses.find((b) => b.family === family)!;
       expect(boss, `family ${family} should exist`).toBeDefined();
       expect(boss.difficulty).toHaveLength(1);
       expect(boss.difficulty[0].tier).toBe('normal');
-      expect(boss.contentType).toBe('weekly');
     }
   });
 

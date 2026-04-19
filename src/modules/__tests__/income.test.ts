@@ -116,7 +116,7 @@ describe('computeTotalIncome', () => {
   })
 })
 
-describe('sumSelectedKeys contentType filter', () => {
+describe('sumSelectedKeys cadence multiplier', () => {
   afterEach(() => {
     vi.restoreAllMocks()
   })
@@ -126,45 +126,51 @@ describe('sumSelectedKeys contentType filter', () => {
     vi.spyOn(bossesModule, 'getBossById').mockImplementation((id) => byId.get(id))
   }
 
-  it('includes only keys from bosses with contentType === "weekly"; monthly bosses contribute 0', () => {
+  it('multiplies daily tiers by 7 and weekly tiers by 1', () => {
     const weeklyBoss: Boss = {
       id: 'fixture-weekly',
       name: 'Fixture Weekly',
       family: 'fixture-weekly',
-      contentType: 'weekly',
-      difficulty: [{ tier: 'hard', crystalValue: 1_000_000 }],
+      difficulty: [{ tier: 'hard', crystalValue: 1_000_000, cadence: 'weekly' }],
     }
-    const monthlyBoss: Boss = {
-      id: 'fixture-monthly',
-      name: 'Fixture Monthly',
-      family: 'fixture-monthly',
-      contentType: 'monthly',
-      difficulty: [{ tier: 'extreme', crystalValue: 9_999_999 }],
-    }
-    mockBosses(weeklyBoss, monthlyBoss)
-
-    const keys = [makeKey(weeklyBoss.id, 'hard'), makeKey(monthlyBoss.id, 'extreme')]
-    expect(sumSelectedKeys(keys)).toBe(1_000_000)
-  })
-
-  it('drops daily bosses from the sum', () => {
     const dailyBoss: Boss = {
       id: 'fixture-daily',
       name: 'Fixture Daily',
       family: 'fixture-daily',
-      contentType: 'daily',
-      difficulty: [{ tier: 'normal', crystalValue: 42 }],
+      difficulty: [{ tier: 'normal', crystalValue: 100, cadence: 'daily' }],
     }
-    const weeklyBoss: Boss = {
-      id: 'fixture-weekly-b',
-      name: 'Fixture Weekly B',
-      family: 'fixture-weekly-b',
-      contentType: 'weekly',
-      difficulty: [{ tier: 'hard', crystalValue: 100 }],
-    }
-    mockBosses(dailyBoss, weeklyBoss)
+    mockBosses(weeklyBoss, dailyBoss)
 
-    const keys = [makeKey(dailyBoss.id, 'normal'), makeKey(weeklyBoss.id, 'hard')]
-    expect(sumSelectedKeys(keys)).toBe(100)
+    const keys = [makeKey(weeklyBoss.id, 'hard'), makeKey(dailyBoss.id, 'normal')]
+    // weekly × 1 + daily × 7
+    expect(sumSelectedKeys(keys)).toBe(1_000_000 + 100 * 7)
+  })
+
+  it('mixed-cadence boss sums each tier by its own cadence', () => {
+    const mixedBoss: Boss = {
+      id: 'fixture-mixed',
+      name: 'Fixture Mixed',
+      family: 'fixture-mixed',
+      difficulty: [
+        { tier: 'normal', crystalValue: 10, cadence: 'daily' },
+        { tier: 'chaos', crystalValue: 1000, cadence: 'weekly' },
+      ],
+    }
+    mockBosses(mixedBoss)
+
+    const keys = [makeKey(mixedBoss.id, 'normal'), makeKey(mixedBoss.id, 'chaos')]
+    expect(sumSelectedKeys(keys)).toBe(10 * 7 + 1000)
+  })
+
+  it('applies ×7 to the PRD daily fixtures (Normal Vellum, Chaos Horntail)', () => {
+    const vellum = bosses.find((b) => b.family === 'vellum')!
+    const horntail = bosses.find((b) => b.family === 'horntail')!
+    const normalVellum = makeKey(vellum.id, 'normal')
+    const chaosHorntail = makeKey(horntail.id, 'chaos')
+    expect(sumSelectedKeys([normalVellum])).toBe(4_840_000 * 7)
+    expect(sumSelectedKeys([chaosHorntail])).toBe(6_760_000 * 7)
+    expect(sumSelectedKeys([normalVellum, chaosHorntail])).toBe(
+      4_840_000 * 7 + 6_760_000 * 7,
+    )
   })
 })

@@ -8,12 +8,12 @@ export interface IncomeDisplay {
 }
 
 /**
- * Sum crystalValues for a list of `<uuid>:<tier>` selection keys.
+ * Sum crystalValues for a list of `<uuid>:<tier>` selection keys, folding
+ * daily tiers into the weekly headline at `crystalValue × 7`.
  *
- * Only keys belonging to bosses with `contentType === 'weekly'` contribute;
- * daily and monthly bosses resolve but sum to 0. All seed data is currently
- * `'weekly'`, so this filter is plumbing that unlocks future daily/monthly
- * boss data without distorting the weekly KPI.
+ * The source of truth for cadence is `BossDifficulty.cadence` — daily tiers
+ * are farmable up to 7× per week, weekly tiers clear once. Unknown bosses
+ * and tiers no longer offered contribute 0.
  */
 export function sumSelectedKeys(keys: string[]): number {
   let total = 0
@@ -21,9 +21,10 @@ export function sumSelectedKeys(keys: string[]): number {
     const parsed = parseKey(key)
     if (!parsed) continue
     const boss = getBossById(parsed.bossId)
-    if (!boss || boss.contentType !== 'weekly') continue
+    if (!boss) continue
     const diff = boss.difficulty.find((d) => d.tier === parsed.tier)
-    if (diff) total += diff.crystalValue
+    if (!diff) continue
+    total += diff.cadence === 'daily' ? diff.crystalValue * 7 : diff.crystalValue
   }
   return total
 }

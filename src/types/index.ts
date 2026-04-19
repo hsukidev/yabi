@@ -1,9 +1,14 @@
 export type BossTier = 'easy' | 'normal' | 'hard' | 'chaos' | 'extreme';
-export type BossContentType = 'daily' | 'weekly' | 'monthly';
 
 export interface BossDifficulty {
   tier: BossTier;
   crystalValue: number;
+  /**
+   * Per-tier cadence (single source of truth). Daily tiers are farmable up to
+   * 7× per week and contribute `crystalValue × 7` to the weekly headline;
+   * weekly tiers contribute `crystalValue` once.
+   */
+  cadence: 'daily' | 'weekly';
 }
 
 export interface Boss {
@@ -13,8 +18,6 @@ export interface Boss {
   name: string;
   /** Family slug, unchanged from the pre-1A dataset. */
   family: string;
-  /** Cadence for the whole family — one boss = one cadence. */
-  contentType: BossContentType;
   /** One entry per difficulty tier offered for this family. */
   difficulty: BossDifficulty[];
 }
