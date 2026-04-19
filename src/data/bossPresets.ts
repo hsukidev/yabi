@@ -20,7 +20,7 @@ import { hardestDifficulty, makeKey, parseKey, toggleBoss } from './bossSelectio
  * single-purpose and family-scoped.
  */
 
-export type PresetKey = 'CRA' | 'CTENE';
+export type PresetKey = 'CRA' | 'LOMIEN' | 'CTENE';
 
 /**
  * A preset entry is either a family slug (resolves to the hardest tier) or
@@ -40,6 +40,20 @@ export const PRESET_FAMILIES = {
     'hilla',
     'magnus',
     'zakum',
+  ],
+  LOMIEN: [
+    'cygnus',
+    'pink-bean',
+    'vellum',
+    'crimson-queen',
+    'von-bon',
+    'pierre',
+    'papulatus',
+    'hilla',
+    'magnus',
+    'zakum',
+    { family: 'lotus', tier: 'normal' },
+    { family: 'damien', tier: 'normal' },
   ],
   CTENE: [
     'akechi-mitsuhide',

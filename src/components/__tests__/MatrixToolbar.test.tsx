@@ -4,7 +4,7 @@ import { render, screen, fireEvent } from '@/test/test-utils'
 import { MatrixToolbar } from '../MatrixToolbar'
 
 const noop = () => {}
-const EMPTY_PRESETS: ReadonlySet<'CRA' | 'CTENE'> = new Set()
+const EMPTY_PRESETS: ReadonlySet<'CRA' | 'LOMIEN' | 'CTENE'> = new Set()
 
 function renderToolbar(
   overrides: Partial<Parameters<typeof MatrixToolbar>[0]> = {},
@@ -219,17 +219,20 @@ describe('MatrixToolbar', () => {
 
     it('wraps the preset buttons in their own .d-c-toggle container', () => {
       const { container } = renderToolbar()
-      // Two .d-c-toggle groups: cadence filter (3 buttons) + preset row (2 buttons).
+      // Two .d-c-toggle groups: cadence filter (3 buttons) + preset row (3 buttons: CRA, LOMIEN, CTENE).
       const groups = container.querySelectorAll('.d-c-toggle')
       expect(groups.length).toBeGreaterThanOrEqual(2)
-      const presetGroup = Array.from(groups).find(
-        (g) => g.querySelectorAll('button').length === 2,
-      )
+      const presetGroup = Array.from(groups).find((g) => {
+        const names = Array.from(g.querySelectorAll('button')).map((b) =>
+          b.textContent?.trim(),
+        )
+        return names.includes('CRA')
+      })
       expect(presetGroup).toBeTruthy()
       const buttonNames = Array.from(
         presetGroup!.querySelectorAll('button'),
       ).map((b) => b.textContent?.trim())
-      expect(buttonNames).toEqual(['CRA', 'CTENE'])
+      expect(buttonNames).toEqual(['CRA', 'LOMIEN', 'CTENE'])
     })
 
     it('separates the preset control from the cadence filter with a .d-toolbar-sep', () => {
@@ -276,6 +279,15 @@ describe('MatrixToolbar', () => {
       renderToolbar({ onTogglePreset })
       fireEvent.click(screen.getByRole('button', { name: /^ctene$/i }))
       expect(onTogglePreset).toHaveBeenCalledWith('CTENE')
+    })
+
+    it('renders a LOMIEN pill between CRA and CTENE', () => {
+      renderToolbar()
+      const craBtn = screen.getByRole('button', { name: /^cra$/i })
+      const lomienBtn = screen.getByRole('button', { name: /^lomien$/i })
+      const cteneBtn = screen.getByRole('button', { name: /^ctene$/i })
+      expect(craBtn.compareDocumentPosition(lomienBtn) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      expect(lomienBtn.compareDocumentPosition(cteneBtn) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     })
 
     it('preset buttons render no SVG icons', () => {

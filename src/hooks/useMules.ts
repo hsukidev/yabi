@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 import { v4 as uuidv4 } from 'uuid';
 import type { BossTier, Mule } from '../types';
@@ -8,6 +8,14 @@ import { makeKey, validateBossSelection } from '../data/bossSelection';
 const STORAGE_KEY = 'maplestory-mule-tracker';
 const FALLBACK_KEY = 'maplestory-mule-tracker-fallback';
 const CURRENT_SCHEMA_VERSION = 4;
+
+// Debounce window for localStorage persistence. Keystrokes in drawer inputs
+// trigger state updates faster than 60Hz; without coalescing, every keystroke
+// pays a synchronous JSON.stringify + localStorage.setItem on the main thread,
+// which blocks key-repeat. 200ms is short enough that a user who alt-tabs
+// mid-edit still has their changes flushed quickly, and is below perceptible
+// latency for the save-on-blur flow.
+const PERSIST_DEBOUNCE_MS = 200;
 
 const LEGACY_ID_PREFIX = /^(extreme|hard|chaos|normal|easy)-/;
 
@@ -159,9 +167,44 @@ export function useMules() {
 
   const [mules, setMules] = useState<Mule[]>(loadMules);
 
+  const pendingRef = useRef<Mule[] | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const flushSave = useCallback(() => {
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    if (pendingRef.current !== null) {
+      saveMules(pendingRef.current);
+      pendingRef.current = null;
+    }
+  }, [saveMules]);
+
   useEffect(() => {
-    saveMules(mules);
-  }, [mules, saveMules]);
+    pendingRef.current = mules;
+    if (timerRef.current !== null) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(flushSave, PERSIST_DEBOUNCE_MS);
+  }, [mules, flushSave]);
+
+  useEffect(() => {
+    return () => {
+      flushSave();
+    };
+  }, [flushSave]);
+
+  useEffect(() => {
+    // `pagehide` fires on tab close and bfcache navigation; mobile Safari
+    // doesn't fire `beforeunload` reliably. Listen to both so a pending
+    // debounced write isn't lost when the user closes the tab mid-edit.
+    const flushOnHide = () => flushSave();
+    window.addEventListener('pagehide', flushOnHide);
+    window.addEventListener('beforeunload', flushOnHide);
+    return () => {
+      window.removeEventListener('pagehide', flushOnHide);
+      window.removeEventListener('beforeunload', flushOnHide);
+    };
+  }, [flushSave]);
 
   const addMule = useCallback(() => {
     const newMule: Mule = {

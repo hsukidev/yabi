@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,7 +31,7 @@ import {
 import blankCharacterPng from '../assets/blank-character.png';
 import { sanitizeMuleName } from '../utils/muleName';
 
-const PRESET_KEYS: readonly PresetKey[] = ['CRA', 'CTENE'];
+const PRESET_KEYS: readonly PresetKey[] = ['CRA', 'LOMIEN', 'CTENE'];
 
 function filterByCadence(
   list: readonly Boss[],
@@ -62,9 +62,13 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
     setFilter('All');
   }, [mule?.id]);
 
-  const visibleBosses = filterBySearch(
-    filterByCadence(bossesByTopCrystalDesc, filter),
-    search,
+  const visibleBosses = useMemo(
+    () =>
+      filterBySearch(
+        filterByCadence(bossesByTopCrystalDesc, filter),
+        search,
+      ),
+    [filter, search],
   );
 
   const weeklyCount = useMemo(
@@ -72,10 +76,55 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
     [mule?.selectedBosses],
   );
 
-  const selectedBosses = mule?.selectedBosses ?? [];
-  const activePresets = useMemo(
-    () => new Set(PRESET_KEYS.filter((p) => isPresetActive(p, selectedBosses))),
-    [selectedBosses],
+  const selectedBosses = useMemo(
+    () => mule?.selectedBosses ?? [],
+    [mule?.selectedBosses],
+  );
+  const activePresets = useMemo(() => {
+    const set = new Set(PRESET_KEYS.filter((p) => isPresetActive(p, selectedBosses)));
+    // LOMIEN's resolved keys are a superset of CRA's, so both would light up
+    // whenever LOMIEN is fully selected. Prefer the more specific pill.
+    if (set.has('LOMIEN')) set.delete('CRA');
+    return set;
+  }, [selectedBosses]);
+
+  const muleId = mule?.id;
+  const mulePartySizes = mule?.partySizes;
+  const stablePartySizes = useMemo(
+    () => mulePartySizes ?? {},
+    [mulePartySizes],
+  );
+
+  const handleToggleKey = useCallback(
+    (key: string) => {
+      if (!muleId) return;
+      const parsed = parseKey(key);
+      if (!parsed) return;
+      onUpdate(muleId, {
+        selectedBosses: toggleBoss(
+          selectedBosses,
+          parsed.bossId,
+          parsed.tier,
+        ),
+      });
+    },
+    [muleId, selectedBosses, onUpdate],
+  );
+
+  const handleChangePartySize = useCallback(
+    (family: string, n: number) => {
+      if (!muleId) return;
+      // Clamp here so BossMatrix can stay a dumb view: party size is always
+      // in [1, 6] by the time it hits storage.
+      const clamped = Math.max(1, Math.min(6, n));
+      onUpdate(muleId, {
+        partySizes: {
+          ...(mulePartySizes ?? {}),
+          [family]: clamped,
+        },
+      });
+    },
+    [muleId, mulePartySizes, onUpdate],
   );
 
   function handleTogglePreset(preset: PresetKey) {
@@ -132,27 +181,23 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
             style={{ background: 'radial-gradient(closest-side, var(--accent-raw, var(--accent-primary)), transparent)' }}
           />
 
-          <div className="relative p-8 flex items-start gap-5 border-b border-border/50">
-            <div className="relative h-[132px] w-[132px] rounded-lg overflow-hidden border border-border/60 bg-surface-raised shrink-0">
-              <img
-                src={blankCharacterPng}
-                alt={mule.name || 'Mule avatar'}
-                className="w-full h-full object-contain"
-              />
-            </div>
+          <div className="relative p-8 flex items-end gap-5">
+            <img
+              src={blankCharacterPng}
+              alt={mule.name || 'Mule avatar'}
+              className="h-[132px] w-[132px] object-contain shrink-0"
+            />
             <div className="min-w-0 flex-1">
               <h2 className="mt-1 font-display text-2xl font-bold leading-tight truncate">
                 {mule.name || <span className="text-muted-foreground italic font-normal">Unnamed Mule</span>}
               </h2>
               <div className="mt-1 flex items-center gap-3 text-xs">
-                {mule.level > 0 && (
-                  <span className="font-mono-nums text-[var(--accent-numeric)]">Lv.{mule.level}</span>
-                )}
-                {mule.muleClass && (
-                  <span className="font-sans uppercase tracking-[0.22em] text-[10px] text-[var(--accent-secondary)]">
-                    {mule.muleClass}
-                  </span>
-                )}
+                <span className="font-sans uppercase tracking-[0.22em] text-[var(--accent-secondary)]">
+                  {mule.muleClass || 'no class'}
+                </span> 
+                <span className="font-mono-nums text-[var(--accent-numeric)]">
+                  {mule.level > 0 ? `Lv.${mule.level}` : 'N/A'}
+                </span>
               </div>
               <div
                 className="mt-3 inline-flex items-baseline gap-2 rounded-lg border border-border/60 px-3 py-1.5"
@@ -164,7 +209,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                 <span className="font-mono-nums text-base text-[var(--accent-numeric)]">{potentialIncome}</span>
                 <span className="font-display italic text-xs text-muted-foreground">mesos</span>
               </div>
-              <div className="mt-2">
+              <div className="mt-3">
                 <button
                   type="button"
                   data-testid="active-toggle"
@@ -173,12 +218,13 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                   className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-sans uppercase tracking-[0.18em] transition-colors"
                   style={{
                     background: 'var(--surface-2)',
-                    border: `1px solid ${mule.active ? 'var(--accent-soft, var(--border))' : 'var(--border)'}`,
+                    border: '1px solid color-mix(in srgb, var(--border) 60%, transparent)',
                     color: mule.active
-                      ? 'var(--accent-raw, var(--accent))'
+                      ? 'var(--chart-4)'
                       : 'var(--muted-foreground)',
                     minWidth: 96,
                     justifyContent: 'center',
+                    cursor: 'pointer',
                   }}
                 >
                   {mule.active && (
@@ -190,7 +236,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                         width: 8,
                         height: 8,
                         borderRadius: '50%',
-                        background: 'var(--accent-raw, var(--accent))',
+                        background: 'var(--chart-4)',
                       }}
                     />
                   )}
@@ -233,6 +279,8 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
             )}
           </div>
 
+          <div className="mx-6 border-t border-border/50" />
+
           <div className="p-6 flex flex-col gap-5">
             <div className="flex flex-col gap-3">
               <div className="grid grid-cols-1 gap-3">
@@ -246,7 +294,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                     value={mule.name}
                     maxLength={12}
                     onChange={(e) => onUpdate(mule.id, { name: sanitizeMuleName(e.currentTarget.value) })}
-                    className="bg-[var(--surface-2)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20 placeholder:opacity-60"
+                    className="bg-[var(--surface-2)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20 placeholder:opacity-60 placeholder:text-xs placeholder:italic"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -259,7 +307,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                       placeholder="e.g. Bishop"
                       value={mule.muleClass}
                       onChange={(e) => onUpdate(mule.id, { muleClass: e.currentTarget.value })}
-                      className="bg-[var(--surface-2)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20 placeholder:opacity-60"
+                      className="bg-[var(--surface-2)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20 placeholder:opacity-60 placeholder:text-xs placeholder:italic"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -273,7 +321,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                       min={0}
                       value={mule.level || ''}
                       onChange={(e) => onUpdate(mule.id, { level: Number(e.currentTarget.value) || 0 })}
-                      className="bg-[var(--surface-2)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20 font-mono-nums placeholder:opacity-60"
+                      className="bg-[var(--surface-2)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20 font-mono-nums placeholder:opacity-60 placeholder:text-xs placeholder:italic"
                     />
                   </div>
                 </div>
@@ -295,29 +343,9 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                   bosses={visibleBosses}
                   fusedTop
                   selectedKeys={mule.selectedBosses}
-                  onToggleKey={(key) => {
-                    const parsed = parseKey(key);
-                    if (!parsed) return;
-                    onUpdate(mule.id, {
-                      selectedBosses: toggleBoss(
-                        mule.selectedBosses,
-                        parsed.bossId,
-                        parsed.tier,
-                      ),
-                    });
-                  }}
-                  partySizes={mule.partySizes ?? {}}
-                  onChangePartySize={(family, n) => {
-                    // Clamp here so BossMatrix can stay a dumb view: party size
-                    // is always in [1, 6] by the time it hits storage.
-                    const clamped = Math.max(1, Math.min(6, n));
-                    onUpdate(mule.id, {
-                      partySizes: {
-                        ...(mule.partySizes ?? {}),
-                        [family]: clamped,
-                      },
-                    });
-                  }}
+                  onToggleKey={handleToggleKey}
+                  partySizes={stablePartySizes}
+                  onChangePartySize={handleChangePartySize}
                 />
               </div>
             </div>

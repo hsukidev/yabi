@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Boss, BossDifficulty, BossTier } from '../types';
 import {
   bossesByTopCrystalDesc,
@@ -243,7 +244,7 @@ function FamilyRow({
   );
 }
 
-export function BossMatrix({
+export const BossMatrix = memo(function BossMatrix({
   selectedKeys,
   onToggleKey,
   partySizes,
@@ -308,4 +309,4 @@ export function BossMatrix({
       ))}
     </div>
   );
-}
+});

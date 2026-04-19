@@ -152,6 +152,19 @@ describe('applyPreset', () => {
   })
 })
 
+describe('LOMIEN preset', () => {
+  it('applies CRA hardest keys plus Normal Lotus and Normal Damien from empty', () => {
+    const result = applyPreset([], PRESET_FAMILIES.LOMIEN)
+    for (const f of CRA_FAMILIES) {
+      expect(result).toContain(hardestKey(f))
+    }
+    const lotus = getBossByFamily('lotus')!
+    const damien = getBossByFamily('damien')!
+    expect(result).toContain(makeKey(lotus.id, 'normal', 'weekly'))
+    expect(result).toContain(makeKey(damien.id, 'normal', 'weekly'))
+  })
+})
+
 describe('removePreset', () => {
   it('drops every key whose boss family is in the list', () => {
     const withCra = applyPreset([], PRESET_FAMILIES.CRA)

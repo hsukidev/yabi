@@ -1,7 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen, within } from '@/test/test-utils'
+import { render, screen, within, fireEvent } from '@/test/test-utils'
 import { KpiCard } from '../KpiCard'
 import type { Mule } from '../../types'
+import { bosses } from '../../data/bosses'
+import { makeKey } from '../../data/bossSelection'
+
+const HARD_LUCID = makeKey(bosses.find((b) => b.family === 'lucid')!.id, 'hard', 'weekly')
 
 const mule: Mule = {
   id: 'm1',
@@ -32,6 +36,33 @@ describe('KpiCard', () => {
     ]
     render(<KpiCard mules={mules} onToggleFormat={vi.fn()} />)
     expect(activeStatValue()).toBe('2')
+  })
+
+  it('does not toggle format when total income is zero', () => {
+    const onToggleFormat = vi.fn()
+    render(<KpiCard mules={[{ ...mule, selectedBosses: [] }]} onToggleFormat={onToggleFormat} />)
+    fireEvent.click(screen.getByRole('button', { name: /toggle abbreviated meso format/i }))
+    expect(onToggleFormat).not.toHaveBeenCalled()
+  })
+
+  it('resets format to abbreviated when total income transitions to zero', () => {
+    const onToggleFormat = vi.fn()
+    const nonzero: Mule[] = [{ ...mule, selectedBosses: [HARD_LUCID] }]
+    const zero: Mule[] = [{ ...mule, selectedBosses: [] }]
+    const { rerender } = render(
+      <KpiCard mules={nonzero} onToggleFormat={onToggleFormat} />,
+      { defaultAbbreviated: false },
+    )
+    expect(onToggleFormat).not.toHaveBeenCalled()
+    rerender(<KpiCard mules={zero} onToggleFormat={onToggleFormat} />)
+    expect(onToggleFormat).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not reset format when total income stays zero from mount', () => {
+    const onToggleFormat = vi.fn()
+    render(<KpiCard mules={[{ ...mule, selectedBosses: [] }]} onToggleFormat={onToggleFormat} />)
+    // Provider already starts abbreviated; no reset needed.
+    expect(onToggleFormat).not.toHaveBeenCalled()
   })
 
   it('does not count mules with active: false even if they have bosses selected', () => {

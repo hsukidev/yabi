@@ -11,7 +11,7 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useDeferredValue } from 'react';
 import { createPortal } from 'react-dom';
 
 import { ThemeProvider } from './context/ThemeProvider';
@@ -50,12 +50,19 @@ const dropAnimation: DropAnimation = {
 
 function AppContent() {
   const { mules, addMule, updateMule, deleteMule, reorderMules } = useMules();
+  // During rapid keystrokes in the drawer, non-drawer surfaces (KpiCard,
+  // SplitCard/recharts PieChart, the roster cards) can lag on the deferred
+  // snapshot. React skips their memo'd renders until typing pauses, so the
+  // input stays responsive even when the roster is dense.
+  const deferredMules = useDeferredValue(mules);
   const { toggle: toggleAbbreviated } = useFormatPreference();
   const [selectedMuleId, setSelectedMuleId] = useState<string | null>(null);
   const [activeMuleId, setActiveMuleId] = useState<string | null>(null);
 
+  // Drawer reads from the live `mules` so the edited Input reflects every
+  // keystroke immediately; KpiCard/SplitCard/roster read from `deferredMules`.
   const selectedMule = mules.find((m) => m.id === selectedMuleId) ?? null;
-  const activeMule = activeMuleId ? (mules.find((m) => m.id === activeMuleId) ?? null) : null;
+  const activeMule = activeMuleId ? (deferredMules.find((m) => m.id === activeMuleId) ?? null) : null;
   const isDragging = activeMuleId !== null;
 
   const sensors = [useSensor(PointerSensor, { activationConstraint: { distance: 0 } })];
@@ -81,14 +88,18 @@ function AppContent() {
     setActiveMuleId(null);
   }, []);
 
-  function handleAddMule() {
+  const handleAddMule = useCallback(() => {
     const id = addMule();
     setSelectedMuleId(id);
-  }
+  }, [addMule]);
 
-  function handleSliceClick(muleId: string) {
+  const handleCardClick = useCallback((muleId: string) => {
     setSelectedMuleId(muleId);
-  }
+  }, []);
+
+  const handleCloseDrawer = useCallback(() => {
+    setSelectedMuleId(null);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -96,10 +107,10 @@ function AppContent() {
       <main className="container mx-auto max-w-[88rem] px-4 sm:px-6 py-8">
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
           <div className="lg:col-span-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
-            <KpiCard mules={mules} onToggleFormat={toggleAbbreviated} />
+            <KpiCard mules={deferredMules} onToggleFormat={toggleAbbreviated} />
           </div>
           <div className="lg:col-span-4 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
-            <SplitCard mules={mules} onSliceClick={handleSliceClick} />
+            <SplitCard mules={deferredMules} onSliceClick={handleCardClick} />
           </div>
         </section>
 
@@ -130,7 +141,7 @@ function AppContent() {
             sensors={sensors}
             modifiers={[restrictToParentElement]}
           >
-            <SortableContext items={mules.map((m) => m.id)} strategy={rectSortingStrategy}>
+            <SortableContext items={deferredMules.map((m) => m.id)} strategy={rectSortingStrategy}>
               <div style={isDragging ? dragBoundaryActiveStyle : dragBoundaryBaseStyle} className="transition-[border-color] duration-200" data-drag-boundary>
                 <div
                   className="grid gap-4"
@@ -140,11 +151,11 @@ function AppContent() {
                     gridAutoRows: 'minmax(var(--roster-card-min-height, 260px), auto)',
                   }}
                 >
-                  {mules.map((mule) => (
+                  {deferredMules.map((mule) => (
                     <MuleCharacterCard
                       key={mule.id}
                       mule={mule}
-                      onClick={() => setSelectedMuleId(mule.id)}
+                      onClick={handleCardClick}
                       onDelete={deleteMule}
                     />
                   ))}
@@ -165,7 +176,7 @@ function AppContent() {
       <MuleDetailDrawer
         mule={selectedMule}
         open={selectedMule !== null}
-        onClose={() => setSelectedMuleId(null)}
+        onClose={handleCloseDrawer}
         onUpdate={updateMule}
         onDelete={deleteMule}
       />

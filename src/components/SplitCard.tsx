@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { Mule } from '../types'
 import { IncomePieChart } from './IncomePieChart'
 
@@ -6,7 +7,7 @@ interface SplitCardProps {
   onSliceClick: (muleId: string) => void
 }
 
-export function SplitCard({ mules, onSliceClick }: SplitCardProps) {
+export const SplitCard = memo(function SplitCard({ mules, onSliceClick }: SplitCardProps) {
   return (
     <div data-testid="income-chart" className="panel" style={{ padding: '16px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 8 }}>
@@ -18,4 +19,4 @@ export function SplitCard({ mules, onSliceClick }: SplitCardProps) {
       <IncomePieChart mules={mules} onSliceClick={onSliceClick} />
     </div>
   )
-}
+})

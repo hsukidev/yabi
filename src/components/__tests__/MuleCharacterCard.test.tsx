@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '../../test/test-utils'
 import { DndContext } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
-import { MuleCharacterCard } from '../MuleCharacterCard'
+import { MuleCharacterCard, MuleCharacterCardOverlay } from '../MuleCharacterCard'
 import type { Mule } from '../../types'
 import { bosses } from '../../data/bosses'
 import { makeKey } from '../../data/bossSelection'
@@ -165,6 +165,13 @@ describe('MuleCharacterCard', () => {
     for (const span of incomeSpans) {
       expect(span.style.color).toContain('accent')
     }
+  })
+
+  it('keeps the drag overlay dimmed when the mule is inactive', () => {
+    const mule: Mule = { ...baseMule, active: false }
+    const { container } = render(<MuleCharacterCardOverlay mule={mule} />)
+    const overlay = container.querySelector('.panel') as HTMLElement
+    expect(overlay.style.opacity).toBe('0.55')
   })
 
   describe('trash icon and delete popover', () => {

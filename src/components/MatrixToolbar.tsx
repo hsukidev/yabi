@@ -1,5 +1,5 @@
 export type CadenceFilter = 'All' | 'Weekly' | 'Daily';
-export type PresetKey = 'CRA' | 'CTENE';
+export type PresetKey = 'CRA' | 'LOMIEN' | 'CTENE';
 
 interface MatrixToolbarProps {
   filter: CadenceFilter;
@@ -56,7 +56,7 @@ const CADENCES: ReadonlyArray<{ value: CadenceFilter; icon: React.ReactNode }> =
   },
 ];
 
-const PRESETS: readonly PresetKey[] = ['CRA', 'CTENE'];
+const PRESETS: readonly PresetKey[] = ['CRA', 'LOMIEN', 'CTENE'];
 
 export function MatrixToolbar({
   filter,

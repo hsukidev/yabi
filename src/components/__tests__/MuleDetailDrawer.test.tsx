@@ -604,6 +604,19 @@ describe('MuleDetailDrawer', () => {
       ).toBe(true)
     })
 
+    it('CRA pill is NOT active when LOMIEN is fully selected (mutually exclusive)', () => {
+      const LOMIEN_KEYS = PRESET_FAMILIES.LOMIEN.map((entry) => presetEntryKey(entry)!)
+      renderDrawer({
+        mule: { ...baseMule, selectedBosses: LOMIEN_KEYS },
+      })
+      expect(
+        screen.getByRole('button', { name: /^lomien$/i }).classList.contains('on'),
+      ).toBe(true)
+      expect(
+        screen.getByRole('button', { name: /^cra$/i }).classList.contains('on'),
+      ).toBe(false)
+    })
+
     it('CRA pill is not active when even one hardest key is missing', () => {
       const missingOne = CRA_KEYS.slice(0, -1)
       renderDrawer({

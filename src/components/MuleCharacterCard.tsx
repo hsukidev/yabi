@@ -11,7 +11,7 @@ import blankCharacterPng from '../assets/blank-character.png'
 
 interface MuleCharacterCardProps {
   mule: Mule
-  onClick: () => void
+  onClick: (id: string) => void
   onDelete: (id: string) => void
 }
 
@@ -107,6 +107,7 @@ export const MuleCharacterCardOverlay = memo(function MuleCharacterCardOverlay({
         flexDirection: 'column',
         transform: 'translateY(-2px)',
         boxShadow: '0 12px 40px -8px var(--accent-glow), 0 0 0 1px var(--border)',
+        opacity: mule.active ? 1 : 0.55,
       }}
     >
       <MuleCardInner mule={mule} />
@@ -114,7 +115,7 @@ export const MuleCharacterCardOverlay = memo(function MuleCharacterCardOverlay({
   )
 })
 
-export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCardProps) {
+export const MuleCharacterCard = memo(function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: mule.id })
   const [isHovered, setIsHovered] = useState(false)
   const [popoverOpen, setPopoverOpen] = useState(false)
@@ -127,6 +128,10 @@ export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCard
         opacity: mule.active ? 1 : 0.55,
       }
 
+  function handleClick() { onClick(mule.id) }
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(mule.id) }
+  }
   function stopPropagation(e: React.SyntheticEvent) { e.stopPropagation() }
   function handleDeleteConfirm() { onDelete(mule.id); setPopoverOpen(false) }
   function handleDeleteCancel() { setPopoverOpen(false) }
@@ -141,7 +146,7 @@ export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCard
       {...listeners}
     >
       <div
-        onClick={onClick}
+        onClick={handleClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         className="panel cursor-pointer"
@@ -158,9 +163,7 @@ export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCard
         }}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() }
-        }}
+        onKeyDown={handleKeyDown}
       >
         <MuleCardInner mule={mule} />
 
@@ -198,4 +201,4 @@ export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCard
       </div>
     </div>
   )
-}
+})

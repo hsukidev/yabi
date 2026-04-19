@@ -65,6 +65,16 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
+// Persistence is debounced (see useMules:PERSIST_DEBOUNCE_MS). Tests that
+// inspect localStorage directly after a state mutation must force the pending
+// write to flush; the hook listens for `pagehide` to rescue in-flight writes
+// on tab close, so firing that event is a minimal, public flush hook.
+function flushPersist() {
+  act(() => {
+    window.dispatchEvent(new Event('pagehide'))
+  })
+}
+
 describe('useMules', () => {
   describe('loadMules', () => {
     it('returns [] on first-ever load with no data in localStorage', () => {
@@ -193,6 +203,7 @@ describe('useMules', () => {
       ]
       localStorageStore['maplestory-mule-tracker'] = JSON.stringify(legacyRoot)
       renderHook(() => useMules())
+      flushPersist()
       const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
       expect(saved.schemaVersion).toBe(4)
       expect(saved.mules[0].selectedBosses).toEqual([])
@@ -255,6 +266,7 @@ describe('useMules', () => {
       act(() => {
         result.current.addMule()
       })
+      flushPersist()
       const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
       expect(saved.schemaVersion).toBe(4)
       expect(Array.isArray(saved.mules)).toBe(true)
@@ -275,6 +287,7 @@ describe('useMules', () => {
       act(() => {
         result.current.updateMule('a', { selectedBosses: [HARD_WILL] })
       })
+      flushPersist()
       const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
       expect(saved.schemaVersion).toBe(4)
       expect(saved.mules[0].selectedBosses).toEqual([HARD_WILL])
@@ -377,6 +390,7 @@ describe('useMules', () => {
       }
       localStorageStore['maplestory-mule-tracker'] = JSON.stringify(v2Payload)
       renderHook(() => useMules())
+      flushPersist()
       const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
       expect(saved.schemaVersion).toBe(4)
       expect(saved.mules[0].selectedBosses).toEqual([HARD_LUCID])
@@ -390,6 +404,7 @@ describe('useMules', () => {
         result.current.addMule()
       })
       expect(result.current.mules).toHaveLength(1)
+      flushPersist()
       expect(localStorageStore['maplestory-mule-tracker']).toBeDefined()
     })
 
@@ -410,6 +425,7 @@ describe('useMules', () => {
         result.current.addMule()
       })
 
+      flushPersist()
       expect(sessionStorageStore['maplestory-mule-tracker-fallback']).toBeDefined()
     })
 
@@ -596,6 +612,7 @@ describe('useMules', () => {
       }
       localStorageStore['maplestory-mule-tracker'] = JSON.stringify(v3Payload)
       renderHook(() => useMules())
+      flushPersist()
       const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
       expect(saved.schemaVersion).toBe(4)
       expect(saved.mules[0].active).toBe(true)
@@ -742,11 +759,13 @@ describe('useMules', () => {
       act(() => {
         result.current.addMule()
       })
+      flushPersist()
       expect(sessionStorageStore['maplestory-mule-tracker-fallback']).toBeDefined()
 
       act(() => {
         result.current.updateMule(result.current.mules[0].id, { name: 'Updated' })
       })
+      flushPersist()
       expect(localStorageStore['maplestory-mule-tracker']).toBeDefined()
       const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
       expect(saved.mules[0].name).toBe('Updated')
@@ -769,9 +788,78 @@ describe('useMules', () => {
       }
       localStorageStore['maplestory-mule-tracker'] = JSON.stringify(payload)
       renderHook(() => useMules())
+      flushPersist()
 
       const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
       expect(saved.mules[0].selectedBosses).toEqual([HARD_LUCID])
+    })
+  })
+
+  describe('debounced persistence', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+    })
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('does not write to localStorage synchronously on state change', () => {
+      const { result } = renderHook(() => useMules())
+      act(() => {
+        result.current.addMule()
+      })
+      // Write is deferred — nothing in storage yet.
+      expect(localStorageStore['maplestory-mule-tracker']).toBeUndefined()
+      // After the debounce window, the write lands.
+      act(() => {
+        vi.advanceTimersByTime(500)
+      })
+      expect(localStorageStore['maplestory-mule-tracker']).toBeDefined()
+    })
+
+    it('coalesces a burst of updates into a single localStorage write', () => {
+      const setItemSpy = vi.spyOn(localStorage, 'setItem')
+      const { result } = renderHook(() => useMules())
+      let id = ''
+      act(() => {
+        id = result.current.addMule()
+      })
+      // Typing-speed burst of name updates, well under the debounce window.
+      act(() => {
+        for (const name of ['A', 'Al', 'Ali', 'Alic', 'Alice']) {
+          result.current.updateMule(id, { name })
+        }
+      })
+      // Still within debounce — no write should have fired yet.
+      expect(setItemSpy).not.toHaveBeenCalled()
+      act(() => {
+        vi.advanceTimersByTime(500)
+      })
+      // Exactly one write, with the final name.
+      expect(setItemSpy).toHaveBeenCalledTimes(1)
+      const payload = JSON.parse(localStorageStore['maplestory-mule-tracker'])
+      expect(payload.mules[0].name).toBe('Alice')
+    })
+
+    it('flushes pending writes synchronously on pagehide', () => {
+      const { result } = renderHook(() => useMules())
+      let id = ''
+      act(() => {
+        id = result.current.addMule()
+      })
+      act(() => {
+        result.current.updateMule(id, { name: 'About to close' })
+      })
+      // Still within debounce — nothing persisted yet.
+      expect(localStorageStore['maplestory-mule-tracker']).toBeUndefined()
+      // User closes the tab before the debounce fires.
+      act(() => {
+        window.dispatchEvent(new Event('pagehide'))
+      })
+      // Pending state was flushed synchronously, not dropped.
+      expect(localStorageStore['maplestory-mule-tracker']).toBeDefined()
+      const payload = JSON.parse(localStorageStore['maplestory-mule-tracker'])
+      expect(payload.mules[0].name).toBe('About to close')
     })
   })
 
