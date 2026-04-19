@@ -166,7 +166,7 @@ describe('MuleCharacterCard', () => {
       fireEvent.click(trashButton)
 
       await waitFor(() => {
-        expect(screen.getByText('Delete this mule?')).toBeTruthy()
+        expect(screen.getByText('Delete?')).toBeTruthy()
         expect(screen.getByRole('button', { name: 'Yes' })).toBeTruthy()
         expect(screen.getByRole('button', { name: 'Cancel' })).toBeTruthy()
       })

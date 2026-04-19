@@ -186,7 +186,7 @@ export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCard
           </PopoverTrigger>
           <PopoverContent className="w-auto p-3" side="bottom" align="end" onClick={stopPropagation} onPointerDown={stopPropagation}>
             <div className="flex items-center gap-2">
-              <span className="text-sm">Delete this mule?</span>
+              <span className="text-sm">Delete?</span>
               <Button size="sm" variant="destructive" onClick={handleDeleteConfirm}>Yes</Button>
               <Button size="sm" variant="outline" onClick={handleDeleteCancel}>Cancel</Button>
             </div>

@@ -156,12 +156,12 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
             </div>
 
             {confirmDelete ? (
-              <div className="absolute top-3 right-3 flex items-center gap-1.5 rounded-md border border-destructive/40 bg-destructive/10 px-2 py-1">
-                <span className="font-sans text-xs text-destructive">Delete?</span>
-                <Button size="xs" variant="destructive" onClick={() => handleDelete(mule.id)}>
+              <div className="absolute top-3 right-3 flex items-center gap-2 rounded-lg bg-popover p-3 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10">
+                <span>Delete?</span>
+                <Button size="sm" variant="destructive" onClick={() => handleDelete(mule.id)}>
                   Yes
                 </Button>
-                <Button size="xs" variant="outline" onClick={() => setConfirmDelete(false)}>
+                <Button size="sm" variant="outline" onClick={() => setConfirmDelete(false)}>
                   Cancel
                 </Button>
               </div>
@@ -202,7 +202,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                     value={mule.name}
                     maxLength={12}
                     onChange={(e) => onUpdate(mule.id, { name: sanitizeMuleName(e.currentTarget.value) })}
-                    className="bg-[var(--surface-2)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20"
+                    className="bg-[var(--surface-2)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20 placeholder:opacity-60"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -215,7 +215,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                       placeholder="e.g. Bishop"
                       value={mule.muleClass}
                       onChange={(e) => onUpdate(mule.id, { muleClass: e.currentTarget.value })}
-                      className="bg-[var(--surface-2)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20"
+                      className="bg-[var(--surface-2)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20 placeholder:opacity-60"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -229,7 +229,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                       min={0}
                       value={mule.level || ''}
                       onChange={(e) => onUpdate(mule.id, { level: Number(e.currentTarget.value) || 0 })}
-                      className="bg-[var(--surface-2)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20 font-mono-nums"
+                      className="bg-[var(--surface-2)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20 font-mono-nums placeholder:opacity-60"
                     />
                   </div>
                 </div>
