@@ -26,7 +26,7 @@ const TIER_HEADER_LABEL: Record<BossTier, string> = {
 const GRID_TEMPLATE = '140px repeat(5, 1fr)';
 
 const STEPPER_BTN_CLASS =
-  'grid place-items-center w-5 h-5 text-sm leading-none text-[var(--muted-raw,var(--muted-foreground))] hover:bg-[var(--surface-2)] hover:text-[var(--accent)] disabled:opacity-40 disabled:cursor-not-allowed';
+  'grid place-items-center w-5 self-stretch text-sm leading-none text-[var(--muted-raw,var(--muted-foreground))] hover:bg-[var(--surface-2)] hover:text-[var(--accent)] disabled:opacity-40 disabled:cursor-not-allowed';
 
 // Precompute tier → BossDifficulty lookup per family once at module load.
 const tierByBossId = new Map<string, Map<BossTier, BossDifficulty>>(
@@ -106,7 +106,7 @@ function PartyStepper({
           −
         </button>
         <span
-          className="grid place-items-center px-1 font-mono-nums text-[10px] tabular-nums text-center min-w-[26px] border-x border-[var(--border)]"
+          className="grid place-items-center self-stretch px-1 font-mono-nums text-[10px] leading-none tabular-nums text-center min-w-[26px] border-x border-[var(--border)]"
         >
           {party}
         </span>
