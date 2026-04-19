@@ -134,7 +134,11 @@ function AppContent() {
               <div style={isDragging ? dragBoundaryActiveStyle : dragBoundaryBaseStyle} className="transition-[border-color] duration-200" data-drag-boundary>
                 <div
                   className="grid gap-4"
-                  style={{ gridTemplateColumns: 'repeat(var(--roster-cols, 6), minmax(0, 1fr))' }}
+                  style={{
+                    gridTemplateColumns: 'repeat(var(--roster-cols, 6), minmax(0, 1fr))',
+                    // Prevents a lone AddCard row from collapsing below the mule-card floor.
+                    gridAutoRows: 'minmax(var(--roster-card-min-height, 260px), auto)',
+                  }}
                 >
                   {mules.map((mule) => (
                     <MuleCharacterCard
