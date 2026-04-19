@@ -1,5 +1,6 @@
 import { Sun, Moon } from 'lucide-react'
 import { useTheme } from '../context/ThemeProvider'
+import { ResetCountdown } from './ResetCountdown'
 
 export function Header() {
   const { theme, toggleTheme } = useTheme()
@@ -45,14 +46,17 @@ export function Header() {
               </span>
             </span>
           </div>
-          <button
-            onClick={toggleTheme}
-            className="flex h-8 w-8 items-center justify-center rounded-md transition-colors cursor-pointer"
-            style={{ color: 'var(--muted-raw, var(--muted-foreground))' }}
-            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <ResetCountdown />
+            <button
+              onClick={toggleTheme}
+              className="flex h-8 w-8 items-center justify-center rounded-md transition-colors cursor-pointer"
+              style={{ color: 'var(--muted-raw, var(--muted-foreground))' }}
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+          </div>
         </div>
       </div>
     </header>
