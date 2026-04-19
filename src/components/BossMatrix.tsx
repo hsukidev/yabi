@@ -150,7 +150,7 @@ function FamilyRow({
   return (
     <div
       role="row"
-      className="grid border-t border-[var(--border)] first:border-t-0"
+      className="grid border-b border-[var(--border)] last:border-b-0"
       style={{ gridTemplateColumns: GRID_TEMPLATE }}
     >
       <div
@@ -253,12 +253,12 @@ export function BossMatrix({
   return (
     <div
       role="table"
-      className="rounded-[10px] border border-[var(--border)] overflow-hidden"
+      className="rounded-[10px] border border-[var(--border)] overflow-clip"
       style={{ background: 'var(--surface)' }}
     >
         <div
           role="row"
-          className="grid border-b border-[var(--border)]"
+          className="grid border-b border-[var(--border)] sticky top-0 z-10"
           style={{
             gridTemplateColumns: GRID_TEMPLATE,
             background: 'var(--surface-2)',

@@ -522,6 +522,15 @@ describe('BossMatrix', () => {
     )
   })
 
+  describe('sticky tier header', () => {
+    it('the header row is sticky at top-0 so tier pips pin while scrolling', () => {
+      renderMatrix()
+      const headerRow = screen.getAllByRole('row')[0]
+      expect(headerRow.className).toContain('sticky')
+      expect(headerRow.className).toContain('top-0')
+    })
+  })
+
   describe('daily x7 hint', () => {
     it('daily cells show an "x 7" hint next to the meso value', () => {
       renderMatrix()
