@@ -28,7 +28,10 @@ export function AddCard({ onClick }: AddCardProps) {
         display: 'grid',
         placeItems: 'center',
         transition: 'border-color 150ms, background 150ms',
-        minHeight: 260,
+        // Reads the shared roster-card height contract (see index.css) so
+        // AddCard can't drift from the mule-card floor — and a lone AddCard
+        // row still renders at the same height thanks to grid-auto-rows.
+        minHeight: 'var(--roster-card-min-height, 260px)',
       }}
     >
       <div style={{ display: 'grid', placeItems: 'center', gap: 10 }}>

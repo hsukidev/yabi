@@ -99,7 +99,7 @@ export const MuleCharacterCardOverlay = memo(function MuleCharacterCardOverlay({
       className="panel cursor-grabbing"
       style={{
         padding: 'var(--card-pad, 16px)',
-        minHeight: 260,
+        minHeight: 'var(--roster-card-min-height, 260px)',
         display: 'flex',
         flexDirection: 'column',
         transform: 'translateY(-2px)',
@@ -144,7 +144,7 @@ export function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCard
         className="panel cursor-pointer"
         style={{
           padding: 'var(--card-pad, 16px)',
-          minHeight: 260,
+          minHeight: 'var(--roster-card-min-height, 260px)',
           display: 'flex',
           flexDirection: 'column',
           transform: isHovered ? 'translateY(-2px)' : undefined,
