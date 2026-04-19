@@ -16,6 +16,19 @@ const BLACK_MAGE = BLACK_MAGE_BOSS.id
 const BLACK_MAGE_EXTREME_VALUE = BLACK_MAGE_BOSS.difficulty.find((d) => d.tier === 'extreme')!.crystalValue
 const AKECHI = bosses.find((b) => b.family === 'akechi-mitsuhide')!.id
 
+const HORNTAIL_BOSS = bosses.find((b) => b.family === 'horntail')!
+const HORNTAIL = HORNTAIL_BOSS.id
+
+const VELLUM_BOSS = bosses.find((b) => b.family === 'vellum')!
+const VELLUM = VELLUM_BOSS.id
+const VELLUM_NORMAL_VALUE = VELLUM_BOSS.difficulty.find((d) => d.tier === 'normal')!.crystalValue
+const VELLUM_CHAOS_VALUE = VELLUM_BOSS.difficulty.find((d) => d.tier === 'chaos')!.crystalValue
+
+const DAILY_ONLY_FAMILIES = ['horntail', 'von-leon', 'arkarium', 'mori-ranmaru', 'omni-cln']
+const BOSSES_WITH_WEEKLY_TIER_COUNT = bosses.filter((b) =>
+  b.difficulty.some((d) => d.cadence === 'weekly'),
+).length
+
 function renderMatrix(
   selectedKeys: string[] = [],
   onToggleKey = vi.fn(),
@@ -230,10 +243,10 @@ describe('BossMatrix', () => {
   })
 
   describe('party stepper', () => {
-    it('renders a Party label per family row', () => {
+    it('renders a Party label per family row that has at least one weekly tier', () => {
       renderMatrix()
       const labels = screen.getAllByText('Party')
-      expect(labels.length).toBe(bosses.length)
+      expect(labels.length).toBe(BOSSES_WITH_WEEKLY_TIER_COUNT)
     })
 
     it('renders a party stepper per family showing "1" when partySizes is absent', () => {
@@ -325,5 +338,99 @@ describe('BossMatrix', () => {
       const cell = screen.getByTestId(`matrix-cell-${BLACK_MAGE}-extreme`)
       expect(cell.textContent).toBe(formatMeso(BLACK_MAGE_EXTREME_VALUE, true))
     })
+  })
+
+  describe('cadence-aware party stepper visibility', () => {
+    it.each(DAILY_ONLY_FAMILIES)(
+      'omits the party stepper for daily-only family %s',
+      (family) => {
+        renderMatrix()
+        expect(
+          screen.queryByTestId(`party-stepper-${family}`),
+        ).toBeNull()
+      },
+    )
+
+    it('keeps the party stepper on mixed-cadence bosses (Vellum)', () => {
+      renderMatrix()
+      expect(
+        screen.getByTestId(`party-stepper-${VELLUM_BOSS.family}`),
+      ).toBeTruthy()
+    })
+
+    it('keeps the party stepper on weekly-only bosses (Black Mage)', () => {
+      renderMatrix()
+      expect(
+        screen.getByTestId(`party-stepper-${BLACK_MAGE_BOSS.family}`),
+      ).toBeTruthy()
+    })
+
+    it('daily-only rows still render with the same tier column layout as other rows', () => {
+      renderMatrix()
+      const horntailRow = screen
+        .getByTestId(`matrix-cell-${HORNTAIL}-easy`)
+        .closest('[role="row"]') as HTMLElement
+      const lucidRow = screen
+        .getByTestId(`matrix-cell-${LUCID}-easy`)
+        .closest('[role="row"]') as HTMLElement
+      expect(horntailRow.style.gridTemplateColumns).toBe(
+        lucidRow.style.gridTemplateColumns,
+      )
+    })
+  })
+
+  describe('cadence-aware cell displays', () => {
+    it('weekly cells on a mixed boss (Chaos Vellum) divide by party size', () => {
+      renderMatrix([], vi.fn(), { [VELLUM_BOSS.family]: 3 })
+      const chaosCell = screen.getByTestId(`matrix-cell-${VELLUM}-chaos`)
+      expect(chaosCell.textContent).toBe(
+        formatMeso(VELLUM_CHAOS_VALUE / 3, true),
+      )
+    })
+
+    it('daily cells on a mixed boss (Normal Vellum) ignore party size', () => {
+      renderMatrix([], vi.fn(), { [VELLUM_BOSS.family]: 3 })
+      const normalCell = screen.getByTestId(`matrix-cell-${VELLUM}-normal`)
+      expect(normalCell.textContent).toBe(formatMeso(VELLUM_NORMAL_VALUE, true))
+    })
+
+    it('changing party size from 1 to 3 updates only the weekly-tier cell display', () => {
+      const { rerender } = renderMatrix([], vi.fn(), {
+        [VELLUM_BOSS.family]: 1,
+      })
+      const chaosAt1 = screen.getByTestId(`matrix-cell-${VELLUM}-chaos`)
+        .textContent
+      const normalAt1 = screen.getByTestId(`matrix-cell-${VELLUM}-normal`)
+        .textContent
+
+      rerender(
+        <BossMatrix
+          selectedKeys={[]}
+          onToggleKey={vi.fn()}
+          partySizes={{ [VELLUM_BOSS.family]: 3 }}
+          onChangePartySize={vi.fn()}
+        />,
+      )
+
+      const chaosAt3 = screen.getByTestId(`matrix-cell-${VELLUM}-chaos`)
+        .textContent
+      const normalAt3 = screen.getByTestId(`matrix-cell-${VELLUM}-normal`)
+        .textContent
+
+      expect(chaosAt3).not.toBe(chaosAt1)
+      expect(chaosAt3).toBe(formatMeso(VELLUM_CHAOS_VALUE / 3, true))
+      expect(normalAt3).toBe(normalAt1)
+      expect(normalAt3).toBe(formatMeso(VELLUM_NORMAL_VALUE, true))
+    })
+
+    it.each(['easy', 'normal', 'chaos'] as const)(
+      'daily-only boss cells (Horntail %s) ignore party size even if a size is set',
+      (tier) => {
+        renderMatrix([], vi.fn(), { [HORNTAIL_BOSS.family]: 4 })
+        const cell = screen.getByTestId(`matrix-cell-${HORNTAIL}-${tier}`)
+        const diff = HORNTAIL_BOSS.difficulty.find((d) => d.tier === tier)!
+        expect(cell.textContent).toBe(formatMeso(diff.crystalValue, true))
+      },
+    )
   })
 })

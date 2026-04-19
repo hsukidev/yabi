@@ -137,6 +137,7 @@ function FamilyRow({
   onChangePartySize: (family: string, n: number) => void;
 }) {
   const tierMap = tierByBossId.get(boss.id)!;
+  const hasWeeklyTier = boss.difficulty.some((d) => d.cadence === 'weekly');
   return (
     <div
       role="row"
@@ -154,11 +155,13 @@ function FamilyRow({
         >
           {boss.name}
         </span>
-        <PartyStepper
-          family={boss.family}
-          party={partySize}
-          onChangePartySize={onChangePartySize}
-        />
+        {hasWeeklyTier && (
+          <PartyStepper
+            family={boss.family}
+            party={partySize}
+            onChangePartySize={onChangePartySize}
+          />
+        )}
       </div>
       {TIER_ORDER.map((tier) => {
         const diff = tierMap.get(tier);
@@ -180,6 +183,10 @@ function FamilyRow({
         const isSelected = selectedTier === tier;
         const isDim = selectedTier !== undefined && !isSelected;
         const key = makeKey(boss.id, tier);
+        const displayValue =
+          diff.cadence === 'daily'
+            ? diff.crystalValue
+            : diff.crystalValue / partySize;
 
         return (
           <button
@@ -198,7 +205,7 @@ function FamilyRow({
             ].join(' ')}
           >
             <span style={isDim ? { opacity: 0.35 } : undefined}>
-              {formatMeso(diff.crystalValue / partySize, true)}
+              {formatMeso(displayValue, true)}
             </span>
           </button>
         );
