@@ -6,9 +6,9 @@ import type { Mule } from '../types'
 const STORAGE_KEY = 'maplestory-mule-tracker'
 
 const testMules: Mule[] = [
-  { id: 'mule-a', name: 'Alpha', level: 200, muleClass: 'Hero', selectedBosses: [] },
-  { id: 'mule-b', name: 'Beta', level: 180, muleClass: 'Paladin', selectedBosses: [] },
-  { id: 'mule-c', name: 'Gamma', level: 160, muleClass: 'Dark Knight', selectedBosses: [] },
+  { id: 'mule-a', name: 'Alpha', level: 200, muleClass: 'Hero', selectedBosses: [], active: true },
+  { id: 'mule-b', name: 'Beta', level: 180, muleClass: 'Paladin', selectedBosses: [], active: true },
+  { id: 'mule-c', name: 'Gamma', level: 160, muleClass: 'Dark Knight', selectedBosses: [], active: true },
 ]
 
 // Persisted root since slice 1B: { schemaVersion, mules }.
@@ -142,13 +142,14 @@ describe('App', () => {
 
   describe('selectedMuleId self-healing', () => {
     it('clears selectedMuleId when the selected mule is deleted', async () => {
-      const mules = [
+      const mules: Mule[] = [
         {
           id: 'mule-a',
           name: 'DeleteMe',
           level: 200,
           muleClass: 'Hero',
           selectedBosses: [],
+          active: true,
         },
       ]
       localStorage.setItem('maplestory-mule-tracker', JSON.stringify(persistedRoot(mules)))
@@ -166,13 +167,14 @@ describe('App', () => {
     })
 
     it('keeps selectedMuleId when a different mule is deleted', async () => {
-      const mules = [
+      const mules: Mule[] = [
         {
           id: 'mule-a',
           name: 'KeepMe',
           level: 200,
           muleClass: 'Hero',
           selectedBosses: [],
+          active: true,
         },
         {
           id: 'mule-b',
@@ -180,6 +182,7 @@ describe('App', () => {
           level: 150,
           muleClass: 'Paladin',
           selectedBosses: [],
+          active: true,
         },
       ]
       localStorage.setItem('maplestory-mule-tracker', JSON.stringify(persistedRoot(mules)))

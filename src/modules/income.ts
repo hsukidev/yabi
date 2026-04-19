@@ -35,9 +35,14 @@ export function computeMuleIncome(selectedBosses: string[], abbreviated: boolean
 }
 
 export function computeTotalIncome(
-  mules: { selectedBosses: string[] }[],
+  mules: { selectedBosses: string[]; active?: boolean }[],
   abbreviated: boolean,
 ): IncomeDisplay {
-  const raw = mules.reduce((sum, m) => sum + sumSelectedKeys(m.selectedBosses), 0)
+  // Only `active === false` is excluded; missing/undefined `active` still
+  // sums so existing fixtures and older callers keep working untouched.
+  const raw = mules.reduce(
+    (sum, m) => (m.active === false ? sum : sum + sumSelectedKeys(m.selectedBosses)),
+    0,
+  )
   return { raw, formatted: formatMeso(raw, abbreviated) }
 }

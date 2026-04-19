@@ -7,7 +7,7 @@ import { makeKey, validateBossSelection } from '../data/bossSelection';
 
 const STORAGE_KEY = 'maplestory-mule-tracker';
 const FALLBACK_KEY = 'maplestory-mule-tracker-fallback';
-const CURRENT_SCHEMA_VERSION = 3;
+const CURRENT_SCHEMA_VERSION = 4;
 
 const LEGACY_ID_PREFIX = /^(extreme|hard|chaos|normal|easy)-/;
 
@@ -79,6 +79,10 @@ function validateMule(raw: unknown, mode: LoadMode): Mule | null {
     muleClass: obj.muleClass,
     selectedBosses,
     partySizes: wipe ? {} : readPartySizes(obj.partySizes),
+    // `active` lands in schemaVersion 4. Absent or non-boolean → default to
+    // `true` so pre-v4 payloads (and new mules added this slice) behave
+    // identically to the current app.
+    active: typeof obj.active === 'boolean' ? obj.active : true,
   };
 }
 
@@ -90,10 +94,12 @@ interface PersistedRoot {
 
 /**
  * Parse a persisted payload into { mules, mode }. Mode controls migration:
- *  - 'wipe': pre-1B array shape / `schemaVersion < 2` → drop legacy selections.
+ *  - 'wipe': pre-1B array shape / unknown `schemaVersion` → drop legacy selections.
  *  - 'upgradeV2': `schemaVersion === 2` → upgrade `<uuid>:<tier>` keys to
  *    `<uuid>:<tier>:<cadence>` in place (slice 2, v2 → v3).
- *  - 'asIs': `schemaVersion === 3` → keys already in the current shape.
+ *  - 'asIs': `schemaVersion === 3` or `4` → keys already in the current shape.
+ *    v3 payloads just need `active` defaulted in `validateMule`; v4 already
+ *    carries it. Both are non-destructive.
  */
 function parsePayload(raw: string): { mules: unknown[]; mode: LoadMode } | null {
   try {
@@ -106,7 +112,7 @@ function parsePayload(raw: string): { mules: unknown[]; mode: LoadMode } | null 
       const root = parsed as Partial<PersistedRoot>;
       if (Array.isArray(root.mules)) {
         const mode: LoadMode =
-          root.schemaVersion === CURRENT_SCHEMA_VERSION
+          root.schemaVersion === 4 || root.schemaVersion === 3
             ? 'asIs'
             : root.schemaVersion === 2
               ? 'upgradeV2'
@@ -165,6 +171,9 @@ export function useMules() {
       muleClass: '',
       selectedBosses: [],
       partySizes: {},
+      // Slice 1: new mules land as active so KPI and income match today's
+      // behaviour. Slice 3 flips this to `false` when the drawer toggle ships.
+      active: true,
     };
     setMules((prev) => [newMule, ...prev]);
     return newMule.id;

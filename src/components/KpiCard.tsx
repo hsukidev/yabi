@@ -8,7 +8,7 @@ interface KpiCardProps {
 
 export function KpiCard({ mules, onToggleFormat }: KpiCardProps) {
   const { formatted: totalWeeklyIncome } = useTotalIncome(mules)
-  const activeMuleCount = mules.filter((m) => m.selectedBosses.length > 0).length
+  const activeMuleCount = mules.filter((m) => m.active).length
 
   return (
     <div

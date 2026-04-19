@@ -31,6 +31,7 @@ const baseMule: Mule = {
   level: 200,
   muleClass: 'Hero',
   selectedBosses: [],
+  active: true,
 }
 
 function renderDrawer(

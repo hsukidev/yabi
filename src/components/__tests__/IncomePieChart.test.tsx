@@ -15,6 +15,7 @@ const muleWithBosses: Mule = {
   level: 200,
   muleClass: 'Hero',
   selectedBosses: [NORMAL_HILLA],
+  active: true,
 }
 
 const muleNoBosses: Mule = {
@@ -23,6 +24,7 @@ const muleNoBosses: Mule = {
   level: 150,
   muleClass: 'Paladin',
   selectedBosses: [],
+  active: true,
 }
 
 describe('IncomePieChart', () => {
