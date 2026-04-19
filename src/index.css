@@ -328,7 +328,6 @@
     padding: 8px 11px;
     color: var(--muted-foreground);
   }
-  .dark .d-search { background: var(--surface); }
   .d-search input {
     flex: 1; background: transparent; border: none; outline: none;
     color: var(--foreground); font-family: inherit; font-size: 13px;
@@ -355,7 +354,6 @@
     border-radius: 8px;
     overflow: hidden;
   }
-  .dark .d-c-toggle { background: var(--surface-2); }
   .d-c-toggle button {
     background: transparent; border: none;
     border-right: 1px solid var(--border);
@@ -376,7 +374,6 @@
     background: var(--surface-2);
     color: var(--foreground);
   }
-  .dark .d-c-toggle button:hover:not(.on) { background: var(--surface); }
 
   .d-toolbar-sep {
     width: 1px;

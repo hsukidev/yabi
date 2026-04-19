@@ -102,7 +102,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
       <SheetContent
         side="right"
         showCloseButton={false}
-        className="data-[side=right]:w-screen data-[side=right]:sm:max-w-none data-[side=right]:md:w-[640px] data-[side=right]:md:max-w-[640px] overflow-y-auto p-0 bg-[var(--surface)] dark:bg-[color-mix(in_oklab,var(--surface-2)_70%,var(--surface)_30%)]"
+        className="data-[side=right]:w-screen data-[side=right]:sm:max-w-none data-[side=right]:md:w-[640px] data-[side=right]:md:max-w-[640px] overflow-y-auto p-0 bg-[var(--surface)]"
         style={{ borderLeft: '1px solid var(--border)' }}
       >
         <SheetTitle className="sr-only">Mule Details</SheetTitle>
@@ -205,7 +205,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                     placeholder="Enter name"
                     value={mule.name}
                     onChange={(e) => onUpdate(mule.id, { name: e.currentTarget.value })}
-                    className="bg-[var(--surface-2)] dark:bg-[var(--surface)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20"
+                    className="bg-[var(--surface-2)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -218,7 +218,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                       placeholder="e.g. Bishop"
                       value={mule.muleClass}
                       onChange={(e) => onUpdate(mule.id, { muleClass: e.currentTarget.value })}
-                      className="bg-[var(--surface-2)] dark:bg-[var(--surface)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20"
+                      className="bg-[var(--surface-2)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -232,7 +232,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                       min={0}
                       value={mule.level || ''}
                       onChange={(e) => onUpdate(mule.id, { level: Number(e.currentTarget.value) || 0 })}
-                      className="bg-[var(--surface-2)] dark:bg-[var(--surface)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20 font-mono-nums"
+                      className="bg-[var(--surface-2)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20 font-mono-nums"
                     />
                   </div>
                 </div>

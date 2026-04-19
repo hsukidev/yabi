@@ -166,7 +166,7 @@ function FamilyRow({
     >
       <div
         role="rowheader"
-        className="flex flex-col justify-center gap-[5px] px-[10px] py-2 border-r border-[var(--border)] text-[12px] font-medium bg-[var(--surface-2)] dark:bg-[var(--surface)]"
+        className="flex flex-col justify-center gap-[5px] px-[10px] py-2 border-r border-[var(--border)] text-[12px] font-medium bg-[var(--surface-2)]"
       >
         <span
           data-testid="family-name"
@@ -227,7 +227,7 @@ function FamilyRow({
               'grid place-items-center py-[10px] px-1 border-r border-[var(--border)] last:border-r-0 font-mono-nums text-[11px] tabular-nums cursor-pointer transition-colors',
               isSelected
                 ? 'bg-[var(--accent-soft)] text-[var(--accent)] font-semibold'
-                : 'text-[var(--muted-raw,var(--muted-foreground))] hover:bg-[var(--surface-2)] dark:hover:bg-[var(--surface)] hover:text-[var(--text,var(--foreground))]',
+                : 'text-[var(--muted-raw,var(--muted-foreground))] hover:bg-[var(--surface-2)] hover:text-[var(--text,var(--foreground))]',
             ].join(' ')}
           >
             <span style={isDim ? { opacity: 0.35 } : undefined}>
@@ -271,11 +271,11 @@ export function BossMatrix({
   return (
     <div
       role="table"
-      className={`${cornerClass} border border-[var(--border)] overflow-clip bg-[var(--surface)] dark:bg-[var(--surface-2)]`}
+      className={`${cornerClass} border border-[var(--border)] overflow-clip bg-[var(--surface)]`}
     >
         <div
           role="row"
-          className="grid border-b border-[var(--border)] sticky top-0 z-10 bg-[var(--surface-2)] dark:bg-[var(--surface)]"
+          className="grid border-b border-[var(--border)] sticky top-0 z-10 bg-[var(--surface-2)]"
           style={{ gridTemplateColumns: GRID_TEMPLATE }}
         >
           <div
