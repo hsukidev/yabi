@@ -114,6 +114,25 @@ describe('computeTotalIncome', () => {
     expect(result.raw).toBe(504000000)
     expect(result.formatted).toBe('504M')
   })
+
+  it('excludes mules with active: false from the total', () => {
+    const mules = [
+      { selectedBosses: [HARD_LUCID], active: true },
+      { selectedBosses: [HARD_WILL], active: false },
+    ]
+    const result = computeTotalIncome(mules, false)
+    expect(result.raw).toBe(504000000)
+    expect(result.formatted).toBe('504,000,000')
+  })
+
+  it('includes mules whose active field is missing/undefined (tolerates fixtures)', () => {
+    const mules = [
+      { selectedBosses: [HARD_LUCID] },
+      { selectedBosses: [HARD_WILL], active: undefined },
+    ]
+    const result = computeTotalIncome(mules, false)
+    expect(result.raw).toBe(504000000 + 621810000)
+  })
 })
 
 describe('sumSelectedKeys cadence multiplier', () => {

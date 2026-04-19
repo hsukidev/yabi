@@ -49,4 +49,10 @@ export interface Mule {
    * migration can zero it out when wiping legacy selections.
    */
   partySizes?: Record<string, number>;
+  /**
+   * Whether the mule contributes to Total Weekly Income and counts toward
+   * the ACTIVE KPI. Defaulted to `true` on load/add in this slice; a later
+   * slice flips the add default to `false` and surfaces a drawer toggle.
+   */
+  active: boolean;
 }

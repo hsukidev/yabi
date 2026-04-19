@@ -74,7 +74,7 @@ describe('useMules', () => {
 
     it('loads valid data (native-key payload) from localStorage', () => {
       const payload = {
-        schemaVersion: 3,
+        schemaVersion: 4,
         mules: [
           {
             id: 'a',
@@ -83,6 +83,7 @@ describe('useMules', () => {
             muleClass: 'Hero',
             selectedBosses: [HARD_LUCID],
             partySizes: {},
+            active: true,
           },
         ],
       }
@@ -193,7 +194,7 @@ describe('useMules', () => {
       localStorageStore['maplestory-mule-tracker'] = JSON.stringify(legacyRoot)
       renderHook(() => useMules())
       const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
-      expect(saved.schemaVersion).toBe(3)
+      expect(saved.schemaVersion).toBe(4)
       expect(saved.mules[0].selectedBosses).toEqual([])
     })
 
@@ -255,7 +256,7 @@ describe('useMules', () => {
         result.current.addMule()
       })
       const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
-      expect(saved.schemaVersion).toBe(3)
+      expect(saved.schemaVersion).toBe(4)
       expect(Array.isArray(saved.mules)).toBe(true)
     })
 
@@ -275,7 +276,7 @@ describe('useMules', () => {
         result.current.updateMule('a', { selectedBosses: [HARD_WILL] })
       })
       const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
-      expect(saved.schemaVersion).toBe(3)
+      expect(saved.schemaVersion).toBe(4)
       expect(saved.mules[0].selectedBosses).toEqual([HARD_WILL])
     })
   })
@@ -361,7 +362,7 @@ describe('useMules', () => {
       expect(result.current.mules[0].selectedBosses).toEqual([HARD_LUCID])
     })
 
-    it('bumps the persisted schemaVersion to 3 after loading a v2 payload', () => {
+    it('bumps the persisted schemaVersion to the current version after loading a v2 payload', () => {
       const v2Payload = {
         schemaVersion: 2,
         mules: [
@@ -377,7 +378,7 @@ describe('useMules', () => {
       localStorageStore['maplestory-mule-tracker'] = JSON.stringify(v2Payload)
       renderHook(() => useMules())
       const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
-      expect(saved.schemaVersion).toBe(3)
+      expect(saved.schemaVersion).toBe(4)
       expect(saved.mules[0].selectedBosses).toEqual([HARD_LUCID])
     })
   })
@@ -506,6 +507,118 @@ describe('useMules', () => {
       expect(result.current.mules[0].muleClass).toBe('')
       expect(result.current.mules[0].selectedBosses).toEqual([])
     })
+
+    it('defaults active to true (Slice 1; flipped to false in Slice 3)', () => {
+      const { result } = renderHook(() => useMules())
+      act(() => {
+        result.current.addMule()
+      })
+      expect(result.current.mules[0].active).toBe(true)
+    })
+  })
+
+  describe('active flag migration (v3 → v4)', () => {
+    it('loads a v3 payload without `active` and fills it in as true', () => {
+      const v3Payload = {
+        schemaVersion: 3,
+        mules: [
+          {
+            id: 'a',
+            name: 'V3User',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [HARD_LUCID],
+            partySizes: { lucid: 3 },
+          },
+        ],
+      }
+      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(v3Payload)
+      const { result } = renderHook(() => useMules())
+      expect(result.current.mules).toHaveLength(1)
+      expect(result.current.mules[0].active).toBe(true)
+      // selectedBosses and partySizes survive untouched.
+      expect(result.current.mules[0].selectedBosses).toEqual([HARD_LUCID])
+      expect(result.current.mules[0].partySizes).toEqual({ lucid: 3 })
+    })
+
+    it('pre-1B array payload still wipes selections and loads mules as active: true', () => {
+      const legacyRoot = [
+        {
+          id: 'a',
+          name: 'Legacy',
+          level: 200,
+          muleClass: 'Hero',
+          selectedBosses: ['hard-lucid'],
+        },
+      ]
+      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(legacyRoot)
+      const { result } = renderHook(() => useMules())
+      expect(result.current.mules[0].selectedBosses).toEqual([])
+      expect(result.current.mules[0].active).toBe(true)
+    })
+
+    it('round-trips active: false across save/load', () => {
+      const v4Payload = {
+        schemaVersion: 4,
+        mules: [
+          {
+            id: 'a',
+            name: 'Inactive',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [HARD_LUCID],
+            partySizes: {},
+            active: false,
+          },
+        ],
+      }
+      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(v4Payload)
+      const { result } = renderHook(() => useMules())
+      expect(result.current.mules[0].active).toBe(false)
+      // Re-hydrating should preserve the false.
+      const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
+      expect(saved.schemaVersion).toBe(4)
+      expect(saved.mules[0].active).toBe(false)
+    })
+
+    it('bumps the persisted schemaVersion to 4 after loading a v3 payload', () => {
+      const v3Payload = {
+        schemaVersion: 3,
+        mules: [
+          {
+            id: 'a',
+            name: 'V3User',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [HARD_LUCID],
+          },
+        ],
+      }
+      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(v3Payload)
+      renderHook(() => useMules())
+      const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
+      expect(saved.schemaVersion).toBe(4)
+      expect(saved.mules[0].active).toBe(true)
+    })
+
+    it('treats non-boolean active as missing and defaults to true', () => {
+      const payload = {
+        schemaVersion: 4,
+        mules: [
+          {
+            id: 'a',
+            name: 'BadActive',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [HARD_LUCID],
+            active: 'yes',
+          },
+        ],
+      }
+      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(payload)
+      const { result } = renderHook(() => useMules())
+      expect(result.current.mules[0].active).toBe(true)
+    })
   })
 
   describe('deleteMule', () => {
@@ -564,7 +677,7 @@ describe('useMules', () => {
   describe('sessionStorage fallback read-back', () => {
     it('reads mules from sessionStorage when localStorage returns null', () => {
       const payload = {
-        schemaVersion: 3,
+        schemaVersion: 4,
         mules: [
           {
             id: 'a',
@@ -573,6 +686,7 @@ describe('useMules', () => {
             muleClass: 'Paladin',
             selectedBosses: [HARD_LUCID],
             partySizes: {},
+            active: true,
           },
         ],
       }
