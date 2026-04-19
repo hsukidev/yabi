@@ -13,7 +13,7 @@ import type { Mule } from '../types';
 import { useMuleIncome } from '../modules/income-hooks';
 import { BossMatrix } from './BossMatrix';
 import { BossSearch } from './BossSearch';
-import { MatrixToolbar, type CadenceFilter } from './MatrixToolbar';
+import { MatrixToolbar, type CadenceFilter, type PresetKey } from './MatrixToolbar';
 import type { Boss } from '../types';
 import {
   bossesByTopCrystalDesc,
@@ -22,9 +22,15 @@ import {
   parseKey,
   toggleBoss,
 } from '../data/bossSelection';
+import {
+  PRESET_FAMILIES,
+  applyPreset,
+  isPresetActive,
+  removePreset,
+} from '../data/bossPresets';
 import placeholderPng from '../assets/placeholder.png';
 
-const EMPTY_PRESETS: ReadonlySet<'CRA' | 'CTENE'> = new Set();
+const PRESET_KEYS: readonly PresetKey[] = ['CRA', 'CTENE'];
 
 function filterByCadence(
   list: readonly Boss[],
@@ -64,6 +70,21 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
     () => countWeeklySelections(mule?.selectedBosses ?? []),
     [mule?.selectedBosses],
   );
+
+  const selectedBosses = mule?.selectedBosses ?? [];
+  const activePresets = useMemo(
+    () => new Set(PRESET_KEYS.filter((p) => isPresetActive(p, selectedBosses))),
+    [selectedBosses],
+  );
+
+  function handleTogglePreset(preset: PresetKey) {
+    if (!mule) return;
+    const families = PRESET_FAMILIES[preset];
+    const next = activePresets.has(preset)
+      ? removePreset(mule.selectedBosses, families)
+      : applyPreset(mule.selectedBosses, families);
+    onUpdate(mule.id, { selectedBosses: next });
+  }
 
   function handleClose() {
     setConfirmDelete(false);
@@ -222,8 +243,8 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
               <MatrixToolbar
                 filter={filter}
                 onFilterChange={setFilter}
-                activePresets={EMPTY_PRESETS}
-                onTogglePreset={() => {}}
+                activePresets={activePresets}
+                onTogglePreset={handleTogglePreset}
                 weeklyCount={weeklyCount}
                 onReset={() => onUpdate(mule.id, { selectedBosses: [] })}
               />

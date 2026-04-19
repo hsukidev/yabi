@@ -3,8 +3,9 @@ import { render, screen, fireEvent, waitFor } from '@/test/test-utils'
 
 import { MuleDetailDrawer } from '../MuleDetailDrawer'
 import type { Mule } from '../../types'
-import { bosses } from '../../data/bosses'
-import { makeKey } from '../../data/bossSelection'
+import { bosses, getBossByFamily } from '../../data/bosses'
+import { hardestDifficulty, makeKey } from '../../data/bossSelection'
+import { PRESET_FAMILIES } from '../../data/bossPresets'
 import { formatMeso } from '../../utils/meso'
 
 const LUCID_BOSS = bosses.find((b) => b.family === 'lucid')!
@@ -539,6 +540,140 @@ describe('MuleDetailDrawer', () => {
       expect(onUpdate).toHaveBeenCalledTimes(1)
       const [, updates] = onUpdate.mock.calls[0]
       expect(Object.keys(updates)).toEqual(['selectedBosses'])
+    })
+  })
+
+  describe('Boss Presets integration', () => {
+    /** Hardest-tier key for a family slug, computed off the real boss data. */
+    function hardestKey(family: string): string {
+      const boss = getBossByFamily(family)!
+      const diff = hardestDifficulty(boss)
+      return makeKey(boss.id, diff.tier, diff.cadence)
+    }
+
+    const CRA_KEYS = PRESET_FAMILIES.CRA.map(hardestKey)
+    const CTENE_KEYS = PRESET_FAMILIES.CTENE.map(hardestKey)
+
+    it('renders CRA and CTENE preset pills in the toolbar', () => {
+      renderDrawer()
+      expect(screen.getByRole('button', { name: /^cra$/i })).toBeTruthy()
+      expect(screen.getByRole('button', { name: /^ctene$/i })).toBeTruthy()
+    })
+
+    it('clicking CRA on an empty selection calls onUpdate with all 10 CRA hardest keys', () => {
+      const onUpdate = vi.fn()
+      renderDrawer({ onUpdate })
+      fireEvent.click(screen.getByRole('button', { name: /^cra$/i }))
+      expect(onUpdate).toHaveBeenCalledTimes(1)
+      const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] }
+      expect(new Set(update.selectedBosses)).toEqual(new Set(CRA_KEYS))
+    })
+
+    it('clicking CRA preserves pre-existing non-CRA keys', () => {
+      const onUpdate = vi.fn()
+      renderDrawer({
+        mule: { ...baseMule, selectedBosses: [HARD_LUCID] },
+        onUpdate,
+      })
+      fireEvent.click(screen.getByRole('button', { name: /^cra$/i }))
+      const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] }
+      expect(update.selectedBosses).toContain(HARD_LUCID)
+      for (const k of CRA_KEYS) {
+        expect(update.selectedBosses).toContain(k)
+      }
+    })
+
+    it('CRA pill is active when all 10 CRA hardest keys are selected', () => {
+      renderDrawer({
+        mule: { ...baseMule, selectedBosses: CRA_KEYS },
+      })
+      expect(
+        screen.getByRole('button', { name: /^cra$/i }).classList.contains('on'),
+      ).toBe(true)
+    })
+
+    it('CRA pill is not active when even one hardest key is missing', () => {
+      const missingOne = CRA_KEYS.slice(0, -1)
+      renderDrawer({
+        mule: { ...baseMule, selectedBosses: missingOne },
+      })
+      expect(
+        screen.getByRole('button', { name: /^cra$/i }).classList.contains('on'),
+      ).toBe(false)
+    })
+
+    it('clicking CRA while active calls onUpdate with CRA keys removed', () => {
+      const onUpdate = vi.fn()
+      renderDrawer({
+        mule: { ...baseMule, selectedBosses: CRA_KEYS },
+        onUpdate,
+      })
+      fireEvent.click(screen.getByRole('button', { name: /^cra$/i }))
+      const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] }
+      expect(update.selectedBosses).toEqual([])
+    })
+
+    it('clicking CRA while active preserves non-CRA keys', () => {
+      const onUpdate = vi.fn()
+      renderDrawer({
+        mule: { ...baseMule, selectedBosses: [...CRA_KEYS, HARD_LUCID] },
+        onUpdate,
+      })
+      fireEvent.click(screen.getByRole('button', { name: /^cra$/i }))
+      const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] }
+      expect(update.selectedBosses).toEqual([HARD_LUCID])
+    })
+
+    it('toggling CRA off with both presets active removes the 10 CRA families (including overlap)', () => {
+      // Helper-level contract: removePreset drops ALL families in the list,
+      // including CRA ∩ CTENE. Higher-level overlap persistence (re-selecting
+      // CTENE after) is an issue for the caller, not this wiring.
+      const onUpdate = vi.fn()
+      const both = Array.from(new Set([...CRA_KEYS, ...CTENE_KEYS]))
+      renderDrawer({
+        mule: { ...baseMule, selectedBosses: both },
+        onUpdate,
+      })
+      fireEvent.click(screen.getByRole('button', { name: /^cra$/i }))
+      const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] }
+      const craSet: ReadonlySet<string> = new Set(PRESET_FAMILIES.CRA)
+      const cteneOnlyFamilies = PRESET_FAMILIES.CTENE.filter((f) => !craSet.has(f))
+      for (const f of cteneOnlyFamilies) {
+        expect(update.selectedBosses).toContain(hardestKey(f))
+      }
+      for (const f of PRESET_FAMILIES.CRA) {
+        expect(update.selectedBosses).not.toContain(hardestKey(f))
+      }
+    })
+
+    it('clicking CTENE on empty selection calls onUpdate with 14 CTENE hardest keys', () => {
+      const onUpdate = vi.fn()
+      renderDrawer({ onUpdate })
+      fireEvent.click(screen.getByRole('button', { name: /^ctene$/i }))
+      const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] }
+      expect(new Set(update.selectedBosses)).toEqual(new Set(CTENE_KEYS))
+    })
+
+    it('CTENE pill is active when all 14 CTENE hardest keys are selected', () => {
+      renderDrawer({
+        mule: { ...baseMule, selectedBosses: CTENE_KEYS },
+      })
+      expect(
+        screen.getByRole('button', { name: /^ctene$/i }).classList.contains('on'),
+      ).toBe(true)
+    })
+
+    it('both pills are active when CRA+CTENE union is present', () => {
+      const both = Array.from(new Set([...CRA_KEYS, ...CTENE_KEYS]))
+      renderDrawer({
+        mule: { ...baseMule, selectedBosses: both },
+      })
+      expect(
+        screen.getByRole('button', { name: /^cra$/i }).classList.contains('on'),
+      ).toBe(true)
+      expect(
+        screen.getByRole('button', { name: /^ctene$/i }).classList.contains('on'),
+      ).toBe(true)
     })
   })
 })

@@ -323,7 +323,12 @@ export const TIER_LESS_FAMILIES: ReadonlySet<string> = new Set([
 ]);
 
 const bossById = new Map<string, Boss>(bosses.map((b) => [b.id, b]));
+const bossByFamily = new Map<string, Boss>(bosses.map((b) => [b.family, b]));
 
 export function getBossById(id: string): Boss | undefined {
   return bossById.get(id);
+}
+
+export function getBossByFamily(family: string): Boss | undefined {
+  return bossByFamily.get(family);
 }
