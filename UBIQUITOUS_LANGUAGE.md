@@ -70,12 +70,31 @@
 | **Party** | A group of 1–6 players who defeat a **Boss** together | Group, team |
 | **Party Size** | The number of players (1–6) sharing the **Crystal Value** from a defeated **Boss** | N players |
 
+## Boss Matrix UI
+
+| Term | Definition | Aliases to avoid |
+|------|-----------|-----------------|
+| **Boss Matrix** | The grid inside the **Drawer** whose rows are **Boss Families** and columns are **Boss Difficulty** tiers (Extreme→Easy) | Matrix, boss grid, boss table |
+| **Matrix Toolbar** | The control row above the **Boss Matrix** containing the **Cadence Filter**, **Boss Presets**, **Weekly Count**, and **Matrix Reset** | Toolbar, filter bar |
+| **Boss Search** | The search input fused on top of the **Boss Matrix** that filters **Boss Matrix** rows by case-insensitive substring match | Search bar, search box |
+| **Cadence Filter** | The All · Weekly · Daily segmented control in the **Matrix Toolbar** that hides **Boss Matrix** rows lacking any **Boss Difficulty** of the chosen **Boss Cadence** | Cadence tabs, boss filter |
+| **Boss Cadence** | The refresh frequency of a **Boss Difficulty** — one of `daily` or `weekly` | Frequency, cadence |
+| **Boss Preset** | A fixed, named batch-select shortcut in the **Matrix Toolbar** (currently **CRA** and **CTENE**) that toggles a predefined set of **Boss Families** at their **Hardest Tier** | Preset button, preset pill |
+| **CRA** | The **Boss Preset** covering Cygnus, Pink Bean, Vellum, Crimson Queen, Von Bon, Pierre, Papulatus, Hilla, Magnus, Zakum at their **Hardest Tier** | Chaos Root Abyss (ambiguous — preset is broader than just CRA bosses) |
+| **CTENE** | The **Boss Preset** covering Akechi Mitsuhide, Princess No, Darknell, Verus Hilla, Gloom, Will, Lucid, Guardian Angel Slime, Damien, Lotus, Vellum, Crimson Queen, Papulatus, Magnus at their **Hardest Tier** | Chosen Tenebris (ambiguous) |
+| **Active Preset** | A **Boss Preset** whose every member **Boss Family** currently has its **Hardest Tier** key selected on the **Mule** | Applied preset, engaged preset |
+| **Hardest Tier** | The **Boss Difficulty** of a **Boss** with the highest **Crystal Value** | Top tier, max difficulty |
+| **Weekly Count** | The numerator of the **Matrix Toolbar** tally — count of **Boss Cadence** `weekly` selections on the current **Mule** | Selection count, boss count |
+| **Weekly Crystal Cap** | The constant `14` — the MapleStory weekly crystal sale limit, shown as the denominator of the **Matrix Toolbar** tally; a reference only, not enforced | Crystal cap, 14 cap |
+| **Matrix Reset** | The flat text button on the right side of the **Matrix Toolbar** that clears the **Mule's** `selectedBosses`, leaving **Cadence Filter**, **Boss Search**, and **Boss Preset** state untouched | Reset button, clear button |
+| **Fused** | The visual treatment where **Boss Search** shares a border-radius with **Boss Matrix** and overlaps by 1px so the seam between them disappears | Joined, flush |
+
 ## Aggregations
 
 | Term | Definition | Aliases to avoid |
 |------|-----------|-----------------|
 | **Total Weekly Income** | The sum of all **Mules'** **Potential Income** across the entire **Roster** | Global income, overall income |
-| **Mule Preset** | A saved template of pre-selected bosses used to fast-create multiple **Mules** | Template, mule template |
+| **Mule Preset** | A saved template of pre-selected bosses used to fast-create multiple **Mules** (distinct from **Boss Preset**) | Template, mule template |
 
 ## Relationships
 
@@ -88,6 +107,13 @@
 - **Crystal Value** is divided by **Party Size** (future: 1–6, default solo)
 - A **Character Card** represents exactly one **Mule** in the **Roster**
 - Clicking a **Character Card** or a **Split Card** slice opens the **Drawer** for that **Mule**
+- The **Drawer** contains exactly one **Boss Matrix**, sitting under one **Matrix Toolbar** and one **Boss Search**
+- The **Matrix Toolbar** renders above the **Boss Search**, which is **Fused** to the top of the **Boss Matrix**
+- A **Boss Preset** is **Active Preset** iff every one of its member **Boss Families** has its **Hardest Tier** key in `Mule.selectedBosses`
+- **CRA** ∩ **CTENE** share Vellum, Crimson Queen, Papulatus, and Magnus — toggling one **Boss Preset** off while the other is active leaves the overlap selected
+- The **Cadence Filter**, **Boss Search** query, and **Boss Preset** highlight state all reset to defaults each time the **Drawer** opens for a **Mule**
+- **Matrix Reset** clears `Mule.selectedBosses` only; **Cadence Filter** and **Boss Search** persist across the reset
+- **Weekly Count** can exceed **Weekly Crystal Cap** — the cap is a reference display, not a selection limit
 - The **Drag Boundary** is visible only while dragging within the **Roster**
 - A **Character Card** cannot be dragged outside the **Roster** (confined)
 - The **Split Card** includes only **Active Mules** — inactive mules render no donut slice
@@ -112,6 +138,14 @@
 > **Domain expert:** "The **Reset Anchor** is always Thursday 00:00 UTC. The **Reset Countdown** just shows `target − Date.now()` as a duration, so the user sees the same remaining time regardless of timezone. It's a duration, not a wall-clock target."
 > **Dev:** "So at the `sm` breakpoint and above it's `0D 14:32:07` ticking every second?"
 > **Domain expert:** "Right — that's the **Live Countdown Format**. Below `sm` we switch to the **Smart Countdown Format** so a narrow header doesn't have a seven-character number dancing around next to a tight logo."
+> **Dev:** "When I click **CRA** in the **Matrix Toolbar**, what actually gets selected?"
+> **Domain expert:** "The **Hardest Tier** of every **Boss Family** in the **CRA** set. So Vellum gets its Chaos key, Zakum gets Chaos, Cygnus gets Easy — whichever **Boss Difficulty** has the highest **Crystal Value** for that family."
+> **Dev:** "If I then click **CTENE**, the shared families (Vellum, Crimson Queen, Papulatus, Magnus) are already at their **Hardest Tier**. Does anything change for them?"
+> **Domain expert:** "No — applying a **Boss Preset** is idempotent. Both **CRA** and **CTENE** become **Active Preset**. Now if you click **CRA** again to toggle it off, those four families stay selected because they're also **CTENE** members."
+> **Dev:** "And **Matrix Reset** clears everything?"
+> **Domain expert:** "**Matrix Reset** only clears the **Mule's** `selectedBosses`. The **Cadence Filter**, **Boss Search** query, and **Boss Preset** highlight all stay put. The filter/search reset on the next **Drawer** open, not on **Matrix Reset**."
+> **Dev:** "The **Weekly Count** shows `16/14` — is that a bug?"
+> **Domain expert:** "No. **Weekly Crystal Cap** is a reference, not a limit. The player can select more than 14 **Boss Cadence** `weekly` bosses; the display just shows they've overshot the real-game crystal cap."
 
 ## Flagged ambiguities
 
@@ -123,7 +157,10 @@
 - "Accent" in CSS has multiple variables (`--accent`, `--accent-raw`, `--accent-soft`, `--accent-glow`, `--accent-primary`, `--accent-secondary`, `--accent-numeric`). Prose canonical: **Accent** (the raw source color), **Accent Soft** (hover tint), **Accent Glow** (shadow halo). The shadcn-compatible `--accent` / `--accent-primary` / `--accent-numeric` are all aliases of the raw accent; prefer `--accent-raw` in new code.
 - "Layout" was briefly polysemous — the **Handoff** ships four layouts (Classic, Bento, Leaderboard, Sidebar) but this app supports only **Classic Layout**. Do not refer to the others except as historical reference.
 - "Entry" and "slot" were used interchangeably. Canonical term: **Entry Slot**. Not yet in code (future enhancement for daily/weekly distinction).
-- "Preset" and "template" were used interchangeably. Canonical term: **Mule Preset**. Not yet in code (future enhancement).
+- "Preset" is now ambiguous — distinguish **Mule Preset** (template for fast-creating mules, not yet in code) from **Boss Preset** (CRA/CTENE toolbar shortcut inside the **Matrix Toolbar**). Never write "preset" unqualified.
+- "Reset" was already flagged — now **Matrix Reset** joins **Weekly Reset**, **Reset Anchor**, and **Reset Countdown** in the set of distinct concepts. Always qualify: **Matrix Reset** clears selections, **Weekly Reset** is the game event, **Reset Countdown** is the header widget.
+- "Filter" in prose could mean the **Cadence Filter** control or the `filterByCadence` / `filterBySearch` pipeline functions. Prefer **Cadence Filter** when referring to the UI; use function names when referring to code.
+- "Hardest" / "top tier" / "max difficulty" — canonical term **Hardest Tier**, defined by `max(crystalValue)` on a boss's difficulty entries.
 - "Drawer", "side drawer", "detail panel", and "modal" were all used to describe the right-side editing panel. Canonical term: **Drawer**.
 - "Current day" and "today" were considered for a day-of-week label in the header but dropped from scope; avoid reintroducing either term in **Reset Countdown** copy. The **Reset Anchor** is always expressed as a duration, never as a day name.
 - "Reset" alone is ambiguous — could mean **Weekly Reset** (the event), **Reset Anchor** (the instant), or **Reset Countdown** (the widget). In code and prose, pick the specific term.

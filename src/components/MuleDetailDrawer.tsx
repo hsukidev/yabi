@@ -23,21 +23,6 @@ interface MuleDetailDrawerProps {
   onDelete: (id: string) => void;
 }
 
-function SectionHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-3 pt-2">
-      <span className="font-sans text-[10px] uppercase tracking-[0.26em] text-muted-foreground">
-        {children}
-      </span>
-      <span
-        aria-hidden
-        className="flex-1 h-px"
-        style={{ background: 'linear-gradient(90deg, var(--accent-raw, var(--accent)), transparent)', opacity: 0.55 }}
-      />
-    </div>
-  );
-}
-
 export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: MuleDetailDrawerProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { formatted: potentialIncome } = useMuleIncome(mule ?? { selectedBosses: [] });
@@ -198,7 +183,6 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
             </div>
 
             <div className="flex flex-col gap-3">
-              <SectionHeading>Bosses</SectionHeading>
               <BossMatrix
                 selectedKeys={mule.selectedBosses}
                 onToggleKey={(key) => {

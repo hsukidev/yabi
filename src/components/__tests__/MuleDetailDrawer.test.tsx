@@ -185,16 +185,10 @@ describe('MuleDetailDrawer', () => {
   describe('BossMatrix integration', () => {
     it('renders the BossMatrix (not the old BossCheckboxList)', () => {
       renderDrawer()
-      // The Matrix exposes a "Boss Family" column header in its grid.
-      expect(screen.getByText('Boss Family')).toBeTruthy()
+      // The Matrix exposes a "Bosses" column header in its grid.
+      expect(screen.getByText('Bosses')).toBeTruthy()
       // The old search input from BossCheckboxList must be gone.
       expect(screen.queryByPlaceholderText('Search bosses...')).toBeNull()
-    })
-
-    it('renders the "Bosses" section heading', () => {
-      renderDrawer()
-      expect(screen.getByText('Bosses')).toBeTruthy()
-      expect(screen.queryByText('Weekly Bosses')).toBeNull()
     })
 
     it('clicking a tier cell calls onUpdate with toggleBoss result', () => {

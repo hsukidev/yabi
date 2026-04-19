@@ -68,9 +68,9 @@ describe('BossMatrix', () => {
       expect(rows).toHaveLength(bosses.length + 1)
     })
 
-    it('renders a header row with a Boss Family label and 5 tier columns', () => {
+    it('renders a header row with a Bosses label and 5 tier columns', () => {
       renderMatrix()
-      expect(screen.getByText('Boss Family')).toBeTruthy()
+      expect(screen.getByText('Bosses')).toBeTruthy()
       for (const tier of TIER_ORDER) {
         const header = screen.getByRole('columnheader', {
           name: new RegExp(tier, 'i'),

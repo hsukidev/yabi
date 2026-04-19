@@ -266,9 +266,9 @@ export function BossMatrix({
         >
           <div
             role="columnheader"
-            className="px-3 py-[10px] border-r border-[var(--border)] font-mono-nums text-[10px] uppercase tracking-[0.08em] text-[var(--muted-raw,var(--muted-foreground))]"
+            className="grid place-items-center px-3 py-[10px] border-r border-[var(--border)] font-mono-nums text-[10px] uppercase tracking-[0.08em] text-[var(--muted-raw,var(--muted-foreground))]"
           >
-            Boss Family
+            Bosses
           </div>
           {TIER_ORDER.map((tier) => (
             <div
