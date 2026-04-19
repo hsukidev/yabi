@@ -19,7 +19,12 @@
 | **Mule Level** | The current level of a **Mule** (1–300, display-only) | Level |
 | **Mule Class** | The job/class of a **Mule** (free text, future: dropdown) | Job, role |
 | **Potential Income** | The sum of all **Crystal Values** from bosses a **Mule** can defeat in one week | Weekly income, total income, max income |
-| **Active Mule** | A **Mule** with at least one **Boss Difficulty** selected | Participating mule, contributing mule |
+| **Active Flag** | The boolean `active` field on a **Mule**; the user-declared source of truth for whether the **Mule** is in rotation | `active`, enabled flag |
+| **Active Mule** | A **Mule** whose **Active Flag** is `true` — user-declared active, regardless of boss selection | Participating mule, contributing mule |
+| **Inactive Mule** | A **Mule** whose **Active Flag** is `false` — user-declared parked, excluded from **Total Weekly Income** and dimmed in the **Roster** | Parked mule, disabled mule |
+| **Dim State** | The 0.55-opacity visual treatment applied to an **Inactive Mule's** **Character Card** | Dimmed card, faded card, inactive styling |
+| **Active Toggle** | The single pill control in the **Drawer's** **Identity Section** that flips a **Mule's** **Active Flag** on click; shows `[● Active]` with accent dot when active, `[Inactive]` with no dot when inactive | Active switch, inactive switch, status toggle |
+| **Identity Section** | The top region of the **Drawer** containing the **Mule's** avatar, name, class, level, weekly-mesos pill, and **Active Toggle** | Mule header, drawer header |
 
 ## UI & Layout
 
@@ -102,8 +107,9 @@
 - A **Mule** selects at most one **Boss Difficulty** per **Boss Family** per **Weekly Reset** (mutual exclusivity)
 - A **Boss Difficulty** has exactly one **Crystal Value**
 - A **Mule** has one **Potential Income** = sum of selected **Crystal Values**
-- A **Mule** is an **Active Mule** iff its **Potential Income** > 0
-- **Total Weekly Income** = sum of all **Mules'** **Potential Incomes**
+- A **Mule** is an **Active Mule** iff its **Active Flag** is `true` (previously: iff **Potential Income** > 0; see "Flagged ambiguities")
+- **Total Weekly Income** = sum of all **Active Mules'** **Potential Incomes** — an **Inactive Mule** contributes zero regardless of its boss selection
+- An **Inactive Mule's** **Character Card** is rendered in the **Dim State** (0.55 opacity); its income line still shows the **Mule's** **Potential Income** but in the muted color
 - **Crystal Value** is divided by **Party Size** (future: 1–6, default solo)
 - A **Character Card** represents exactly one **Mule** in the **Roster**
 - Clicking a **Character Card** or a **Split Card** slice opens the **Drawer** for that **Mule**
@@ -116,7 +122,9 @@
 - **Weekly Count** can exceed **Weekly Crystal Cap** — the cap is a reference display, not a selection limit
 - The **Drag Boundary** is visible only while dragging within the **Roster**
 - A **Character Card** cannot be dragged outside the **Roster** (confined)
-- The **Split Card** includes only **Active Mules** — inactive mules render no donut slice
+- The **Split Card** includes only **Active Mules** — an **Inactive Mule** renders no donut slice
+- An **Inactive Mule's** **Character Card** remains fully interactive: hover-lift, click-to-open **Drawer**, and drag-to-reorder all work identically to an **Active Mule**; only the **Dim State** differs
+- The **Active Toggle** sits on its own row directly below the weekly-mesos pill in the **Identity Section**; clicking it mutates the **Mule's** **Active Flag**
 - Exactly one **Theme** and one **Density** are active at any time; both persist to localStorage
 - The **Chart Palette** is a property of the active **Theme** — slice colors recolor when the **Theme** changes
 - The **Density Toggle** mutates the active **Density**, which drives CSS variables that resize the **Roster**, **Character Card** padding, and **Class Silhouette**
@@ -146,6 +154,10 @@
 > **Domain expert:** "**Matrix Reset** only clears the **Mule's** `selectedBosses`. The **Cadence Filter**, **Boss Search** query, and **Boss Preset** highlight all stay put. The filter/search reset on the next **Drawer** open, not on **Matrix Reset**."
 > **Dev:** "The **Weekly Count** shows `16/14` — is that a bug?"
 > **Domain expert:** "No. **Weekly Crystal Cap** is a reference, not a limit. The player can select more than 14 **Boss Cadence** `weekly` bosses; the display just shows they've overshot the real-game crystal cap."
+> **Dev:** "If I flip a **Mule** with a full **Boss Matrix** to **Inactive Mule** via the **Active Toggle**, does the **Total Weekly Income** drop immediately?"
+> **Domain expert:** "Yes — the **Active Flag** is the sole input to whether a **Mule's** **Potential Income** rolls up into **Total Weekly Income**. Flip it off and the KPI re-renders with that **Mule** excluded. The **Character Card** snaps into the **Dim State** at the same moment, and the card's income line stays visible but in the muted color so the user can still see what they're parking."
+> **Dev:** "And the **KPI Card's** ACTIVE stat — does that count **Active Mules** or mules with at least one boss?"
+> **Domain expert:** "**Active Mules**. It's **Active Flag**-driven now, intent-based. A user-declared active **Mule** with zero bosses selected still counts as 1 active; the income contribution is just 0 until they configure its bosses."
 
 ## Flagged ambiguities
 
@@ -164,3 +176,5 @@
 - "Drawer", "side drawer", "detail panel", and "modal" were all used to describe the right-side editing panel. Canonical term: **Drawer**.
 - "Current day" and "today" were considered for a day-of-week label in the header but dropped from scope; avoid reintroducing either term in **Reset Countdown** copy. The **Reset Anchor** is always expressed as a duration, never as a day name.
 - "Reset" alone is ambiguous — could mean **Weekly Reset** (the event), **Reset Anchor** (the instant), or **Reset Countdown** (the widget). In code and prose, pick the specific term.
+- "Active" has been redefined. **Previous definition:** "a **Mule** with at least one **Boss Difficulty** selected" (income-derived). **New definition:** "a **Mule** whose **Active Flag** is `true`" (user-declared). The **Active Flag** is the explicit, persisted source of truth; code that previously tested `selectedBosses.length > 0` to infer activeness should be updated to test `mule.active`. Keep in mind **Active Mule** and **Inactive Mule** no longer correlate with having bosses — a brand-new **Active Mule** may have zero bosses and still count as active.
+- New mules default to **Inactive Mule** (**Active Flag** `false`) on creation, matching the design's empty-slot **Dim State**. Existing persisted mules migrate to **Active Mule** (**Active Flag** `true`) on schema upgrade to preserve their contribution to **Total Weekly Income**.
