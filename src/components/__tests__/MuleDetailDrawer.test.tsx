@@ -677,17 +677,129 @@ describe('MuleDetailDrawer', () => {
       ).toBe(true)
     })
 
-    it('both pills are active when CRA+CTENE union is present', () => {
-      const both = Array.from(new Set([...CRA_KEYS, ...CTENE_KEYS]))
+    it('clicking CTENE while CRA is active swaps to exactly CTENE (CRA-only families cleared)', () => {
+      const onUpdate = vi.fn()
       renderDrawer({
-        mule: { ...baseMule, selectedBosses: both },
+        mule: { ...baseMule, selectedBosses: CRA_KEYS },
+        onUpdate,
       })
-      expect(
-        screen.getByRole('button', { name: /^cra$/i }).classList.contains('on'),
-      ).toBe(true)
-      expect(
-        screen.getByRole('button', { name: /^ctene$/i }).classList.contains('on'),
-      ).toBe(true)
+      fireEvent.click(screen.getByRole('button', { name: /^ctene$/i }))
+      expect(onUpdate).toHaveBeenCalledTimes(1)
+      const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] }
+      // Every CTENE resolved key is present.
+      for (const k of CTENE_KEYS) {
+        expect(update.selectedBosses).toContain(k)
+      }
+      // CRA-only families (those in CRA but not in CTENE) are gone.
+      const cteneFamilies = new Set(
+        PRESET_FAMILIES.CTENE.map(presetEntryFamily),
+      )
+      for (const f of PRESET_FAMILIES.CRA) {
+        if (cteneFamilies.has(f)) continue
+        expect(update.selectedBosses).not.toContain(hardestKey(f))
+      }
+    })
+
+    it('clicking CRA while CTENE is active swaps to exactly CRA (CTENE-only families cleared)', () => {
+      const onUpdate = vi.fn()
+      renderDrawer({
+        mule: { ...baseMule, selectedBosses: CTENE_KEYS },
+        onUpdate,
+      })
+      fireEvent.click(screen.getByRole('button', { name: /^cra$/i }))
+      const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] }
+      for (const k of CRA_KEYS) {
+        expect(update.selectedBosses).toContain(k)
+      }
+      const craFamilies = new Set(PRESET_FAMILIES.CRA)
+      for (const entry of PRESET_FAMILIES.CTENE) {
+        const family = presetEntryFamily(entry)
+        if (craFamilies.has(family)) continue
+        expect(update.selectedBosses).not.toContain(presetEntryKey(entry)!)
+      }
+    })
+
+    it('clicking the currently active preset deselects it (no pill active)', () => {
+      const onUpdate = vi.fn()
+      renderDrawer({
+        mule: { ...baseMule, selectedBosses: CRA_KEYS },
+        onUpdate,
+      })
+      fireEvent.click(screen.getByRole('button', { name: /^cra$/i }))
+      const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] }
+      // No CRA family key survives.
+      for (const f of PRESET_FAMILIES.CRA) {
+        expect(update.selectedBosses).not.toContain(hardestKey(f))
+      }
+      // No CTENE family key is spuriously added.
+      for (const k of CTENE_KEYS) {
+        expect(update.selectedBosses).not.toContain(k)
+      }
+    })
+
+    it('hand-picked non-preset keys survive a CRA→CTENE swap', () => {
+      const onUpdate = vi.fn()
+      // HARD_LUCID's family (lucid) is in CTENE, so pick a non-preset family
+      // instead — Horntail is in neither CRA nor CTENE.
+      const HARD_HORNTAIL = makeKey(HORNTAIL_BOSS.id, 'chaos', 'daily')
+      renderDrawer({
+        mule: { ...baseMule, selectedBosses: [...CRA_KEYS, HARD_HORNTAIL] },
+        onUpdate,
+      })
+      fireEvent.click(screen.getByRole('button', { name: /^ctene$/i }))
+      const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] }
+      expect(update.selectedBosses).toContain(HARD_HORNTAIL)
+    })
+
+    it('hand-picked non-preset keys survive a CTENE→deselect click', () => {
+      const onUpdate = vi.fn()
+      const HARD_HORNTAIL = makeKey(HORNTAIL_BOSS.id, 'chaos', 'daily')
+      renderDrawer({
+        mule: { ...baseMule, selectedBosses: [...CTENE_KEYS, HARD_HORNTAIL] },
+        onUpdate,
+      })
+      fireEvent.click(screen.getByRole('button', { name: /^ctene$/i }))
+      const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] }
+      expect(update.selectedBosses).toContain(HARD_HORNTAIL)
+    })
+
+    it('the union state is unreachable via the pill-click flow (no sequence produces two active pills)', () => {
+      // Simulate the real drawer pipeline: each click's onUpdate payload
+      // becomes the next render's selectedBosses. Exercise both orderings
+      // (CRA→CTENE and CTENE→CRA) and assert the resulting state is never
+      // a union where both pills light up.
+      for (const order of [
+        ['cra', 'ctene'],
+        ['ctene', 'cra'],
+      ] as const) {
+        let selectedBosses: string[] = []
+        const onUpdate = vi.fn((_id: string, upd: { selectedBosses?: string[] }) => {
+          if (upd.selectedBosses !== undefined) selectedBosses = upd.selectedBosses
+        })
+        const { rerender } = renderDrawer({
+          mule: { ...baseMule, selectedBosses },
+          onUpdate,
+        })
+        for (const which of order) {
+          fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${which}$`, 'i') }))
+          rerender(
+            <MuleDetailDrawer
+              mule={{ ...baseMule, selectedBosses }}
+              open={true}
+              onClose={vi.fn()}
+              onUpdate={onUpdate}
+              onDelete={vi.fn()}
+            />,
+          )
+        }
+        const craActive = screen
+          .getByRole('button', { name: /^cra$/i })
+          .classList.contains('on')
+        const cteneActive = screen
+          .getByRole('button', { name: /^ctene$/i })
+          .classList.contains('on')
+        expect(craActive && cteneActive).toBe(false)
+      }
     })
   })
 })

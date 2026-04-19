@@ -248,15 +248,6 @@ describe('isPresetActive', () => {
     const withCtene = applyPreset([], PRESET_FAMILIES.CTENE)
     expect(isPresetActive('CTENE', withCtene)).toBe(true)
   })
-
-  it('both presets read active when both have been applied', () => {
-    const withBoth = applyPreset(
-      applyPreset([], PRESET_FAMILIES.CRA),
-      PRESET_FAMILIES.CTENE,
-    )
-    expect(isPresetActive('CRA', withBoth)).toBe(true)
-    expect(isPresetActive('CTENE', withBoth)).toBe(true)
-  })
 })
 
 describe('cross-helper sanity', () => {

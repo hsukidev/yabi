@@ -177,7 +177,7 @@ One-click bulk-selection behind the toolbar's `CRA` / `CTENE` pills. A preset en
 
 - **CRA (10 families)** — `cygnus · pink-bean · vellum · crimson-queen · von-bon · pierre · papulatus · hilla · magnus · zakum`. All resolve to their hardest tier.
 - **CTENE (14 families)** — `akechi-mitsuhide · princess-no · darknell · verus-hilla · gloom · will · lucid · guardian-angel-slime · damien · {lotus, hard} · vellum · crimson-queen · papulatus · magnus`. Lotus is pinned to **Hard** (the weekly that most mules can realistically clear) instead of the Extreme default.
-- **Overlap** — CRA ∩ CTENE shares Vellum / Crimson Queen / Papulatus / Magnus. Toggling one preset off drops those four; they return as soon as the other preset is re-applied. The drawer uses `isPresetActive` to pick between `applyPreset` and `removePreset` per pill.
+- **Single-select swap** — at most one preset pill is active at any time. Clicking an inactive preset while another is active swaps: the drawer handler first calls `removePreset` for every currently-active preset, then `applyPreset` for the clicked one. Clicking the currently active pill deselects it. The CRA ∩ CTENE overlap (Vellum / Crimson Queen / Papulatus / Magnus) is a trivial consequence of apply-after-remove — the clicked preset re-selects its overlap families at its own resolved tiers, so no special persistence logic is needed in the helpers. Hand-picked selections outside both preset family lists survive every swap or deselect because `removePreset` is family-scoped.
 
 `applyPreset` uses `toggleBoss` semantics (same-cadence siblings get swapped, opposite-cadence selections are preserved); `removePreset` drops every key whose bossId matches a family in the list regardless of tier.
 

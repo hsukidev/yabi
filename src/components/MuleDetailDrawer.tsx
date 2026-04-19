@@ -81,9 +81,20 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
   function handleTogglePreset(preset: PresetKey) {
     if (!mule) return;
     const families = PRESET_FAMILIES[preset];
-    const next = activePresets.has(preset)
-      ? removePreset(mule.selectedBosses, families)
-      : applyPreset(mule.selectedBosses, families);
+    let next: string[];
+    if (activePresets.has(preset)) {
+      // Clicking the active pill deselects it.
+      next = removePreset(mule.selectedBosses, families);
+    } else {
+      // Swap semantics: strip every OTHER active preset's families first,
+      // then apply this one. Keeps at most one preset active at a time while
+      // preserving hand-picked selections outside any preset family.
+      let cleared = mule.selectedBosses;
+      for (const other of activePresets) {
+        cleared = removePreset(cleared, PRESET_FAMILIES[other]);
+      }
+      next = applyPreset(cleared, families);
+    }
     onUpdate(mule.id, { selectedBosses: next });
   }
 

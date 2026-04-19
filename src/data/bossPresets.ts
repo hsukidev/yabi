@@ -9,11 +9,15 @@ import { hardestDifficulty, makeKey, parseKey, toggleBoss } from './bossSelectio
  * key; an `{ family, tier }` entry pins a specific tier (e.g. CTENE's Hard
  * Lotus, chosen over the Extreme tier most mules can't clear).
  *
- * Overlap-persistent by design: CRA ∩ CTENE share Vellum / Crimson Queen /
- * Papulatus / Magnus. Toggling one preset off leaves those four families
- * selected iff the OTHER preset is still active — the caller decides which
- * branch of (applyPreset | removePreset) to take based on `isPresetActive`,
- * and re-applying the overlap preset re-inserts the shared families.
+ * Single-select swap semantics: at most one preset pill is ever active.
+ * Clicking an inactive preset while another is active first removes the
+ * previously active preset's families from the selection, then applies the
+ * clicked preset — so the CRA ∩ CTENE overlap (Vellum / Crimson Queen /
+ * Papulatus / Magnus) is just re-added by the apply step with the clicked
+ * preset's resolved tiers, no special-casing needed. Clicking the currently
+ * active preset deselects it. The drawer-level handler owns this policy;
+ * the helpers below (`applyPreset` / `removePreset` / `isPresetActive`) stay
+ * single-purpose and family-scoped.
  */
 
 export type PresetKey = 'CRA' | 'CTENE';
