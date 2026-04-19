@@ -7,8 +7,8 @@ import type { Boss } from '../../types'
 
 const LUCID = bosses.find((b) => b.family === 'lucid')!.id
 const WILL = bosses.find((b) => b.family === 'will')!.id
-const HARD_LUCID = makeKey(LUCID, 'hard')
-const HARD_WILL = makeKey(WILL, 'hard')
+const HARD_LUCID = makeKey(LUCID, 'hard', 'weekly')
+const HARD_WILL = makeKey(WILL, 'hard', 'weekly')
 
 describe('computeMuleIncome', () => {
   it('returns correct raw and formatted for a mule with selected bosses (abbreviated)', () => {
@@ -141,7 +141,10 @@ describe('sumSelectedKeys cadence multiplier', () => {
     }
     mockBosses(weeklyBoss, dailyBoss)
 
-    const keys = [makeKey(weeklyBoss.id, 'hard'), makeKey(dailyBoss.id, 'normal')]
+    const keys = [
+      makeKey(weeklyBoss.id, 'hard', 'weekly'),
+      makeKey(dailyBoss.id, 'normal', 'daily'),
+    ]
     // weekly × 1 + daily × 7
     expect(sumSelectedKeys(keys)).toBe(1_000_000 + 100 * 7)
   })
@@ -158,15 +161,18 @@ describe('sumSelectedKeys cadence multiplier', () => {
     }
     mockBosses(mixedBoss)
 
-    const keys = [makeKey(mixedBoss.id, 'normal'), makeKey(mixedBoss.id, 'chaos')]
+    const keys = [
+      makeKey(mixedBoss.id, 'normal', 'daily'),
+      makeKey(mixedBoss.id, 'chaos', 'weekly'),
+    ]
     expect(sumSelectedKeys(keys)).toBe(10 * 7 + 1000)
   })
 
   it('applies ×7 to the PRD daily fixtures (Normal Vellum, Chaos Horntail)', () => {
     const vellum = bosses.find((b) => b.family === 'vellum')!
     const horntail = bosses.find((b) => b.family === 'horntail')!
-    const normalVellum = makeKey(vellum.id, 'normal')
-    const chaosHorntail = makeKey(horntail.id, 'chaos')
+    const normalVellum = makeKey(vellum.id, 'normal', 'daily')
+    const chaosHorntail = makeKey(horntail.id, 'chaos', 'daily')
     expect(sumSelectedKeys([normalVellum])).toBe(4_840_000 * 7)
     expect(sumSelectedKeys([chaosHorntail])).toBe(6_760_000 * 7)
     expect(sumSelectedKeys([normalVellum, chaosHorntail])).toBe(

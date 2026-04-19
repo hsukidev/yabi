@@ -1,14 +1,17 @@
 export type BossTier = 'easy' | 'normal' | 'hard' | 'chaos' | 'extreme';
 
+/**
+ * Per-tier cadence: daily tiers are farmable up to 7× per week and fold into
+ * the weekly headline at `crystalValue × 7`; weekly tiers clear once. The
+ * selection-key format carries the cadence segment explicitly so a single
+ * boss can retain one daily + one weekly selection simultaneously.
+ */
+export type BossCadence = 'daily' | 'weekly';
+
 export interface BossDifficulty {
   tier: BossTier;
   crystalValue: number;
-  /**
-   * Per-tier cadence (single source of truth). Daily tiers are farmable up to
-   * 7× per week and contribute `crystalValue × 7` to the weekly headline;
-   * weekly tiers contribute `crystalValue` once.
-   */
-  cadence: 'daily' | 'weekly';
+  cadence: BossCadence;
 }
 
 export interface Boss {
@@ -33,9 +36,11 @@ export interface Mule {
   level: number;
   muleClass: string;
   /**
-   * Slice 1B: native `<uuid>:<tier>` selection keys (e.g.
-   * "a4d1238d-…:extreme"). Use `makeKey`/`parseKey` from
-   * `src/data/bossSelection.ts` to construct / decode.
+   * Slice 2: native `<uuid>:<tier>:<cadence>` selection keys (e.g.
+   * "a4d1238d-…:chaos:weekly"). The cadence segment lets a single boss
+   * carry independent daily + weekly selections simultaneously. Use
+   * `makeKey`/`parseKey` from `src/data/bossSelection.ts` to construct /
+   * decode.
    */
   selectedBosses: string[];
   /**

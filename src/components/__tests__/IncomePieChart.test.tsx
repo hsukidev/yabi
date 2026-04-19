@@ -6,7 +6,8 @@ import { bosses } from '../../data/bosses'
 import { makeKey } from '../../data/bossSelection'
 
 const HILLA = bosses.find((b) => b.family === 'hilla')!.id
-const NORMAL_HILLA = makeKey(HILLA, 'normal')
+// Normal Hilla is a daily tier (slice 2, per the PRD daily classification).
+const NORMAL_HILLA = makeKey(HILLA, 'normal', 'daily')
 
 const muleWithBosses: Mule = {
   id: 'mule-1',

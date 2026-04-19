@@ -36,6 +36,8 @@ const tierByBossId = new Map<string, Map<BossTier, BossDifficulty>>(
   ]),
 );
 
+const EMPTY_TIER_SET: ReadonlySet<BossTier> = new Set();
+
 interface BossMatrixProps {
   selectedKeys: string[];
   onToggleKey: (key: string) => void;
@@ -125,18 +127,25 @@ function PartyStepper({
 
 function FamilyRow({
   boss,
-  selectedTier,
+  selectedTiers,
   partySize,
   onToggleKey,
   onChangePartySize,
 }: {
   boss: Boss;
-  selectedTier: BossTier | undefined;
+  selectedTiers: ReadonlySet<BossTier>;
   partySize: number;
   onToggleKey: (key: string) => void;
   onChangePartySize: (family: string, n: number) => void;
 }) {
   const tierMap = tierByBossId.get(boss.id)!;
+  // A tier cell dims iff another tier of the SAME cadence is selected on this
+  // boss — opposite-cadence tiers stay fully clickable (slice 2).
+  const selectedCadences = new Set(
+    boss.difficulty
+      .filter((d) => selectedTiers.has(d.tier))
+      .map((d) => d.cadence),
+  );
   const hasWeeklyTier = boss.difficulty.some((d) => d.cadence === 'weekly');
   return (
     <div
@@ -180,13 +189,13 @@ function FamilyRow({
           );
         }
 
-        const isSelected = selectedTier === tier;
-        const isDim = selectedTier !== undefined && !isSelected;
-        const key = makeKey(boss.id, tier);
-        const displayValue =
-          diff.cadence === 'daily'
-            ? diff.crystalValue
-            : diff.crystalValue / partySize;
+        const isSelected = selectedTiers.has(tier);
+        const isDim = !isSelected && selectedCadences.has(diff.cadence);
+        const key = makeKey(boss.id, tier, diff.cadence);
+        // Daily cells always render at full crystalValue; only weekly cells
+        // divide by the party size.
+        const displayedValue =
+          diff.cadence === 'daily' ? diff.crystalValue : diff.crystalValue / partySize;
 
         return (
           <button
@@ -205,7 +214,7 @@ function FamilyRow({
             ].join(' ')}
           >
             <span style={isDim ? { opacity: 0.35 } : undefined}>
-              {formatMeso(displayValue, true)}
+              {formatMeso(displayedValue, true)}
             </span>
           </button>
         );
@@ -220,10 +229,15 @@ export function BossMatrix({
   partySizes,
   onChangePartySize,
 }: BossMatrixProps) {
-  const selectedTierByBoss = new Map<string, BossTier>();
+  // Slice 2: a single boss can carry up to one daily + one weekly selection,
+  // so we track the full set of selected tiers per boss (not one winner).
+  const selectedTiersByBoss = new Map<string, Set<BossTier>>();
   for (const key of selectedKeys) {
     const parsed = parseKey(key);
-    if (parsed) selectedTierByBoss.set(parsed.bossId, parsed.tier);
+    if (!parsed) continue;
+    const existing = selectedTiersByBoss.get(parsed.bossId);
+    if (existing) existing.add(parsed.tier);
+    else selectedTiersByBoss.set(parsed.bossId, new Set([parsed.tier]));
   }
 
   return (
@@ -262,7 +276,7 @@ export function BossMatrix({
         <FamilyRow
           key={boss.id}
           boss={boss}
-          selectedTier={selectedTierByBoss.get(boss.id)}
+          selectedTiers={selectedTiersByBoss.get(boss.id) ?? EMPTY_TIER_SET}
           partySize={partySizes[boss.family] ?? 1}
           onToggleKey={onToggleKey}
           onChangePartySize={onChangePartySize}

@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import type { Mule } from '../types';
-import { validateBossSelection } from '../data/bossSelection';
+import type { BossTier, Mule } from '../types';
+import { getBossById } from '../data/bosses';
+import { makeKey, validateBossSelection } from '../data/bossSelection';
 
 const STORAGE_KEY = 'maplestory-mule-tracker';
 const FALLBACK_KEY = 'maplestory-mule-tracker-fallback';
-const CURRENT_SCHEMA_VERSION = 2;
+const CURRENT_SCHEMA_VERSION = 3;
 
 const LEGACY_ID_PREFIX = /^(extreme|hard|chaos|normal|easy)-/;
 
@@ -23,7 +24,27 @@ function readPartySizes(raw: unknown): Record<string, number> {
   return out;
 }
 
-function validateMule(raw: unknown, opts: { wipeLegacy: boolean }): Mule | null {
+/**
+ * Upgrade a single v2 `<uuid>:<tier>` selection key to the v3
+ * `<uuid>:<tier>:<cadence>` shape by resolving cadence from the boss data.
+ * Returns null for unresolvable entries (unknown boss or tier no longer
+ * offered) — the loader drops those silently.
+ */
+function upgradeV2Key(key: string): string | null {
+  const colon = key.lastIndexOf(':');
+  if (colon < 0) return null;
+  const bossId = key.slice(0, colon);
+  const tier = key.slice(colon + 1) as BossTier;
+  const boss = getBossById(bossId);
+  if (!boss) return null;
+  const diff = boss.difficulty.find((d) => d.tier === tier);
+  if (!diff) return null;
+  return makeKey(bossId, tier, diff.cadence);
+}
+
+type LoadMode = 'wipe' | 'upgradeV2' | 'asIs';
+
+function validateMule(raw: unknown, mode: LoadMode): Mule | null {
   if (typeof raw !== 'object' || raw === null) return null;
   const obj = raw as Record<string, unknown>;
   if (typeof obj.id !== 'string') return null;
@@ -33,14 +54,29 @@ function validateMule(raw: unknown, opts: { wipeLegacy: boolean }): Mule | null 
   if (!Array.isArray(obj.selectedBosses)) return null;
 
   const rawSelected = obj.selectedBosses as string[];
-  const wipe = opts.wipeLegacy && rawSelected.some(isLegacyId);
+  const wipe = mode === 'wipe' && rawSelected.some(isLegacyId);
+
+  let selectedBosses: string[];
+  if (wipe) {
+    selectedBosses = [];
+  } else if (mode === 'upgradeV2') {
+    // In-place upgrade of v2 `<uuid>:<tier>` keys. Unresolvable entries drop.
+    const upgraded: string[] = [];
+    for (const key of rawSelected) {
+      const next = upgradeV2Key(key);
+      if (next !== null) upgraded.push(next);
+    }
+    selectedBosses = validateBossSelection(upgraded);
+  } else {
+    selectedBosses = validateBossSelection(rawSelected);
+  }
 
   return {
     id: obj.id,
     name: obj.name,
     level: obj.level,
     muleClass: obj.muleClass,
-    selectedBosses: wipe ? [] : validateBossSelection(rawSelected),
+    selectedBosses,
     partySizes: wipe ? {} : readPartySizes(obj.partySizes),
   };
 }
@@ -52,22 +88,29 @@ interface PersistedRoot {
 }
 
 /**
- * Parse a persisted payload into { mules, wipeLegacy }. Accepts either the
- * legacy "top-level array" shape (triggers wipe-on-load) or the new
- * { schemaVersion, mules } envelope.
+ * Parse a persisted payload into { mules, mode }. Mode controls migration:
+ *  - 'wipe': pre-1B array shape / `schemaVersion < 2` → drop legacy selections.
+ *  - 'upgradeV2': `schemaVersion === 2` → upgrade `<uuid>:<tier>` keys to
+ *    `<uuid>:<tier>:<cadence>` in place (slice 2, v2 → v3).
+ *  - 'asIs': `schemaVersion === 3` → keys already in the current shape.
  */
-function parsePayload(raw: string): { mules: unknown[]; wipeLegacy: boolean } | null {
+function parsePayload(raw: string): { mules: unknown[]; mode: LoadMode } | null {
   try {
     const parsed: unknown = JSON.parse(raw);
     if (Array.isArray(parsed)) {
       // Pre-1B shape — root is bare array; always migrate.
-      return { mules: parsed, wipeLegacy: true };
+      return { mules: parsed, mode: 'wipe' };
     }
     if (typeof parsed === 'object' && parsed !== null) {
       const root = parsed as Partial<PersistedRoot>;
       if (Array.isArray(root.mules)) {
-        const wipeLegacy = root.schemaVersion !== CURRENT_SCHEMA_VERSION;
-        return { mules: root.mules, wipeLegacy };
+        const mode: LoadMode =
+          root.schemaVersion === CURRENT_SCHEMA_VERSION
+            ? 'asIs'
+            : root.schemaVersion === 2
+              ? 'upgradeV2'
+              : 'wipe';
+        return { mules: root.mules, mode };
       }
     }
     return null;
@@ -100,9 +143,7 @@ export function useMules() {
       if (data === null) return [];
       const payload = parsePayload(data);
       if (!payload) return [];
-      const validated = payload.mules.map((m) =>
-        validateMule(m, { wipeLegacy: payload.wipeLegacy }),
-      );
+      const validated = payload.mules.map((m) => validateMule(m, payload.mode));
       return validated.filter((m): m is Mule => m !== null);
     } catch {
       return [];

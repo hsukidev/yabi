@@ -7,13 +7,19 @@ import {
   parseKey,
   TIER_ORDER,
 } from '../bossSelection'
-import { bosses } from '../bosses'
+import { bosses, getBossById } from '../bosses'
 import type { BossTier } from '../../types'
 
 function idForFamily(family: string): string {
   const boss = bosses.find((b) => b.family === family)
   if (!boss) throw new Error(`No boss found for family ${family}`)
   return boss.id
+}
+
+/** Build a selection key, looking up cadence from the real boss data. */
+function key(bossId: string, tier: BossTier): string {
+  const diff = getBossById(bossId)!.difficulty.find((d) => d.tier === tier)!
+  return makeKey(bossId, tier, diff.cadence)
 }
 
 const LUCID = idForFamily('lucid')
@@ -24,6 +30,9 @@ const AKECHI = idForFamily('akechi-mitsuhide')
 const BLACK_MAGE = idForFamily('black-mage')
 const ZAKUM = idForFamily('zakum')
 const KALOS = idForFamily('kalos-the-guardian')
+const VELLUM = idForFamily('vellum')
+const PAPULATUS = idForFamily('papulatus')
+const HORNTAIL = idForFamily('horntail')
 
 describe('TIER_ORDER', () => {
   it('exports tiers in extreme → easy order (hardest first)', () => {
@@ -33,94 +42,175 @@ describe('TIER_ORDER', () => {
 })
 
 describe('makeKey / parseKey', () => {
-  it('makeKey concatenates bossId and tier with a colon', () => {
-    expect(makeKey(LUCID, 'hard')).toBe(`${LUCID}:hard`)
+  it('makeKey joins bossId, tier, and cadence with colons', () => {
+    expect(makeKey(LUCID, 'hard', 'weekly')).toBe(`${LUCID}:hard:weekly`)
   })
 
-  it('parseKey round-trips a valid key', () => {
-    const key = makeKey(LUCID, 'hard')
-    expect(parseKey(key)).toEqual({ bossId: LUCID, tier: 'hard' })
+  it('parseKey round-trips a valid weekly key', () => {
+    const k = makeKey(LUCID, 'hard', 'weekly')
+    expect(parseKey(k)).toEqual({ bossId: LUCID, tier: 'hard', cadence: 'weekly' })
   })
 
-  it('parseKey returns null for a malformed key with no colon', () => {
+  it('parseKey round-trips a valid daily key (Normal Vellum)', () => {
+    const k = makeKey(VELLUM, 'normal', 'daily')
+    expect(parseKey(k)).toEqual({ bossId: VELLUM, tier: 'normal', cadence: 'daily' })
+  })
+
+  it('parseKey returns null for a malformed key with no colons', () => {
     expect(parseKey('hard-lucid')).toBeNull()
   })
 
+  it('parseKey returns null for a two-segment (legacy v2) key', () => {
+    expect(parseKey(`${LUCID}:hard`)).toBeNull()
+  })
+
   it('parseKey returns null when tier is unknown', () => {
-    expect(parseKey(`${LUCID}:mythic`)).toBeNull()
+    expect(parseKey(`${LUCID}:mythic:weekly`)).toBeNull()
+  })
+
+  it('parseKey returns null when cadence segment is unknown', () => {
+    expect(parseKey(`${LUCID}:hard:monthly`)).toBeNull()
+  })
+
+  it('parseKey returns null when cadence disagrees with boss data', () => {
+    // Chaos Vellum is weekly; marking it daily in the key is a stale migration.
+    expect(parseKey(`${VELLUM}:chaos:daily`)).toBeNull()
+    // Hard Lucid is weekly; marking it daily is stale.
+    expect(parseKey(`${LUCID}:hard:daily`)).toBeNull()
   })
 
   it('parseKey returns null when bossId is not in bosses', () => {
-    expect(parseKey('not-a-uuid:hard')).toBeNull()
+    expect(parseKey('not-a-uuid:hard:weekly')).toBeNull()
   })
 })
 
 describe('toggleBoss', () => {
   it('selects a boss in an empty family', () => {
-    expect(toggleBoss([], LUCID, 'hard')).toEqual([makeKey(LUCID, 'hard')])
+    expect(toggleBoss([], LUCID, 'hard')).toEqual([key(LUCID, 'hard')])
   })
 
   it('auto-replaces when selecting a different tier in the same family', () => {
-    const selection = [makeKey(LUCID, 'normal')]
-    expect(toggleBoss(selection, LUCID, 'hard')).toEqual([makeKey(LUCID, 'hard')])
+    const selection = [key(LUCID, 'normal')]
+    expect(toggleBoss(selection, LUCID, 'hard')).toEqual([key(LUCID, 'hard')])
   })
 
   it('deselects when toggling the already-selected tier', () => {
-    const selection = [makeKey(LUCID, 'hard')]
+    const selection = [key(LUCID, 'hard')]
     expect(toggleBoss(selection, LUCID, 'hard')).toEqual([])
   })
 
   it('adds a boss from a different family without conflict', () => {
-    const selection = [makeKey(LUCID, 'hard')]
+    const selection = [key(LUCID, 'hard')]
     expect(toggleBoss(selection, WILL, 'hard')).toEqual([
-      makeKey(LUCID, 'hard'),
-      makeKey(WILL, 'hard'),
+      key(LUCID, 'hard'),
+      key(WILL, 'hard'),
     ])
   })
 
   it('replaces in same family while preserving other families and array order', () => {
-    const selection = [makeKey(WILL, 'normal'), makeKey(LUCID, 'hard')]
+    const selection = [key(WILL, 'normal'), key(LUCID, 'hard')]
     expect(toggleBoss(selection, WILL, 'hard')).toEqual([
-      makeKey(WILL, 'hard'),
-      makeKey(LUCID, 'hard'),
+      key(WILL, 'hard'),
+      key(LUCID, 'hard'),
     ])
   })
 
   it('returns unchanged array for unknown bossId', () => {
-    const selection = [makeKey(LUCID, 'hard')]
+    const selection = [key(LUCID, 'hard')]
     expect(toggleBoss(selection, 'not-a-real-boss-id', 'hard')).toEqual(selection)
   })
 
   it('returns unchanged array when tier is not offered for the boss', () => {
-    const selection = [makeKey(LUCID, 'hard')]
+    const selection = [key(LUCID, 'hard')]
     // Lucid offers easy/normal/hard — chaos is not in its difficulty[]
     expect(toggleBoss(selection, LUCID, 'chaos')).toEqual(selection)
   })
 
   it('handles replace with multiple concurrent selections', () => {
-    const selection = [makeKey(LUCID, 'hard'), makeKey(WILL, 'normal'), makeKey(LOTUS, 'hard')]
+    const selection = [key(LUCID, 'hard'), key(WILL, 'normal'), key(LOTUS, 'hard')]
     expect(toggleBoss(selection, WILL, 'easy')).toEqual([
-      makeKey(LUCID, 'hard'),
-      makeKey(WILL, 'easy'),
-      makeKey(LOTUS, 'hard'),
+      key(LUCID, 'hard'),
+      key(WILL, 'easy'),
+      key(LOTUS, 'hard'),
     ])
+  })
+
+  // Slice 2: mixed-cadence bosses keep one daily + one weekly simultaneously.
+  describe('mixed-cadence boss (Vellum)', () => {
+    it('keeps daily + weekly selections on the same boss simultaneously', () => {
+      // Normal Vellum is daily, Chaos Vellum is weekly.
+      const normalDaily = key(VELLUM, 'normal')
+      const chaosWeekly = key(VELLUM, 'chaos')
+      // Select daily first, then weekly — both stay.
+      let sel = toggleBoss([], VELLUM, 'normal')
+      sel = toggleBoss(sel, VELLUM, 'chaos')
+      expect(sel).toEqual([normalDaily, chaosWeekly])
+    })
+
+    it('picking a weekly tier on a mixed boss leaves the daily selection untouched', () => {
+      // Papulatus: easy/normal are daily; chaos is weekly.
+      const normalDaily = key(PAPULATUS, 'normal')
+      const chaosWeekly = key(PAPULATUS, 'chaos')
+      expect(toggleBoss([normalDaily], PAPULATUS, 'chaos')).toEqual([
+        normalDaily,
+        chaosWeekly,
+      ])
+    })
+
+    it('selecting a different daily tier replaces only the existing daily', () => {
+      // Papulatus: easy (daily) → normal (daily) replaces; chaos weekly stays.
+      const easyDaily = key(PAPULATUS, 'easy')
+      const normalDaily = key(PAPULATUS, 'normal')
+      const chaosWeekly = key(PAPULATUS, 'chaos')
+      expect(toggleBoss([easyDaily, chaosWeekly], PAPULATUS, 'normal')).toEqual([
+        normalDaily,
+        chaosWeekly,
+      ])
+    })
+
+    it('re-clicking an already-selected daily tier clears only the daily', () => {
+      const normalDaily = key(VELLUM, 'normal')
+      const chaosWeekly = key(VELLUM, 'chaos')
+      expect(toggleBoss([normalDaily, chaosWeekly], VELLUM, 'normal')).toEqual([
+        chaosWeekly,
+      ])
+    })
+  })
+
+  describe('daily-only boss (Horntail)', () => {
+    it('selecting a tier on an empty daily-only boss adds the daily key', () => {
+      const chaosDaily = key(HORNTAIL, 'chaos')
+      expect(toggleBoss([], HORNTAIL, 'chaos')).toEqual([chaosDaily])
+    })
+
+    it('selecting a different daily tier replaces the sibling', () => {
+      // Horntail: easy, normal, chaos are all daily.
+      const normalDaily = key(HORNTAIL, 'normal')
+      const chaosDaily = key(HORNTAIL, 'chaos')
+      expect(toggleBoss([normalDaily], HORNTAIL, 'chaos')).toEqual([chaosDaily])
+    })
+
+    it('re-clicking the selected daily tier clears it', () => {
+      const chaosDaily = key(HORNTAIL, 'chaos')
+      expect(toggleBoss([chaosDaily], HORNTAIL, 'chaos')).toEqual([])
+    })
   })
 })
 
 describe('validateBossSelection', () => {
   it('removes unknown keys', () => {
     expect(
-      validateBossSelection([makeKey(LUCID, 'hard'), 'stale-id', 'another:stale']),
-    ).toEqual([makeKey(LUCID, 'hard')])
+      validateBossSelection([key(LUCID, 'hard'), 'stale-id', 'another:stale']),
+    ).toEqual([key(LUCID, 'hard')])
   })
 
   it('drops keys with unknown bossId', () => {
-    expect(validateBossSelection(['not-a-uuid:hard'])).toEqual([])
+    expect(validateBossSelection(['not-a-uuid:hard:weekly'])).toEqual([])
   })
 
   it('drops keys with a tier not offered for the boss', () => {
     // Lucid does not offer chaos
-    expect(validateBossSelection([makeKey(LUCID, 'chaos')])).toEqual([])
+    expect(validateBossSelection([`${LUCID}:chaos:weekly`])).toEqual([])
   })
 
   it('returns empty array when all keys invalid', () => {
@@ -128,7 +218,7 @@ describe('validateBossSelection', () => {
   })
 
   it('returns input when all keys valid and no family conflicts', () => {
-    const keys = [makeKey(LUCID, 'hard'), makeKey(WILL, 'hard')]
+    const keys = [key(LUCID, 'hard'), key(WILL, 'hard')]
     expect(validateBossSelection(keys)).toEqual(keys)
   })
 
@@ -137,53 +227,69 @@ describe('validateBossSelection', () => {
   })
 
   it('keeps highest-value tier per family when duplicates exist', () => {
-    const keys = [makeKey(LUCID, 'normal'), makeKey(LUCID, 'hard')]
-    expect(validateBossSelection(keys)).toEqual([makeKey(LUCID, 'hard')])
+    const keys = [key(LUCID, 'normal'), key(LUCID, 'hard')]
+    expect(validateBossSelection(keys)).toEqual([key(LUCID, 'hard')])
   })
 
   it('preserves original order among kept entries', () => {
     const keys = [
-      makeKey(WILL, 'hard'),
-      makeKey(LUCID, 'normal'),
-      makeKey(LUCID, 'hard'),
+      key(WILL, 'hard'),
+      key(LUCID, 'normal'),
+      key(LUCID, 'hard'),
     ]
     expect(validateBossSelection(keys)).toEqual([
-      makeKey(WILL, 'hard'),
-      makeKey(LUCID, 'hard'),
+      key(WILL, 'hard'),
+      key(LUCID, 'hard'),
     ])
   })
 
   it('removes both invalid and duplicate-family entries', () => {
     const keys = [
       'fake-key',
-      makeKey(LUCID, 'easy'),
-      makeKey(LUCID, 'hard'),
-      makeKey(WILL, 'hard'),
+      key(LUCID, 'easy'),
+      key(LUCID, 'hard'),
+      key(WILL, 'hard'),
     ]
     expect(validateBossSelection(keys)).toEqual([
-      makeKey(LUCID, 'hard'),
-      makeKey(WILL, 'hard'),
+      key(LUCID, 'hard'),
+      key(WILL, 'hard'),
     ])
   })
 
   it('handles three tiers from same family keeping highest', () => {
     const keys = [
-      makeKey(LUCID, 'easy'),
-      makeKey(LUCID, 'normal'),
-      makeKey(LUCID, 'hard'),
+      key(LUCID, 'easy'),
+      key(LUCID, 'normal'),
+      key(LUCID, 'hard'),
     ]
-    expect(validateBossSelection(keys)).toEqual([makeKey(LUCID, 'hard')])
+    expect(validateBossSelection(keys)).toEqual([key(LUCID, 'hard')])
   })
 
   it('keeps singletons across families', () => {
-    const keys = [makeKey(LUCID, 'hard'), makeKey(WILL, 'hard'), makeKey(DAMIEN, 'hard')]
+    const keys = [key(LUCID, 'hard'), key(WILL, 'hard'), key(DAMIEN, 'hard')]
     expect(validateBossSelection(keys)).toEqual(keys)
+  })
+
+  // Slice 2: per-cadence winner — one daily + one weekly per boss.
+  it('keeps a daily and a weekly winner on the same boss simultaneously', () => {
+    const keys = [key(VELLUM, 'normal'), key(VELLUM, 'chaos')]
+    expect(validateBossSelection(keys)).toEqual(keys)
+  })
+
+  it('keeps only the highest daily when two daily tiers conflict', () => {
+    // Papulatus easy + normal are both daily → normal wins (higher value).
+    const easyDaily = key(PAPULATUS, 'easy')
+    const normalDaily = key(PAPULATUS, 'normal')
+    const chaosWeekly = key(PAPULATUS, 'chaos')
+    expect(
+      validateBossSelection([easyDaily, normalDaily, chaosWeekly]),
+    ).toEqual([normalDaily, chaosWeekly])
   })
 })
 
 describe('getFamilies', () => {
   it('returns all families with correct selected flags', () => {
-    const families = getFamilies([makeKey(LUCID, 'hard')], '')
+    const families = getFamilies([key(LUCID, 'hard')], '')
     const lucidFamily = families.find((f) => f.family === 'lucid')!
     expect(lucidFamily).toBeDefined()
 
@@ -228,11 +334,11 @@ describe('getFamilies', () => {
     }
   })
 
-  it('each tier entry carries a `key` equal to makeKey(bossId, tier)', () => {
+  it('each tier entry carries a `key` equal to makeKey(bossId, tier, cadence)', () => {
     const families = getFamilies([], '')
     const lucidFamily = families.find((f) => f.family === 'lucid')!
     const hardLucid = lucidFamily.bosses.find((b) => b.tier === 'hard')!
-    expect(hardLucid.key).toBe(makeKey(LUCID, 'hard'))
+    expect(hardLucid.key).toBe(makeKey(LUCID, 'hard', 'weekly'))
   })
 
   it('populates crystalValue on each tier', () => {
@@ -338,23 +444,35 @@ describe('getFamilies', () => {
 })
 
 describe('cross-reference sanity', () => {
-  it('BLACK_MAGE extreme tier is a valid key', () => {
-    const key = makeKey(BLACK_MAGE, 'extreme')
-    expect(parseKey(key)).toEqual({ bossId: BLACK_MAGE, tier: 'extreme' })
+  it('BLACK_MAGE extreme tier is a valid weekly key', () => {
+    const k = makeKey(BLACK_MAGE, 'extreme', 'weekly')
+    expect(parseKey(k)).toEqual({
+      bossId: BLACK_MAGE,
+      tier: 'extreme',
+      cadence: 'weekly',
+    })
   })
 
-  it('ZAKUM easy tier is a valid key', () => {
-    const key = makeKey(ZAKUM, 'easy')
-    expect(parseKey(key)).toEqual({ bossId: ZAKUM, tier: 'easy' })
+  it('ZAKUM easy tier is a valid daily key', () => {
+    const k = makeKey(ZAKUM, 'easy', 'daily')
+    expect(parseKey(k)).toEqual({ bossId: ZAKUM, tier: 'easy', cadence: 'daily' })
   })
 
-  it('KALOS chaos tier is a valid key', () => {
-    const key = makeKey(KALOS, 'chaos')
-    expect(parseKey(key)).toEqual({ bossId: KALOS, tier: 'chaos' })
+  it('KALOS chaos tier is a valid weekly key', () => {
+    const k = makeKey(KALOS, 'chaos', 'weekly')
+    expect(parseKey(k)).toEqual({
+      bossId: KALOS,
+      tier: 'chaos',
+      cadence: 'weekly',
+    })
   })
 
-  it('AKECHI normal tier is a valid key (tier-less family)', () => {
-    const key = makeKey(AKECHI, 'normal')
-    expect(parseKey(key)).toEqual({ bossId: AKECHI, tier: 'normal' })
+  it('AKECHI normal tier is a valid weekly key (tier-less family)', () => {
+    const k = makeKey(AKECHI, 'normal', 'weekly')
+    expect(parseKey(k)).toEqual({
+      bossId: AKECHI,
+      tier: 'normal',
+      cadence: 'weekly',
+    })
   })
 })

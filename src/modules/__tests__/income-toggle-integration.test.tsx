@@ -7,8 +7,8 @@ import { makeKey } from '../../data/bossSelection'
 
 const LUCID = bosses.find((b) => b.family === 'lucid')!.id
 const WILL = bosses.find((b) => b.family === 'will')!.id
-const HARD_LUCID = makeKey(LUCID, 'hard')
-const HARD_WILL = makeKey(WILL, 'hard')
+const HARD_LUCID = makeKey(LUCID, 'hard', 'weekly')
+const HARD_WILL = makeKey(WILL, 'hard', 'weekly')
 
 function MuleIncomeDisplay({ mule, index }: { mule: { selectedBosses: string[] }; index: number }) {
   const income = useMuleIncome(mule)

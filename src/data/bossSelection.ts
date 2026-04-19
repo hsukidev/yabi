@@ -1,10 +1,12 @@
-import type { Boss, BossDifficulty, BossTier } from '../types';
+import type { Boss, BossCadence, BossDifficulty, BossTier } from '../types';
 import { bosses, getBossById, TIER_LESS_FAMILIES } from './bosses';
 import { formatMeso } from '../utils/meso';
 
 /**
- * Selection key format: `<bossUuid>:<tier>`. Stored directly on
- * `Mule.selectedBosses`. Use `makeKey` / `parseKey` to construct or decode.
+ * Selection key format: `<bossUuid>:<tier>:<cadence>` (e.g.
+ * `a4d1238d-…:chaos:weekly`). Stored directly on `Mule.selectedBosses`. Use
+ * `makeKey` / `parseKey` to construct or decode — the cadence segment lets a
+ * single boss carry independent daily and weekly selections simultaneously.
  */
 
 /** Tier order used by the Matrix component (columns, extreme → easy, hardest first). */
@@ -12,10 +14,12 @@ export const TIER_ORDER: BossTier[] = ['extreme', 'chaos', 'hard', 'normal', 'ea
 
 const TIER_SET: ReadonlySet<BossTier> = new Set(TIER_ORDER);
 
+const CADENCE_SET: ReadonlySet<BossCadence> = new Set(['daily', 'weekly']);
+
 /**
  * Capitalized difficulty label for the pip colour / row name prefix. Distinct
  * from the `BossDifficulty` *interface* in `../types` that holds the
- * `{ tier, crystalValue }` shape.
+ * `{ tier, crystalValue, cadence }` shape.
  */
 export type BossDifficultyLabel = 'Extreme' | 'Chaos' | 'Hard' | 'Normal' | 'Easy';
 
@@ -27,23 +31,39 @@ const TIER_LABEL: Record<BossTier, BossDifficultyLabel> = {
   extreme: 'Extreme',
 };
 
-/** Build a native selection key from a boss id and tier. */
-export function makeKey(bossId: string, tier: BossTier): string {
-  return `${bossId}:${tier}`;
+/** Build a native selection key from a boss id, tier, and cadence. */
+export function makeKey(bossId: string, tier: BossTier, cadence: BossCadence): string {
+  return `${bossId}:${tier}:${cadence}`;
 }
 
-/** Parse a selection key. Returns null if malformed, unknown boss, or tier not offered. */
-export function parseKey(key: string): { bossId: string; tier: BossTier } | null {
-  const colon = key.lastIndexOf(':');
-  if (colon < 0) return null;
-  const tierStr = key.slice(colon + 1);
+/**
+ * Parse a selection key. Returns null if malformed, unknown boss, tier not
+ * offered, or if the cadence segment disagrees with the boss data. Splits
+ * on the last two colons so `bossId` (a UUID with its own dashes) stays
+ * intact as the prefix.
+ */
+export function parseKey(
+  key: string,
+): { bossId: string; tier: BossTier; cadence: BossCadence } | null {
+  const lastColon = key.lastIndexOf(':');
+  if (lastColon < 0) return null;
+  const tierColon = key.lastIndexOf(':', lastColon - 1);
+  if (tierColon < 0) return null;
+
+  const tierStr = key.slice(tierColon + 1, lastColon);
+  const cadenceStr = key.slice(lastColon + 1);
   if (!TIER_SET.has(tierStr as BossTier)) return null;
-  const bossId = key.slice(0, colon);
+  if (!CADENCE_SET.has(cadenceStr as BossCadence)) return null;
+
+  const bossId = key.slice(0, tierColon);
   const boss = getBossById(bossId);
   if (!boss) return null;
+
   const tier = tierStr as BossTier;
-  if (!boss.difficulty.some((d) => d.tier === tier)) return null;
-  return { bossId, tier };
+  const cadence = cadenceStr as BossCadence;
+  const diff = boss.difficulty.find((d) => d.tier === tier);
+  if (!diff || diff.cadence !== cadence) return null;
+  return { bossId, tier, cadence };
 }
 
 function resolveKey(key: string): { boss: Boss; diff: BossDifficulty } | null {
@@ -61,7 +81,7 @@ function resolveKey(key: string): { boss: Boss; diff: BossDifficulty } | null {
 export interface FamilyRow {
   bossId: string;
   tier: BossTier;
-  /** Selection key = `makeKey(bossId, tier)`. Also used as React list key. */
+  /** Selection key = `makeKey(bossId, tier, cadence)`. Also used as React list key. */
   key: string;
   /** Display label — "<Tier> <Family>" for tiered families, bare family name otherwise. */
   name: string;
@@ -83,18 +103,32 @@ function rowLabel(family: string, tier: BossTier, familyName: string): string {
 }
 
 export function validateBossSelection(keys: string[]): string[] {
-  interface ResolvedKey { key: string; bossId: string; crystalValue: number }
+  interface ResolvedKey {
+    key: string;
+    bossId: string;
+    cadence: BossCadence;
+    crystalValue: number;
+  }
   const resolved: ResolvedKey[] = [];
   for (const key of keys) {
     const r = resolveKey(key);
-    if (r) resolved.push({ key, bossId: r.boss.id, crystalValue: r.diff.crystalValue });
+    if (r) {
+      resolved.push({
+        key,
+        bossId: r.boss.id,
+        cadence: r.diff.cadence,
+        crystalValue: r.diff.crystalValue,
+      });
+    }
   }
 
-  // Pick the first-seen key with the highest crystalValue per family.
+  // One winner per (bossId, cadence): a boss can retain one daily AND one
+  // weekly selection simultaneously.
   const winner = new Map<string, ResolvedKey>();
   for (const r of resolved) {
-    const current = winner.get(r.bossId);
-    if (!current || r.crystalValue > current.crystalValue) winner.set(r.bossId, r);
+    const bucket = `${r.bossId}:${r.cadence}`;
+    const current = winner.get(bucket);
+    if (!current || r.crystalValue > current.crystalValue) winner.set(bucket, r);
   }
   const winnerKeys = new Set(Array.from(winner.values(), (w) => w.key));
   return resolved.filter((r) => winnerKeys.has(r.key)).map((r) => r.key);
@@ -102,10 +136,17 @@ export function validateBossSelection(keys: string[]): string[] {
 
 export function toggleBoss(keys: string[], bossId: string, tier: BossTier): string[] {
   const boss = getBossById(bossId);
-  if (!boss || !boss.difficulty.some((d) => d.tier === tier)) return keys;
+  if (!boss) return keys;
+  const diff = boss.difficulty.find((d) => d.tier === tier);
+  if (!diff) return keys;
 
-  const target = makeKey(bossId, tier);
-  const existingKey = keys.find((k) => parseKey(k)?.bossId === bossId);
+  const target = makeKey(bossId, tier, diff.cadence);
+  // Same-cadence sibling on the same boss: opposite-cadence selections are
+  // untouched so a mule can keep one daily + one weekly simultaneously.
+  const existingKey = keys.find((k) => {
+    const p = parseKey(k);
+    return p?.bossId === bossId && p.cadence === diff.cadence;
+  });
   if (existingKey === target) return keys.filter((k) => k !== target);
   if (existingKey) return keys.map((k) => (k === existingKey ? target : k));
   return [...keys, target];
@@ -138,7 +179,7 @@ export function getFamilies(
       .slice()
       .sort((a, b) => b.crystalValue - a.crystalValue)
       .map((diff): FamilyRow => {
-        const key = makeKey(boss.id, diff.tier);
+        const key = makeKey(boss.id, diff.tier, diff.cadence);
         return {
           bossId: boss.id,
           tier: diff.tier,

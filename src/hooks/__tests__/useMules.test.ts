@@ -4,11 +4,22 @@ import { useMules } from '../useMules'
 import { bosses } from '../../data/bosses'
 import { makeKey } from '../../data/bossSelection'
 
-const LUCID = bosses.find((b) => b.family === 'lucid')!.id
+const LUCID_BOSS = bosses.find((b) => b.family === 'lucid')!
+const VELLUM_BOSS = bosses.find((b) => b.family === 'vellum')!
+const LUCID = LUCID_BOSS.id
 const WILL = bosses.find((b) => b.family === 'will')!.id
-const HARD_LUCID = makeKey(LUCID, 'hard')
-const NORMAL_LUCID = makeKey(LUCID, 'normal')
-const HARD_WILL = makeKey(WILL, 'hard')
+const VELLUM = VELLUM_BOSS.id
+// Slice 2 keys: <uuid>:<tier>:<cadence>. Lucid tiers are all weekly.
+const HARD_LUCID = makeKey(LUCID, 'hard', 'weekly')
+const NORMAL_LUCID = makeKey(LUCID, 'normal', 'weekly')
+const HARD_WILL = makeKey(WILL, 'hard', 'weekly')
+// Vellum: Normal is daily, Chaos is weekly.
+const NORMAL_VELLUM_DAILY = makeKey(VELLUM, 'normal', 'daily')
+const CHAOS_VELLUM_WEEKLY = makeKey(VELLUM, 'chaos', 'weekly')
+// Legacy v2 (slice-1B) two-segment keys that should be upgraded on load.
+const LEGACY_HARD_LUCID = `${LUCID}:hard`
+const LEGACY_NORMAL_VELLUM = `${VELLUM}:normal`
+const LEGACY_CHAOS_VELLUM = `${VELLUM}:chaos`
 
 let localStorageStore: Record<string, string> = {}
 let sessionStorageStore: Record<string, string> = {}
@@ -63,7 +74,7 @@ describe('useMules', () => {
 
     it('loads valid data (native-key payload) from localStorage', () => {
       const payload = {
-        schemaVersion: 2,
+        schemaVersion: 3,
         mules: [
           {
             id: 'a',
@@ -88,7 +99,7 @@ describe('useMules', () => {
 
     it('drops structurally invalid mules and keeps valid ones', () => {
       const payload = {
-        schemaVersion: 2,
+        schemaVersion: 3,
         mules: [
           {
             id: 'valid',
@@ -117,7 +128,7 @@ describe('useMules', () => {
 
     it('prunes unknown keys from selectedBosses on load', () => {
       const payload = {
-        schemaVersion: 2,
+        schemaVersion: 3,
         mules: [
           {
             id: 'a',
@@ -135,7 +146,7 @@ describe('useMules', () => {
 
     it('enforces one-per-family on load', () => {
       const payload = {
-        schemaVersion: 2,
+        schemaVersion: 3,
         mules: [
           {
             id: 'a',
@@ -169,7 +180,7 @@ describe('useMules', () => {
       expect(result.current.mules[0].selectedBosses).toEqual([])
     })
 
-    it('stamps schemaVersion: 2 on the persisted payload after migration', () => {
+    it('stamps the current schemaVersion on the persisted payload after migration', () => {
       const legacyRoot = [
         {
           id: 'a',
@@ -182,7 +193,7 @@ describe('useMules', () => {
       localStorageStore['maplestory-mule-tracker'] = JSON.stringify(legacyRoot)
       renderHook(() => useMules())
       const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
-      expect(saved.schemaVersion).toBe(2)
+      expect(saved.schemaVersion).toBe(3)
       expect(saved.mules[0].selectedBosses).toEqual([])
     })
 
@@ -218,12 +229,11 @@ describe('useMules', () => {
       expect(result.current.mules[0].partySizes).toEqual({})
     })
 
-    it('skips migration when schemaVersion: 2 is already present', () => {
-      // Even if a stray legacy-looking id slipped through, a payload already
-      // tagged v2 is trusted — the validator still prunes unknown keys but
-      // does not wipe the whole selection.
+    it('loads a schemaVersion: 3 payload as-is without wiping', () => {
+      // A payload already tagged v3 is trusted — the validator still prunes
+      // unknown keys but does not wipe the whole selection.
       const payload = {
-        schemaVersion: 2,
+        schemaVersion: 3,
         mules: [
           {
             id: 'a',
@@ -245,11 +255,11 @@ describe('useMules', () => {
         result.current.addMule()
       })
       const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
-      expect(saved.schemaVersion).toBe(2)
+      expect(saved.schemaVersion).toBe(3)
       expect(Array.isArray(saved.mules)).toBe(true)
     })
 
-    it('a fresh toggle after migration persists as a <uuid>:<tier> key', () => {
+    it('a fresh toggle after migration persists as a <uuid>:<tier>:<cadence> key', () => {
       const legacyRoot = [
         {
           id: 'a',
@@ -265,8 +275,110 @@ describe('useMules', () => {
         result.current.updateMule('a', { selectedBosses: [HARD_WILL] })
       })
       const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
-      expect(saved.schemaVersion).toBe(2)
+      expect(saved.schemaVersion).toBe(3)
       expect(saved.mules[0].selectedBosses).toEqual([HARD_WILL])
+    })
+  })
+
+  describe('v2 → v3 migration (upgrade in place)', () => {
+    it('upgrades <uuid>:<tier> keys to <uuid>:<tier>:<cadence> on load', () => {
+      const v2Payload = {
+        schemaVersion: 2,
+        mules: [
+          {
+            id: 'a',
+            name: 'V2User',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [LEGACY_HARD_LUCID],
+            partySizes: { lucid: 3 },
+          },
+        ],
+      }
+      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(v2Payload)
+      const { result } = renderHook(() => useMules())
+      expect(result.current.mules[0].selectedBosses).toEqual([HARD_LUCID])
+      // Party sizes survive the upgrade untouched.
+      expect(result.current.mules[0].partySizes).toEqual({ lucid: 3 })
+    })
+
+    it('upgrades mixed daily + weekly v2 keys on the same boss', () => {
+      // Vellum had Normal (daily) and Chaos (weekly) pre-slice-2.
+      const v2Payload = {
+        schemaVersion: 2,
+        mules: [
+          {
+            id: 'a',
+            name: 'V2User',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [LEGACY_NORMAL_VELLUM, LEGACY_CHAOS_VELLUM],
+          },
+        ],
+      }
+      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(v2Payload)
+      const { result } = renderHook(() => useMules())
+      expect(result.current.mules[0].selectedBosses).toEqual([
+        NORMAL_VELLUM_DAILY,
+        CHAOS_VELLUM_WEEKLY,
+      ])
+    })
+
+    it('silently drops v2 entries whose boss is no longer in the dataset', () => {
+      const v2Payload = {
+        schemaVersion: 2,
+        mules: [
+          {
+            id: 'a',
+            name: 'V2User',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [LEGACY_HARD_LUCID, 'unknown-boss-id:hard'],
+          },
+        ],
+      }
+      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(v2Payload)
+      const { result } = renderHook(() => useMules())
+      expect(result.current.mules[0].selectedBosses).toEqual([HARD_LUCID])
+    })
+
+    it('silently drops v2 entries whose tier is not offered for the boss', () => {
+      const v2Payload = {
+        schemaVersion: 2,
+        mules: [
+          {
+            id: 'a',
+            name: 'V2User',
+            level: 200,
+            muleClass: 'Hero',
+            // Lucid does not offer chaos — drop.
+            selectedBosses: [LEGACY_HARD_LUCID, `${LUCID}:chaos`],
+          },
+        ],
+      }
+      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(v2Payload)
+      const { result } = renderHook(() => useMules())
+      expect(result.current.mules[0].selectedBosses).toEqual([HARD_LUCID])
+    })
+
+    it('bumps the persisted schemaVersion to 3 after loading a v2 payload', () => {
+      const v2Payload = {
+        schemaVersion: 2,
+        mules: [
+          {
+            id: 'a',
+            name: 'V2User',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [LEGACY_HARD_LUCID],
+          },
+        ],
+      }
+      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(v2Payload)
+      renderHook(() => useMules())
+      const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
+      expect(saved.schemaVersion).toBe(3)
+      expect(saved.mules[0].selectedBosses).toEqual([HARD_LUCID])
     })
   })
 
@@ -335,7 +447,7 @@ describe('useMules', () => {
   describe('updateMule', () => {
     it('prunes stale keys on update', () => {
       const payload = {
-        schemaVersion: 2,
+        schemaVersion: 3,
         mules: [
           {
             id: 'a',
@@ -358,7 +470,7 @@ describe('useMules', () => {
 
     it('enforces one-per-family on update', () => {
       const payload = {
-        schemaVersion: 2,
+        schemaVersion: 3,
         mules: [
           {
             id: 'a',
@@ -399,7 +511,7 @@ describe('useMules', () => {
   describe('deleteMule', () => {
     it('removes a mule by id', () => {
       const payload = {
-        schemaVersion: 2,
+        schemaVersion: 3,
         mules: [
           {
             id: 'a',
@@ -422,7 +534,7 @@ describe('useMules', () => {
   describe('reorderMules', () => {
     it('reorders mules', () => {
       const payload = {
-        schemaVersion: 2,
+        schemaVersion: 3,
         mules: [
           {
             id: 'a',
@@ -452,7 +564,7 @@ describe('useMules', () => {
   describe('sessionStorage fallback read-back', () => {
     it('reads mules from sessionStorage when localStorage returns null', () => {
       const payload = {
-        schemaVersion: 2,
+        schemaVersion: 3,
         mules: [
           {
             id: 'a',
@@ -471,7 +583,7 @@ describe('useMules', () => {
 
     it('prefers localStorage over sessionStorage when both exist', () => {
       const localStorageMules = {
-        schemaVersion: 2,
+        schemaVersion: 3,
         mules: [
           {
             id: 'ls',
@@ -483,7 +595,7 @@ describe('useMules', () => {
         ],
       }
       const sessionStorageMules = {
-        schemaVersion: 2,
+        schemaVersion: 3,
         mules: [
           {
             id: 'ss',
@@ -530,7 +642,7 @@ describe('useMules', () => {
   describe('self-healing via useEffect', () => {
     it('self-heals cleaned data through useEffect, not loadMules', () => {
       const payload = {
-        schemaVersion: 2,
+        schemaVersion: 3,
         mules: [
           {
             id: 'a',

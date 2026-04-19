@@ -11,8 +11,8 @@ const LUCID_BOSS = bosses.find((b) => b.family === 'lucid')!
 const LUCID = LUCID_BOSS.id
 const LUCID_FAMILY = LUCID_BOSS.family
 const LUCID_HARD_VALUE = LUCID_BOSS.difficulty.find((d) => d.tier === 'hard')!.crystalValue
-const HARD_LUCID = makeKey(LUCID, 'hard')
-const NORMAL_LUCID = makeKey(LUCID, 'normal')
+const HARD_LUCID = makeKey(LUCID, 'hard', 'weekly')
+const NORMAL_LUCID = makeKey(LUCID, 'normal', 'weekly')
 
 const baseMule: Mule = {
   id: 'test-mule-1',

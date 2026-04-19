@@ -7,8 +7,9 @@ import { formatMeso } from '../../utils/meso'
 
 const LUCID_BOSS = bosses.find((b) => b.family === 'lucid')!
 const LUCID = LUCID_BOSS.id
-const HARD_LUCID = makeKey(LUCID, 'hard')
-const NORMAL_LUCID = makeKey(LUCID, 'normal')
+// Lucid tiers are all weekly pre- and post-slice-2.
+const HARD_LUCID = makeKey(LUCID, 'hard', 'weekly')
+const NORMAL_LUCID = makeKey(LUCID, 'normal', 'weekly')
 const LUCID_HARD_VALUE = LUCID_BOSS.difficulty.find((d) => d.tier === 'hard')!.crystalValue
 
 const BLACK_MAGE_BOSS = bosses.find((b) => b.family === 'black-mage')!
@@ -16,13 +17,22 @@ const BLACK_MAGE = BLACK_MAGE_BOSS.id
 const BLACK_MAGE_EXTREME_VALUE = BLACK_MAGE_BOSS.difficulty.find((d) => d.tier === 'extreme')!.crystalValue
 const AKECHI = bosses.find((b) => b.family === 'akechi-mitsuhide')!.id
 
-const HORNTAIL_BOSS = bosses.find((b) => b.family === 'horntail')!
-const HORNTAIL = HORNTAIL_BOSS.id
-
+// Mixed-cadence bosses (slice 2).
 const VELLUM_BOSS = bosses.find((b) => b.family === 'vellum')!
 const VELLUM = VELLUM_BOSS.id
 const VELLUM_NORMAL_VALUE = VELLUM_BOSS.difficulty.find((d) => d.tier === 'normal')!.crystalValue
 const VELLUM_CHAOS_VALUE = VELLUM_BOSS.difficulty.find((d) => d.tier === 'chaos')!.crystalValue
+const NORMAL_VELLUM_DAILY = makeKey(VELLUM, 'normal', 'daily')
+const CHAOS_VELLUM_WEEKLY = makeKey(VELLUM, 'chaos', 'weekly')
+
+const PAPULATUS_BOSS = bosses.find((b) => b.family === 'papulatus')!
+const PAPULATUS = PAPULATUS_BOSS.id
+const CHAOS_PAPULATUS_WEEKLY = makeKey(PAPULATUS, 'chaos', 'weekly')
+
+// Daily-only boss (Horntail).
+const HORNTAIL_BOSS = bosses.find((b) => b.family === 'horntail')!
+const HORNTAIL = HORNTAIL_BOSS.id
+const CHAOS_HORNTAIL_DAILY = makeKey(HORNTAIL, 'chaos', 'daily')
 
 const DAILY_ONLY_FAMILIES = ['horntail', 'von-leon', 'arkarium', 'mori-ranmaru', 'omni-cln']
 const BOSSES_WITH_WEEKLY_TIER_COUNT = bosses.filter((b) =>
@@ -146,7 +156,7 @@ describe('BossMatrix', () => {
       renderMatrix([], onToggleKey)
       const normalCell = screen.getByTestId(`matrix-cell-${AKECHI}-normal`)
       fireEvent.click(normalCell)
-      expect(onToggleKey).toHaveBeenCalledWith(makeKey(AKECHI, 'normal'))
+      expect(onToggleKey).toHaveBeenCalledWith(makeKey(AKECHI, 'normal', 'weekly'))
     })
   })
 
@@ -337,6 +347,84 @@ describe('BossMatrix', () => {
       renderMatrix([], vi.fn(), { [LUCID_BOSS.family]: 4 })
       const cell = screen.getByTestId(`matrix-cell-${BLACK_MAGE}-extreme`)
       expect(cell.textContent).toBe(formatMeso(BLACK_MAGE_EXTREME_VALUE, true))
+    })
+
+    // Slice 2: daily tier cells render at full crystalValue — only weekly
+    // tiers divide by party size.
+    it('does not divide daily tier cells by the party size', () => {
+      // Vellum Normal is daily; displayed value stays at full crystalValue
+      // regardless of party size.
+      renderMatrix([], vi.fn(), { [VELLUM_BOSS.family]: 4 })
+      const cell = screen.getByTestId(`matrix-cell-${VELLUM}-normal`)
+      expect(cell.textContent).toBe(formatMeso(VELLUM_NORMAL_VALUE, true))
+    })
+
+    it('still divides weekly tier cells on a mixed boss by the party size', () => {
+      // Vellum Chaos is weekly; divides by party size.
+      renderMatrix([], vi.fn(), { [VELLUM_BOSS.family]: 2 })
+      const cell = screen.getByTestId(`matrix-cell-${VELLUM}-chaos`)
+      expect(cell.textContent).toBe(formatMeso(VELLUM_CHAOS_VALUE / 2, true))
+    })
+  })
+
+  // Slice 2: dimming now respects cadence — opposite-cadence tiers stay active.
+  describe('per-cadence dim (slice 2)', () => {
+    it('selecting a weekly tier on a mixed boss does NOT dim its daily tiers', () => {
+      // Chaos Papulatus (weekly) selected. Papulatus easy/normal are daily.
+      renderMatrix([CHAOS_PAPULATUS_WEEKLY])
+      const easyDaily = screen.getByTestId(`matrix-cell-${PAPULATUS}-easy`)
+      const normalDaily = screen.getByTestId(`matrix-cell-${PAPULATUS}-normal`)
+      expect(easyDaily.getAttribute('data-dim')).not.toBe('true')
+      expect(normalDaily.getAttribute('data-dim')).not.toBe('true')
+    })
+
+    it('selecting a daily tier on a mixed boss does NOT dim its weekly tiers', () => {
+      // Normal Vellum (daily) selected. Chaos Vellum is weekly — stay active.
+      renderMatrix([NORMAL_VELLUM_DAILY])
+      const chaosWeekly = screen.getByTestId(`matrix-cell-${VELLUM}-chaos`)
+      expect(chaosWeekly.getAttribute('data-dim')).not.toBe('true')
+    })
+
+    it('selecting a weekly tier DOES dim other weekly tiers on the same boss', () => {
+      // Hard Magnus is weekly; Magnus has no other weekly tiers, so use
+      // Kalos (chaos weekly) — normal/easy weekly should dim.
+      const KALOS_BOSS = bosses.find((b) => b.family === 'kalos-the-guardian')!
+      const chaosKalos = makeKey(KALOS_BOSS.id, 'chaos', 'weekly')
+      renderMatrix([chaosKalos])
+      const normalCell = screen.getByTestId(`matrix-cell-${KALOS_BOSS.id}-normal`)
+      expect(normalCell.getAttribute('data-dim')).toBe('true')
+    })
+
+    it('selecting a daily tier DOES dim other daily tiers on the same boss', () => {
+      // Horntail easy/normal/chaos are all daily. Selecting chaos dims others.
+      renderMatrix([CHAOS_HORNTAIL_DAILY])
+      const normalCell = screen.getByTestId(`matrix-cell-${HORNTAIL}-normal`)
+      const easyCell = screen.getByTestId(`matrix-cell-${HORNTAIL}-easy`)
+      expect(normalCell.getAttribute('data-dim')).toBe('true')
+      expect(easyCell.getAttribute('data-dim')).toBe('true')
+    })
+
+    it('renders both daily and weekly selections on a mixed boss as on', () => {
+      renderMatrix([NORMAL_VELLUM_DAILY, CHAOS_VELLUM_WEEKLY])
+      const normalCell = screen.getByTestId(`matrix-cell-${VELLUM}-normal`)
+      const chaosCell = screen.getByTestId(`matrix-cell-${VELLUM}-chaos`)
+      expect(normalCell.getAttribute('data-state')).toBe('on')
+      expect(chaosCell.getAttribute('data-state')).toBe('on')
+    })
+  })
+
+  // Slice 2: daily-only bosses omit the party stepper.
+  describe('party stepper visibility (slice 2)', () => {
+    it('renders the party stepper on a mixed-cadence boss row', () => {
+      renderMatrix()
+      const stepper = screen.queryByTestId(`party-stepper-${VELLUM_BOSS.family}`)
+      expect(stepper).not.toBeNull()
+    })
+
+    it('omits the party stepper on a daily-only boss row', () => {
+      renderMatrix()
+      const stepper = screen.queryByTestId(`party-stepper-${HORNTAIL_BOSS.family}`)
+      expect(stepper).toBeNull()
     })
   })
 
