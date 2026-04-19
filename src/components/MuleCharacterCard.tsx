@@ -73,7 +73,7 @@ const MuleCardInner = memo(function MuleCardInner({ mule }: { mule: Mule }) {
         <span style={{
           color: 'var(--muted-raw, var(--muted-foreground))',
           fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.12em',
-        }}>WEEKLY</span>
+        }}>INCOME</span>
         <span
           className="md:hidden"
           style={{

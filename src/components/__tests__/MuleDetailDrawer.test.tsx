@@ -75,6 +75,13 @@ describe('MuleDetailDrawer', () => {
     expect(closeBtn.className).toContain('md:hidden')
   })
 
+  it('sanitizes the name on input — strips non-letters and caps at 12 chars', () => {
+    const { props } = renderDrawer()
+    const input = screen.getByLabelText('Character Name') as HTMLInputElement
+    fireEvent.change(input, { target: { value: 'Hero123!WorldTooLong' } })
+    expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, { name: 'HeroWorldToo' })
+  })
+
   it('renders a trash icon button', () => {
     renderDrawer()
     expect(screen.getByRole('button', { name: /delete/i })).toBeTruthy()

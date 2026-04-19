@@ -29,6 +29,7 @@ import {
   removePreset,
 } from '../data/bossPresets';
 import blankCharacterPng from '../assets/blank-character.png';
+import { sanitizeMuleName } from '../utils/muleName';
 
 const PRESET_KEYS: readonly PresetKey[] = ['CRA', 'CTENE'];
 
@@ -199,7 +200,8 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                     id="mule-name"
                     placeholder="Enter name"
                     value={mule.name}
-                    onChange={(e) => onUpdate(mule.id, { name: e.currentTarget.value })}
+                    maxLength={12}
+                    onChange={(e) => onUpdate(mule.id, { name: sanitizeMuleName(e.currentTarget.value) })}
                     className="bg-[var(--surface-2)] border-border/60 focus-visible:border-[var(--accent-raw,var(--accent))]/60 focus-visible:ring-1 focus-visible:ring-[var(--ring)]/20"
                   />
                 </div>
