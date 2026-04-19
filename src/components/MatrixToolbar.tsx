@@ -4,9 +4,7 @@ export type PresetKey = 'CRA' | 'CTENE';
 interface MatrixToolbarProps {
   filter: CadenceFilter;
   onFilterChange: (next: CadenceFilter) => void;
-  /** Slice 4+: unused here. Declared now so the API is stable. */
   activePresets: ReadonlySet<PresetKey>;
-  /** Slice 4+: unused here. Declared now so the API is stable. */
   onTogglePreset: (preset: PresetKey) => void;
   /** Count of `weekly`-cadence selections; displayed as `{weeklyCount}/14`. */
   weeklyCount: number;
@@ -58,9 +56,13 @@ const CADENCES: ReadonlyArray<{ value: CadenceFilter; icon: React.ReactNode }> =
   },
 ];
 
+const PRESETS: readonly PresetKey[] = ['CRA', 'CTENE'];
+
 export function MatrixToolbar({
   filter,
   onFilterChange,
+  activePresets,
+  onTogglePreset,
   weeklyCount,
   onReset,
 }: MatrixToolbarProps) {
@@ -68,18 +70,33 @@ export function MatrixToolbar({
     weeklyCount > 0 ? 'var(--accent)' : 'var(--muted-foreground)';
   return (
     <div className="flex items-center justify-between gap-2">
-      <div className="d-c-toggle" role="group" aria-label="Cadence filter">
-        {CADENCES.map(({ value, icon }) => (
-          <button
-            key={value}
-            type="button"
-            className={filter === value ? 'on' : ''}
-            onClick={() => onFilterChange(value)}
-          >
-            {icon}
-            {value}
-          </button>
-        ))}
+      <div className="flex items-center">
+        <div className="d-c-toggle" role="group" aria-label="Cadence filter">
+          {CADENCES.map(({ value, icon }) => (
+            <button
+              key={value}
+              type="button"
+              className={filter === value ? 'on' : ''}
+              onClick={() => onFilterChange(value)}
+            >
+              {icon}
+              {value}
+            </button>
+          ))}
+        </div>
+        <span className="d-toolbar-sep" aria-hidden />
+        <div className="d-c-toggle" role="group" aria-label="Boss presets">
+          {PRESETS.map((preset) => (
+            <button
+              key={preset}
+              type="button"
+              className={activePresets.has(preset) ? 'on' : ''}
+              onClick={() => onTogglePreset(preset)}
+            >
+              {preset}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="flex items-center">
         <span

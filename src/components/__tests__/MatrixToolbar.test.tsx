@@ -191,15 +191,101 @@ describe('MatrixToolbar', () => {
   describe('toolbar separator', () => {
     it('renders a .d-toolbar-sep element between the count and the reset button', () => {
       const { container } = renderToolbar()
-      const sep = container.querySelector('.d-toolbar-sep')
-      expect(sep).toBeTruthy()
+      const seps = container.querySelectorAll('.d-toolbar-sep')
+      expect(seps.length).toBeGreaterThanOrEqual(1)
       const count = screen.getByLabelText(/weekly boss selections/i)
       const resetBtn = screen.getByRole('button', { name: /^reset$/i })
-      // Count comes before separator which comes before Reset, in document order.
-      const countVsSep = count.compareDocumentPosition(sep!)
-      const sepVsReset = sep!.compareDocumentPosition(resetBtn)
-      expect(countVsSep & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-      expect(sepVsReset & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      // Find the separator that sits between the count and the reset button.
+      // After Slice 4, an earlier .d-toolbar-sep also separates the cadence
+      // filter from the Boss Presets control; that one is not the subject here.
+      const sep = Array.from(seps).find((s) => {
+        const countVsSep = count.compareDocumentPosition(s)
+        const sepVsReset = s.compareDocumentPosition(resetBtn)
+        return (
+          (countVsSep & Node.DOCUMENT_POSITION_FOLLOWING) !== 0 &&
+          (sepVsReset & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+        )
+      })
+      expect(sep).toBeTruthy()
+    })
+  })
+
+  describe('Boss Presets segmented control', () => {
+    it('renders CRA and CTENE buttons after the Cadence Filter', () => {
+      renderToolbar()
+      expect(screen.getByRole('button', { name: /^cra$/i })).toBeTruthy()
+      expect(screen.getByRole('button', { name: /^ctene$/i })).toBeTruthy()
+    })
+
+    it('wraps the preset buttons in their own .d-c-toggle container', () => {
+      const { container } = renderToolbar()
+      // Two .d-c-toggle groups: cadence filter (3 buttons) + preset row (2 buttons).
+      const groups = container.querySelectorAll('.d-c-toggle')
+      expect(groups.length).toBeGreaterThanOrEqual(2)
+      const presetGroup = Array.from(groups).find(
+        (g) => g.querySelectorAll('button').length === 2,
+      )
+      expect(presetGroup).toBeTruthy()
+      const buttonNames = Array.from(
+        presetGroup!.querySelectorAll('button'),
+      ).map((b) => b.textContent?.trim())
+      expect(buttonNames).toEqual(['CRA', 'CTENE'])
+    })
+
+    it('separates the preset control from the cadence filter with a .d-toolbar-sep', () => {
+      const { container } = renderToolbar()
+      const sep = container.querySelector('.d-toolbar-sep')
+      expect(sep).toBeTruthy()
+    })
+
+    it('renders the Cadence Filter before the Boss Presets in document order', () => {
+      renderToolbar()
+      const allBtn = screen.getByRole('button', { name: /^all$/i })
+      const craBtn = screen.getByRole('button', { name: /^cra$/i })
+      const position = allBtn.compareDocumentPosition(craBtn)
+      expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    })
+
+    it('applies the .on class to active preset pills only', () => {
+      renderToolbar({ activePresets: new Set(['CRA']) })
+      const craBtn = screen.getByRole('button', { name: /^cra$/i })
+      const cteneBtn = screen.getByRole('button', { name: /^ctene$/i })
+      expect(craBtn.classList.contains('on')).toBe(true)
+      expect(cteneBtn.classList.contains('on')).toBe(false)
+    })
+
+    it('marks both pills active when activePresets holds CRA and CTENE', () => {
+      renderToolbar({ activePresets: new Set(['CRA', 'CTENE']) })
+      expect(
+        screen.getByRole('button', { name: /^cra$/i }).classList.contains('on'),
+      ).toBe(true)
+      expect(
+        screen.getByRole('button', { name: /^ctene$/i }).classList.contains('on'),
+      ).toBe(true)
+    })
+
+    it('calls onTogglePreset with "CRA" when CRA is clicked', () => {
+      const onTogglePreset = vi.fn()
+      renderToolbar({ onTogglePreset })
+      fireEvent.click(screen.getByRole('button', { name: /^cra$/i }))
+      expect(onTogglePreset).toHaveBeenCalledWith('CRA')
+    })
+
+    it('calls onTogglePreset with "CTENE" when CTENE is clicked', () => {
+      const onTogglePreset = vi.fn()
+      renderToolbar({ onTogglePreset })
+      fireEvent.click(screen.getByRole('button', { name: /^ctene$/i }))
+      expect(onTogglePreset).toHaveBeenCalledWith('CTENE')
+    })
+
+    it('preset buttons render no SVG icons', () => {
+      renderToolbar()
+      expect(
+        screen.getByRole('button', { name: /^cra$/i }).querySelector('svg'),
+      ).toBeNull()
+      expect(
+        screen.getByRole('button', { name: /^ctene$/i }).querySelector('svg'),
+      ).toBeNull()
     })
   })
 })
