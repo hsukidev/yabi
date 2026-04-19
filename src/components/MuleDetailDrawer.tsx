@@ -153,6 +153,39 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                 <span className="font-mono-nums text-base text-[var(--accent-numeric)]">{potentialIncome}</span>
                 <span className="font-display italic text-xs text-muted-foreground">mesos</span>
               </div>
+              <div className="mt-2">
+                <button
+                  type="button"
+                  data-testid="active-toggle"
+                  aria-pressed={mule.active}
+                  onClick={() => onUpdate(mule.id, { active: !mule.active })}
+                  className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-sans uppercase tracking-[0.18em] transition-colors"
+                  style={{
+                    background: 'var(--surface-2)',
+                    border: `1px solid ${mule.active ? 'var(--accent-soft, var(--border))' : 'var(--border)'}`,
+                    color: mule.active
+                      ? 'var(--accent-raw, var(--accent))'
+                      : 'var(--muted-foreground)',
+                    minWidth: 96,
+                    justifyContent: 'center',
+                  }}
+                >
+                  {mule.active && (
+                    <span
+                      data-active-dot
+                      aria-hidden
+                      style={{
+                        display: 'inline-block',
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        background: 'var(--accent-raw, var(--accent))',
+                      }}
+                    />
+                  )}
+                  <span>{mule.active ? 'Active' : 'Inactive'}</span>
+                </button>
+              </div>
             </div>
 
             {confirmDelete ? (

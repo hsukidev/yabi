@@ -171,9 +171,10 @@ export function useMules() {
       muleClass: '',
       selectedBosses: [],
       partySizes: {},
-      // Slice 1: new mules land as active so KPI and income match today's
-      // behaviour. Slice 3 flips this to `false` when the drawer toggle ships.
-      active: true,
+      // Slice 3: new mules land inactive so brand-new cards match the design's
+      // dim empty-slot treatment. The user flips the Active Toggle in the
+      // drawer to opt in to KPI + weekly-income contribution.
+      active: false,
     };
     setMules((prev) => [newMule, ...prev]);
     return newMule.id;

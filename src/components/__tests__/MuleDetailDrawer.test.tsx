@@ -690,4 +690,97 @@ describe('MuleDetailDrawer', () => {
       ).toBe(true)
     })
   })
+
+  describe('Active Toggle pill', () => {
+    function getToggle() {
+      return screen.getByTestId('active-toggle')
+    }
+
+    it('renders the Active Toggle after the weekly-mesos pill in DOM order', () => {
+      renderDrawer({ mule: { ...baseMule, active: true } })
+      // The weekly-mesos pill is the div with --surface-2 background that
+      // contains the "Weekly" uppercase label.
+      const weeklyLabel = screen
+        .getAllByText('Weekly')
+        .find((el) => el.className.includes('uppercase')) as HTMLElement
+      const weeklyPill = weeklyLabel.closest('div') as HTMLElement
+      const toggle = getToggle()
+      expect(weeklyPill).toBeTruthy()
+      expect(toggle).toBeTruthy()
+      const position = weeklyPill.compareDocumentPosition(toggle)
+      expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    })
+
+    it('renders "Active" with a dot when mule.active is true', () => {
+      renderDrawer({ mule: { ...baseMule, active: true } })
+      const toggle = getToggle()
+      expect(toggle.textContent).toContain('Active')
+      expect(toggle.textContent).not.toContain('Inactive')
+      expect(toggle.querySelector('[data-active-dot]')).toBeTruthy()
+    })
+
+    it('renders "Inactive" with no dot when mule.active is false', () => {
+      renderDrawer({ mule: { ...baseMule, active: false } })
+      const toggle = getToggle()
+      expect(toggle.textContent).toContain('Inactive')
+      expect(toggle.querySelector('[data-active-dot]')).toBeNull()
+    })
+
+    it('clicking the toggle calls onUpdate with { active: !current }', () => {
+      const onUpdate = vi.fn()
+      renderDrawer({ mule: { ...baseMule, active: true }, onUpdate })
+      fireEvent.click(getToggle())
+      expect(onUpdate).toHaveBeenCalledWith('test-mule-1', { active: false })
+    })
+
+    it('clicking twice calls onUpdate with both states (sanity check)', () => {
+      const onUpdate = vi.fn()
+      renderDrawer({ mule: { ...baseMule, active: false }, onUpdate })
+      fireEvent.click(getToggle())
+      expect(onUpdate).toHaveBeenLastCalledWith('test-mule-1', { active: true })
+      fireEvent.click(getToggle())
+      // mule.active is still false (parent hasn't re-rendered with updated prop),
+      // so the second click also flips from false → true.
+      expect(onUpdate).toHaveBeenCalledTimes(2)
+      expect(onUpdate.mock.calls[1][1]).toEqual({ active: true })
+    })
+
+    it('has aria-pressed reflecting current state', () => {
+      const { rerender } = renderDrawer({ mule: { ...baseMule, active: true } })
+      expect(getToggle().getAttribute('aria-pressed')).toBe('true')
+      rerender(
+        <MuleDetailDrawer
+          mule={{ ...baseMule, active: false }}
+          open={true}
+          onClose={vi.fn()}
+          onUpdate={vi.fn()}
+          onDelete={vi.fn()}
+        />,
+      )
+      expect(getToggle().getAttribute('aria-pressed')).toBe('false')
+    })
+
+    it('is a real <button type="button">', () => {
+      renderDrawer({ mule: { ...baseMule, active: true } })
+      const toggle = getToggle()
+      expect(toggle.tagName).toBe('BUTTON')
+      expect(toggle.getAttribute('type')).toBe('button')
+    })
+  })
+
+  describe('Weekly-mesos pill regression', () => {
+    it('renders the weekly-mesos pill in accent color even when mule.active is false', () => {
+      renderDrawer({
+        mule: { ...baseMule, active: false, selectedBosses: [HARD_LUCID] },
+      })
+      // KPI pill's income span uses var(--accent-numeric). It must stay in
+      // accent regardless of active flag — the drawer is the editor and
+      // needs legibility (decision #6).
+      const kpi = document.querySelector(
+        '.font-mono-nums.text-base.text-\\[var\\(--accent-numeric\\)\\]',
+      )
+      expect(kpi).toBeTruthy()
+      expect(kpi?.textContent).toBe('504M')
+    })
+  })
 })
