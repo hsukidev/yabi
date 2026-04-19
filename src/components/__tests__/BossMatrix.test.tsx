@@ -550,4 +550,88 @@ describe('BossMatrix', () => {
       expect(cell.textContent).not.toMatch(/x\s*7/)
     })
   })
+
+  describe('bosses prop', () => {
+    it('defaults to rendering every family when no bosses prop is passed', () => {
+      renderMatrix()
+      // One header row + one row per family in the default list.
+      const rows = screen.getAllByRole('row')
+      expect(rows).toHaveLength(bosses.length + 1)
+    })
+
+    it('renders only the header row when bosses={[]} is passed', () => {
+      render(
+        <BossMatrix
+          selectedKeys={[]}
+          onToggleKey={vi.fn()}
+          partySizes={{}}
+          onChangePartySize={vi.fn()}
+          bosses={[]}
+        />,
+      )
+      const rows = screen.getAllByRole('row')
+      expect(rows).toHaveLength(1)
+      expect(screen.queryAllByRole('rowheader')).toHaveLength(0)
+    })
+
+    it('renders exactly the families given, in the order provided', () => {
+      const subset = [LUCID_BOSS, BLACK_MAGE_BOSS, VELLUM_BOSS]
+      render(
+        <BossMatrix
+          selectedKeys={[]}
+          onToggleKey={vi.fn()}
+          partySizes={{}}
+          onChangePartySize={vi.fn()}
+          bosses={subset}
+        />,
+      )
+      const rowHeaders = screen.getAllByRole('rowheader')
+      expect(rowHeaders).toHaveLength(subset.length)
+      expect(rowHeaders[0].textContent).toContain('Lucid')
+      expect(rowHeaders[1].textContent).toContain('Black Mage')
+      expect(rowHeaders[2].textContent).toContain('Vellum')
+    })
+  })
+
+  describe('fused top', () => {
+    it('defaults to the rounded-[10px] wrapper when fusedTop is not passed', () => {
+      const { container } = renderMatrix()
+      const wrapper = container.querySelector('[role="table"]') as HTMLElement
+      expect(wrapper.className).toContain('rounded-[10px]')
+      expect(wrapper.className).not.toContain('rounded-t-none')
+    })
+
+    it('squares top corners and drops top border when fusedTop={true}', () => {
+      const { container } = render(
+        <BossMatrix
+          selectedKeys={[]}
+          onToggleKey={vi.fn()}
+          partySizes={{}}
+          onChangePartySize={vi.fn()}
+          fusedTop
+        />,
+      )
+      const wrapper = container.querySelector('[role="table"]') as HTMLElement
+      expect(wrapper.className).toContain('rounded-t-none')
+      expect(wrapper.className).toContain('rounded-b-[10px]')
+      expect(wrapper.className).toContain('border-t-0')
+      // Default rounded-[10px] is not present when fused.
+      expect(wrapper.className).not.toMatch(/\brounded-\[10px\]/)
+    })
+
+    it('keeps rounded-[10px] when fusedTop={false}', () => {
+      const { container } = render(
+        <BossMatrix
+          selectedKeys={[]}
+          onToggleKey={vi.fn()}
+          partySizes={{}}
+          onChangePartySize={vi.fn()}
+          fusedTop={false}
+        />,
+      )
+      const wrapper = container.querySelector('[role="table"]') as HTMLElement
+      expect(wrapper.className).toContain('rounded-[10px]')
+      expect(wrapper.className).not.toContain('rounded-t-none')
+    })
+  })
 })

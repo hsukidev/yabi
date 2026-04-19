@@ -43,6 +43,17 @@ interface BossMatrixProps {
   onToggleKey: (key: string) => void;
   partySizes: Record<string, number>;
   onChangePartySize: (family: string, n: number) => void;
+  /**
+   * Optional filtered/re-ordered boss list. Defaults to
+   * `bossesByTopCrystalDesc` so existing callers render unchanged.
+   */
+  bosses?: readonly Boss[];
+  /**
+   * When true, the outer wrapper squares its top corners and drops its top
+   * border so a search bar can sit fused directly above it. Defaults to
+   * `false` (the existing `rounded-[10px]` treatment).
+   */
+  fusedTop?: boolean;
 }
 
 function TierHeader({ tier }: { tier: BossTier }) {
@@ -238,6 +249,8 @@ export function BossMatrix({
   onToggleKey,
   partySizes,
   onChangePartySize,
+  bosses = bossesByTopCrystalDesc,
+  fusedTop = false,
 }: BossMatrixProps) {
   // Slice 2: a single boss can carry up to one daily + one weekly selection,
   // so we track the full set of selected tiers per boss (not one winner).
@@ -250,10 +263,16 @@ export function BossMatrix({
     else selectedTiersByBoss.set(parsed.bossId, new Set([parsed.tier]));
   }
 
+  // When a search bar is fused above, the matrix drops its top border and
+  // squares its top corners so the two elements visually share a border.
+  const cornerClass = fusedTop
+    ? 'rounded-t-none rounded-b-[10px] border-t-0'
+    : 'rounded-[10px]';
+
   return (
     <div
       role="table"
-      className="rounded-[10px] border border-[var(--border)] overflow-clip"
+      className={`${cornerClass} border border-[var(--border)] overflow-clip`}
       style={{ background: 'var(--surface)' }}
     >
         <div
@@ -282,7 +301,7 @@ export function BossMatrix({
           ))}
         </div>
 
-      {bossesByTopCrystalDesc.map((boss) => (
+      {bosses.map((boss) => (
         <FamilyRow
           key={boss.id}
           boss={boss}
