@@ -11,11 +11,10 @@ import type { BossCadence, BossTier } from '../../types';
 /**
  * Boundary tests for the `MuleBossSlate` value class (issue #171, PRD #170).
  *
- * These tests exercise only the public contract — they must not import
- * `makeKey` / `parseKey` / `validateBossSelection` / etc. directly, because
- * those helpers become module-private in later slices. The one exception is
- * the tiny `key(bossId, tier)` test helper below, which reads boss data
- * directly (without `makeKey`) to fabricate **Slate Keys**.
+ * These tests exercise only the public contract — internal selection-key
+ * helpers are module-private inside the Slate module and must not be
+ * imported here. The one exception is the tiny `key(bossId, tier)` test
+ * helper below, which reads boss data directly to fabricate **Slate Keys**.
  */
 
 function idForFamily(family: string): string {

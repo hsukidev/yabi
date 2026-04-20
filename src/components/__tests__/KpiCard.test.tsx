@@ -3,9 +3,8 @@ import { render, screen, within, fireEvent } from '@/test/test-utils'
 import { KpiCard } from '../KpiCard'
 import type { Mule } from '../../types'
 import { bosses } from '../../data/bosses'
-import { makeKey } from '../../data/bossSelection'
 
-const HARD_LUCID = makeKey(bosses.find((b) => b.family === 'lucid')!.id, 'hard', 'weekly')
+const HARD_LUCID = `${bosses.find((b) => b.family === 'lucid')!.id}:hard:weekly`
 
 const mule: Mule = {
   id: 'm1',

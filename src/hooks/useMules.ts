@@ -3,7 +3,6 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { v4 as uuidv4 } from 'uuid';
 import type { BossTier, Mule } from '../types';
 import { getBossById } from '../data/bosses';
-import { makeKey } from '../data/bossSelection';
 import { MuleBossSlate } from '../data/muleBossSlate';
 
 const STORAGE_KEY = 'maplestory-mule-tracker';
@@ -49,7 +48,11 @@ function upgradeV2Key(key: string): string | null {
   if (!boss) return null;
   const diff = boss.difficulty.find((d) => d.tier === tier);
   if (!diff) return null;
-  return makeKey(bossId, tier, diff.cadence);
+  // v3/v4 selection-key shape: `<uuid>:<tier>:<cadence>`. Built inline so
+  // this module doesn't reach into the slate module's private helpers —
+  // the key flows through `MuleBossSlate.from` immediately afterwards,
+  // which enforces the Selection Invariant.
+  return `${bossId}:${tier}:${diff.cadence}`;
 }
 
 type LoadMode = 'wipe' | 'upgradeV2' | 'asIs';
