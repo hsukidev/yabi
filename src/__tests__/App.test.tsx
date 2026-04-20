@@ -215,6 +215,165 @@ describe('App', () => {
   })
 })
 
+describe('Bulk Delete Mode', () => {
+  beforeEach(() => {
+    resetTestEnvironment()
+  })
+
+  function enterBulk() {
+    const btn = screen.getByRole('button', { name: /bulk.*delete|bulk.*trash/i })
+    fireEvent.click(btn)
+  }
+
+  it('renders the Bulk Trash Icon in the roster header', () => {
+    seedMules(testMules)
+    render(<App />)
+    expect(screen.getByRole('button', { name: /bulk.*delete|bulk.*trash/i })).toBeTruthy()
+  })
+
+  it('clicking the Bulk Trash Icon swaps the header to the Bulk Action Bar', () => {
+    seedMules(testMules)
+    render(<App />)
+    enterBulk()
+    expect(screen.getByText(/select mules to delete/i)).toBeTruthy()
+    expect(screen.getByText(/0\s*SELECTED/i)).toBeTruthy()
+  })
+
+  it('hides the Add Card in bulk mode', () => {
+    seedMules(testMules)
+    const { container } = render(<App />)
+    expect(container.querySelector('[data-add-card]')).toBeTruthy()
+    enterBulk()
+    expect(container.querySelector('[data-add-card]')).toBeNull()
+  })
+
+  it('clicking a Character Card toggles selection (does NOT open the drawer)', async () => {
+    seedMules(testMules)
+    const { container } = render(<App />)
+    enterBulk()
+
+    const panelA = container.querySelector('[data-mule-card="mule-a"] .panel') as HTMLElement
+    fireEvent.click(panelA)
+
+    expect(screen.getByText(/1\s*SELECTED/i)).toBeTruthy()
+    // Drawer heading should not appear
+    expect(screen.queryByRole('heading', { name: 'Alpha' })).toBeNull()
+  })
+
+  it('Bulk Confirm updates its label to "Delete N" and is enabled when N > 0', () => {
+    seedMules(testMules)
+    const { container } = render(<App />)
+    enterBulk()
+
+    // Initially disabled at 0
+    expect((screen.getByRole('button', { name: /^delete$/i }) as HTMLButtonElement).disabled).toBe(true)
+
+    const panelA = container.querySelector('[data-mule-card="mule-a"] .panel') as HTMLElement
+    const panelB = container.querySelector('[data-mule-card="mule-b"] .panel') as HTMLElement
+    fireEvent.click(panelA)
+    fireEvent.click(panelB)
+
+    const confirm = screen.getByRole('button', { name: /delete\s*2/i }) as HTMLButtonElement
+    expect(confirm.disabled).toBe(false)
+  })
+
+  it('Bulk Confirm removes marked mules from the Roster and exits bulk mode', async () => {
+    seedMules(testMules)
+    const { container } = render(<App />)
+    enterBulk()
+
+    fireEvent.click(container.querySelector('[data-mule-card="mule-a"] .panel') as HTMLElement)
+    fireEvent.click(container.querySelector('[data-mule-card="mule-b"] .panel') as HTMLElement)
+    fireEvent.click(screen.getByRole('button', { name: /delete\s*2/i }))
+
+    await waitFor(() => {
+      expect(container.querySelector('[data-mule-card="mule-a"]')).toBeNull()
+      expect(container.querySelector('[data-mule-card="mule-b"]')).toBeNull()
+      expect(container.querySelector('[data-mule-card="mule-c"]')).toBeTruthy()
+    })
+
+    // Mode exited — header returns to default
+    expect(screen.queryByText(/select mules to delete/i)).toBeNull()
+  })
+
+  it('persists bulk deletion to localStorage', async () => {
+    seedMules(testMules)
+    const { container, unmount } = render(<App />)
+    enterBulk()
+
+    fireEvent.click(container.querySelector('[data-mule-card="mule-a"] .panel') as HTMLElement)
+    fireEvent.click(screen.getByRole('button', { name: /delete\s*1/i }))
+
+    await waitFor(() => {
+      expect(container.querySelector('[data-mule-card="mule-a"]')).toBeNull()
+    })
+
+    // Force persistence flush by unmounting; cleanup effect flushes pending writes
+    unmount()
+
+    const raw = localStorage.getItem(STORAGE_KEY)
+    expect(raw).toBeTruthy()
+    const parsed = JSON.parse(raw!) as { mules: Mule[] }
+    expect(parsed.mules.some((m) => m.id === 'mule-a')).toBe(false)
+    expect(parsed.mules.some((m) => m.id === 'mule-b')).toBe(true)
+    expect(parsed.mules.some((m) => m.id === 'mule-c')).toBe(true)
+  })
+
+  it('Bulk Cancel exits without removing any mule', async () => {
+    seedMules(testMules)
+    const { container } = render(<App />)
+    enterBulk()
+
+    fireEvent.click(container.querySelector('[data-mule-card="mule-a"] .panel') as HTMLElement)
+    expect(screen.getByText(/1\s*SELECTED/i)).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: /^cancel$/i }))
+
+    await waitFor(() => {
+      expect(screen.queryByText(/select mules to delete/i)).toBeNull()
+    })
+
+    // All three mules still in DOM
+    expect(container.querySelectorAll('[data-mule-card]')).toHaveLength(3)
+  })
+
+  it('hides the level badge on every card while in bulk mode', () => {
+    seedMules(testMules)
+    render(<App />)
+    expect(screen.getAllByText(/Lv\./).length).toBeGreaterThan(0)
+
+    enterBulk()
+    expect(screen.queryByText(/Lv\./)).toBeNull()
+  })
+
+  it('hides the hover-trash popover on every card while in bulk mode', () => {
+    seedMules(testMules)
+    const { container } = render(<App />)
+    expect(container.querySelectorAll('button[aria-label="Delete mule"]').length).toBeGreaterThan(0)
+    enterBulk()
+    expect(container.querySelectorAll('button[aria-label="Delete mule"]')).toHaveLength(0)
+  })
+
+  it('drag-to-reorder does not trigger in bulk mode (dnd sensors suspended)', async () => {
+    seedMules(testMules)
+    const restoreRect = mockGetBoundingClientRect()
+    try {
+      const { container } = render(<App />)
+      enterBulk()
+
+      const cardA = container.querySelector('[data-mule-card="mule-a"]') as HTMLElement
+      simulatePointerDrag(cardA, 100, 150, 320, 150)
+
+      const order = Array.from(container.querySelectorAll('[data-mule-card]')).map((c) =>
+        c.getAttribute('data-mule-card'),
+      )
+      expect(order).toEqual(['mule-a', 'mule-b', 'mule-c'])
+    } finally {
+      restoreRect()
+    }
+  })
+})
+
 describe('section entrance animations', () => {
   it('Header renders with sticky positioning', () => {
     render(<App />)

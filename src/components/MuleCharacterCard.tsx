@@ -1,7 +1,7 @@
 import { memo, useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Trash2 } from 'lucide-react'
+import { Check, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import type { Mule } from '../types'
@@ -13,9 +13,24 @@ interface MuleCharacterCardProps {
   mule: Mule
   onClick: (id: string) => void
   onDelete: (id: string) => void
+  bulkMode?: boolean
+  selected?: boolean
+  onToggleSelect?: (id: string) => void
 }
 
-const MuleCardInner = memo(function MuleCardInner({ mule }: { mule: Mule }) {
+// `--destructive` is stored as `hsl(...)`, not a raw triplet — blend via
+// `color-mix` to get alpha variants without introducing #e05040 literals.
+const DESTRUCTIVE = 'var(--destructive)'
+const destructiveAlpha = (pct: number) =>
+  `color-mix(in oklab, var(--destructive) ${pct}%, transparent)`
+
+const MuleCardInner = memo(function MuleCardInner({
+  mule,
+  hideLevelBadge = false,
+}: {
+  mule: Mule
+  hideLevelBadge?: boolean
+}) {
   const { raw: rawIncome, formatted: potentialIncome } = useMuleIncome(mule)
   const { abbreviated } = useFormatPreference()
   const abbreviatedIncome = formatMeso(rawIncome, true)
@@ -26,7 +41,7 @@ const MuleCardInner = memo(function MuleCardInner({ mule }: { mule: Mule }) {
 
   return (
     <>
-      {mule.level > 0 && (
+      {!hideLevelBadge && mule.level > 0 && (
         <div style={{
           position: 'absolute', top: 8, left: 8,
           fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.1em',
@@ -115,8 +130,18 @@ export const MuleCharacterCardOverlay = memo(function MuleCharacterCardOverlay({
   )
 })
 
-export const MuleCharacterCard = memo(function MuleCharacterCard({ mule, onClick, onDelete }: MuleCharacterCardProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: mule.id })
+export const MuleCharacterCard = memo(function MuleCharacterCard({
+  mule,
+  onClick,
+  onDelete,
+  bulkMode = false,
+  selected = false,
+  onToggleSelect,
+}: MuleCharacterCardProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: mule.id,
+    disabled: bulkMode,
+  })
   const [isHovered, setIsHovered] = useState(false)
   const [popoverOpen, setPopoverOpen] = useState(false)
 
@@ -128,13 +153,33 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({ mule, onClick
         opacity: mule.active ? 1 : 0.55,
       }
 
-  function handleClick() { onClick(mule.id) }
+  function handleActivate() {
+    if (bulkMode) {
+      onToggleSelect?.(mule.id)
+    } else {
+      onClick(mule.id)
+    }
+  }
+
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(mule.id) }
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleActivate()
+    }
   }
   function stopPropagation(e: React.SyntheticEvent) { e.stopPropagation() }
   function handleDeleteConfirm() { onDelete(mule.id); setPopoverOpen(false) }
   function handleDeleteCancel() { setPopoverOpen(false) }
+
+  // In bulk mode we suppress hover-lift on unselected cards AND the selected
+  // visual treatment overrides any hover shadow. Single delete path is
+  // untouched — `isHovered` still drives the normal hover state outside bulk.
+  const hoverActive = !bulkMode && isHovered
+  const panelBoxShadow = bulkMode && selected
+    ? `0 0 0 1px ${DESTRUCTIVE} inset, 0 0 0 1px ${DESTRUCTIVE}`
+    : hoverActive
+      ? '0 8px 32px -8px var(--accent-glow)'
+      : '0 0 0 1px var(--border)'
 
   return (
     <div
@@ -146,7 +191,7 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({ mule, onClick
       {...listeners}
     >
       <div
-        onClick={handleClick}
+        onClick={handleActivate}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         className="panel cursor-pointer"
@@ -155,49 +200,76 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({ mule, onClick
           minHeight: 'var(--roster-card-min-height, 260px)',
           display: 'flex',
           flexDirection: 'column',
-          transform: isHovered ? 'translateY(-2px)' : undefined,
-          boxShadow: isHovered
-            ? '0 8px 32px -8px var(--accent-glow)'
-            : '0 0 0 1px var(--border)',
-          transition: 'transform 150ms, box-shadow 150ms',
+          transform: hoverActive ? 'translateY(-2px)' : undefined,
+          boxShadow: panelBoxShadow,
+          borderColor: bulkMode && selected ? DESTRUCTIVE : undefined,
+          background: bulkMode && selected ? destructiveAlpha(10) : undefined,
+          transition: 'transform 150ms, box-shadow 150ms, border-color 150ms, background 150ms',
         }}
         role="button"
         tabIndex={0}
+        aria-pressed={bulkMode ? selected : undefined}
         onKeyDown={handleKeyDown}
       >
-        <MuleCardInner mule={mule} />
+        <MuleCardInner mule={mule} hideLevelBadge={bulkMode} />
 
-        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-          <PopoverTrigger
-            render={
-              <button
-                aria-label="Delete mule"
-                style={{
-                  position: 'absolute', top: 8, right: 8,
-                  padding: '4px 6px', borderRadius: 4,
-                  background: 'var(--surface-2, var(--surface-raised))',
-                  border: '1px solid var(--border)',
-                  color: 'var(--muted-raw, var(--muted-foreground))',
-                  opacity: isHovered || popoverOpen ? 1 : 0,
-                  transition: 'opacity 140ms',
-                  cursor: 'pointer',
-                  display: 'flex', alignItems: 'center',
-                }}
-                onClick={stopPropagation}
-                onPointerDown={stopPropagation}
-              />
-            }
+        {bulkMode && (
+          <div
+            aria-hidden
+            data-selection-indicator
+            style={{
+              position: 'absolute',
+              top: 10,
+              left: 10,
+              width: 22,
+              height: 22,
+              borderRadius: 6,
+              border: `1.5px solid ${selected ? DESTRUCTIVE : destructiveAlpha(50)}`,
+              background: selected ? DESTRUCTIVE : 'transparent',
+              color: selected ? 'white' : 'transparent',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'background 140ms, border-color 140ms',
+            }}
           >
-            <Trash2 style={{ width: 14, height: 14 }} />
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-3" side="bottom" align="end" onClick={stopPropagation} onPointerDown={stopPropagation}>
-            <div className="flex items-center gap-2">
-              <span className="text-sm">Delete?</span>
-              <Button size="sm" variant="destructive" onClick={handleDeleteConfirm}>Yes</Button>
-              <Button size="sm" variant="outline" onClick={handleDeleteCancel}>Cancel</Button>
-            </div>
-          </PopoverContent>
-        </Popover>
+            {selected && <Check style={{ width: 14, height: 14, strokeWidth: 3 }} />}
+          </div>
+        )}
+
+        {!bulkMode && (
+          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+            <PopoverTrigger
+              render={
+                <button
+                  aria-label="Delete mule"
+                  style={{
+                    position: 'absolute', top: 8, right: 8,
+                    padding: '4px 6px', borderRadius: 4,
+                    background: 'var(--surface-2, var(--surface-raised))',
+                    border: '1px solid var(--border)',
+                    color: 'var(--muted-raw, var(--muted-foreground))',
+                    opacity: isHovered || popoverOpen ? 1 : 0,
+                    transition: 'opacity 140ms',
+                    cursor: 'pointer',
+                    display: 'flex', alignItems: 'center',
+                  }}
+                  onClick={stopPropagation}
+                  onPointerDown={stopPropagation}
+                />
+              }
+            >
+              <Trash2 style={{ width: 14, height: 14 }} />
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-3" side="bottom" align="end" onClick={stopPropagation} onPointerDown={stopPropagation}>
+              <div className="flex items-center gap-2">
+                <span className="text-sm">Delete?</span>
+                <Button size="sm" variant="destructive" onClick={handleDeleteConfirm}>Yes</Button>
+                <Button size="sm" variant="outline" onClick={handleDeleteCancel}>Cancel</Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
     </div>
   )

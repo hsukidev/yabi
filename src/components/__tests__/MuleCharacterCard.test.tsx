@@ -19,24 +19,41 @@ const baseMule: Mule = {
   active: true,
 }
 
+interface RenderCardOptions {
+  defaultAbbreviated?: boolean
+  onDelete?: (id: string) => void
+  bulkMode?: boolean
+  selected?: boolean
+  onToggleSelect?: (id: string) => void
+}
+
 function renderCard(
   overrides: Partial<Mule> = {},
-  options?: { defaultAbbreviated?: boolean; onDelete?: (id: string) => void },
+  options?: RenderCardOptions,
 ) {
   const onClick = vi.fn()
   const onDelete = options?.onDelete ?? vi.fn()
+  const onToggleSelect = options?.onToggleSelect ?? vi.fn()
   const mule = { ...baseMule, ...overrides }
   return {
     ...render(
       <DndContext>
         <SortableContext items={[mule.id]} strategy={rectSortingStrategy}>
-          <MuleCharacterCard mule={mule} onClick={onClick} onDelete={onDelete} />
+          <MuleCharacterCard
+            mule={mule}
+            onClick={onClick}
+            onDelete={onDelete}
+            bulkMode={options?.bulkMode ?? false}
+            selected={options?.selected ?? false}
+            onToggleSelect={onToggleSelect}
+          />
         </SortableContext>
       </DndContext>,
       options,
     ),
     onClick,
     onDelete,
+    onToggleSelect,
   }
 }
 
@@ -261,5 +278,97 @@ describe('MuleCharacterCard', () => {
       expect(onClick).not.toHaveBeenCalled()
     })
 
+  })
+
+  describe('bulk mode', () => {
+    it('click toggles selection via onToggleSelect and does NOT call onClick (drawer)', () => {
+      const { container, onClick, onToggleSelect } = renderCard({}, { bulkMode: true })
+      const panel = container.querySelector('[data-mule-card] .panel') as HTMLElement
+      fireEvent.click(panel)
+      expect(onToggleSelect).toHaveBeenCalledWith('test-mule-1')
+      expect(onClick).not.toHaveBeenCalled()
+    })
+
+    it('Enter key toggles selection via onToggleSelect (not onClick)', () => {
+      const { container, onClick, onToggleSelect } = renderCard({}, { bulkMode: true })
+      const panel = container.querySelector('[data-mule-card] .panel') as HTMLElement
+      fireEvent.keyDown(panel, { key: 'Enter' })
+      expect(onToggleSelect).toHaveBeenCalledWith('test-mule-1')
+      expect(onClick).not.toHaveBeenCalled()
+    })
+
+    it('Space key toggles selection via onToggleSelect (not onClick)', () => {
+      const { container, onClick, onToggleSelect } = renderCard({}, { bulkMode: true })
+      const panel = container.querySelector('[data-mule-card] .panel') as HTMLElement
+      fireEvent.keyDown(panel, { key: ' ' })
+      expect(onToggleSelect).toHaveBeenCalledWith('test-mule-1')
+      expect(onClick).not.toHaveBeenCalled()
+    })
+
+    it('hides the level badge in bulk mode', () => {
+      renderCard({ level: 200 }, { bulkMode: true })
+      expect(screen.queryByText(/Lv\./)).toBeNull()
+    })
+
+    it('does not render the hover-trash popover trigger in bulk mode', () => {
+      renderCard({}, { bulkMode: true })
+      expect(screen.queryByRole('button', { name: /delete mule/i })).toBeNull()
+    })
+
+    it('sets aria-pressed=false on an unselected card in bulk mode', () => {
+      const { container } = renderCard({}, { bulkMode: true, selected: false })
+      const panel = container.querySelector('[data-mule-card] .panel') as HTMLElement
+      expect(panel.getAttribute('aria-pressed')).toBe('false')
+    })
+
+    it('sets aria-pressed=true on a selected card in bulk mode', () => {
+      const { container } = renderCard({}, { bulkMode: true, selected: true })
+      const panel = container.querySelector('[data-mule-card] .panel') as HTMLElement
+      expect(panel.getAttribute('aria-pressed')).toBe('true')
+    })
+
+    it('does not set aria-pressed when bulkMode is false', () => {
+      const { container } = renderCard({}, { bulkMode: false })
+      const panel = container.querySelector('[data-mule-card] .panel') as HTMLElement
+      expect(panel.getAttribute('aria-pressed')).toBeNull()
+    })
+
+    it('renders the Selection Indicator (with aria-hidden) only in bulk mode', () => {
+      const { container, rerender } = renderCard({}, { bulkMode: true })
+      const indicator = container.querySelector('[data-selection-indicator]') as HTMLElement
+      expect(indicator).toBeTruthy()
+      expect(indicator.getAttribute('aria-hidden')).not.toBeNull()
+
+      // Re-render without bulk mode — the indicator disappears
+      rerender(
+        <DndContext>
+          <SortableContext items={[baseMule.id]} strategy={rectSortingStrategy}>
+            <MuleCharacterCard
+              mule={baseMule}
+              onClick={vi.fn()}
+              onDelete={vi.fn()}
+              bulkMode={false}
+              selected={false}
+              onToggleSelect={vi.fn()}
+            />
+          </SortableContext>
+        </DndContext>,
+      )
+      expect(container.querySelector('[data-selection-indicator]')).toBeNull()
+    })
+
+    it('renders a filled check icon inside the Selection Indicator when selected', () => {
+      const { container } = renderCard({}, { bulkMode: true, selected: true })
+      const indicator = container.querySelector('[data-selection-indicator]') as HTMLElement
+      expect(indicator.querySelector('svg')).toBeTruthy()
+    })
+
+    it('applies selected styling (destructive border) to the card panel when selected', () => {
+      const { container } = renderCard({}, { bulkMode: true, selected: true })
+      const panel = container.querySelector('[data-mule-card] .panel') as HTMLElement
+      const borderColor = panel.style.borderColor + panel.style.boxShadow
+      expect(borderColor.toLowerCase()).not.toContain('#e05040')
+      expect(borderColor).toMatch(/destructive/)
+    })
   })
 })

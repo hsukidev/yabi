@@ -418,3 +418,17 @@
     color: #e05040;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Bulk Delete Mode — animation keyframes read by RosterHeader's Bulk Action
+ * Bar (bulk-slide) and Bulk Pulse Dot (bulk-pulse). All reds resolve through
+ * --destructive so theme toggle carries them into light/dark automatically.
+ * ────────────────────────────────────────────────────────────────────────── */
+@keyframes bulk-slide {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes bulk-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}

@@ -25,7 +25,7 @@ import { AddCard } from './components/AddCard';
 import { Header } from './components/Header';
 import { KpiCard } from './components/KpiCard';
 import { SplitCard } from './components/SplitCard';
-import { DensityToggle } from './components/DensityToggle';
+import { RosterHeader } from './components/RosterHeader';
 
 const dragBoundaryBaseStyle: React.CSSProperties = {
   borderRadius: '1rem',
@@ -50,13 +50,15 @@ const dropAnimation: DropAnimation = {
 };
 
 function AppContent() {
-  const { mules, addMule, updateMule, deleteMule, reorderMules } = useMules();
+  const { mules, addMule, updateMule, deleteMule, deleteMules, reorderMules } = useMules();
   // KpiCard/SplitCard defer to absorb boss-matrix burst updates. Roster stays
   // live — stale mules on drop causes FLIP to target the wrong layout.
   const deferredMules = useDeferredValue(mules);
   const { toggle: toggleAbbreviated } = useFormatPreference();
   const [selectedMuleId, setSelectedMuleId] = useState<string | null>(null);
   const [activeMuleId, setActiveMuleId] = useState<string | null>(null);
+  const [bulkMode, setBulkMode] = useState(false);
+  const [toDelete, setToDelete] = useState<Set<string>>(() => new Set());
 
   const selectedMule = mules.find((m) => m.id === selectedMuleId) ?? null;
   const activeMule = activeMuleId ? (mules.find((m) => m.id === activeMuleId) ?? null) : null;
@@ -108,6 +110,31 @@ function AppContent() {
     setSelectedMuleId(null);
   }, []);
 
+  const enterBulk = useCallback(() => {
+    setBulkMode(true);
+    setToDelete(new Set());
+  }, []);
+
+  const exitBulk = useCallback(() => {
+    setBulkMode(false);
+    setToDelete(new Set());
+  }, []);
+
+  const toggleDelete = useCallback((id: string) => {
+    setToDelete((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const handleBulkDelete = useCallback(() => {
+    if (toDelete.size === 0) return;
+    deleteMules([...toDelete]);
+    exitBulk();
+  }, [toDelete, deleteMules, exitBulk]);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
@@ -122,23 +149,14 @@ function AppContent() {
         </section>
 
         <section data-testid="roster-section" className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
-          <div className="flex items-end justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <span
-                aria-hidden
-                className="h-px w-8"
-                style={{ background: 'linear-gradient(90deg, transparent, var(--accent-raw, var(--accent)))' }}
-              />
-              <h2 className="font-display text-2xl font-bold tracking-tight">Roster</h2>
-              <span className="eyebrow-plain">
-                {mules.length} {mules.length === 1 ? 'MULE' : 'MULES'}
-              </span>
-              <DensityToggle />
-            </div>
-            {mules.length > 1 && (
-              <p className="eyebrow-plain hidden sm:block" style={{ opacity: 0.6 }}>drag to reorder</p>
-            )}
-          </div>
+          <RosterHeader
+            muleCount={mules.length}
+            bulkMode={bulkMode}
+            selectedCount={toDelete.size}
+            onEnterBulk={enterBulk}
+            onCancel={exitBulk}
+            onDelete={handleBulkDelete}
+          />
 
           <DndContext
             collisionDetection={closestCenter}
@@ -148,7 +166,7 @@ function AppContent() {
             sensors={sensors}
             modifiers={[restrictToParentElement]}
           >
-            <SortableContext items={muleIds} strategy={rectSortingStrategy}>
+            <SortableContext items={muleIds} strategy={rectSortingStrategy} disabled={bulkMode}>
               <div style={isDragging ? dragBoundaryActiveStyle : dragBoundaryBaseStyle} className="transition-[border-color] duration-200" data-drag-boundary>
                 <div
                   className="grid gap-4"
@@ -164,9 +182,12 @@ function AppContent() {
                       mule={mule}
                       onClick={handleCardClick}
                       onDelete={deleteMule}
+                      bulkMode={bulkMode}
+                      selected={toDelete.has(mule.id)}
+                      onToggleSelect={toggleDelete}
                     />
                   ))}
-                  <AddCard onClick={handleAddMule} />
+                  {!bulkMode && <AddCard onClick={handleAddMule} />}
                 </div>
               </div>
             </SortableContext>
