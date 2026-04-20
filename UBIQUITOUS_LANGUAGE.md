@@ -101,6 +101,24 @@
 | **Total Weekly Income** | The sum of all **Mules'** **Potential Income** across the entire **Roster** | Global income, overall income |
 | **Mule Preset** | A saved template of pre-selected bosses used to fast-create multiple **Mules** (distinct from **Boss Preset**) | Template, mule template |
 
+## Bulk Delete
+
+| Term | Definition | Aliases to avoid |
+|------|-----------|-----------------|
+| **Bulk Delete Mode** | The **Roster** UI state in which **Character Cards** become selectable for batch removal; entered via **Bulk Trash Icon**, exited via **Bulk Cancel** or after **Bulk Delete** completes | Bulk mode, delete mode, multi-select mode |
+| **Single Delete** | Per-mule deletion from the hover trash popover on a **Character Card** or the delete button in the **Drawer** footer; the default, non-**Bulk Delete Mode** path | Individual delete, quick delete |
+| **Bulk Delete** | The action that removes all **Deletion-Marked Mules** from the **Roster** in one operation (via `deleteMules(ids)`) when **Bulk Confirm** is clicked | Batch delete, mass delete |
+| **Deletion-Marked Mule** | A **Mule** the user has toggled on for removal while in **Bulk Delete Mode**; visually rendered with the **Selection Indicator** and red selected styling on its **Character Card** | Selected mule (ambiguous), marked mule, toDelete |
+| **Bulk Trash Icon** | The small trash-icon button in the default **Roster Header** right-group that enters **Bulk Delete Mode**; always visible at every breakpoint | Delete button, bulk button |
+| **Roster Header** | The header row above the **Roster** grid, containing the "Roster" title, **Mule Count Label**, **Density Toggle**, "drag to reorder" hint (`sm+` only), and **Bulk Trash Icon**; swaps to the **Bulk Action Bar** while in **Bulk Delete Mode** | Roster title, roster top |
+| **Bulk Action Bar** | The red-bordered inline control strip that replaces the **Roster Header** during **Bulk Delete Mode**; contains the **Bulk Pulse Dot**, "Select mules to delete" title, **Bulk Selection Pill**, **Bulk Cancel**, and **Bulk Confirm** | Bulk bar, action strip, delete bar |
+| **Bulk Pulse Dot** | The 8×8 pulsing red dot on the left of the **Bulk Action Bar** signaling that a destructive mode is active; driven by the `bulk-pulse` keyframe | Status dot, active indicator |
+| **Bulk Selection Pill** | The "N SELECTED" rounded badge in the **Bulk Action Bar** showing the count of **Deletion-Marked Mules** | Selection count, selected badge |
+| **Bulk Cancel** | The ghost-styled button in the **Bulk Action Bar** that exits **Bulk Delete Mode** and clears all **Deletion-Marked Mules** with no removal | Cancel button |
+| **Bulk Confirm** | The destructive-styled button in the **Bulk Action Bar** that triggers **Bulk Delete**; disabled while zero **Deletion-Marked Mules** exist | Delete button (in bulk context), confirm button, apply button |
+| **Selection Indicator** | The 22×22 rounded-square overlay at top-left of a **Character Card** in **Bulk Delete Mode**; empty outline when unmarked, filled with a check icon when the **Character Card** represents a **Deletion-Marked Mule**; purely visual, `aria-hidden` | Bulk checkbox, bulk check, card checkbox |
+| **Mule Count Label** | The "N MULES" eyebrow-styled badge to the right of the "Roster" title in the default **Roster Header** | Roster count |
+
 ## Relationships
 
 - A **Boss Family** contains one or more **Boss Difficulties**
@@ -122,6 +140,12 @@
 - **Weekly Count** can exceed **Weekly Crystal Cap** — the cap is a reference display, not a selection limit
 - The **Drag Boundary** is visible only while dragging within the **Roster**
 - A **Character Card** cannot be dragged outside the **Roster** (confined)
+- Exactly one of the default **Roster Header** or the **Bulk Action Bar** is visible at a time — they occupy the same slot
+- Entering **Bulk Delete Mode** disables drag-to-reorder (dnd-kit sensors suspended) and hides the **Add Card**
+- In **Bulk Delete Mode** a **Character Card's** click toggles it as a **Deletion-Marked Mule** instead of opening the **Drawer**; the hover trash popover and the level badge on the **Character Card** are hidden so the **Selection Indicator** has room
+- **Bulk Confirm** calls `deleteMules(ids)` on the set of **Deletion-Marked Mules** and then exits **Bulk Delete Mode**; there is no confirmation modal — selection itself is the confirmation
+- **Bulk Cancel** exits **Bulk Delete Mode** without removing any **Mule**
+- The **Single Delete** path and **Bulk Delete** path both ultimately mutate the same `mules` state; **Single Delete** uses `deleteMule(id)`, **Bulk Delete** uses `deleteMules(ids)`
 - The **Split Card** includes only **Active Mules** — an **Inactive Mule** renders no donut slice
 - An **Inactive Mule's** **Character Card** remains fully interactive: hover-lift, click-to-open **Drawer**, and drag-to-reorder all work identically to an **Active Mule**; only the **Dim State** differs
 - The **Active Toggle** sits on its own row directly below the weekly-mesos pill in the **Identity Section**; clicking it mutates the **Mule's** **Active Flag**
@@ -158,6 +182,10 @@
 > **Domain expert:** "Yes — the **Active Flag** is the sole input to whether a **Mule's** **Potential Income** rolls up into **Total Weekly Income**. Flip it off and the KPI re-renders with that **Mule** excluded. The **Character Card** snaps into the **Dim State** at the same moment, and the card's income line stays visible but in the muted color so the user can still see what they're parking."
 > **Dev:** "And the **KPI Card's** ACTIVE stat — does that count **Active Mules** or mules with at least one boss?"
 > **Domain expert:** "**Active Mules**. It's **Active Flag**-driven now, intent-based. A user-declared active **Mule** with zero bosses selected still counts as 1 active; the income contribution is just 0 until they configure its bosses."
+> **Dev:** "What about **Bulk Delete Mode** — if a user clicks the **Bulk Trash Icon** and then clicks a **Character Card**, it doesn't open the **Drawer**?"
+> **Domain expert:** "Right. In **Bulk Delete Mode** every click on a **Character Card** toggles it as a **Deletion-Marked Mule** — the **Drawer** is off-limits for the duration. The card gets the **Selection Indicator** in the top-left and a red border. The hover trash and level badge vanish while the mode is active."
+> **Dev:** "And no confirmation modal before **Bulk Delete**?"
+> **Domain expert:** "No modal. The act of selecting cards one-by-one *is* the confirmation. Clicking **Bulk Confirm** in the **Bulk Action Bar** removes every **Deletion-Marked Mule** immediately via `deleteMules(ids)` and exits the mode. If the user changes their mind mid-flow they click **Bulk Cancel** — no **Mule** is removed."
 
 ## Flagged ambiguities
 
@@ -178,3 +206,6 @@
 - "Reset" alone is ambiguous — could mean **Weekly Reset** (the event), **Reset Anchor** (the instant), or **Reset Countdown** (the widget). In code and prose, pick the specific term.
 - "Active" has been redefined. **Previous definition:** "a **Mule** with at least one **Boss Difficulty** selected" (income-derived). **New definition:** "a **Mule** whose **Active Flag** is `true`" (user-declared). The **Active Flag** is the explicit, persisted source of truth; code that previously tested `selectedBosses.length > 0` to infer activeness should be updated to test `mule.active`. Keep in mind **Active Mule** and **Inactive Mule** no longer correlate with having bosses — a brand-new **Active Mule** may have zero bosses and still count as active.
 - New mules default to **Inactive Mule** (**Active Flag** `false`) on creation, matching the design's empty-slot **Dim State**. Existing persisted mules migrate to **Active Mule** (**Active Flag** `true`) on schema upgrade to preserve their contribution to **Total Weekly Income**.
+- "Delete" is now polysemous — distinguish **Single Delete** (per-card hover popover or **Drawer** footer; operates on one **Mule**) from **Bulk Delete** (the **Bulk Confirm** action that removes every **Deletion-Marked Mule** in one pass). Never write "delete" unqualified when both paths are in scope.
+- "Selected" is now polysemous — **Deletion-Marked Mule** is a **Mule** toggled on inside **Bulk Delete Mode** for removal; the "currently selected mule" in the **Drawer** is instead referred to as the "open **Mule**" or the "**Mule** being edited". Prefer **Deletion-Marked Mule** over "selected mule" in any **Bulk Delete Mode** context.
+- "Roster Header" is the canonical name for the row above the **Roster** that contains title + density + bulk controls. It has two visual states — the default header and the **Bulk Action Bar** — but it is conceptually one slot.
