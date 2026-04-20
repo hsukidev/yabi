@@ -151,6 +151,25 @@
 | **Storage Debounce** | The 200ms window over which `store.save(mules)` bursts are coalesced into a single `port.write` call | Save debounce, write debounce |
 | **Flush** | The `store.flush()` forced synchronous write of any pending debounced state; invoked on `pagehide` and `beforeunload` to survive tab close | Force save, drain save |
 
+## Drawer Editor Hooks
+
+| Term | Definition | Aliases to avoid |
+|------|-----------|-----------------|
+| **Draft Field** | A local-echo text-edit abstraction paired with an external source: a **Draft Field** holds an in-flight `draft` value while the user types, sanitizes input, and **Commits** on `onBlur` only when the draft differs from source; realized by `useDraftField` | Input state, buffered field, text draft |
+| **Commit** | The act of flushing a **Draft Field**'s current value to its external sink via the `commit` callback — triggered by `onBlur`, **Mule Switch**, or **Drawer Close**; never on keystroke | Save, flush (ambiguous), apply |
+| **Draft Source Resync** | The reconciliation behaviour inside `useDraftField` that updates `draft` when its external `source` changes and does not equal the current `draft` — so another tab / another mule / a parent mutation overwrites the local draft rather than being shadowed | Source sync, prop sync |
+| **Commit On Exit** | The lifecycle protocol that flushes every pending **Draft Field** on two boundaries: a **Mule Switch** (switching to a different open **Mule**) and **Drawer Close** (unmount via Esc / backdrop / programmatic close); realized by `useCommitOnExit`. Does NOT fire on initial mount | Exit flush, close flush, switch flush |
+| **Drawer Close** | The unmount path of the **Drawer** via Esc key, backdrop click, or `onClose` call — distinct from a **Mule Switch**. Before the **Drawer Editor Hooks** refactor, **Drawer Close** silently dropped unblurred **Draft Field** edits; **Commit On Exit** closes this leak | Drawer dismiss, drawer unmount |
+| **Mule Switch** | Opening the **Drawer** for a different **Mule** while it is already open — the previous **Mule's** **Draft Fields** must **Commit** before the new **Mule's** **Draft Fields** initialize | Drawer switch, id change, mule change |
+| **Mule Identity Draft** | The convenience pair-wrapper that combines a name **Draft Field**, a level **Draft Field** (with **Level Clamp** and digit-only sanitization), and one **Commit On Exit** so callers cannot forget the pairing; realized by `useMuleIdentityDraft` | Identity draft, name-level draft |
+| **Level Clamp** | The 0–300 integer clamp the **Mule Identity Draft** applies to the level **Draft Field** before **Commit** — out-of-range or non-digit input is sanitized, not rejected | Level range, level bound |
+| **Boss Matrix View** | The entire **Boss Matrix** state machine as a single hook: owns **Boss Search** state, **Cadence Filter** state, **Visible Bosses** memoization, **Boss Slate** projection, **Weekly Count**, **Active Presets**, **Slate Toggle** dispatch, **Preset Swap**, **Party Size** handling, and **Matrix Reset**; realized by `useBossMatrixView`. The **Drawer** consumes it as a flat object | Matrix state, matrix hook |
+| **Visible Bosses** | The `readonly Boss[]` projection surfaced by **Boss Matrix View** after applying the **Boss Search** substring match and the **Cadence Filter** — the exact rows rendered by the **Boss Matrix** | Filtered bosses, shown bosses |
+| **Preset Swap** | The **Boss Preset** toggle semantics that strips every other **Active Preset**'s **Slate Keys** before applying the new preset — so toggling **CTENE** while **CRA** is **Active Preset** swaps cleanly rather than union-merging | Preset replace, preset exchange |
+| **Party-Size Clamp** | The 1–6 clamp applied inside **Boss Matrix View**'s `setPartySize(family, n)` before the **Party Size** is written to the **Mule**'s persisted party-size map | Party clamp, party-size bound |
+| **Delete Confirm** | The two-step confirmation state machine inside the **Drawer** footer: `request()` flips `confirming: true`, `confirm()` calls `onDelete(muleId)` + an optional `onAfterDelete()` and resets, `cancel()` resets without deleting; realized by `useDeleteConfirm`. Auto-resets on **Mule Switch** | Confirm delete, delete guard |
+| **Drawer Editor Hooks** | The collective name for the five composable hooks that replace the inline state machine inside `MuleDetailDrawer`: **Draft Field**, **Commit On Exit**, **Mule Identity Draft**, **Boss Matrix View**, **Delete Confirm** | Drawer hooks, editor hooks |
+
 ## Bulk Delete
 
 | Term | Definition | Aliases to avoid |
@@ -240,6 +259,17 @@
 - The **Active Default** is applied inside **Mule Migration**, not in the React hook — any **Mule** missing an **Active Flag** on load becomes an **Active Mule**, preserving its **Potential Income** contribution under the new **Active-Flag Filter** semantics
 - **Upgrade V2** resolves each v2 **Slate Key** through the **Boss Cadence** catalog to produce a v4 **Slate Key**; unresolvable entries drop silently per the same invariant that governs `MuleBossSlate.from`
 - The public React API of `useMules` does not change across the **Mule Store** extraction — `{ mules, addMule, updateMule, deleteMule, deleteMules, reorderMules }` remains the contract for every consumer component
+- A **Draft Field** `onChange` only mutates local `draft` state — no parent re-render until `onBlur` triggers **Commit**; this is what keeps the **Split Card** donut and **Roster** cards still during per-keystroke name/level editing
+- **Commit** fires on three boundaries: `onBlur`, **Mule Switch**, and **Drawer Close**; all three run through the same `commit` callback so there is one code path for "push draft to parent state"
+- **Draft Source Resync** runs inside `useDraftField`'s effect — if the external `source` changes while the user is editing, the draft rebaselines to the new source rather than silently shadowing it; the `equals` option lets callers opt out for structural values
+- **Commit On Exit** unifies the pre-refactor `draftsRef` + `lastMuleIdRef` + `onUpdateRef` dance; initial mount does not fire a flush (first effect run seeds the tracking refs) so opening the **Drawer** never emits a spurious `onUpdate(id, {})`
+- The **Drawer Close** path was a silent bug before the **Drawer Editor Hooks** refactor — the pre-refactor effect only flushed on **Mule Switch**, so Esc/backdrop close discarded any un-blurred edit; **Commit On Exit**'s unmount-flush closes this leak
+- **Mule Identity Draft** exposes the level field as both `draft: string` (what the `<input>` renders) and `displayNumber: number` (what badges and summaries read), so the **Character Card**'s level badge never sees an in-flight non-numeric string
+- **Boss Matrix View** is the only consumer of `MuleBossSlate.from(mule.selectedBosses).toggle(key)` inside the **Drawer** — the hook holds the **Slate Toggle** dispatch so the JSX only passes `toggleKey` down to the **Boss Matrix**
+- **Preset Swap** runs as a single reducer step inside **Boss Matrix View** — it composes "strip other **Active Preset** keys" with "add or remove this preset's keys" so the **Mule's** `selectedBosses` transitions atomically through one `onUpdate` call
+- **Active Presets** excludes any **Boss Preset** that is wholly subsumed by another currently-**Active Preset** (e.g. LOMIEN-supersedes-CRA) — the view-layer avoids lighting both pills when the user's intent is the superset
+- **Delete Confirm** is the only **Drawer Editor Hook** that does not interact with **Mule** mutation directly — it is a confirmation guard in front of the injected `onDelete` callback; calling `confirm()` forwards to `onDelete(muleId)` and optionally fires `onAfterDelete` (typically `onClose`) so the **Drawer** closes after a delete
+- The **Drawer** component becomes a pure wiring layer after the **Drawer Editor Hooks** refactor — zero `useState`, `useRef`, `useMemo`, or `useCallback` at the component level; every stateful concern lives inside one of the five hooks
 
 ## Example dialogue
 
@@ -299,6 +329,14 @@
 > **Domain expert:** "No — `save` coalesces through the **Storage Debounce**, 200ms. Ten rapid setState calls produce one `port.write`. If the user closes the tab mid-debounce we still get the last state because the `pagehide` listener calls `store.flush()`, which drains any pending write immediately."
 > **Dev:** "And `useMules`'s shape changes for consumers?"
 > **Domain expert:** "Zero change. Every consumer — `App`, `KpiCard`, `Roster`, `Drawer` — still destructures `{ mules, addMule, updateMule, deleteMule, deleteMules, reorderMules }`. The refactor is internal: the hook became a CRUD facade over the **Mule Store**. All the **Schema Version** literals, debounce refs, and storage keys moved out of the hook file."
+> **Dev:** "If the user types a new mule name and hits Esc, does the name save?"
+> **Domain expert:** "Yes, now. That's **Commit On Exit**. Before this refactor, Esc and backdrop-click dropped any unblurred **Draft Field** silently — the effect only flushed on **Mule Switch**. The new hook flushes on unmount too, so **Drawer Close** commits drafts the same way `onBlur` would. The name lands before the **Drawer** goes away."
+> **Dev:** "And per-keystroke in the name field — does that re-render the **Split Card** donut?"
+> **Domain expert:** "No. **Draft Field**'s `onChange` only touches local `draft` state. The parent `mules` array doesn't move until **Commit**, so the donut and the **Roster** stay put while the user is typing. That's the whole reason we kept the draft/commit split in the hooks refactor."
+> **Dev:** "When I click **CTENE** while **CRA** is already an **Active Preset**, do both stay on?"
+> **Domain expert:** "No — **Preset Swap**. The **Boss Matrix View** hook strips the **CRA** keys before applying the **CTENE** keys, in one `onUpdate` call. The user sees a clean swap, not a union. If **CTENE** were a strict superset of **CRA**, the final **Active Presets** would show only **CTENE** — that's the LOMIEN-supersedes-CRA case."
+> **Dev:** "And **Delete Confirm** — if the user hits delete, cancels, then switches to another **Mule**, does the confirm state persist?"
+> **Domain expert:** "It auto-resets on **Mule Switch**. **Delete Confirm** watches `muleId`; any change clears `confirming` so the next **Mule** starts clean. The guard is per-open-mule, never sticky across switches."
 
 ## Flagged ambiguities
 
@@ -338,3 +376,10 @@
 - "Debounce" in this repo is the **Storage Debounce** — a fixed 200ms window over `store.save`. It is orthogonal to `useDebouncedValue` or any component-level input debouncing; when both could be meant, qualify as **Storage Debounce**.
 - "Persistence" was previously an ambient concern inside `useMules`. It now has an owner — the **Mule Store** — and a seam — the **Storage Port**. Prefer the module names over "persistence layer" / "storage layer" when describing the responsibility boundary.
 - "Schema" is polysemous — **Schema Version** is the integer tag on the **Persisted Root**; **Schema Lineage** is the v1→v4 sequence. Do not write "schema" alone; pick the specific term.
+- "Commit" now has three distinct senses: git commit (the VCS operation), **Commit** (the **Draft Field** flush to its external sink), and the React 18 "commit phase" (scheduler term). In this codebase, unqualified **Commit** refers to the **Draft Field** flush. Prefer "git commit" when VCS is meant; the React-scheduler sense rarely comes up and should be spelled out.
+- "Draft" is reserved for the **Draft Field** local-echo value held inside `useDraftField`. Do not use "draft" for a partial/WIP **Mule** or any other buffered state; those would need distinct names.
+- "Flush" is now polysemous — **Flush** (`store.flush()`) is the **Mule Store**'s forced write; **Commit** (the **Draft Field** behaviour) was intentionally named **Commit**, not "flush", to keep these non-overlapping. If a reader is tempted to call **Commit** "flushing drafts," the clearer name is **Commit On Exit** for the lifecycle boundary, **Commit** for the operation itself.
+- "Exit" in **Commit On Exit** means either a **Mule Switch** or a **Drawer Close** — not just unmount. Both are boundaries that require a flush; only **Drawer Close** actually unmounts. Do not equate "exit" with "unmount" in prose.
+- "Swap" is polysemous — **Tier Swap** replaces one **Slate Key** within a `(bossId, cadence)` slot on the **Boss Slate**; **Preset Swap** strips every other **Active Preset** before applying the new one at the **Boss Matrix View** layer. Different granularity — single-slot vs. whole-preset — so qualify in prose.
+- "Confirm" across the app means different things: **Bulk Confirm** (the red button in the **Bulk Action Bar**), **Delete Confirm** (the two-step **Drawer**-footer guard hook), and a hypothetical modal confirm dialog (not present). Always qualify.
+- "Clamp" appears in at least three places — **Level Clamp** (0–300 on **Mule Identity Draft**), **Party-Size Clamp** (1–6 inside **Boss Matrix View**), and the historical daily ×7 multiplier (not a clamp, but sometimes loosely described as "capped"). Pick the specific term; "clamp" alone is ambiguous.
