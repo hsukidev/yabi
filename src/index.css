@@ -451,6 +451,20 @@
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
+ * Bulk Delete Mode — scope user-select / touch-action suppression to
+ * Character Cards inside the Drag Boundary while bulk mode is active. This
+ * kills the stray text-highlight bug on press-and-drag and prevents touch
+ * drags on a bulk-mode card from scrolling the page. Foundation for the
+ * forthcoming Drag-to-Select gesture.
+ * ────────────────────────────────────────────────────────────────────────── */
+[data-drag-boundary][data-bulk-mode="true"] [data-mule-card] {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
  * Bulk Delete Mode — animation keyframes read by RosterHeader's Bulk Action
  * Bar (bulk-slide) and Bulk Pulse Dot (bulk-pulse). All reds resolve through
  * --destructive so theme toggle carries them into light/dark automatically.

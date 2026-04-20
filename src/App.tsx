@@ -167,7 +167,7 @@ function AppContent() {
             modifiers={[restrictToParentElement]}
           >
             <SortableContext items={muleIds} strategy={rectSortingStrategy} disabled={bulkMode}>
-              <div style={isDragging ? dragBoundaryActiveStyle : dragBoundaryBaseStyle} className="transition-[border-color] duration-200" data-drag-boundary>
+              <div style={isDragging ? dragBoundaryActiveStyle : dragBoundaryBaseStyle} className="transition-[border-color] duration-200" data-drag-boundary data-bulk-mode={bulkMode ? 'true' : 'false'}>
                 <div
                   className="grid gap-4"
                   style={{

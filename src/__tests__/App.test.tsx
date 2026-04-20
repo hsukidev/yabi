@@ -372,6 +372,19 @@ describe('Bulk Delete Mode', () => {
       restoreRect()
     }
   })
+
+  it('Drag Boundary exposes data-bulk-mode reflecting Bulk Delete Mode state', () => {
+    seedMules(testMules)
+    const { container } = render(<App />)
+    const boundary = container.querySelector('[data-drag-boundary]') as HTMLElement
+    expect(boundary.getAttribute('data-bulk-mode')).toBe('false')
+
+    enterBulk()
+    expect(boundary.getAttribute('data-bulk-mode')).toBe('true')
+
+    fireEvent.click(screen.getByRole('button', { name: /^cancel$/i }))
+    expect(boundary.getAttribute('data-bulk-mode')).toBe('false')
+  })
 })
 
 describe('section entrance animations', () => {
