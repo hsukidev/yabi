@@ -51,8 +51,7 @@ export interface Mule {
   partySizes?: Record<string, number>;
   /**
    * Whether the mule contributes to Total Weekly Income and counts toward
-   * the ACTIVE KPI. Defaulted to `true` on load/add in this slice; a later
-   * slice flips the add default to `false` and surfaces a drawer toggle.
+   * the ACTIVE KPI. New mules default to `true`; toggled in the drawer.
    */
   active: boolean;
 }

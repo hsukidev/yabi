@@ -55,6 +55,13 @@ describe('RosterHeader', () => {
       expect(props.onEnterBulk).toHaveBeenCalled()
     })
 
+    it('does not render the Bulk Trash Icon when there are no mules', () => {
+      renderHeader({ muleCount: 0 })
+      expect(
+        screen.queryByRole('button', { name: /bulk.*delete|delete.*mode|bulk.*trash/i }),
+      ).toBeNull()
+    })
+
     it('does not render the Bulk Action Bar in default state', () => {
       renderHeader()
       expect(screen.queryByText(/select mules to delete/i)).toBeNull()

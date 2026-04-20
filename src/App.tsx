@@ -139,11 +139,11 @@ function AppContent() {
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <main className="container mx-auto max-w-[88rem] px-4 sm:px-6 py-8">
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
-          <div className="lg:col-span-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
+        <section className="grid grid-cols-1 min-[1100px]:grid-cols-12 gap-6 mb-10">
+          <div className="min-[1100px]:col-span-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
             <KpiCard mules={deferredMules} onToggleFormat={toggleAbbreviated} />
           </div>
-          <div className="lg:col-span-4 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
+          <div className="min-[1100px]:col-span-4 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
             <SplitCard mules={deferredMules} onSliceClick={handleCardClick} />
           </div>
         </section>

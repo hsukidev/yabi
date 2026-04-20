@@ -198,17 +198,48 @@
 
 [data-density="comfy"] {
   --card-pad: 16px;
-  --roster-cols: 6;
+  --roster-cols: 1;
   --sil-size: 72px;
   --mule-name-size: 14px;
   --roster-card-min-height: 260px;
 }
 [data-density="compact"] {
   --card-pad: 12px;
-  --roster-cols: 8;
+  --roster-cols: 1;
   --sil-size: 56px;
   --mule-name-size: 13px;
   --roster-card-min-height: 220px;
+}
+
+/* Responsive roster column counts — step down as the viewport narrows so
+ * cards stack instead of crushing. Max columns match the prior density
+ * defaults (6 comfy, 8 compact) at ≥ 1536px.
+ *
+ * The density toggle is hidden below the 3-col breakpoint: at ≤ 2 cards/row
+ * the comfy/compact distinction buys no visible layout difference. Keep the
+ * toggle's visibility rule co-located with this breakpoint so adjustments
+ * stay in sync. */
+[data-testid="density-toggle"] { display: none; }
+@media (min-width: 480px) {
+  [data-density="comfy"]   { --roster-cols: 2; }
+  [data-density="compact"] { --roster-cols: 2; }
+}
+@media (min-width: 768px) {
+  [data-density="comfy"]   { --roster-cols: 3; }
+  [data-density="compact"] { --roster-cols: 4; }
+  [data-testid="density-toggle"] { display: inline-flex; }
+}
+@media (min-width: 1024px) {
+  [data-density="comfy"]   { --roster-cols: 4; }
+  [data-density="compact"] { --roster-cols: 5; }
+}
+@media (min-width: 1100px) {
+  [data-density="comfy"]   { --roster-cols: 5; }
+  [data-density="compact"] { --roster-cols: 6; }
+}
+@media (min-width: 1280px) {
+  [data-density="comfy"]   { --roster-cols: 6; }
+  [data-density="compact"] { --roster-cols: 8; }
 }
 
 @layer base {

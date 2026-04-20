@@ -5,8 +5,7 @@ import { Check, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import type { Mule } from '../types'
-import { useMuleIncome, useFormatPreference } from '../modules/income-hooks'
-import { formatMeso } from '../utils/meso'
+import { useMuleIncome } from '../modules/income-hooks'
 import blankCharacterPng from '../assets/blank-character.png'
 
 interface MuleCharacterCardProps {
@@ -31,9 +30,7 @@ const MuleCardInner = memo(function MuleCardInner({
   mule: Mule
   hideLevelBadge?: boolean
 }) {
-  const { raw: rawIncome, formatted: potentialIncome } = useMuleIncome(mule)
-  const { abbreviated } = useFormatPreference()
-  const abbreviatedIncome = formatMeso(rawIncome, true)
+  const { formatted: potentialIncome } = useMuleIncome(mule)
   const hasBosses = mule.selectedBosses.length > 0
   const incomeColor = mule.active && hasBosses
     ? 'var(--accent-raw, var(--accent))'
@@ -81,11 +78,7 @@ const MuleCardInner = memo(function MuleCardInner({
       </div>
 
       <div
-        className={
-          abbreviated
-            ? 'flex flex-col items-start gap-0.5 md:flex-row md:items-center md:justify-between md:gap-0'
-            : 'flex flex-col items-start gap-0.5'
-        }
+        className="flex flex-row items-center justify-between gap-2"
         style={{ marginTop: 10, paddingTop: 8, borderTop: '1px solid var(--border)' }}
       >
         <span style={{
@@ -93,17 +86,10 @@ const MuleCardInner = memo(function MuleCardInner({
           fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.12em',
         }}>INCOME</span>
         <span
-          className="md:hidden"
           style={{
             color: incomeColor,
             fontFamily: 'JetBrains Mono, monospace', fontSize: 13, fontWeight: 600,
-          }}
-        >{abbreviatedIncome}</span>
-        <span
-          className="hidden md:inline"
-          style={{
-            color: incomeColor,
-            fontFamily: 'JetBrains Mono, monospace', fontSize: 13, fontWeight: 600,
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           }}
         >{potentialIncome}</span>
       </div>
@@ -176,7 +162,7 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
   // untouched — `isHovered` still drives the normal hover state outside bulk.
   const hoverActive = !bulkMode && isHovered
   const panelBoxShadow = bulkMode && selected
-    ? `0 0 0 1px ${DESTRUCTIVE} inset, 0 0 0 1px ${DESTRUCTIVE}`
+    ? 'none'
     : hoverActive
       ? '0 8px 32px -8px var(--accent-glow)'
       : '0 0 0 1px var(--border)'

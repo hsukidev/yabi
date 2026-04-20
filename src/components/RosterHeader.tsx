@@ -121,36 +121,38 @@ export function RosterHeader({
             drag to reorder
           </p>
         )}
-        <button
-          type="button"
-          aria-label="Bulk delete mules"
-          onClick={onEnterBulk}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 32,
-            height: 32,
-            borderRadius: 8,
-            background: 'transparent',
-            border: '1px solid var(--border)',
-            color: 'var(--muted-raw, var(--muted-foreground))',
-            cursor: 'pointer',
-            transition: 'color 150ms, border-color 150ms, background 150ms',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = destructive
-            e.currentTarget.style.borderColor = destructiveAlpha(40)
-            e.currentTarget.style.background = destructiveAlpha(8)
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = 'var(--muted-raw, var(--muted-foreground))'
-            e.currentTarget.style.borderColor = 'var(--border)'
-            e.currentTarget.style.background = 'transparent'
-          }}
-        >
-          <Trash2 style={{ width: 16, height: 16 }} />
-        </button>
+        {muleCount > 0 && (
+          <button
+            type="button"
+            aria-label="Bulk delete mules"
+            onClick={onEnterBulk}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              background: 'transparent',
+              border: '1px solid var(--border)',
+              color: 'var(--muted-raw, var(--muted-foreground))',
+              cursor: 'pointer',
+              transition: 'color 150ms, border-color 150ms, background 150ms',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = destructive
+              e.currentTarget.style.borderColor = destructiveAlpha(40)
+              e.currentTarget.style.background = destructiveAlpha(8)
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--muted-raw, var(--muted-foreground))'
+              e.currentTarget.style.borderColor = 'var(--border)'
+              e.currentTarget.style.background = 'transparent'
+            }}
+          >
+            <Trash2 style={{ width: 16, height: 16 }} />
+          </button>
+        )}
       </div>
     </div>
   )

@@ -14,7 +14,6 @@ export function DensityToggle() {
       data-testid="density-toggle"
       data-density={density}
       style={{
-        display: 'inline-flex',
         border: '1px solid var(--border)',
         borderRadius: 8,
         padding: 4,

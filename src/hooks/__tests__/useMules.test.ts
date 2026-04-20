@@ -524,12 +524,12 @@ describe('useMules', () => {
       expect(result.current.mules[0].selectedBosses).toEqual([])
     })
 
-    it('defaults active to false (Slice 3: new mules are inactive until toggled)', () => {
+    it('defaults active to true', () => {
       const { result } = renderHook(() => useMules())
       act(() => {
         result.current.addMule()
       })
-      expect(result.current.mules[0].active).toBe(false)
+      expect(result.current.mules[0].active).toBe(true)
     })
   })
 

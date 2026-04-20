@@ -97,41 +97,20 @@ describe('MuleCharacterCard', () => {
   it('renders income text', () => {
     renderCard()
     expect(screen.getByText(/income/i)).toBeTruthy()
-    // Two value spans render (mobile-only abbreviated + md+ toggle-aware); both read "0" when no bosses.
-    expect(screen.getAllByText('0').length).toBeGreaterThan(0)
+    expect(screen.getByText('0')).toBeTruthy()
   })
 
-  it('stacks the INCOME label and meso value vertically on mobile, horizontally on md+', () => {
+  it('renders INCOME label and meso value inline on a single row', () => {
     renderCard()
     const labelEl = screen.getByText(/income/i)
     const row = labelEl.parentElement!
-    expect(row.className).toContain('flex-col')
-    expect(row.className).toContain('md:flex-row')
-  })
-
-  it('always stacks INCOME + meso value when the value is unabbreviated (prevents overflow)', () => {
-    renderCard({ selectedBosses: [HARD_LUCID] }, { defaultAbbreviated: false })
-    const labelEl = screen.getByText(/income/i)
-    const row = labelEl.parentElement!
-    expect(row.className).toContain('flex-col')
-    expect(row.className).not.toContain('md:flex-row')
-  })
-
-  it('always renders an abbreviated mobile value even when unabbreviated is enabled', () => {
-    renderCard({ selectedBosses: [HARD_LUCID] }, { defaultAbbreviated: false })
-    // Full number is what md+ screens show (respects the toggle).
-    const full = screen.getByText('504,000,000')
-    expect(full.className).toContain('hidden')
-    expect(full.className).toContain('md:inline')
-    // Abbreviated version is always present for mobile.
-    const abbr = screen.getByText('504M')
-    expect(abbr.className).toContain('md:hidden')
+    expect(row.className).toContain('flex-row')
+    expect(row.className).not.toContain('flex-col')
   })
 
   it('renders abbreviated income by default', () => {
     renderCard({ selectedBosses: [HARD_LUCID] })
-    // Both the mobile-always-abbreviated span and the md+ toggle-aware span render "504M".
-    expect(screen.getAllByText('504M').length).toBeGreaterThan(0)
+    expect(screen.getByText('504M')).toBeTruthy()
   })
 
   it('renders full income when abbreviated is false', () => {
