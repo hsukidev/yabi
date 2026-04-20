@@ -11,7 +11,7 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
-import { useState, useCallback, useDeferredValue } from 'react';
+import { useState, useCallback, useDeferredValue, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 
 import { ThemeProvider } from './context/ThemeProvider';
@@ -50,20 +50,32 @@ const dropAnimation: DropAnimation = {
 
 function AppContent() {
   const { mules, addMule, updateMule, deleteMule, reorderMules } = useMules();
-  // During rapid keystrokes in the drawer, non-drawer surfaces (KpiCard,
-  // SplitCard/recharts PieChart, the roster cards) can lag on the deferred
-  // snapshot. React skips their memo'd renders until typing pauses, so the
-  // input stays responsive even when the roster is dense.
+  // KpiCard + SplitCard aggregate/recharts work is the expensive reaction to
+  // drawer keystrokes, so they read a deferred snapshot and skip re-render
+  // while typing. The roster and dnd-kit SortableContext must read live
+  // `mules` — otherwise on drop, the FLIP animation targets the stale
+  // pre-reorder layout and the card visibly bounces back before snapping.
   const deferredMules = useDeferredValue(mules);
   const { toggle: toggleAbbreviated } = useFormatPreference();
   const [selectedMuleId, setSelectedMuleId] = useState<string | null>(null);
   const [activeMuleId, setActiveMuleId] = useState<string | null>(null);
 
-  // Drawer reads from the live `mules` so the edited Input reflects every
-  // keystroke immediately; KpiCard/SplitCard/roster read from `deferredMules`.
   const selectedMule = mules.find((m) => m.id === selectedMuleId) ?? null;
-  const activeMule = activeMuleId ? (deferredMules.find((m) => m.id === activeMuleId) ?? null) : null;
+  const activeMule = activeMuleId ? (mules.find((m) => m.id === activeMuleId) ?? null) : null;
   const isDragging = activeMuleId !== null;
+
+  // Stabilize the SortableContext `items` array by value. `mules` gets a new
+  // reference on every drawer keystroke (updateMule rebuilds the array), but
+  // the id composition only changes on add/delete/reorder. Without this,
+  // SortableContext broadcasts a new context value per keystroke and every
+  // useSortable-consuming card re-renders — O(N)-per-keystroke lag that
+  // scales with roster size.
+  const muleIdsKey = mules.map((m) => m.id).join('\u0000');
+  const muleIds = useMemo(
+    () => mules.map((m) => m.id),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [muleIdsKey],
+  );
 
   const sensors = [useSensor(PointerSensor, { activationConstraint: { distance: 0 } })];
 
@@ -141,7 +153,7 @@ function AppContent() {
             sensors={sensors}
             modifiers={[restrictToParentElement]}
           >
-            <SortableContext items={deferredMules.map((m) => m.id)} strategy={rectSortingStrategy}>
+            <SortableContext items={muleIds} strategy={rectSortingStrategy}>
               <div style={isDragging ? dragBoundaryActiveStyle : dragBoundaryBaseStyle} className="transition-[border-color] duration-200" data-drag-boundary>
                 <div
                   className="grid gap-4"
@@ -151,7 +163,7 @@ function AppContent() {
                     gridAutoRows: 'minmax(var(--roster-card-min-height, 260px), auto)',
                   }}
                 >
-                  {deferredMules.map((mule) => (
+                  {mules.map((mule) => (
                     <MuleCharacterCard
                       key={mule.id}
                       mule={mule}

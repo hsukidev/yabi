@@ -76,10 +76,13 @@ describe('MuleDetailDrawer', () => {
     expect(closeBtn.className).toContain('md:hidden')
   })
 
-  it('sanitizes the name on input — strips non-letters and caps at 12 chars', () => {
+  it('sanitizes the name and commits on blur — strips non-letters and caps at 12 chars', () => {
     const { props } = renderDrawer()
     const input = screen.getByLabelText('Character Name') as HTMLInputElement
     fireEvent.change(input, { target: { value: 'Hero123!WorldTooLong' } })
+    // Text inputs now hold local drafts and commit to parent on blur, so the
+    // roster + KPI + chart work doesn't run per keystroke.
+    fireEvent.blur(input)
     expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, { name: 'HeroWorldToo' })
   })
 
