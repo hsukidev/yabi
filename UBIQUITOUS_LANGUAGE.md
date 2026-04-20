@@ -94,6 +94,19 @@
 | **Matrix Reset** | The flat text button on the right side of the **Matrix Toolbar** that clears the **Mule's** `selectedBosses`, leaving **Cadence Filter**, **Boss Search**, and **Boss Preset** state untouched | Reset button, clear button |
 | **Fused** | The visual treatment where **Boss Search** shares a border-radius with **Boss Matrix** and overlaps by 1px so the seam between them disappears | Joined, flush |
 
+## Boss Selection Slate
+
+| Term | Definition | Aliases to avoid |
+|------|-----------|-----------------|
+| **Boss Slate** | The validated, immutable collection of a **Mule's** selected **Slate Keys**; realized by the `MuleBossSlate` value object; persists as `Mule.selectedBosses: string[]` | Boss selection, selected bosses, selections |
+| **Slate Key** | A single selection entry in a **Boss Slate** — the opaque string `<uuid>:<tier>:<cadence>` identifying one **Boss Difficulty** of a **Boss** at one **Boss Cadence** | Boss key, selection key, boss entry |
+| **Legacy Slate Key** | A pre-refactor **Slate Key** missing the cadence suffix (`<uuid>:<tier>`); rejected by `MuleBossSlate.from`; callers migrate the string upstream before construction | Legacy key, v1 key |
+| **Selection Invariant** | On any **Boss Slate**, at most one **Slate Key** exists per `(bossId, cadence)` pair — the "one-per-family-per-cadence" rule, enforced by construction | Uniqueness rule, one-per-family rule |
+| **Tier Swap** | The **Boss Slate** toggle semantics when a user picks a different **Boss Difficulty** for a `(bossId, cadence)` already present: the existing **Slate Key** is replaced by the new one atomically | Tier replace, tier override |
+| **Slate Row** | A view-projection row from `MuleBossSlate.view()` — one **Boss Difficulty** of a **Boss** at a **Boss Cadence** with its `selected: boolean` flag baked in | Row, boss row |
+| **Slate Family** | A view-projection group of **Slate Rows** keyed by **Boss Family** in display order; the unit consumed by **Boss Matrix** | Family, family group |
+| **Total Crystal Value** | The cadence-weighted sum over a **Boss Slate**: daily **Slate Keys** contribute `crystalValue × 7`, weekly contribute `crystalValue × 1`; the basis for **Potential Income** before **Active Flag** / **Party Size** adjustments | Crystal sum, slate income |
+
 ## Aggregations
 
 | Term | Definition | Aliases to avoid |
@@ -168,6 +181,13 @@
 - The **Reset Countdown** targets the next **Reset Anchor** after `Date.now()`; the countdown value updates once per second from a single `setInterval`
 - The **Reset Countdown** uses the **Live Countdown Format** at the `sm` breakpoint and above, and the **Smart Countdown Format** below it
 - At **Reset Anchor** crossover the **Reset Countdown** silently rolls over to the next week — no flash, no announcement
+- A **Boss Slate** is the validated representation of `Mule.selectedBosses`; constructing one via `MuleBossSlate.from(keys)` normalizes duplicates (highest-**Crystal Value** wins per `(bossId, cadence)`) and drops unresolvable or **Legacy Slate Key** entries silently
+- The **Selection Invariant** is enforced by construction — callers cannot hold an invalid **Boss Slate**; the pre-refactor two-phase "toggle produces invalid intermediate, `useMules` re-validates" protocol is gone
+- `MuleBossSlate.toggle(key)` returns a new **Boss Slate**: same key → deselect; different **Boss Difficulty** on the same `(bossId, cadence)` → **Tier Swap**; different **Boss Cadence** → both **Slate Keys** coexist
+- `MuleBossSlate.view(search?)` projects a **Boss Slate** into `SlateFamily[]` with per-row `selected: boolean`; the **Boss Matrix** consumes this directly, replacing the old parallel `selectedKeys: string[]` prop
+- **Weekly Count** is a lazy accessor on the **Boss Slate** — the count of **Slate Keys** whose **Boss Cadence** is `weekly`
+- **Total Crystal Value** is a lazy accessor on the **Boss Slate**; `useIncome` (or its successor) multiplies it by **Party Size** and gates on **Active Flag** to produce **Potential Income**
+- The **Boss Slate** does not own **Active Flag** or **Party Size** gating — those are caller concerns at the income pipeline
 
 ## Example dialogue
 
@@ -205,6 +225,12 @@
 > **Domain expert:** "No — the whole point of the **Original Snapshot** is that reverting means restoring the pre-drag state. If that card was **Deletion-Marked** before the user even started pressing, it goes back to **Deletion-Marked** when it leaves the **Paint Range**. The gesture only commits changes for cards that are still inside the range at `pointerup`."
 > **Dev:** "And a zero-movement `pointerdown` → `pointerup`? Does that do anything?"
 > **Domain expert:** "That's the single-click fallback. The **Drag-to-Select** hook sees no `pointermove` between down and up, skips engagement, and lets the browser's synthetic `click` fire normally so the existing single-card toggle path handles it. **Synthetic Click Suppression** only kicks in when the gesture actually engaged."
+> **Dev:** "If `Mule.selectedBosses` comes back from storage with a duplicate `(bossId, cadence)` pair, does the app crash?"
+> **Domain expert:** "No — it hits the **Boss Slate** constructor first. `MuleBossSlate.from(keys)` enforces the **Selection Invariant**: for every `(bossId, cadence)` bucket it keeps the **Slate Key** with the highest **Crystal Value** and discards the rest. Unresolvable or **Legacy Slate Key** entries drop silently. What comes out is a valid **Boss Slate** — invalid states are unrepresentable downstream."
+> **Dev:** "So when the user clicks a Normal tier for a boss that already has Hard selected weekly, I get a **Tier Swap**, not two entries?"
+> **Domain expert:** "Right. `slate.toggle(normalKey)` returns a new **Boss Slate** with the Hard **Slate Key** replaced by the Normal one — same `(bossId, cadence)`, so the **Selection Invariant** forces the swap. If instead they toggle a *daily* difficulty of the same boss, both keys coexist because `(bossId, cadence)` differs."
+> **Dev:** "And **Total Weekly Income** — does the **Boss Slate** compute that?"
+> **Domain expert:** "The **Boss Slate** exposes **Total Crystal Value** as a lazy accessor — daily **Slate Keys** folded × 7, weekly × 1. That's the raw crystal-value basis. The income pipeline multiplies by **Party Size** and gates on **Active Flag** to produce **Potential Income**, then sums **Active Mules** for **Total Weekly Income**. Gating lives at the caller, not on the slate."
 
 ## Flagged ambiguities
 
@@ -229,3 +255,8 @@
 - "Selected" is now polysemous — **Deletion-Marked Mule** is a **Mule** toggled on inside **Bulk Delete Mode** for removal; the "currently selected mule" in the **Drawer** is instead referred to as the "open **Mule**" or the "**Mule** being edited". Prefer **Deletion-Marked Mule** over "selected mule" in any **Bulk Delete Mode** context.
 - "Paint" and "brush" in the **Drag-to-Select** code could suggest free-form painting semantics (i.e. toggle every cell the pointer enters). They don't — the actual behaviour is range-based and reversible. Canonical prose term: **Drag-to-Select**. Reserve "**Brush**" strictly for the polarity (`add`/`remove`) fixed at the start of a gesture, never for the gesture itself.
 - "Roster Header" is the canonical name for the row above the **Roster** that contains title + density + bulk controls. It has two visual states — the default header and the **Bulk Action Bar** — but it is conceptually one slot.
+- "Boss selection" / "selected bosses" / "boss keys" were used loosely across hooks, components, and tests. Canonical terms: **Boss Slate** for the whole validated collection, **Slate Key** for one entry. The persisted field `Mule.selectedBosses: string[]` is the raw storage shape; a **Boss Slate** is its validated, immutable, behaviour-bearing representation. Prefer **Boss Slate** in prose and PR descriptions; keep `selectedBosses` only when referring to the storage field itself.
+- "Validate" / `validateBossSelection` is removed as a standalone concept — validation is folded into `MuleBossSlate.from`. An invalid **Boss Slate** is unrepresentable, so there is no "post-validate" step. Do not reintroduce the verb in a way that implies a discrete phase.
+- "Family" was polysemous — already noted under **Boss Family** (a group of **Boss Difficulties**) and now also appears as **Slate Family** (a view-projection group emitted by `MuleBossSlate.view()`). Distinguish in prose: the domain entity is the **Boss Family**; the UI-projection wrapper is the **Slate Family**.
+- "Key" is now polysemous — a **Slate Key** is the `<uuid>:<tier>:<cadence>` triple identifying a selection; do not conflate it with React `key` props, `localStorage` keys, or the `makeKey` / `parseKey` internals (now module-private inside the **Boss Slate** module).
+- "Toggle" in the **Boss Slate** context means `slate.toggle(key)` — returns a new valid **Boss Slate**, may perform a **Tier Swap**, and never produces an invalid intermediate. The old `toggleBoss(keys, bossId, tier)` helper is gone; do not reintroduce the two-phase protocol.
