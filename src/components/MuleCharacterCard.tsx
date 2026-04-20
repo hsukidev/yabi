@@ -1,4 +1,4 @@
-import { memo, useState } from 'react'
+import { memo, useState, type CSSProperties } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Check, Trash2 } from 'lucide-react'
@@ -54,7 +54,14 @@ const MuleCardInner = memo(function MuleCardInner({
           src={blankCharacterPng}
           alt=""
           aria-hidden
-          style={{ width: 112, height: 112, objectFit: 'contain' }}
+          draggable={false}
+          style={{
+            width: 112,
+            height: 112,
+            objectFit: 'contain',
+            WebkitUserDrag: 'none',
+            userDrag: 'none',
+          } as CSSProperties}
         />
       </div>
 
