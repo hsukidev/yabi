@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { render, screen, within, fireEvent } from '@/test/test-utils'
 import { KpiCard } from '../KpiCard'
 import type { Mule } from '../../types'
@@ -21,9 +21,13 @@ function activeStatValue(): string {
   return label.parentElement!.querySelectorAll('div')[1]!.textContent ?? ''
 }
 
+function bignumText(): string {
+  return screen.getByRole('button', { name: /toggle abbreviated meso format/i }).textContent ?? ''
+}
+
 describe('KpiCard', () => {
   it('uses a fixed padding independent of density', () => {
-    render(<KpiCard mules={[mule]} onToggleFormat={vi.fn()} />)
+    render(<KpiCard mules={[mule]} />)
     const card = screen.getByTestId('income-card') as HTMLElement
     expect(card.style.padding).toBe('24px')
   })
@@ -33,35 +37,40 @@ describe('KpiCard', () => {
       { ...mule, id: 'a', active: true, selectedBosses: [] },
       { ...mule, id: 'b', active: true, selectedBosses: [] },
     ]
-    render(<KpiCard mules={mules} onToggleFormat={vi.fn()} />)
+    render(<KpiCard mules={mules} />)
     expect(activeStatValue()).toBe('2')
   })
 
   it('does not toggle format when total income is zero', () => {
-    const onToggleFormat = vi.fn()
-    render(<KpiCard mules={[{ ...mule, selectedBosses: [] }]} onToggleFormat={onToggleFormat} />)
+    const nonzeroMule: Mule = { ...mule, selectedBosses: [HARD_LUCID] }
+    const { rerender } = render(<KpiCard mules={[nonzeroMule]} />)
+    // Abbreviated by default → "504M"
+    expect(bignumText()).toBe('504M')
+    // Click while zero — should no-op (canToggleFormat=false).
+    rerender(<KpiCard mules={[{ ...mule, selectedBosses: [] }]} />)
+    // Auto-fullformat-on-zero flipped us to full: "0" (not "0B").
+    expect(bignumText()).toBe('0')
     fireEvent.click(screen.getByRole('button', { name: /toggle abbreviated meso format/i }))
-    expect(onToggleFormat).not.toHaveBeenCalled()
+    // Still "0" — the onClick guard stops the toggle when raw===0.
+    expect(bignumText()).toBe('0')
   })
 
-  it('resets format to abbreviated when total income transitions to zero', () => {
-    const onToggleFormat = vi.fn()
+  it('auto-flips to full format when total income is zero from mount', () => {
+    // Dead roster starts abbreviated; the Auto-Fullformat-On-Zero Rule flips
+    // it to full so a zero renders as "0" instead of "0B".
+    render(<KpiCard mules={[{ ...mule, selectedBosses: [] }]} />)
+    expect(bignumText()).toBe('0')
+  })
+
+  it('auto-flips to full format when total income transitions to zero', () => {
     const nonzero: Mule[] = [{ ...mule, selectedBosses: [HARD_LUCID] }]
     const zero: Mule[] = [{ ...mule, selectedBosses: [] }]
-    const { rerender } = render(
-      <KpiCard mules={nonzero} onToggleFormat={onToggleFormat} />,
-      { defaultAbbreviated: false },
-    )
-    expect(onToggleFormat).not.toHaveBeenCalled()
-    rerender(<KpiCard mules={zero} onToggleFormat={onToggleFormat} />)
-    expect(onToggleFormat).toHaveBeenCalledTimes(1)
-  })
-
-  it('does not reset format when total income stays zero from mount', () => {
-    const onToggleFormat = vi.fn()
-    render(<KpiCard mules={[{ ...mule, selectedBosses: [] }]} onToggleFormat={onToggleFormat} />)
-    // Provider already starts abbreviated; no reset needed.
-    expect(onToggleFormat).not.toHaveBeenCalled()
+    const { rerender } = render(<KpiCard mules={nonzero} />)
+    // Abbreviated default → "504M".
+    expect(bignumText()).toBe('504M')
+    rerender(<KpiCard mules={zero} />)
+    // Transition to zero triggers the hook → full format "0".
+    expect(bignumText()).toBe('0')
   })
 
   it('does not count mules with active: false even if they have bosses selected', () => {
@@ -69,7 +78,7 @@ describe('KpiCard', () => {
       { ...mule, id: 'a', active: true, selectedBosses: [] },
       { ...mule, id: 'b', active: false, selectedBosses: ['x:hard:weekly'] },
     ]
-    render(<KpiCard mules={mules} onToggleFormat={vi.fn()} />)
+    render(<KpiCard mules={mules} />)
     expect(activeStatValue()).toBe('1')
   })
 })

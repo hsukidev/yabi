@@ -16,8 +16,7 @@ import { createPortal } from 'react-dom';
 
 import { ThemeProvider } from './context/ThemeProvider';
 import { DensityProvider } from './context/DensityProvider';
-import { IncomeProvider } from './modules/IncomeProvider';
-import { useFormatPreference } from './modules/income-hooks';
+import { IncomeProvider } from './modules/income';
 import { useMules } from './hooks/useMules';
 import { useBulkDragPaint } from './hooks/useBulkDragPaint';
 import { MuleCharacterCard, MuleCharacterCardOverlay } from './components/MuleCharacterCard';
@@ -55,7 +54,6 @@ function AppContent() {
   // KpiCard/SplitCard defer to absorb boss-matrix burst updates. Roster stays
   // live — stale mules on drop causes FLIP to target the wrong layout.
   const deferredMules = useDeferredValue(mules);
-  const { toggle: toggleAbbreviated } = useFormatPreference();
   const [selectedMuleId, setSelectedMuleId] = useState<string | null>(null);
   const [activeMuleId, setActiveMuleId] = useState<string | null>(null);
   const [bulkMode, setBulkMode] = useState(false);
@@ -178,7 +176,7 @@ function AppContent() {
       <main className="container mx-auto max-w-[88rem] px-4 sm:px-6 py-8">
         <section className="grid grid-cols-1 min-[1100px]:grid-cols-12 gap-6 mb-10">
           <div className="min-[1100px]:col-span-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
-            <KpiCard mules={deferredMules} onToggleFormat={toggleAbbreviated} />
+            <KpiCard mules={deferredMules} />
           </div>
           <div className="min-[1100px]:col-span-4 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
             <SplitCard mules={deferredMules} onSliceClick={handleCardClick} />

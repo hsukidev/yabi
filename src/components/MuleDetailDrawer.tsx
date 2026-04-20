@@ -10,7 +10,7 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 import type { Mule } from '../types';
-import { useMuleIncome } from '../modules/income-hooks';
+import { useIncome } from '../modules/income';
 import { BossMatrix } from './BossMatrix';
 import { BossSearch } from './BossSearch';
 import { MatrixToolbar, type CadenceFilter, type PresetKey } from './MatrixToolbar';
@@ -54,7 +54,10 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<CadenceFilter>('All');
-  const { formatted: potentialIncome } = useMuleIncome(mule ?? { selectedBosses: [] });
+  // Strip `active` so the Active-Flag Filter doesn't zero the pill when the
+  // drawer opens on an inactive mule — the drawer is the editor and needs to
+  // show potential income regardless of active state.
+  const { formatted: potentialIncome } = useIncome({ selectedBosses: mule?.selectedBosses ?? [] });
 
   // Drafts prevent per-keystroke setMules from re-rendering the pie chart and
   // roster cards; commits on blur/select instead.

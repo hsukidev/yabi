@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { PieChart, Pie, Cell } from 'recharts';
 import type { Mule } from '../types';
-import { computeMuleIncome } from '../modules/income';
-import { useFormatPreference } from '../modules/income-hooks';
+import { Income, useIncome } from '../modules/income';
 import { colorForMuleId } from '../utils/muleColor';
 import { ChartContainer, type ChartConfig } from './ui/chart';
 
@@ -20,7 +19,7 @@ interface IncomePieChartProps {
 }
 
 export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
-  const { abbreviated } = useFormatPreference();
+  const { abbreviated } = useIncome();
   const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
 
   // Crossing the paddingAngle gap between sectors fires a mouseLeave then a
@@ -55,7 +54,10 @@ export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
   const data: ChartDataItem[] = mules
     .filter((m) => m.active !== false && m.selectedBosses.length > 0)
     .map((m) => {
-      const { raw, formatted } = computeMuleIncome(m.selectedBosses, abbreviated);
+      // Per-slice math uses format-independent numbers; the hover label
+      // takes a format-aware string derived from the same Income.
+      const raw = Income.of(m, false).raw;
+      const formatted = Income.of(m, abbreviated).formatted;
       return {
         name: m.name || 'Unnamed Mule',
         value: raw,

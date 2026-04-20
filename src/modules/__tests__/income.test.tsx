@@ -6,7 +6,7 @@ import {
   IncomeProvider,
   useAutoFullFormatOnZero,
   useIncome,
-} from '../income.tsx'
+} from '../income'
 import { MuleBossSlate } from '../../data/muleBossSlate'
 import { bosses } from '../../data/bosses'
 

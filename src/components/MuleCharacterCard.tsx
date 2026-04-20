@@ -5,7 +5,7 @@ import { Check, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import type { Mule } from '../types'
-import { useMuleIncome } from '../modules/income-hooks'
+import { useIncome } from '../modules/income'
 import blankCharacterPng from '../assets/blank-character.png'
 
 interface MuleCharacterCardProps {
@@ -30,7 +30,10 @@ const MuleCardInner = memo(function MuleCardInner({
   mule: Mule
   hideLevelBadge?: boolean
 }) {
-  const { formatted: potentialIncome } = useMuleIncome(mule)
+  // Pass only `selectedBosses` so the Active-Flag Filter doesn't zero out
+  // a per-mule card just because its roster toggle is off — the card shows
+  // potential income regardless of active state.
+  const { formatted: potentialIncome } = useIncome({ selectedBosses: mule.selectedBosses })
   const hasBosses = mule.selectedBosses.length > 0
   const incomeColor = mule.active && hasBosses
     ? 'var(--accent-raw, var(--accent))'

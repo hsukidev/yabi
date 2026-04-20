@@ -10,7 +10,7 @@ import type { Boss } from '../types';
  * Cadence lives **per tier**, not per family: some families (e.g. Vellum,
  * Papulatus, Horntail) mix daily and weekly tiers. Daily tiers are farmable
  * up to 7× per week and fold into the weekly headline at `crystalValue × 7`
- * (see `src/modules/income.ts`). The 23 daily `(family, tier)` pairs are
+ * (see `src/modules/income.tsx`). The 23 daily `(family, tier)` pairs are
  * fixed by the PRD (issue #118 §2) and encoded directly below.
  *
  * UUIDs were generated once via `uuid` (v13) and hard-coded here so ids

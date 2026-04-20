@@ -30,10 +30,13 @@ export interface IncomeSource {
  */
 // eslint-disable-next-line react-refresh/only-export-components
 export class Income {
-  private constructor(
-    readonly raw: number,
-    private readonly abbr: boolean,
-  ) {}
+  readonly raw: number
+  private readonly abbr: boolean
+
+  private constructor(raw: number, abbr: boolean) {
+    this.raw = raw
+    this.abbr = abbr
+  }
 
   /**
    * Aggregate one or more **Income Sources** into an `Income`.

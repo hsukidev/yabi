@@ -1,21 +1,16 @@
-import { memo, useEffect } from 'react'
-import { useFormatPreference, useTotalIncome } from '../modules/income-hooks'
+import { memo } from 'react'
+import { useAutoFullFormatOnZero, useIncome } from '../modules/income'
 import type { Mule } from '../types'
 
 interface KpiCardProps {
   mules: Mule[]
-  onToggleFormat: () => void
 }
 
-export const KpiCard = memo(function KpiCard({ mules, onToggleFormat }: KpiCardProps) {
-  const { raw: totalRaw, formatted: totalWeeklyIncome } = useTotalIncome(mules)
-  const { abbreviated } = useFormatPreference()
+export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
+  const { raw: totalRaw, formatted: totalWeeklyIncome, toggle } = useIncome(mules)
+  useAutoFullFormatOnZero(totalRaw)
   const activeMuleCount = mules.filter((m) => m.active).length
   const canToggleFormat = totalRaw > 0
-
-  useEffect(() => {
-    if (totalRaw === 0 && !abbreviated) onToggleFormat()
-  }, [totalRaw, abbreviated, onToggleFormat])
 
   return (
     <div
@@ -30,7 +25,7 @@ export const KpiCard = memo(function KpiCard({ mules, onToggleFormat }: KpiCardP
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginTop: 14 }}>
         <button
           type="button"
-          onClick={canToggleFormat ? onToggleFormat : undefined}
+          onClick={canToggleFormat ? toggle : undefined}
           className="bignum"
           aria-label="Toggle abbreviated meso format"
           style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
