@@ -1,4 +1,3 @@
-import { useState, useMemo, useCallback } from 'react';
 import { Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,34 +12,13 @@ import type { Mule } from '../types';
 import { useIncome } from '../modules/income';
 import { BossMatrix } from './BossMatrix';
 import { BossSearch } from './BossSearch';
-import { MatrixToolbar, type CadenceFilter, type PresetKey } from './MatrixToolbar';
-import { MuleBossSlate, type SlateFamily } from '../data/muleBossSlate';
-import {
-  PRESET_FAMILIES,
-  applyPreset,
-  isPresetActive,
-  removePreset,
-} from '../data/bossPresets';
+import { MatrixToolbar } from './MatrixToolbar';
 import blankCharacterPng from '../assets/blank-character.png';
 import { ClassAutocomplete } from './ClassAutocomplete';
 import { GMS_CLASSES } from '../constants/classes';
 import { useMuleIdentityDraft } from './MuleDetailDrawer/hooks/useMuleIdentityDraft';
-
-const PRESET_KEYS: readonly PresetKey[] = ['CRA', 'LOMIEN', 'CTENE'];
-
-/**
- * Narrow `SlateFamily[]` to families whose rows include at least one row with
- * the requested cadence. Applied post-`slate.view(search)` so the cadence
- * filter composes with the search filter without reshaping slate internals.
- */
-function filterFamiliesByCadence(
-  families: SlateFamily[],
-  filter: CadenceFilter,
-): SlateFamily[] {
-  if (filter === 'All') return families;
-  const cadence = filter === 'Weekly' ? 'weekly' : 'daily';
-  return families.filter((f) => f.rows.some((r) => r.cadence === cadence));
-}
+import { useBossMatrixView } from './MuleDetailDrawer/hooks/useBossMatrixView';
+import { useDeleteConfirm } from './MuleDetailDrawer/hooks/useDeleteConfirm';
 
 interface MuleDetailDrawerProps {
   mule: Mule | null;
@@ -51,126 +29,26 @@ interface MuleDetailDrawerProps {
 }
 
 export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: MuleDetailDrawerProps) {
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<CadenceFilter>('All');
   // Strip `active` so the Active-Flag Filter doesn't zero the pill when the
   // drawer opens on an inactive mule — the drawer is the editor and needs to
   // show potential income regardless of active state.
   const { formatted: potentialIncome } = useIncome({ selectedBosses: mule?.selectedBosses ?? [] });
 
-  // Identity draft pairs name + level with a single Commit On Exit so Mule
-  // Switch AND Drawer Close (Esc/backdrop) both flush unblurred edits.
   const identity = useMuleIdentityDraft(mule, onUpdate);
-  const draftName = identity.name.draft;
-  const levelDisplay = identity.level.displayNumber;
-
-  // Ambient UI state (delete confirm, search, filter) resets on Mule Switch.
-  // Use the "reset state on prop change" pattern — track the last mule id in
-  // state and reset during render when it flips. Keeps this side-effect out
-  // of `useEffect` so set-state-in-effect lint passes, and renders the
-  // resets synchronously before the first paint on the new mule.
-  const [lastMuleId, setLastMuleId] = useState<string | null>(mule?.id ?? null);
-  if (lastMuleId !== (mule?.id ?? null)) {
-    setLastMuleId(mule?.id ?? null);
-    setConfirmDelete(false);
-    setSearch('');
-    setFilter('All');
-  }
-
-  const selectedBosses = useMemo(
-    () => mule?.selectedBosses ?? [],
-    [mule?.selectedBosses],
-  );
-  const slate = useMemo(
-    () => MuleBossSlate.from(selectedBosses),
-    [selectedBosses],
-  );
-  // Search projection first, then cadence filter on the resulting family list;
-  // `slate.view` already bakes each row's `selected: bool` from the slate.
-  const families = useMemo(
-    () => filterFamiliesByCadence(slate.view(search), filter),
-    [slate, search, filter],
-  );
-
-  const weeklyCount = slate.weeklyCount;
-
-  const activePresets = useMemo(() => {
-    const set = new Set(PRESET_KEYS.filter((p) => isPresetActive(p, selectedBosses)));
-    // LOMIEN's resolved keys are a superset of CRA's, so both would light up
-    // whenever LOMIEN is fully selected. Prefer the more specific pill.
-    if (set.has('LOMIEN')) set.delete('CRA');
-    return set;
-  }, [selectedBosses]);
-
-  const muleId = mule?.id;
-  const mulePartySizes = mule?.partySizes;
-  const stablePartySizes = useMemo(
-    () => mulePartySizes ?? {},
-    [mulePartySizes],
-  );
-
-  const handleToggleKey = useCallback(
-    (key: string) => {
-      if (!muleId) return;
-      onUpdate(muleId, { selectedBosses: slate.toggle(key).keys as string[] });
-    },
-    [muleId, slate, onUpdate],
-  );
-
-  const handleChangePartySize = useCallback(
-    (family: string, n: number) => {
-      if (!muleId) return;
-      // Clamp here so BossMatrix can stay a dumb view: party size is always
-      // in [1, 6] by the time it hits storage.
-      const clamped = Math.max(1, Math.min(6, n));
-      onUpdate(muleId, {
-        partySizes: {
-          ...(mulePartySizes ?? {}),
-          [family]: clamped,
-        },
-      });
-    },
-    [muleId, mulePartySizes, onUpdate],
-  );
-
-  function handleTogglePreset(preset: PresetKey) {
-    if (!mule) return;
-    const presetFamilies = PRESET_FAMILIES[preset];
-    let next: string[];
-    if (activePresets.has(preset)) {
-      // Clicking the active pill deselects it.
-      next = removePreset(slate.keys as string[], presetFamilies);
-    } else {
-      // Swap semantics: strip every OTHER active preset's families first,
-      // then apply this one. Keeps at most one preset active at a time while
-      // preserving hand-picked selections outside any preset family.
-      let cleared = slate.keys as string[];
-      for (const other of activePresets) {
-        cleared = removePreset(cleared, PRESET_FAMILIES[other]);
-      }
-      next = applyPreset(cleared, presetFamilies);
-    }
-    // Normalize through construction so the Selection Invariant holds before
-    // the write hits `onUpdate`.
-    onUpdate(mule.id, {
-      selectedBosses: MuleBossSlate.from(next).keys as string[],
-    });
-  }
-
-  function handleClose() {
-    setConfirmDelete(false);
-    onClose();
-  }
-
-  function handleDelete(id: string) {
-    onDelete(id);
-    setConfirmDelete(false);
-    onClose();
-  }
+  const matrix = useBossMatrixView({
+    muleId: mule?.id ?? null,
+    selectedBosses: mule?.selectedBosses ?? [],
+    partySizes: mule?.partySizes,
+    onUpdate,
+  });
+  const del = useDeleteConfirm({
+    muleId: mule?.id ?? null,
+    onDelete,
+    onAfterDelete: onClose,
+  });
 
   return (
-    <Sheet open={open} onOpenChange={(isOpen) => { if (!isOpen) handleClose() }}>
+    <Sheet open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose() }}>
       <SheetContent
         side="right"
         showCloseButton={false}
@@ -195,19 +73,19 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
           <div className="relative p-8 flex items-end gap-5">
             <img
               src={blankCharacterPng}
-              alt={draftName || 'Mule avatar'}
+              alt={identity.name.draft || 'Mule avatar'}
               className="h-[132px] w-[132px] object-contain shrink-0"
             />
             <div className="min-w-0 flex-1">
               <h2 className="mt-1 font-display text-2xl font-bold leading-tight truncate">
-                {draftName || <span className="text-muted-foreground italic font-normal">Unnamed Mule</span>}
+                {identity.name.draft || <span className="text-muted-foreground italic font-normal">Unnamed Mule</span>}
               </h2>
               <div className="mt-1 flex items-center gap-3 text-xs">
                 <span className="font-sans uppercase tracking-[0.22em] text-[var(--accent-secondary)]">
                   {mule.muleClass || 'no class'}
                 </span>
                 <span className="font-mono-nums text-[var(--accent-numeric)]">
-                  {levelDisplay > 0 ? `Lv.${levelDisplay}` : 'N/A'}
+                  {identity.level.displayNumber > 0 ? `Lv.${identity.level.displayNumber}` : 'N/A'}
                 </span>
               </div>
               <div
@@ -256,13 +134,13 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
               </div>
             </div>
 
-            {confirmDelete ? (
+            {del.confirming ? (
               <div className="absolute top-3 right-3 flex items-center gap-2 rounded-lg bg-popover p-3 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10">
                 <span>Delete?</span>
-                <Button size="sm" variant="destructive" onClick={() => handleDelete(mule.id)}>
+                <Button size="sm" variant="destructive" onClick={del.confirm}>
                   Yes
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => setConfirmDelete(false)}>
+                <Button size="sm" variant="outline" onClick={del.cancel}>
                   Cancel
                 </Button>
               </div>
@@ -272,7 +150,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                   variant="ghost"
                   size="icon-sm"
                   className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                  onClick={() => setConfirmDelete(true)}
+                  onClick={del.request}
                 >
                   <Trash2 />
                   <span className="sr-only">Delete</span>
@@ -281,7 +159,7 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
                   variant="ghost"
                   size="icon-sm"
                   className="md:hidden text-muted-foreground hover:text-foreground hover:bg-muted"
-                  onClick={handleClose}
+                  onClick={onClose}
                 >
                   <X />
                   <span className="sr-only">Close</span>
@@ -345,21 +223,21 @@ export function MuleDetailDrawer({ mule, open, onClose, onUpdate, onDelete }: Mu
 
             <div>
               <MatrixToolbar
-                filter={filter}
-                onFilterChange={setFilter}
-                activePresets={activePresets}
-                onTogglePreset={handleTogglePreset}
-                weeklyCount={weeklyCount}
-                onReset={() => onUpdate(mule.id, { selectedBosses: [] })}
+                filter={matrix.filter}
+                onFilterChange={matrix.setFilter}
+                activePresets={matrix.activePresets}
+                onTogglePreset={matrix.togglePreset}
+                weeklyCount={matrix.weeklyCount}
+                onReset={matrix.resetBosses}
               />
               <div className="mt-2">
-                <BossSearch fused value={search} onChange={setSearch} />
+                <BossSearch fused value={matrix.search} onChange={matrix.setSearch} />
                 <BossMatrix
-                  families={families}
+                  families={matrix.visibleBosses}
                   fusedTop
-                  onToggleKey={handleToggleKey}
-                  partySizes={stablePartySizes}
-                  onChangePartySize={handleChangePartySize}
+                  onToggleKey={matrix.toggleKey}
+                  partySizes={matrix.stablePartySizes}
+                  onChangePartySize={matrix.setPartySize}
                 />
               </div>
             </div>
