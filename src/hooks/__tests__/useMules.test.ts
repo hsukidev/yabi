@@ -155,6 +155,29 @@ describe('useMules', () => {
       expect(result.current.mules[0].selectedBosses).toEqual([HARD_LUCID])
     })
 
+    it('rejects Legacy Slate Keys at load time via MuleBossSlate.from', () => {
+      // A schemaVersion-tagged payload (no wipe, no v2 upgrade) that still
+      // somehow carries a two-segment Legacy Slate Key must drop that entry
+      // through MuleBossSlate.from; native keys alongside it survive.
+      const payload = {
+        schemaVersion: 4,
+        mules: [
+          {
+            id: 'a',
+            name: 'Test',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [HARD_LUCID, LEGACY_HARD_LUCID],
+            partySizes: {},
+            active: true,
+          },
+        ],
+      }
+      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(payload)
+      const { result } = renderHook(() => useMules())
+      expect(result.current.mules[0].selectedBosses).toEqual([HARD_LUCID])
+    })
+
     it('enforces one-per-family on load', () => {
       const payload = {
         schemaVersion: 3,
@@ -462,6 +485,61 @@ describe('useMules', () => {
   })
 
   describe('updateMule', () => {
+    it('normalizes duplicate (bossId, cadence) keys via MuleBossSlate on update', () => {
+      // Both NORMAL_LUCID and HARD_LUCID map to the (lucid, weekly) bucket;
+      // the higher crystalValue key (HARD_LUCID) must win per the Selection
+      // Invariant enforced by MuleBossSlate.from.
+      const payload = {
+        schemaVersion: 4,
+        mules: [
+          {
+            id: 'a',
+            name: 'Test',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+          },
+        ],
+      }
+      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(payload)
+      const { result } = renderHook(() => useMules())
+      act(() => {
+        result.current.updateMule('a', {
+          selectedBosses: [NORMAL_LUCID, HARD_LUCID],
+        })
+      })
+      expect(result.current.mules[0].selectedBosses).toEqual([HARD_LUCID])
+    })
+
+    it('round-trips a valid slate through updateMule into persisted storage', () => {
+      const payload = {
+        schemaVersion: 4,
+        mules: [
+          {
+            id: 'a',
+            name: 'Test',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+          },
+        ],
+      }
+      localStorageStore['maplestory-mule-tracker'] = JSON.stringify(payload)
+      const { result } = renderHook(() => useMules())
+      const slate = [HARD_LUCID, NORMAL_VELLUM_DAILY, CHAOS_VELLUM_WEEKLY]
+      act(() => {
+        result.current.updateMule('a', { selectedBosses: slate })
+      })
+      expect(result.current.mules[0].selectedBosses).toEqual(slate)
+      flushPersist()
+      const saved = JSON.parse(localStorageStore['maplestory-mule-tracker'])
+      expect(saved.mules[0].selectedBosses).toEqual(slate)
+    })
+
     it('prunes stale keys on update', () => {
       const payload = {
         schemaVersion: 3,

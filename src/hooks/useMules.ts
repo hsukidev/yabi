@@ -3,7 +3,8 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { v4 as uuidv4 } from 'uuid';
 import type { BossTier, Mule } from '../types';
 import { getBossById } from '../data/bosses';
-import { makeKey, validateBossSelection } from '../data/bossSelection';
+import { makeKey } from '../data/bossSelection';
+import { MuleBossSlate } from '../data/muleBossSlate';
 
 const STORAGE_KEY = 'maplestory-mule-tracker';
 const FALLBACK_KEY = 'maplestory-mule-tracker-fallback';
@@ -75,9 +76,9 @@ function validateMule(raw: unknown, mode: LoadMode): Mule | null {
       const next = upgradeV2Key(key);
       if (next !== null) upgraded.push(next);
     }
-    selectedBosses = validateBossSelection(upgraded);
+    selectedBosses = [...MuleBossSlate.from(upgraded).keys];
   } else {
-    selectedBosses = validateBossSelection(rawSelected);
+    selectedBosses = [...MuleBossSlate.from(rawSelected).keys];
   }
 
   return {
@@ -227,7 +228,7 @@ export function useMules() {
           if (m.id !== id) return m;
           const merged = { ...m, ...updates };
           if (updates.selectedBosses) {
-            merged.selectedBosses = validateBossSelection(updates.selectedBosses);
+            merged.selectedBosses = [...MuleBossSlate.from(updates.selectedBosses).keys];
           }
           return merged;
         }),
