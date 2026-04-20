@@ -36,11 +36,13 @@ export interface Mule {
   level: number;
   muleClass: string;
   /**
-   * Slice 2: native `<uuid>:<tier>:<cadence>` selection keys (e.g.
+   * Native `<uuid>:<tier>:<cadence>` selection keys (e.g.
    * "a4d1238d-…:chaos:weekly"). The cadence segment lets a single boss
-   * carry independent daily + weekly selections simultaneously. Use
-   * `makeKey`/`parseKey` from `src/data/bossSelection.ts` to construct /
-   * decode.
+   * carry independent daily + weekly selections simultaneously. Always
+   * go through `MuleBossSlate.from` in `src/data/muleBossSlate.ts` to
+   * normalize a persisted array into a validated slate — the key
+   * grammar and the per-(bossId, cadence) uniqueness invariant live
+   * inside that module.
    */
   selectedBosses: string[];
   /**

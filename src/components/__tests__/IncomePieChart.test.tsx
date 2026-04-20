@@ -8,14 +8,13 @@ import {
 } from '../IncomePieChart'
 import type { Mule } from '../../types'
 import { bosses } from '../../data/bosses'
-import { makeKey } from '../../data/bossSelection'
 import { MULE_PALETTE } from '../../utils/muleColor'
 
 const HILLA = bosses.find((b) => b.family === 'hilla')!.id
 // Normal Hilla is a daily tier (slice 2, per the PRD daily classification).
-const NORMAL_HILLA = makeKey(HILLA, 'normal', 'daily')
+const NORMAL_HILLA = `${HILLA}:normal:daily`
 const BLACK_MAGE = bosses.find((b) => b.family === 'black-mage')!.id
-const HARD_BLACK_MAGE = makeKey(BLACK_MAGE, 'hard', 'weekly')
+const HARD_BLACK_MAGE = `${BLACK_MAGE}:hard:weekly`
 
 const muleWithBosses: Mule = {
   id: 'mule-1',

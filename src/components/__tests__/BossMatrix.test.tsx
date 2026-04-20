@@ -2,9 +2,13 @@ import { describe, expect, it, vi } from 'vitest'
 import { render, screen, fireEvent } from '@/test/test-utils'
 import { BossMatrix } from '../BossMatrix'
 import { bosses } from '../../data/bosses'
-import { makeKey, TIER_ORDER } from '../../data/bossSelection'
 import { MuleBossSlate, type SlateFamily } from '../../data/muleBossSlate'
+import type { BossTier } from '../../types'
 import { formatMeso } from '../../utils/meso'
+
+// Column order in the Matrix — extreme → easy, hardest first. Mirrors the
+// private constant inside BossMatrix/muleBossSlate.
+const TIER_COLUMNS: BossTier[] = ['extreme', 'chaos', 'hard', 'normal', 'easy']
 
 /** Build the `SlateFamily[]` projection `BossMatrix` now consumes. */
 function viewOf(keys: string[] = []): SlateFamily[] {
@@ -14,8 +18,8 @@ function viewOf(keys: string[] = []): SlateFamily[] {
 const LUCID_BOSS = bosses.find((b) => b.family === 'lucid')!
 const LUCID = LUCID_BOSS.id
 // Lucid tiers are all weekly pre- and post-slice-2.
-const HARD_LUCID = makeKey(LUCID, 'hard', 'weekly')
-const NORMAL_LUCID = makeKey(LUCID, 'normal', 'weekly')
+const HARD_LUCID = `${LUCID}:hard:weekly`
+const NORMAL_LUCID = `${LUCID}:normal:weekly`
 const LUCID_HARD_VALUE = LUCID_BOSS.difficulty.find((d) => d.tier === 'hard')!.crystalValue
 
 const BLACK_MAGE_BOSS = bosses.find((b) => b.family === 'black-mage')!
@@ -28,17 +32,17 @@ const VELLUM_BOSS = bosses.find((b) => b.family === 'vellum')!
 const VELLUM = VELLUM_BOSS.id
 const VELLUM_NORMAL_VALUE = VELLUM_BOSS.difficulty.find((d) => d.tier === 'normal')!.crystalValue
 const VELLUM_CHAOS_VALUE = VELLUM_BOSS.difficulty.find((d) => d.tier === 'chaos')!.crystalValue
-const NORMAL_VELLUM_DAILY = makeKey(VELLUM, 'normal', 'daily')
-const CHAOS_VELLUM_WEEKLY = makeKey(VELLUM, 'chaos', 'weekly')
+const NORMAL_VELLUM_DAILY = `${VELLUM}:normal:daily`
+const CHAOS_VELLUM_WEEKLY = `${VELLUM}:chaos:weekly`
 
 const PAPULATUS_BOSS = bosses.find((b) => b.family === 'papulatus')!
 const PAPULATUS = PAPULATUS_BOSS.id
-const CHAOS_PAPULATUS_WEEKLY = makeKey(PAPULATUS, 'chaos', 'weekly')
+const CHAOS_PAPULATUS_WEEKLY = `${PAPULATUS}:chaos:weekly`
 
 // Daily-only boss (Horntail).
 const HORNTAIL_BOSS = bosses.find((b) => b.family === 'horntail')!
 const HORNTAIL = HORNTAIL_BOSS.id
-const CHAOS_HORNTAIL_DAILY = makeKey(HORNTAIL, 'chaos', 'daily')
+const CHAOS_HORNTAIL_DAILY = `${HORNTAIL}:chaos:daily`
 
 const DAILY_ONLY_FAMILIES = ['horntail', 'von-leon', 'arkarium', 'mori-ranmaru', 'omni-cln']
 const BOSSES_WITH_WEEKLY_TIER_COUNT = bosses.filter((b) =>
@@ -77,7 +81,7 @@ describe('BossMatrix', () => {
     it('renders a header row with a Bosses label and 5 tier columns', () => {
       renderMatrix()
       expect(screen.getByText('Bosses')).toBeTruthy()
-      for (const tier of TIER_ORDER) {
+      for (const tier of TIER_COLUMNS) {
         const header = screen.getByRole('columnheader', {
           name: new RegExp(tier, 'i'),
         })
@@ -96,7 +100,7 @@ describe('BossMatrix', () => {
 
     it('renders one DiffPip color strip per tier column in the header', () => {
       renderMatrix()
-      for (const tier of TIER_ORDER) {
+      for (const tier of TIER_COLUMNS) {
         const pip = document.querySelector(`[data-difficulty-pip="${tier}"]`)
         expect(pip).toBeTruthy()
       }
@@ -162,7 +166,7 @@ describe('BossMatrix', () => {
       renderMatrix([], onToggleKey)
       const normalCell = screen.getByTestId(`matrix-cell-${AKECHI}-normal`)
       fireEvent.click(normalCell)
-      expect(onToggleKey).toHaveBeenCalledWith(makeKey(AKECHI, 'normal', 'weekly'))
+      expect(onToggleKey).toHaveBeenCalledWith(`${AKECHI}:normal:weekly`)
     })
   })
 
@@ -395,7 +399,7 @@ describe('BossMatrix', () => {
       // Hard Magnus is weekly; Magnus has no other weekly tiers, so use
       // Kalos (chaos weekly) — normal/easy weekly should dim.
       const KALOS_BOSS = bosses.find((b) => b.family === 'kalos-the-guardian')!
-      const chaosKalos = makeKey(KALOS_BOSS.id, 'chaos', 'weekly')
+      const chaosKalos = `${KALOS_BOSS.id}:chaos:weekly`
       renderMatrix([chaosKalos])
       const normalCell = screen.getByTestId(`matrix-cell-${KALOS_BOSS.id}-normal`)
       expect(normalCell.getAttribute('data-dim')).toBe('true')

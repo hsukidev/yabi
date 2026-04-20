@@ -3,8 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@/test/test-utils'
 
 import { MuleDetailDrawer } from '../MuleDetailDrawer'
 import type { Mule } from '../../types'
-import { bosses, getBossByFamily } from '../../data/bosses'
-import { hardestDifficulty, makeKey } from '../../data/bossSelection'
+import { bosses } from '../../data/bosses'
 import {
   PRESET_FAMILIES,
   presetEntryFamily,
@@ -16,8 +15,8 @@ const LUCID_BOSS = bosses.find((b) => b.family === 'lucid')!
 const LUCID = LUCID_BOSS.id
 const LUCID_FAMILY = LUCID_BOSS.family
 const LUCID_HARD_VALUE = LUCID_BOSS.difficulty.find((d) => d.tier === 'hard')!.crystalValue
-const HARD_LUCID = makeKey(LUCID, 'hard', 'weekly')
-const NORMAL_LUCID = makeKey(LUCID, 'normal', 'weekly')
+const HARD_LUCID = `${LUCID}:hard:weekly`
+const NORMAL_LUCID = `${LUCID}:normal:weekly`
 
 const VELLUM_BOSS = bosses.find((b) => b.family === 'vellum')!
 const CRIMSON_QUEEN_BOSS = bosses.find((b) => b.family === 'crimson-queen')!
@@ -369,8 +368,8 @@ describe('MuleDetailDrawer', () => {
     it('cross-cadence coexist: selecting a daily tier on a boss that already has a weekly selection keeps both keys', () => {
       // Pick a mixed-cadence family (Vellum). Chaos Vellum is weekly; Normal
       // Vellum is daily — the slate must carry both keys simultaneously.
-      const CHAOS_VELLUM_WEEKLY = makeKey(VELLUM_BOSS.id, 'chaos', 'weekly')
-      const NORMAL_VELLUM_DAILY = makeKey(VELLUM_BOSS.id, 'normal', 'daily')
+      const CHAOS_VELLUM_WEEKLY = `${VELLUM_BOSS.id}:chaos:weekly`
+      const NORMAL_VELLUM_DAILY = `${VELLUM_BOSS.id}:normal:daily`
       const onUpdate = vi.fn()
       renderDrawer({
         mule: { ...baseMule, selectedBosses: [CHAOS_VELLUM_WEEKLY] },
@@ -640,7 +639,7 @@ describe('MuleDetailDrawer', () => {
       // Two weekly selections: Hard Lucid + Normal Lucid would collide on same
       // boss — use two different families instead.
       const WILL_BOSS = bosses.find((b) => b.family === 'will')!
-      const HARD_WILL = makeKey(WILL_BOSS.id, 'hard', 'weekly')
+      const HARD_WILL = `${WILL_BOSS.id}:hard:weekly`
       renderDrawer({
         mule: { ...baseMule, selectedBosses: [HARD_LUCID, HARD_WILL] },
       })
@@ -704,11 +703,11 @@ describe('MuleDetailDrawer', () => {
   })
 
   describe('Boss Presets integration', () => {
-    /** Hardest-tier key for a family slug, computed off the real boss data. */
+    /** Hardest-tier key for a family slug. A bare family slug resolves to the
+     * hardest tier via `presetEntryKey`, which is the preset-module's public
+     * key-resolution helper. */
     function hardestKey(family: string): string {
-      const boss = getBossByFamily(family)!
-      const diff = hardestDifficulty(boss)
-      return makeKey(boss.id, diff.tier, diff.cadence)
+      return presetEntryKey(family)!
     }
 
     const CRA_KEYS = PRESET_FAMILIES.CRA.map(hardestKey)
@@ -902,7 +901,7 @@ describe('MuleDetailDrawer', () => {
       const onUpdate = vi.fn()
       // HARD_LUCID's family (lucid) is in CTENE, so pick a non-preset family
       // instead — Horntail is in neither CRA nor CTENE.
-      const HARD_HORNTAIL = makeKey(HORNTAIL_BOSS.id, 'chaos', 'daily')
+      const HARD_HORNTAIL = `${HORNTAIL_BOSS.id}:chaos:daily`
       renderDrawer({
         mule: { ...baseMule, selectedBosses: [...CRA_KEYS, HARD_HORNTAIL] },
         onUpdate,
@@ -914,7 +913,7 @@ describe('MuleDetailDrawer', () => {
 
     it('hand-picked non-preset keys survive a CTENE→deselect click', () => {
       const onUpdate = vi.fn()
-      const HARD_HORNTAIL = makeKey(HORNTAIL_BOSS.id, 'chaos', 'daily')
+      const HARD_HORNTAIL = `${HORNTAIL_BOSS.id}:chaos:daily`
       renderDrawer({
         mule: { ...baseMule, selectedBosses: [...CTENE_KEYS, HARD_HORNTAIL] },
         onUpdate,

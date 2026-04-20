@@ -8,12 +8,44 @@ import {
   presetEntryFamily,
   type PresetFamily,
 } from '../bossPresets'
+import type { Boss, BossDifficulty } from '../../types'
 import { bosses, getBossByFamily } from '../bosses'
-import {
-  hardestDifficulty,
-  makeKey,
-  parseKey,
-} from '../bossSelection'
+
+/**
+ * Test-local key-shape helpers. The selection-key grammar itself is
+ * module-private inside `muleBossSlate.ts`; these helpers just duplicate
+ * its string shape so these tests can assert against bare `<uuid>:<tier>:<cadence>`
+ * strings. Validation and invariants flow through `MuleBossSlate.from`
+ * wherever preset output actually enters the app state.
+ */
+function buildKey(
+  bossId: string,
+  tier: BossDifficulty['tier'],
+  cadence: BossDifficulty['cadence'],
+): string {
+  return `${bossId}:${tier}:${cadence}`
+}
+
+function pickHardest(boss: Boss): BossDifficulty {
+  return boss.difficulty.reduce((best, d) =>
+    d.crystalValue > best.crystalValue ? d : best,
+  )
+}
+
+/** Parse `<uuid>:<tier>:<cadence>` without any validation against boss data. */
+function shallowParseKey(
+  key: string,
+): { bossId: string; tier: string; cadence: string } | null {
+  const lastColon = key.lastIndexOf(':')
+  if (lastColon < 0) return null
+  const tierColon = key.lastIndexOf(':', lastColon - 1)
+  if (tierColon < 0) return null
+  return {
+    bossId: key.slice(0, tierColon),
+    tier: key.slice(tierColon + 1, lastColon),
+    cadence: key.slice(lastColon + 1),
+  }
+}
 
 const CRA_FAMILIES = [
   'cygnus',
@@ -57,8 +89,8 @@ const CTENE_OVERLAP = [
 /** Hardest-tier selection key for a family slug. */
 function hardestKey(family: string): string {
   const boss = getBossByFamily(family)!
-  const diff = hardestDifficulty(boss)
-  return makeKey(boss.id, diff.tier, diff.cadence)
+  const diff = pickHardest(boss)
+  return buildKey(boss.id, diff.tier, diff.cadence)
 }
 
 /** Resolved selection key for a preset entry (respects tier overrides). */
@@ -123,14 +155,14 @@ describe('applyPreset', () => {
   it('swaps a lower-tier same-cadence selection up to the hardest tier', () => {
     // Start with a lower-tier Vellum daily selection (Normal Vellum daily).
     const vellum = getBossByFamily('vellum')!
-    const lowDailyKey = makeKey(vellum.id, 'normal', 'daily')
+    const lowDailyKey = buildKey(vellum.id, 'normal', 'daily')
     const result = applyPreset([lowDailyKey], ['vellum'])
     // Hardest Vellum is chaos weekly; the daily entry is on a different
     // cadence bucket so both selections coexist.
     const hardestWeekly = hardestKey('vellum')
     expect(result).toContain(hardestWeekly)
-    // Daily selection is preserved — applyPreset uses toggleBoss semantics,
-    // which only swaps *same-cadence* siblings.
+    // Daily selection is preserved — applyPreset only swaps *same-cadence*
+    // siblings on the same boss, so opposite-cadence selections coexist.
     expect(result).toContain(lowDailyKey)
   })
 
@@ -152,8 +184,8 @@ describe('applyPreset', () => {
   it('selects Hard Lotus (not Extreme) for the CTENE preset', () => {
     const result = applyPreset([], PRESET_FAMILIES.CTENE)
     const lotus = getBossByFamily('lotus')!
-    const hardLotus = makeKey(lotus.id, 'hard', 'weekly')
-    const extremeLotus = makeKey(lotus.id, 'extreme', 'weekly')
+    const hardLotus = buildKey(lotus.id, 'hard', 'weekly')
+    const extremeLotus = buildKey(lotus.id, 'extreme', 'weekly')
     expect(result).toContain(hardLotus)
     expect(result).not.toContain(extremeLotus)
   })
@@ -167,8 +199,8 @@ describe('LOMIEN preset', () => {
     }
     const lotus = getBossByFamily('lotus')!
     const damien = getBossByFamily('damien')!
-    expect(result).toContain(makeKey(lotus.id, 'normal', 'weekly'))
-    expect(result).toContain(makeKey(damien.id, 'normal', 'weekly'))
+    expect(result).toContain(buildKey(lotus.id, 'normal', 'weekly'))
+    expect(result).toContain(buildKey(damien.id, 'normal', 'weekly'))
   })
 
   it('includes Akechi Mitsuhide', () => {
@@ -193,8 +225,8 @@ describe('removePreset', () => {
 
   it('drops ALL keys for a family in the list, regardless of tier/cadence', () => {
     const vellum = getBossByFamily('vellum')!
-    const normalDaily = makeKey(vellum.id, 'normal', 'daily')
-    const chaosWeekly = makeKey(vellum.id, 'chaos', 'weekly')
+    const normalDaily = buildKey(vellum.id, 'normal', 'daily')
+    const chaosWeekly = buildKey(vellum.id, 'chaos', 'weekly')
     const result = removePreset([normalDaily, chaosWeekly], ['vellum'])
     expect(result).toEqual([])
   })
@@ -262,7 +294,7 @@ describe('isPresetActive', () => {
     const withCra = applyPreset([], PRESET_FAMILIES.CRA)
     const vellum = getBossByFamily('vellum')!
     const hardestVellum = hardestKey('vellum')
-    const normalDaily = makeKey(vellum.id, 'normal', 'daily')
+    const normalDaily = buildKey(vellum.id, 'normal', 'daily')
     const downgraded = withCra
       .filter((k) => k !== hardestVellum)
       .concat(normalDaily)
@@ -279,7 +311,7 @@ describe('cross-helper sanity', () => {
   it('applyPreset output has parseable keys for every family', () => {
     const keys = applyPreset([], PRESET_FAMILIES.CRA)
     for (const k of keys) {
-      expect(parseKey(k)).not.toBeNull()
+      expect(shallowParseKey(k)).not.toBeNull()
     }
   })
 
@@ -288,6 +320,6 @@ describe('cross-helper sanity', () => {
     const lucid = hardestKey('lucid')
     const partial = removePreset([...withCra, lucid], PRESET_FAMILIES.CRA)
     expect(partial).toEqual([lucid])
-    expect(parseKey(partial[0])).not.toBeNull()
+    expect(shallowParseKey(partial[0])).not.toBeNull()
   })
 })

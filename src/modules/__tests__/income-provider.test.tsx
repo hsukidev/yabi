@@ -10,12 +10,11 @@ import {
   useTotalIncome,
 } from '../income-hooks'
 import { bosses } from '../../data/bosses'
-import { makeKey } from '../../data/bossSelection'
 
 const LUCID = bosses.find((b) => b.family === 'lucid')!.id
 const WILL = bosses.find((b) => b.family === 'will')!.id
-const HARD_LUCID = makeKey(LUCID, 'hard', 'weekly')
-const HARD_WILL = makeKey(WILL, 'hard', 'weekly')
+const HARD_LUCID = `${LUCID}:hard:weekly`
+const HARD_WILL = `${WILL}:hard:weekly`
 
 function FormatPreferenceConsumer() {
   const { abbreviated, toggle } = useFormatPreference()

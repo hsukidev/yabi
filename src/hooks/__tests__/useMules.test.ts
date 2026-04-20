@@ -2,7 +2,6 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useMules } from '../useMules'
 import { bosses } from '../../data/bosses'
-import { makeKey } from '../../data/bossSelection'
 
 const LUCID_BOSS = bosses.find((b) => b.family === 'lucid')!
 const VELLUM_BOSS = bosses.find((b) => b.family === 'vellum')!
@@ -10,12 +9,12 @@ const LUCID = LUCID_BOSS.id
 const WILL = bosses.find((b) => b.family === 'will')!.id
 const VELLUM = VELLUM_BOSS.id
 // Slice 2 keys: <uuid>:<tier>:<cadence>. Lucid tiers are all weekly.
-const HARD_LUCID = makeKey(LUCID, 'hard', 'weekly')
-const NORMAL_LUCID = makeKey(LUCID, 'normal', 'weekly')
-const HARD_WILL = makeKey(WILL, 'hard', 'weekly')
+const HARD_LUCID = `${LUCID}:hard:weekly`
+const NORMAL_LUCID = `${LUCID}:normal:weekly`
+const HARD_WILL = `${WILL}:hard:weekly`
 // Vellum: Normal is daily, Chaos is weekly.
-const NORMAL_VELLUM_DAILY = makeKey(VELLUM, 'normal', 'daily')
-const CHAOS_VELLUM_WEEKLY = makeKey(VELLUM, 'chaos', 'weekly')
+const NORMAL_VELLUM_DAILY = `${VELLUM}:normal:daily`
+const CHAOS_VELLUM_WEEKLY = `${VELLUM}:chaos:weekly`
 // Legacy v2 (slice-1B) two-segment keys that should be upgraded on load.
 const LEGACY_HARD_LUCID = `${LUCID}:hard`
 const LEGACY_NORMAL_VELLUM = `${VELLUM}:normal`

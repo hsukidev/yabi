@@ -1,8 +1,10 @@
 import { memo } from 'react';
 import type { BossTier } from '../types';
-import { TIER_ORDER } from '../data/bossSelection';
 import type { SlateFamily, SlateKey, SlateRow } from '../data/muleBossSlate';
 import { formatMeso } from '../utils/meso';
+
+/** Column order in the Matrix — extreme → easy, hardest first. */
+const MATRIX_TIER_COLUMNS: BossTier[] = ['extreme', 'chaos', 'hard', 'normal', 'easy'];
 
 const TIER_COLOR: Record<BossTier, string> = {
   easy: '#6fb878',
@@ -182,7 +184,7 @@ function FamilyMatrixRow({
           </div>
         )}
       </div>
-      {TIER_ORDER.map((tier) => {
+      {MATRIX_TIER_COLUMNS.map((tier) => {
         const row = rowByTier.get(tier);
         if (!row) {
           return (
@@ -264,7 +266,7 @@ export const BossMatrix = memo(function BossMatrix({
           >
             Bosses
           </div>
-          {TIER_ORDER.map((tier) => (
+          {MATRIX_TIER_COLUMNS.map((tier) => (
             <div
               key={tier}
               role="columnheader"

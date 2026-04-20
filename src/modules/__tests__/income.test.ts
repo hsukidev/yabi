@@ -2,13 +2,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { computeMuleIncome, computeTotalIncome, sumSelectedKeys } from '../income'
 import * as bossesModule from '../../data/bosses'
 import { bosses } from '../../data/bosses'
-import { makeKey } from '../../data/bossSelection'
 import type { Boss } from '../../types'
 
 const LUCID = bosses.find((b) => b.family === 'lucid')!.id
 const WILL = bosses.find((b) => b.family === 'will')!.id
-const HARD_LUCID = makeKey(LUCID, 'hard', 'weekly')
-const HARD_WILL = makeKey(WILL, 'hard', 'weekly')
+const HARD_LUCID = `${LUCID}:hard:weekly`
+const HARD_WILL = `${WILL}:hard:weekly`
 
 describe('computeMuleIncome', () => {
   it('returns correct raw and formatted for a mule with selected bosses (abbreviated)', () => {
@@ -161,8 +160,8 @@ describe('sumSelectedKeys cadence multiplier', () => {
     mockBosses(weeklyBoss, dailyBoss)
 
     const keys = [
-      makeKey(weeklyBoss.id, 'hard', 'weekly'),
-      makeKey(dailyBoss.id, 'normal', 'daily'),
+      `${weeklyBoss.id}:hard:weekly`,
+      `${dailyBoss.id}:normal:daily`,
     ]
     // weekly × 1 + daily × 7
     expect(sumSelectedKeys(keys)).toBe(1_000_000 + 100 * 7)
@@ -181,8 +180,8 @@ describe('sumSelectedKeys cadence multiplier', () => {
     mockBosses(mixedBoss)
 
     const keys = [
-      makeKey(mixedBoss.id, 'normal', 'daily'),
-      makeKey(mixedBoss.id, 'chaos', 'weekly'),
+      `${mixedBoss.id}:normal:daily`,
+      `${mixedBoss.id}:chaos:weekly`,
     ]
     expect(sumSelectedKeys(keys)).toBe(10 * 7 + 1000)
   })
@@ -190,8 +189,8 @@ describe('sumSelectedKeys cadence multiplier', () => {
   it('applies ×7 to the PRD daily fixtures (Normal Vellum, Chaos Horntail)', () => {
     const vellum = bosses.find((b) => b.family === 'vellum')!
     const horntail = bosses.find((b) => b.family === 'horntail')!
-    const normalVellum = makeKey(vellum.id, 'normal', 'daily')
-    const chaosHorntail = makeKey(horntail.id, 'chaos', 'daily')
+    const normalVellum = `${vellum.id}:normal:daily`
+    const chaosHorntail = `${horntail.id}:chaos:daily`
     expect(sumSelectedKeys([normalVellum])).toBe(4_840_000 * 7)
     expect(sumSelectedKeys([chaosHorntail])).toBe(6_760_000 * 7)
     expect(sumSelectedKeys([normalVellum, chaosHorntail])).toBe(
