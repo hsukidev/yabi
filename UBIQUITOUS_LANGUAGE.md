@@ -114,6 +114,21 @@
 | **Total Weekly Income** | The sum of all **Mules'** **Potential Income** across the entire **Roster** | Global income, overall income |
 | **Mule Preset** | A saved template of pre-selected bosses used to fast-create multiple **Mules** (distinct from **Boss Preset**) | Template, mule template |
 
+## Income Pipeline
+
+| Term | Definition | Aliases to avoid |
+|------|-----------|-----------------|
+| **Income** | The immutable value object carrying a **Raw Income** number and a formatted rendering; produced by `Income.of(source, abbreviated)` for a single **Income Source** or an **Income Source** array | Income object, income result |
+| **Income Source** | The minimal structural shape accepted by `Income.of` — an object with `selectedBosses: string[]` and an optional `active?: boolean`; a **Mule** satisfies it by construction | Income input, income shape |
+| **Raw Income** | The numeric meso total carried by an **Income** (`income.raw`), prior to any formatting; the value chart math and comparisons operate on | Numeric income, income number |
+| **Formatted Income** | The string rendering of an **Income** (`income.formatted`) — either abbreviated (e.g. `1.2B`) or full (e.g. `1,200,000,000`) based on the active **Format Preference** | Display income, income string |
+| **Format Preference** | The global, React-context-scoped boolean controlling whether **Formatted Income** renders abbreviated; owned by the **Income Provider**, mutated via `toggle()` from the **useIncome** return | Abbreviation preference, format toggle state |
+| **Income Provider** | The React context provider that owns **Format Preference** state (defaulting to abbreviated); wraps the **Classic Layout** so `useIncome` can read/toggle the preference | Format provider, abbreviation provider |
+| **useIncome** | The single React hook exposed by the income module; accepts an **Income Source**, a roster, or nothing and returns an **Income** augmented with `abbreviated` and `toggle` for **Format Preference** control | Income hook |
+| **useAutoFullFormatOnZero** | The named hook that enforces the **Auto-Fullformat-On-Zero Rule**; takes a **Raw Income** and calls `toggle()` exactly once when the **Raw Income** is `0` and **Format Preference** is abbreviated | Auto-toggle hook, zero-format hook |
+| **Auto-Fullformat-On-Zero Rule** | The UX rule that when **Total Weekly Income**'s **Raw Income** is zero, **Format Preference** flips to full formatting so the **KPI Card** bignum reads `0` rather than `0B` | Zero-flip rule, zero auto-toggle |
+| **Active-Flag Filter** | The aggregation rule inside `Income.of(sources[])` that excludes any **Income Source** with `active === false`, while `active === true` or `active === undefined` remain included | Active exclusion, inactive filter |
+
 ## Bulk Delete
 
 | Term | Definition | Aliases to avoid |
@@ -188,6 +203,12 @@
 - **Weekly Count** is a lazy accessor on the **Boss Slate** — the count of **Slate Keys** whose **Boss Cadence** is `weekly`
 - **Total Crystal Value** is a lazy accessor on the **Boss Slate**; `useIncome` (or its successor) multiplies it by **Party Size** and gates on **Active Flag** to produce **Potential Income**
 - The **Boss Slate** does not own **Active Flag** or **Party Size** gating — those are caller concerns at the income pipeline
+- `Income.of(mule, abbreviated)` delegates per-mule arithmetic to `MuleBossSlate.from(mule.selectedBosses).totalCrystalValue`; the income module owns aggregation, not crystal summation
+- `Income.of(mules, abbreviated)` sums each **Income Source**'s contribution after applying the **Active-Flag Filter** — `active === false` drops, `true` and `undefined` pass
+- `useIncome(source)` must be called inside an **Income Provider**; passing no argument returns an **Income** of `0` alongside `abbreviated` and `toggle`, useful for toggle-only consumers
+- `useIncome` memoizes the returned **Income** — callers do not wrap in their own `useMemo`
+- The **KPI Card**'s bignum pairs `useIncome(mules)` with `useAutoFullFormatOnZero(total.raw)`; the **Auto-Fullformat-On-Zero Rule** is extracted from the old inline `useEffect` and is the only caller of `useAutoFullFormatOnZero`
+- **Split Card** slices use `Income.of(mule, false).raw` directly — chart math bypasses **Format Preference** because charts need numbers, not strings
 
 ## Example dialogue
 
@@ -231,6 +252,12 @@
 > **Domain expert:** "Right. `slate.toggle(normalKey)` returns a new **Boss Slate** with the Hard **Slate Key** replaced by the Normal one — same `(bossId, cadence)`, so the **Selection Invariant** forces the swap. If instead they toggle a *daily* difficulty of the same boss, both keys coexist because `(bossId, cadence)` differs."
 > **Dev:** "And **Total Weekly Income** — does the **Boss Slate** compute that?"
 > **Domain expert:** "The **Boss Slate** exposes **Total Crystal Value** as a lazy accessor — daily **Slate Keys** folded × 7, weekly × 1. That's the raw crystal-value basis. The income pipeline multiplies by **Party Size** and gates on **Active Flag** to produce **Potential Income**, then sums **Active Mules** for **Total Weekly Income**. Gating lives at the caller, not on the slate."
+> **Dev:** "So when I call `useIncome(mules)` from the **KPI Card**, what exactly comes back?"
+> **Domain expert:** "An **Income** — `raw` is the **Total Weekly Income** as a number after the **Active-Flag Filter**, `formatted` is the same number rendered per **Format Preference**. Plus `abbreviated` (the current preference) and `toggle` to flip it. One object for display, math, and UX controls."
+> **Dev:** "And the weird auto-toggle where the bignum snaps back to full format when it's zero — where does that live now?"
+> **Domain expert:** "In **useAutoFullFormatOnZero**, a named hook. The **KPI Card** calls `useAutoFullFormatOnZero(total.raw)` right after `useIncome(mules)`. That's the whole **Auto-Fullformat-On-Zero Rule** — one hook, one effect, one test."
+> **Dev:** "If I use **Income** from a chart — say a donut slice — do I need a provider?"
+> **Domain expert:** "Not for the math. Call `Income.of(mule, false).raw` directly; it's a pure static factory. The **Income Provider** only exists for React-side **Format Preference** plumbing. Charts skip formatting entirely."
 
 ## Flagged ambiguities
 
@@ -260,3 +287,6 @@
 - "Family" was polysemous — already noted under **Boss Family** (a group of **Boss Difficulties**) and now also appears as **Slate Family** (a view-projection group emitted by `MuleBossSlate.view()`). Distinguish in prose: the domain entity is the **Boss Family**; the UI-projection wrapper is the **Slate Family**.
 - "Key" is now polysemous — a **Slate Key** is the `<uuid>:<tier>:<cadence>` triple identifying a selection; do not conflate it with React `key` props, `localStorage` keys, or the `makeKey` / `parseKey` internals (now module-private inside the **Boss Slate** module).
 - "Toggle" in the **Boss Slate** context means `slate.toggle(key)` — returns a new valid **Boss Slate**, may perform a **Tier Swap**, and never produces an invalid intermediate. The old `toggleBoss(keys, bossId, tier)` helper is gone; do not reintroduce the two-phase protocol.
+- "Toggle" is now overloaded across subsystems — `slate.toggle(key)` mutates a **Boss Slate**, while `useIncome().toggle()` flips **Format Preference**. Qualify in prose: **Slate Toggle** vs **Format Toggle** when both could be meant.
+- "Income" was historically split across `sumSelectedKeys`, `computeMuleIncome`, `computeTotalIncome`, `useFormatPreference`, `useMuleIncome`, `useTotalIncome`, and `IncomeContext`. Canonical shape going forward: one module, one value class (**Income**), one hook (**useIncome**), one provider (**Income Provider**), one named effect (**useAutoFullFormatOnZero**). Prefer **Income**, **Raw Income**, **Formatted Income**, **Format Preference** over the pre-collapse function names.
+- "Format" is polysemous — **Format Preference** is the global abbreviated/full toggle; `formatMeso` is a pure formatter function internal to the income module. Never write "format" unqualified in income-module prose.
