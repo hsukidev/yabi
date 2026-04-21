@@ -212,7 +212,7 @@ describe('MatrixToolbar', () => {
       const buttonNames = Array.from(presetGroup!.querySelectorAll('button')).map((b) =>
         b.textContent?.trim(),
       );
-      expect(buttonNames).toEqual(['CRA', 'LOMIEN', 'CTENE']);
+      expect(buttonNames).toEqual(['CRA', 'LOMIEN', 'CTENE', 'CUSTOM']);
     });
 
     it('separates the preset control from the cadence filter with a .d-toolbar-sep', () => {
@@ -297,6 +297,62 @@ describe('MatrixToolbar', () => {
       expect(screen.getByRole('button', { name: /^cra$/i }).querySelector('svg')).toBeNull();
       expect(screen.getByRole('button', { name: /^lomien$/i }).querySelector('svg')).toBeNull();
       expect(screen.getByRole('button', { name: /^ctene$/i }).querySelector('svg')).toBeNull();
+      expect(screen.getByRole('button', { name: /^custom$/i }).querySelector('svg')).toBeNull();
+    });
+
+    describe('Custom Preset pill', () => {
+      it('renders a CUSTOM button positioned last (after CTENE)', () => {
+        renderToolbar();
+        const cteneBtn = screen.getByRole('button', { name: /^ctene$/i });
+        const customBtn = screen.getByRole('button', { name: /^custom$/i });
+        expect(customBtn).toBeTruthy();
+        expect(
+          cteneBtn.compareDocumentPosition(customBtn) & Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy();
+      });
+
+      it('lights CUSTOM when activePill === "CUSTOM"', () => {
+        renderToolbar({ activePill: 'CUSTOM' });
+        expect(screen.getByRole('button', { name: /^custom$/i }).classList.contains('on')).toBe(
+          true,
+        );
+        expect(screen.getByRole('button', { name: /^cra$/i }).classList.contains('on')).toBe(false);
+        expect(screen.getByRole('button', { name: /^lomien$/i }).classList.contains('on')).toBe(
+          false,
+        );
+        expect(screen.getByRole('button', { name: /^ctene$/i }).classList.contains('on')).toBe(
+          false,
+        );
+      });
+
+      it('CUSTOM is not lit when another pill is active', () => {
+        renderToolbar({ activePill: 'CRA' });
+        expect(screen.getByRole('button', { name: /^custom$/i }).classList.contains('on')).toBe(
+          false,
+        );
+      });
+
+      it('calls onApplyPreset with "CUSTOM" when CUSTOM is clicked', () => {
+        const onApplyPreset = vi.fn();
+        renderToolbar({ onApplyPreset });
+        fireEvent.click(screen.getByRole('button', { name: /^custom$/i }));
+        expect(onApplyPreset).toHaveBeenCalledWith('CUSTOM');
+      });
+
+      it('CUSTOM pill shares the canonical-pill segmented-control group', () => {
+        const { container } = renderToolbar();
+        const groups = container.querySelectorAll('.d-c-toggle');
+        const presetGroup = Array.from(groups).find((g) => {
+          const names = Array.from(g.querySelectorAll('button')).map((b) => b.textContent?.trim());
+          return names.includes('CUSTOM');
+        });
+        expect(presetGroup).toBeTruthy();
+        const buttonNames = Array.from(presetGroup!.querySelectorAll('button')).map((b) =>
+          b.textContent?.trim(),
+        );
+        // Same shape + same active/inactive treatment as canonical pills.
+        expect(buttonNames).toEqual(['CRA', 'LOMIEN', 'CTENE', 'CUSTOM']);
+      });
     });
   });
 });

@@ -26,7 +26,19 @@ import { getBossByFamily } from './bosses';
  * enforced.
  */
 
-export type PresetKey = 'CRA' | 'LOMIEN' | 'CTENE';
+/**
+ * **Canonical Preset Keys** — the three curated presets that have an entries
+ * list, a **Conform** behaviour, and a **Same-Cadence Equality** match rule.
+ */
+export type CanonicalPresetKey = 'CRA' | 'LOMIEN' | 'CTENE';
+
+/**
+ * **Preset Key** — any **Preset Pill** that can be the **Active Pill**.
+ * `'CUSTOM'` is the reflective fourth pill that lights up when the **Mule's**
+ * weekly selection is non-empty but doesn't match any **Canonical Preset**;
+ * it has no entries and clicking it is inert.
+ */
+export type PresetKey = CanonicalPresetKey | 'CUSTOM';
 
 /** Authoring form for a preset entry; normalized via `normalizeEntry`. */
 export type PresetFamily =
@@ -131,7 +143,7 @@ export const PRESET_FAMILIES = {
     'papulatus',
     'magnus',
   ],
-} as const satisfies Record<PresetKey, readonly PresetFamily[]>;
+} as const satisfies Record<CanonicalPresetKey, readonly PresetFamily[]>;
 
 /** Resolved **Default Tier** selection key for an entry, or `null`. */
 export function presetEntryKey(spec: PresetFamily): string | null {
@@ -158,7 +170,7 @@ function defaultTierKey(entry: PresetEntry): string | null {
  * Build `{ bossId → entry }` for a preset's entries. Entries whose family
  * doesn't resolve are skipped so callers can iterate without null checks.
  */
-function entryByBossId(preset: PresetKey): Map<string, PresetEntry> {
+function entryByBossId(preset: CanonicalPresetKey): Map<string, PresetEntry> {
   const map = new Map<string, PresetEntry>();
   for (const spec of PRESET_FAMILIES[preset]) {
     const entry = normalizeEntry(spec);
@@ -176,7 +188,7 @@ function entryByBossId(preset: PresetKey): Map<string, PresetEntry> {
  * weekly keys exist on families outside the preset's entries. Daily keys
  * are ignored entirely.
  */
-export function isPresetActive(preset: PresetKey, keys: readonly string[]): boolean {
+export function isPresetActive(preset: CanonicalPresetKey, keys: readonly string[]): boolean {
   const entries = entryByBossId(preset);
   const weeklyTierByBossId = new Map<string, string>();
 
@@ -207,7 +219,7 @@ export function isPresetActive(preset: PresetKey, keys: readonly string[]): bool
  *
  * Idempotent on an already-**Active Preset** selection.
  */
-export function conform(keys: readonly string[], preset: PresetKey): string[] {
+export function conform(keys: readonly string[], preset: CanonicalPresetKey): string[] {
   const entries = entryByBossId(preset);
   const next: string[] = [];
   const satisfied = new Set<string>();

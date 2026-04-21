@@ -224,6 +224,13 @@ describe('isPresetActive — Same-Cadence Equality', () => {
       .concat([buildKey(vellum.id, 'normal', 'weekly')]);
     expect(isPresetActive('CRA', keys)).toBe(false);
   });
+
+  it('only accepts canonical preset keys (CUSTOM has no entries list)', () => {
+    // `PRESET_FAMILIES` is typed over `CanonicalPresetKey` — CRA/LOMIEN/CTENE
+    // only — so `CUSTOM` is unreachable by `isPresetActive` at both the
+    // type and value level. Asserting the keys list guards that invariant.
+    expect(Object.keys(PRESET_FAMILIES).sort()).toEqual(['CRA', 'CTENE', 'LOMIEN']);
+  });
 });
 
 describe('conform', () => {

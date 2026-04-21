@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { Mule } from '../../../types';
 import { MuleBossSlate, type SlateFamily } from '../../../data/muleBossSlate';
-import { conform, isPresetActive } from '../../../data/bossPresets';
+import { conform, isPresetActive, type CanonicalPresetKey } from '../../../data/bossPresets';
 import type { CadenceFilter, PresetKey } from '../../MatrixToolbar';
 
-const CANONICAL_PRESETS: readonly PresetKey[] = ['CRA', 'LOMIEN', 'CTENE'];
+const CANONICAL_PRESETS: readonly CanonicalPresetKey[] = ['CRA', 'LOMIEN', 'CTENE'];
 
 const PARTY_SIZE_MIN = 1;
 const PARTY_SIZE_MAX = 6;
@@ -81,10 +81,14 @@ export function useBossMatrixView({
     [slate, search, filter],
   );
 
-  const activePill = useMemo<PresetKey | null>(
-    () => CANONICAL_PRESETS.find((p) => isPresetActive(p, selectedBosses)) ?? null,
-    [selectedBosses],
-  );
+  const activePill = useMemo<PresetKey | null>(() => {
+    const canonical = CANONICAL_PRESETS.find((p) => isPresetActive(p, selectedBosses));
+    if (canonical) return canonical;
+    // **Custom Preset**: lights up iff at least one weekly **Slate Key**
+    // exists AND no canonical preset matches. Daily-only selections leave
+    // the pill row empty.
+    return slate.weeklyCount > 0 ? 'CUSTOM' : null;
+  }, [selectedBosses, slate]);
 
   const stablePartySizes = useMemo(() => partySizes ?? {}, [partySizes]);
 
@@ -99,6 +103,9 @@ export function useBossMatrixView({
   const applyPreset = useCallback(
     (preset: PresetKey) => {
       if (!muleId) return;
+      // **Custom Preset** has no entries — the click is purely reflective
+      // and nothing changes.
+      if (preset === 'CUSTOM') return;
       // Re-click on the Active Pill: no state churn, no persist fire.
       if (activePill === preset) return;
       const next = conform(slate.keys, preset);

@@ -254,17 +254,31 @@ describe('useBossMatrixView', () => {
       expect(result.current.activePill).toBeNull();
     });
 
-    it('is null for CRA + extra non-preset weekly (CUSTOM comes in slice 2)', () => {
-      const arkariumKey = `${ARKARIUM_BOSS.id}:normal:weekly`;
+    it('is "CUSTOM" for CRA + extra non-preset weekly (no canonical match, weekly ≥ 1)', () => {
+      // Black Mage is weekly-cadence and outside every canonical preset.
+      const blackMageKey = `${BLACK_MAGE_BOSS.id}:hard:weekly`;
       const { result } = renderHook(() =>
         useBossMatrixView({
           muleId: 'mule-1',
-          selectedBosses: [...CRA_KEYS, arkariumKey],
+          selectedBosses: [...CRA_KEYS, blackMageKey],
           partySizes: undefined,
           onUpdate: vi.fn(),
         }),
       );
-      expect(result.current.activePill).toBeNull();
+      expect(result.current.activePill).toBe('CUSTOM');
+    });
+
+    it('is "CUSTOM" for a single weekly key on a family no canonical preset covers', () => {
+      const blackMageKey = `${BLACK_MAGE_BOSS.id}:hard:weekly`;
+      const { result } = renderHook(() =>
+        useBossMatrixView({
+          muleId: 'mule-1',
+          selectedBosses: [blackMageKey],
+          partySizes: undefined,
+          onUpdate: vi.fn(),
+        }),
+      );
+      expect(result.current.activePill).toBe('CUSTOM');
     });
 
     it('is "CRA" for an exact CRA selection', () => {
@@ -318,7 +332,7 @@ describe('useBossMatrixView', () => {
       expect(result.current.activePill).toBe('LOMIEN');
     });
 
-    it('is null when only daily keys are selected', () => {
+    it('is null when only daily keys are selected (CUSTOM stays dark for daily-only)', () => {
       const vellumDaily = `${VELLUM_BOSS.id}:normal:daily`;
       const { result } = renderHook(() =>
         useBossMatrixView({
@@ -329,6 +343,75 @@ describe('useBossMatrixView', () => {
         }),
       );
       expect(result.current.activePill).toBeNull();
+    });
+
+    it('is null when a non-preset-family has only a daily key (no weekly anywhere)', () => {
+      const horntailDaily = `${HORNTAIL_BOSS.id}:chaos:daily`;
+      const { result } = renderHook(() =>
+        useBossMatrixView({
+          muleId: 'mule-1',
+          selectedBosses: [horntailDaily],
+          partySizes: undefined,
+          onUpdate: vi.fn(),
+        }),
+      );
+      expect(result.current.activePill).toBeNull();
+    });
+  });
+
+  describe('applyPreset("CUSTOM") — inert click', () => {
+    it('produces zero onUpdate calls when selection is already CUSTOM', () => {
+      const arkariumKey = `${ARKARIUM_BOSS.id}:normal:weekly`;
+      const onUpdate = vi.fn();
+      const { result } = renderHook(() =>
+        useBossMatrixView({
+          muleId: 'mule-1',
+          selectedBosses: [arkariumKey],
+          partySizes: undefined,
+          onUpdate,
+        }),
+      );
+
+      act(() => {
+        result.current.applyPreset('CUSTOM');
+      });
+      expect(onUpdate).not.toHaveBeenCalled();
+    });
+
+    it('produces zero onUpdate calls even when a canonical preset is active', () => {
+      // Pills are apply-only; clicking CUSTOM never rewrites selection, no
+      // matter what's currently selected.
+      const onUpdate = vi.fn();
+      const { result } = renderHook(() =>
+        useBossMatrixView({
+          muleId: 'mule-1',
+          selectedBosses: CRA_KEYS,
+          partySizes: undefined,
+          onUpdate,
+        }),
+      );
+
+      act(() => {
+        result.current.applyPreset('CUSTOM');
+      });
+      expect(onUpdate).not.toHaveBeenCalled();
+    });
+
+    it('produces zero onUpdate calls when selection is empty', () => {
+      const onUpdate = vi.fn();
+      const { result } = renderHook(() =>
+        useBossMatrixView({
+          muleId: 'mule-1',
+          selectedBosses: [],
+          partySizes: undefined,
+          onUpdate,
+        }),
+      );
+
+      act(() => {
+        result.current.applyPreset('CUSTOM');
+      });
+      expect(onUpdate).not.toHaveBeenCalled();
     });
   });
 
