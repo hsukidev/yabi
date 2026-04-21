@@ -32,8 +32,8 @@
 |------|-----------|-----------------|
 | **Classic Layout** | The single supported page arrangement: KPI strip + Split panel on top, Roster below | Default layout, main layout |
 | **Roster** | The density-driven grid of **Character Cards** plus a trailing **Add Card** | Card grid, mule list |
-| **Character Card** | The panel tile in the **Roster** displaying a **Mule's** **Class Silhouette**, name, class label, level badge, and **Potential Income** | Mule card, tile, card (unqualified) |
-| **Class Silhouette** | The SVG body-and-hat shape rendered inside a **Character Card** representing the **Mule's** **Mule Class** | Avatar, portrait, icon |
+| **Character Card** | The panel tile in the **Roster** displaying a **Mule's** **Character Avatar**, name, class label, level badge, and **Potential Income** | Mule card, tile, card (unqualified) |
+| **Character Avatar** | The `blank-character.png` placeholder rendered inside a **Character Card** and the **Drawer's** **Identity Section**; class-agnostic, shared between both surfaces | Silhouette, portrait, icon |
 | **Add Card** | The dashed-border placeholder at the end of the **Roster** that creates a new **Mule** on click | Plus card, new mule button |
 | **KPI Card** | The panel-glow card showing **Total Weekly Income**, **Mule** count, and **Active Mule** count | Hero card, income card, summary card |
 | **Split Card** | The panel containing the donut chart of **Potential Income** distribution across **Active Mules** | Chart card, breakdown card, pie card |
@@ -49,8 +49,8 @@
 | **Dark-Amber** | The dark **Theme**: near-black backgrounds with a golden-amber **Accent** | Dark mode (ambiguous), amber theme |
 | **Cozy-Pastel** | The light **Theme**: warm cream backgrounds with a terracotta **Accent** | Light mode (ambiguous), pastel theme |
 | **Density** | The **Roster** sizing preference — one of exactly two: **Comfy** or **Compact** | Spacing, size mode |
-| **Comfy** | Spacious **Density**: 6-column **Roster**, 72px **Class Silhouette**, larger padding | Roomy, default density |
-| **Compact** | Dense **Density**: 8-column **Roster**, 56px **Class Silhouette**, smaller padding | Tight, dense, condensed |
+| **Comfy** | Spacious **Density**: 6-column **Roster**, larger padding, taller card floor | Roomy, default density |
+| **Compact** | Dense **Density**: 8-column **Roster**, smaller padding, shorter card floor | Tight, dense, condensed |
 | **Accent** | The active **Theme's** primary highlight color — gold (#f0b44a) in **Dark-Amber**, terracotta (#d97757) in **Cozy-Pastel** | Primary color, highlight color |
 | **Accent Soft** | A low-opacity derivation of the **Accent** (~15%) used for hover tints and selected-state backgrounds | Accent wash, accent tint |
 | **Accent Glow** | A low-opacity derivation of the **Accent** (~25%) used for drop shadows and bignum text glow | Accent halo, accent shadow |
@@ -233,7 +233,7 @@
 - The **Active Toggle** sits on its own row directly below the weekly-mesos pill in the **Identity Section**; clicking it mutates the **Mule's** **Active Flag**
 - Exactly one **Theme** and one **Density** are active at any time; both persist to localStorage
 - The **Chart Palette** is a property of the active **Theme** — slice colors recolor when the **Theme** changes
-- The **Density Toggle** mutates the active **Density**, which drives CSS variables that resize the **Roster**, **Character Card** padding, and **Class Silhouette**
+- The **Density Toggle** mutates the active **Density**, which drives CSS variables that resize the **Roster** columns, **Character Card** padding, name size, and minimum card height
 - The **Reset Countdown** targets the next **Reset Anchor** after `Date.now()`; the countdown value updates once per second from a single `setInterval`
 - The **Reset Countdown** uses the **Live Countdown Format** at the `sm` breakpoint and above, and the **Smart Countdown Format** below it
 - At **Reset Anchor** crossover the **Reset Countdown** silently rolls over to the next week — no flash, no announcement
@@ -274,7 +274,7 @@
 ## Example dialogue
 
 > **Dev:** "When I switch from **Comfy** to **Compact**, why does a **Character Card** shrink but the **KPI Card** barely changes?"
-> **Domain expert:** "The **Density** CSS variables only resize **Roster** elements — card padding, grid columns, silhouette size. The **KPI Card** uses its own `--kpi-pad` variable that changes a little, but the **Bignum** inside stays fixed — we don't want the headline number dancing around."
+> **Domain expert:** "The **Density** CSS variables only resize **Roster** elements — card padding, grid columns, name size, minimum card height. The **KPI Card** uses its own `--kpi-pad` variable that changes a little, but the **Bignum** inside stays fixed — we don't want the headline number dancing around."
 > **Dev:** "Got it. And if a **Mule** has no selected **Boss Difficulties**, does it still appear in the **Split Card** donut?"
 > **Domain expert:** "No. The **Split Card** only plots **Active Mules**. The **Character Card** still renders in the **Roster**, but it displays as inactive with a dim **Potential Income**."
 > **Dev:** "What about the **Chart Palette** — is it shared between **Themes**?"

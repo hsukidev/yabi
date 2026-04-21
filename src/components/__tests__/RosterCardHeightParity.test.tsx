@@ -112,8 +112,8 @@ describe('Roster card height parity contract', () => {
     // Must be taller than the stale 160px floor the parent PRD called out,
     // otherwise AddCard would still collapse below the mule-card intrinsic height.
     expect(parseInt(comfyMatch![1], 10)).toBeGreaterThanOrEqual(240)
-    // Compact cards are shorter (56px silhouette vs 72px) so the floor can be
-    // smaller, but it must still clear the stale 160px floor.
+    // Compact cards have tighter padding and smaller name size, so the floor
+    // can be smaller, but it must still clear the stale 160px floor.
     expect(parseInt(compactMatch![1], 10)).toBeGreaterThan(160)
   })
 

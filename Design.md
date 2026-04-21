@@ -28,7 +28,7 @@ Components read whichever matches their context. Inline styles mostly use the ha
 | Raised / recessed | `--surface-2` / `--surface-raised` | `#1b1d26` |
 | Text | `--text` / `--foreground` | `#eeecda` |
 | Muted text | `--muted-raw` / `--muted-foreground` | `#72778a` |
-| Dim (silhouettes, empty values) | `--dim` / `--surface-dim` | `#3a3d4d` |
+| Dim (empty values) | `--dim` / `--surface-dim` | `#3a3d4d` |
 | Border | `--border-raw` / `--border` / `--input` | `#262836` |
 | **Accent** | `--accent-raw` / `--accent` / `--primary` / `--ring` | `#f0b44a` (amber) |
 | Accent soft (fills) | `--accent-soft` | `rgba(240, 180, 74, 0.15)` |
@@ -110,7 +110,6 @@ Set on `<html>` via `DensityProvider` (`comfy` default, `compact` alt). Controls
 |---|---|---|
 | `--card-pad` | 16px | 12px |
 | `--roster-cols` | 6 | 8 |
-| `--sil-size` | 72px | 56px |
 | `--mule-name-size` | 14px | 13px |
 | `--roster-card-min-height` | 260px | 220px |
 
@@ -139,7 +138,7 @@ Plain `panel` wrapping a 260px Recharts donut. Inner radius 66, outer 100, 2° p
 `.panel` + `var(--card-pad)`. Hover: translateY(-2px), `0 8px 32px -8px var(--accent-glow)` shadow. Layout:
 - **Top-left** — `Lv.NN` badge: 10px mono, bordered, `--surface-2` background.
 - **Top-right** — trash button, hidden until hover or popover open. Uses shadcn `Popover` for delete confirm.
-- **Center** — `ClassSilhouette` (72px, uses `--dim` as currentColor).
+- **Center** — 112px `blank-character.png` placeholder avatar (non-draggable, `aria-hidden`).
 - **Name** — 14px / 600 (13px in compact). Falls back to italic muted "Unnamed".
 - **Class** — 10px mono, uppercase, muted.
 - **Weekly income row** — top-bordered; "WEEKLY" eyebrow + mono value. **Abbreviated on mobile, full on desktop** via `md:hidden` / `hidden md:inline` paired spans. Color: accent if bosses tallied, `--dim` if zero.
@@ -147,7 +146,7 @@ Plain `panel` wrapping a 260px Recharts donut. Inner radius 66, outer 100, 2° p
 Card is also a dnd-kit sortable handle; the full card is the drag surface (pointer sensor with 5px activation distance).
 
 ### [AddCard](src/components/AddCard.tsx)
-Dashed 2px border tile in the roster grid. On hover: border and `+` icon flip to accent; background fills with `--accent-soft`. Reads the shared `--roster-card-min-height` token (also consumed by `MuleCharacterCard`), and the roster grid pins every implicit row to that same floor via `grid-auto-rows: minmax(var(--roster-card-min-height), auto)` — so the AddCard stays flush with mule cards whether it shares a row, wraps alone onto a new row at the density boundary, or renders on an empty roster. The token is density-scoped (260px comfy, 220px compact) to track the smaller silhouette in compact.
+Dashed 2px border tile in the roster grid. On hover: border and `+` icon flip to accent; background fills with `--accent-soft`. Reads the shared `--roster-card-min-height` token (also consumed by `MuleCharacterCard`), and the roster grid pins every implicit row to that same floor via `grid-auto-rows: minmax(var(--roster-card-min-height), auto)` — so the AddCard stays flush with mule cards whether it shares a row, wraps alone onto a new row at the density boundary, or renders on an empty roster. The token is density-scoped (260px comfy, 220px compact) to track the tighter padding in compact.
 
 ### [MuleDetailDrawer](src/components/MuleDetailDrawer.tsx)
 Right-side shadcn `Sheet`. Full viewport below `md`, 640px at `md+`. Surface: `var(--surface)` with a 1px `--border` left rail. A 1px horizontal accent gradient lines the top edge, and a `-24px` blurred accent radial sits in the top-right corner.
@@ -192,9 +191,6 @@ A `role="table"` grid, `grid-template-columns: 140px repeat(5, 1fr)`, rounded-[1
 
 ### [DensityToggle](src/components/DensityToggle.tsx)
 Inline two-button segmented control — `--surface-2` background, 1px border, 4px inner padding, 6px rounded pills. Active pill uses `--accent-soft` fill + `--accent-raw` text. Labels "COMFY" / "COMPACT" in 10px mono with `0.14em` tracking.
-
-### [ClassSilhouette](src/components/ClassSilhouette.tsx)
-72×72 SVG at `currentColor = --dim`. Body is an ellipse stack at 55% opacity; an optional class-specific "hat" (Night Lord bandana, Shadower hood, mage pointed hat, warrior crown, generic cap) at 85–90%. Purely decorative.
 
 ### UI primitives — [src/components/ui/](src/components/ui/)
 shadcn/ui over `@base-ui/react`. Notable: `Button` has `default / outline / secondary / ghost / destructive / link` variants and `default / xs / sm / lg / icon / icon-xs / icon-sm / icon-lg` sizes; active press translates 1px; focus ring is a 3px `ring/50`. `Input` is 32px tall, rounded-lg, transparent background (or `input/30` in dark). `Sheet` uses a 10% black backdrop with `backdrop-blur-xs` and a 220ms custom-cubic ease.

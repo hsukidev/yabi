@@ -134,7 +134,6 @@
   /* ── Density defaults ── */
   --card-pad: 16px;
   --roster-cols: 6;
-  --sil-size: 72px;
   --mule-name-size: 14px;
   /* Shared floor read by both MuleCharacterCard and AddCard so their heights
    * can't drift; also fed into the roster grid's grid-auto-rows so a lone
@@ -199,14 +198,12 @@
 [data-density="comfy"] {
   --card-pad: 16px;
   --roster-cols: 1;
-  --sil-size: 72px;
   --mule-name-size: 14px;
   --roster-card-min-height: 260px;
 }
 [data-density="compact"] {
   --card-pad: 12px;
   --roster-cols: 1;
-  --sil-size: 56px;
   --mule-name-size: 13px;
   --roster-card-min-height: 220px;
 }
