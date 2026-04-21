@@ -1,7 +1,7 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@import "@fontsource-variable/jetbrains-mono";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import '@fontsource-variable/jetbrains-mono';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -89,58 +89,65 @@ html[data-theme-swap] *:not(body)::after {
 
 :root {
   /* ── Handoff: Pastel-Cozy light theme ── */
-  --bg:          #f6efe4;
-  --bg-2:        #efe5d2;
-  --surface:     #fffaf0;
-  --surface-2:   #f8ecd6;
-  --border-raw:  #e4d6ba;
-  --text:        #3b2f24;
-  --muted-raw:   #8a7a65;
-  --dim:         #c9b896;
-  --accent-raw:  #d97757;
+  --bg: #f6efe4;
+  --bg-2: #efe5d2;
+  --surface: #fffaf0;
+  --surface-2: #f8ecd6;
+  --border-raw: #e4d6ba;
+  --text: #3b2f24;
+  --muted-raw: #8a7a65;
+  --dim: #c9b896;
+  --accent-raw: #d97757;
   --accent-soft: rgba(217, 119, 87, 0.14);
   --accent-glow: rgba(217, 119, 87, 0.2);
-  --c1: #d97757; --c2: #5b8ca8; --c3: #e2a84f; --c4: #7ea67a; --c5: #a97bb5;
+  --c1: #d97757;
+  --c2: #5b8ca8;
+  --c3: #e2a84f;
+  --c4: #7ea67a;
+  --c5: #a97bb5;
 
   /* ── Shadcn tokens (mapped from handoff) ── */
-  --background:        #f6efe4;
-  --foreground:        #3b2f24;
-  --card:              #fffaf0;
-  --card-foreground:   #3b2f24;
-  --surface-raised:    #f8ecd6;
-  --surface-dim:       #c9b896;
-  --popover:           #fffaf0;
-  --popover-foreground:#3b2f24;
-  --primary:           #d97757;
-  --primary-foreground:#fffaf0;
-  --secondary:         #f8ecd6;
+  --background: #f6efe4;
+  --foreground: #3b2f24;
+  --card: #fffaf0;
+  --card-foreground: #3b2f24;
+  --surface-raised: #f8ecd6;
+  --surface-dim: #c9b896;
+  --popover: #fffaf0;
+  --popover-foreground: #3b2f24;
+  --primary: #d97757;
+  --primary-foreground: #fffaf0;
+  --secondary: #f8ecd6;
   --secondary-foreground: #3b2f24;
-  --muted:             #f8ecd6;
-  --muted-foreground:  #8a7a65;
-  --accent:            #d97757;
+  --muted: #f8ecd6;
+  --muted-foreground: #8a7a65;
+  --accent: #d97757;
   --accent-foreground: #fffaf0;
-  --destructive:       hsl(8 65% 52%);
-  --border:            #e4d6ba;
-  --input:             #e4d6ba;
-  --ring:              #d97757;
-  --chart-1: #d97757; --chart-2: #5b8ca8; --chart-3: #e2a84f;
-  --chart-4: #7ea67a; --chart-5: #a97bb5;
+  --destructive: hsl(8 65% 52%);
+  --border: #e4d6ba;
+  --input: #e4d6ba;
+  --ring: #d97757;
+  --chart-1: #d97757;
+  --chart-2: #5b8ca8;
+  --chart-3: #e2a84f;
+  --chart-4: #7ea67a;
+  --chart-5: #a97bb5;
 
-  --accent-primary:   #d97757;
+  --accent-primary: #d97757;
   --accent-secondary: #5b8ca8;
-  --accent-numeric:   #d97757;
+  --accent-numeric: #d97757;
   --glow: 0 0 28px -4px rgba(217, 119, 87, 0.2);
 
   --radius: 0.875rem;
 
-  --sidebar:                   #fffaf0;
-  --sidebar-foreground:        #3b2f24;
-  --sidebar-primary:           #d97757;
-  --sidebar-primary-foreground:#fffaf0;
-  --sidebar-accent:            #f8ecd6;
+  --sidebar: #fffaf0;
+  --sidebar-foreground: #3b2f24;
+  --sidebar-primary: #d97757;
+  --sidebar-primary-foreground: #fffaf0;
+  --sidebar-accent: #f8ecd6;
   --sidebar-accent-foreground: #3b2f24;
-  --sidebar-border:            #e4d6ba;
-  --sidebar-ring:              #d97757;
+  --sidebar-border: #e4d6ba;
+  --sidebar-ring: #d97757;
 
   /* ── Density defaults ── */
   --card-pad: 16px;
@@ -154,65 +161,72 @@ html[data-theme-swap] *:not(body)::after {
 
 .dark {
   /* ── Handoff: Dark-Amber dark theme ── */
-  --bg:          #0b0b10;
-  --bg-2:        #111118;
-  --surface:     #15161d;
-  --surface-2:   #1b1d26;
-  --border-raw:  #262836;
-  --text:        #eeecda;
-  --muted-raw:   #72778a;
-  --dim:         #3a3d4d;
-  --accent-raw:  #f0b44a;
+  --bg: #0b0b10;
+  --bg-2: #111118;
+  --surface: #15161d;
+  --surface-2: #1b1d26;
+  --border-raw: #262836;
+  --text: #eeecda;
+  --muted-raw: #72778a;
+  --dim: #3a3d4d;
+  --accent-raw: #f0b44a;
   --accent-soft: rgba(240, 180, 74, 0.15);
   --accent-glow: rgba(240, 180, 74, 0.25);
-  --c1: #f0b44a; --c2: #7fb7ff; --c3: #e88774; --c4: #6fd3b5; --c5: #b395e0;
+  --c1: #f0b44a;
+  --c2: #7fb7ff;
+  --c3: #e88774;
+  --c4: #6fd3b5;
+  --c5: #b395e0;
 
   /* ── Shadcn tokens (mapped from handoff) ── */
-  --background:        #0b0b10;
-  --foreground:        #eeecda;
-  --card:              #15161d;
-  --card-foreground:   #eeecda;
-  --surface-raised:    #1b1d26;
-  --surface-dim:       #3a3d4d;
-  --popover:           #15161d;
-  --popover-foreground:#eeecda;
-  --primary:           #f0b44a;
-  --primary-foreground:#0b0b10;
-  --secondary:         #1b1d26;
+  --background: #0b0b10;
+  --foreground: #eeecda;
+  --card: #15161d;
+  --card-foreground: #eeecda;
+  --surface-raised: #1b1d26;
+  --surface-dim: #3a3d4d;
+  --popover: #15161d;
+  --popover-foreground: #eeecda;
+  --primary: #f0b44a;
+  --primary-foreground: #0b0b10;
+  --secondary: #1b1d26;
   --secondary-foreground: #eeecda;
-  --muted:             #1b1d26;
-  --muted-foreground:  #72778a;
-  --accent:            #f0b44a;
+  --muted: #1b1d26;
+  --muted-foreground: #72778a;
+  --accent: #f0b44a;
   --accent-foreground: #0b0b10;
-  --destructive:       hsl(8 60% 52%);
-  --border:            #262836;
-  --input:             #262836;
-  --ring:              #f0b44a;
-  --chart-1: #f0b44a; --chart-2: #7fb7ff; --chart-3: #e88774;
-  --chart-4: #6fd3b5; --chart-5: #b395e0;
+  --destructive: hsl(8 60% 52%);
+  --border: #262836;
+  --input: #262836;
+  --ring: #f0b44a;
+  --chart-1: #f0b44a;
+  --chart-2: #7fb7ff;
+  --chart-3: #e88774;
+  --chart-4: #6fd3b5;
+  --chart-5: #b395e0;
 
-  --accent-primary:   #f0b44a;
+  --accent-primary: #f0b44a;
   --accent-secondary: #7fb7ff;
-  --accent-numeric:   #f0b44a;
+  --accent-numeric: #f0b44a;
   --glow: 0 0 28px -4px rgba(240, 180, 74, 0.25);
 
-  --sidebar:                   #15161d;
-  --sidebar-foreground:        #eeecda;
-  --sidebar-primary:           #f0b44a;
-  --sidebar-primary-foreground:#0b0b10;
-  --sidebar-accent:            #1b1d26;
+  --sidebar: #15161d;
+  --sidebar-foreground: #eeecda;
+  --sidebar-primary: #f0b44a;
+  --sidebar-primary-foreground: #0b0b10;
+  --sidebar-accent: #1b1d26;
   --sidebar-accent-foreground: #eeecda;
-  --sidebar-border:            #262836;
-  --sidebar-ring:              #f0b44a;
+  --sidebar-border: #262836;
+  --sidebar-ring: #f0b44a;
 }
 
-[data-density="comfy"] {
+[data-density='comfy'] {
   --card-pad: 16px;
   --roster-cols: 1;
   --mule-name-size: 14px;
   --roster-card-min-height: 260px;
 }
-[data-density="compact"] {
+[data-density='compact'] {
   --card-pad: 12px;
   --roster-cols: 1;
   --mule-name-size: 13px;
@@ -227,27 +241,51 @@ html[data-theme-swap] *:not(body)::after {
  * the comfy/compact distinction buys no visible layout difference. Keep the
  * toggle's visibility rule co-located with this breakpoint so adjustments
  * stay in sync. */
-[data-testid="density-toggle"] { display: none; }
+[data-testid='density-toggle'] {
+  display: none;
+}
 @media (min-width: 480px) {
-  [data-density="comfy"]   { --roster-cols: 2; }
-  [data-density="compact"] { --roster-cols: 2; }
+  [data-density='comfy'] {
+    --roster-cols: 2;
+  }
+  [data-density='compact'] {
+    --roster-cols: 2;
+  }
 }
 @media (min-width: 768px) {
-  [data-density="comfy"]   { --roster-cols: 3; }
-  [data-density="compact"] { --roster-cols: 4; }
-  [data-testid="density-toggle"] { display: inline-flex; }
+  [data-density='comfy'] {
+    --roster-cols: 3;
+  }
+  [data-density='compact'] {
+    --roster-cols: 4;
+  }
+  [data-testid='density-toggle'] {
+    display: inline-flex;
+  }
 }
 @media (min-width: 1024px) {
-  [data-density="comfy"]   { --roster-cols: 4; }
-  [data-density="compact"] { --roster-cols: 5; }
+  [data-density='comfy'] {
+    --roster-cols: 4;
+  }
+  [data-density='compact'] {
+    --roster-cols: 5;
+  }
 }
 @media (min-width: 1100px) {
-  [data-density="comfy"]   { --roster-cols: 5; }
-  [data-density="compact"] { --roster-cols: 6; }
+  [data-density='comfy'] {
+    --roster-cols: 5;
+  }
+  [data-density='compact'] {
+    --roster-cols: 6;
+  }
 }
 @media (min-width: 1280px) {
-  [data-density="comfy"]   { --roster-cols: 6; }
-  [data-density="compact"] { --roster-cols: 8; }
+  [data-density='comfy'] {
+    --roster-cols: 6;
+  }
+  [data-density='compact'] {
+    --roster-cols: 8;
+  }
 }
 
 @layer base {
@@ -260,7 +298,12 @@ html[data-theme-swap] *:not(body)::after {
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Geist', -apple-system, ui-sans-serif, system-ui, sans-serif;
+    font-family:
+      'Geist',
+      -apple-system,
+      ui-sans-serif,
+      system-ui,
+      sans-serif;
     font-feature-settings: 'ss01', 'cv11';
     font-weight: 500;
     letter-spacing: -0.005em;
@@ -270,7 +313,7 @@ html[data-theme-swap] *:not(body)::after {
   }
 
   body::before {
-    content: "";
+    content: '';
     position: fixed;
     inset: 0;
     z-index: -2;
@@ -281,12 +324,11 @@ html[data-theme-swap] *:not(body)::after {
   }
 
   body.light::before {
-    background:
-      radial-gradient(1200px 600px at 10% -10%, var(--accent-soft) 0%, transparent 50%);
+    background: radial-gradient(1200px 600px at 10% -10%, var(--accent-soft) 0%, transparent 50%);
   }
 
   body::after {
-    content: "";
+    content: '';
     position: fixed;
     inset: 0;
     z-index: -1;
@@ -308,7 +350,9 @@ html[data-theme-swap] *:not(body)::after {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     position: relative;
-    transition: border-color 150ms ease, box-shadow 150ms ease;
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease;
   }
   .panel:hover {
     border-color: var(--accent-raw, var(--accent));
@@ -318,12 +362,12 @@ html[data-theme-swap] *:not(body)::after {
     box-shadow:
       0 0 0 1px var(--border),
       0 20px 60px -30px var(--accent-glow),
-      inset 0 1px 0 rgba(255,255,255,0.02);
+      inset 0 1px 0 rgba(255, 255, 255, 0.02);
   }
   .panel-glow:hover {
     box-shadow:
       0 20px 60px -30px var(--accent-glow),
-      inset 0 1px 0 rgba(255,255,255,0.02);
+      inset 0 1px 0 rgba(255, 255, 255, 0.02);
   }
   body.light .panel-glow {
     box-shadow:
@@ -331,8 +375,7 @@ html[data-theme-swap] *:not(body)::after {
       0 12px 40px -20px var(--accent-glow);
   }
   body.light .panel-glow:hover {
-    box-shadow:
-      0 12px 40px -20px var(--accent-glow);
+    box-shadow: 0 12px 40px -20px var(--accent-glow);
   }
   .bignum {
     font-family: 'JetBrains Mono', monospace;
@@ -379,7 +422,9 @@ html[data-theme-swap] *:not(body)::after {
    * variant squares its bottom corners, tints the seam to --surface-2, and
    * overlaps the matrix below by 1px so they share a single border line. */
   .d-search {
-    display: flex; align-items: center; gap: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     background: var(--surface-2);
     border: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
     border-radius: 8px;
@@ -387,10 +432,17 @@ html[data-theme-swap] *:not(body)::after {
     color: var(--muted-foreground);
   }
   .d-search input {
-    flex: 1; background: transparent; border: none; outline: none;
-    color: var(--foreground); font-family: inherit; font-size: 13px;
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--foreground);
+    font-family: inherit;
+    font-size: 13px;
   }
-  .d-search input::placeholder { color: var(--muted-foreground); }
+  .d-search input::placeholder {
+    color: var(--muted-foreground);
+  }
   .d-search-fused {
     border-radius: 10px 10px 0 0;
     border-bottom-color: var(--border);
@@ -413,17 +465,22 @@ html[data-theme-swap] *:not(body)::after {
     overflow: hidden;
   }
   .d-c-toggle button {
-    background: transparent; border: none;
+    background: transparent;
+    border: none;
     border-right: 1px solid var(--border);
     color: var(--muted-foreground);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; letter-spacing: 0.06em;
+    font-size: 10px;
+    letter-spacing: 0.06em;
     padding: 5px 10px;
     cursor: pointer;
-    display: flex; align-items: center;
+    display: flex;
+    align-items: center;
     transition: all 0.1s;
   }
-  .d-c-toggle button:last-child { border-right: none; }
+  .d-c-toggle button:last-child {
+    border-right: none;
+  }
   .d-c-toggle button.on {
     background: var(--accent-soft);
     color: var(--accent);
@@ -459,15 +516,22 @@ html[data-theme-swap] *:not(body)::after {
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
- * Bulk Delete Mode — scope user-select / touch-action suppression to
- * Character Cards inside the Drag Boundary while bulk mode is active. This
- * kills the stray text-highlight bug on press-and-drag and prevents touch
- * drags on a bulk-mode card from scrolling the page. Foundation for the
- * forthcoming Drag-to-Select gesture.
+ * Character Cards never participate in native text selection. Dragging from
+ * outside a card across it would otherwise paint a stray highlight over the
+ * card's text, which has no meaning in this UI.
  * ────────────────────────────────────────────────────────────────────────── */
-[data-drag-boundary][data-bulk-mode="true"] [data-mule-card] {
+[data-drag-boundary] [data-mule-card],
+[data-drag-boundary] [data-add-card] {
   user-select: none;
   -webkit-user-select: none;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Bulk Delete Mode — additionally suppress touch scrolling and the iOS
+ * long-press callout on Character Cards so the Drag-to-Select gesture owns
+ * the pointer stream without the page scrolling underneath it.
+ * ────────────────────────────────────────────────────────────────────────── */
+[data-drag-boundary][data-bulk-mode='true'] [data-mule-card] {
   -webkit-touch-callout: none;
   touch-action: none;
 }
@@ -478,12 +542,23 @@ html[data-theme-swap] *:not(body)::after {
  * --destructive so theme toggle carries them into light/dark automatically.
  * ────────────────────────────────────────────────────────────────────────── */
 @keyframes bulk-slide {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @keyframes bulk-pulse {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
