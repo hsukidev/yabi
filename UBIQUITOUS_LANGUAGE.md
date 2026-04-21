@@ -36,7 +36,7 @@
 | **Character Avatar** | The `blank-character.png` placeholder rendered inside a **Character Card** and the **Drawer's** **Identity Section**; class-agnostic, shared between both surfaces | Silhouette, portrait, icon |
 | **Add Card** | The dashed-border placeholder at the end of the **Roster** that creates a new **Mule** on click | Plus card, new mule button |
 | **KPI Card** | The panel-glow card showing **Total Weekly Income**, **Mule** count, and **Active Mule** count | Hero card, income card, summary card |
-| **Split Card** | The panel containing the donut chart of **Potential Income** distribution across **Active Mules** | Chart card, breakdown card, pie card |
+| **PieChart Card** | The panel containing the donut chart of **Potential Income** distribution across **Active Mules** | Split card, chart card, breakdown card, pie card |
 | **Drawer** | The right-side panel that slides in for editing a selected **Mule's** full details | Side drawer, detail panel, modal |
 | **Density Toggle** | The COMFY/COMPACT segmented control placed inline after the "Roster N MULES" eyebrow label | Size toggle, spacing toggle |
 | **Drag Boundary** | The dashed border visible around the **Roster** during drag, showing that **Character Cards** are confined to the grid | Drag area, drop zone |
@@ -54,7 +54,7 @@
 | **Accent** | The active **Theme's** primary highlight color — gold (#f0b44a) in **Dark-Amber**, terracotta (#d97757) in **Cozy-Pastel** | Primary color, highlight color |
 | **Accent Soft** | A low-opacity derivation of the **Accent** (~15%) used for hover tints and selected-state backgrounds | Accent wash, accent tint |
 | **Accent Glow** | A low-opacity derivation of the **Accent** (~25%) used for drop shadows and bignum text glow | Accent halo, accent shadow |
-| **Chart Palette** | The five colors (`--c1`–`--c5`) assigned to slices of the **Split Card** donut, unique per **Theme** | Chart colors, series colors |
+| **Chart Palette** | The five colors (`--c1`–`--c5`) assigned to slices of the **PieChart Card** chart, unique per **Theme** | Chart colors, series colors |
 | **Handoff** | The reference design package (`MS Mule Income Tracker-handoff.zip`) that defines the intended visual system | Design reference, mockup, spec |
 
 ## Weekly Cycle
@@ -206,7 +206,7 @@
 - An **Inactive Mule's** **Character Card** is rendered in the **Dim State** (0.55 opacity); its income line still shows the **Mule's** **Potential Income** but in the muted color
 - **Crystal Value** is divided by **Party Size** (future: 1–6, default solo)
 - A **Character Card** represents exactly one **Mule** in the **Roster**
-- Clicking a **Character Card** or a **Split Card** slice opens the **Drawer** for that **Mule**
+- Clicking a **Character Card** or a **PieChart Card** slice opens the **Drawer** for that **Mule**
 - The **Drawer** contains exactly one **Boss Matrix**, sitting under one **Matrix Toolbar** and one **Boss Search**
 - The **Matrix Toolbar** renders above the **Boss Search**, which is **Fused** to the top of the **Boss Matrix**
 - A **Boss Preset** is **Active Preset** iff every one of its member **Boss Families** has its **Hardest Tier** key in `Mule.selectedBosses`
@@ -228,7 +228,7 @@
 - The **Start Card** is always inside the **Paint Range** and therefore always at the **Brush** state for the entire gesture
 - **Gesture Cancellation** reverts every **Mule** touched by the gesture to its **Original Snapshot**; `pointerup` after engagement commits the current **Paint Range** as the final set of **Deletion-Marked Mules**
 - **Drag-to-Select** requires `touch-action: none` and `user-select: none` on every **Character Card** within the **Drag Boundary** while **Bulk Delete Mode** is active, to suppress text highlighting and native touch scroll during the gesture
-- The **Split Card** includes only **Active Mules** — an **Inactive Mule** renders no donut slice
+- The **PieChart Card** includes only **Active Mules** — an **Inactive Mule** renders no donut slice
 - An **Inactive Mule's** **Character Card** remains fully interactive: hover-lift, click-to-open **Drawer**, and drag-to-reorder all work identically to an **Active Mule**; only the **Dim State** differs
 - The **Active Toggle** sits on its own row directly below the weekly-mesos pill in the **Identity Section**; clicking it mutates the **Mule's** **Active Flag**
 - Exactly one **Theme** and one **Density** are active at any time; both persist to localStorage
@@ -249,7 +249,7 @@
 - `useIncome(source)` must be called inside an **Income Provider**; passing no argument returns an **Income** of `0` alongside `abbreviated` and `toggle`, useful for toggle-only consumers
 - `useIncome` memoizes the returned **Income** — callers do not wrap in their own `useMemo`
 - The **KPI Card**'s bignum pairs `useIncome(mules)` with `useAutoFullFormatOnZero(total.raw)`; the **Auto-Fullformat-On-Zero Rule** is extracted from the old inline `useEffect` and is the only caller of `useAutoFullFormatOnZero`
-- **Split Card** slices use `Income.of(mule, false).raw` directly — chart math bypasses **Format Preference** because charts need numbers, not strings
+- **PieChart Card** slices use `Income.of(mule, false).raw` directly — chart math bypasses **Format Preference** because charts need numbers, not strings
 - The **Mule Store** is the only module that reads or writes `Mule.selectedBosses` from storage; `useMules` consumes `store.load()` as its `useState` initializer and calls `store.save(mules)` inside a `useEffect` on every mutation
 - `store.save(mules)` coalesces bursts over the **Storage Debounce**; `store.flush()` writes immediately regardless of pending debounce state
 - `useMules` registers `store.flush` on `pagehide` and `beforeunload` and calls `store.flush()` in the effect cleanup so tab close never loses pending writes
@@ -259,7 +259,7 @@
 - The **Active Default** is applied inside **Mule Migration**, not in the React hook — any **Mule** missing an **Active Flag** on load becomes an **Active Mule**, preserving its **Potential Income** contribution under the new **Active-Flag Filter** semantics
 - **Upgrade V2** resolves each v2 **Slate Key** through the **Boss Cadence** catalog to produce a v4 **Slate Key**; unresolvable entries drop silently per the same invariant that governs `MuleBossSlate.from`
 - The public React API of `useMules` does not change across the **Mule Store** extraction — `{ mules, addMule, updateMule, deleteMule, deleteMules, reorderMules }` remains the contract for every consumer component
-- A **Draft Field** `onChange` only mutates local `draft` state — no parent re-render until `onBlur` triggers **Commit**; this is what keeps the **Split Card** donut and **Roster** cards still during per-keystroke name/level editing
+- A **Draft Field** `onChange` only mutates local `draft` state — no parent re-render until `onBlur` triggers **Commit**; this is what keeps the **PieChart Card** donut and **Roster** cards still during per-keystroke name/level editing
 - **Commit** fires on three boundaries: `onBlur`, **Mule Switch**, and **Drawer Close**; all three run through the same `commit` callback so there is one code path for "push draft to parent state"
 - **Draft Source Resync** runs inside `useDraftField`'s effect — if the external `source` changes while the user is editing, the draft rebaselines to the new source rather than silently shadowing it; the `equals` option lets callers opt out for structural values
 - **Commit On Exit** unifies the pre-refactor `draftsRef` + `lastMuleIdRef` + `onUpdateRef` dance; initial mount does not fire a flush (first effect run seeds the tracking refs) so opening the **Drawer** never emits a spurious `onUpdate(id, {})`
@@ -275,10 +275,10 @@
 
 > **Dev:** "When I switch from **Comfy** to **Compact**, why does a **Character Card** shrink but the **KPI Card** barely changes?"
 > **Domain expert:** "The **Density** CSS variables only resize **Roster** elements — card padding, grid columns, name size, minimum card height. The **KPI Card** uses its own `--kpi-pad` variable that changes a little, but the **Bignum** inside stays fixed — we don't want the headline number dancing around."
-> **Dev:** "Got it. And if a **Mule** has no selected **Boss Difficulties**, does it still appear in the **Split Card** donut?"
-> **Domain expert:** "No. The **Split Card** only plots **Active Mules**. The **Character Card** still renders in the **Roster**, but it displays as inactive with a dim **Potential Income**."
+> **Dev:** "Got it. And if a **Mule** has no selected **Boss Difficulties**, does it still appear in the **PieChart Card** donut?"
+> **Domain expert:** "No. The **PieChart Card** only plots **Active Mules**. The **Character Card** still renders in the **Roster**, but it displays as inactive with a dim **Potential Income**."
 > **Dev:** "What about the **Chart Palette** — is it shared between **Themes**?"
-> **Domain expert:** "No, each **Theme** has its own palette. **Dark-Amber** uses warm amber + cool blues; **Cozy-Pastel** uses softer terracotta + sage. When the **Theme** changes, the donut slices recolor instantly because **Split Card** reads `--c1` through `--c5` at render time."
+> **Domain expert:** "No, each **Theme** has its own palette. **Dark-Amber** uses warm amber + cool blues; **Cozy-Pastel** uses softer terracotta + sage. When the **Theme** changes, the donut slices recolor instantly because **PieChart Card** reads `--c1` through `--c5` at render time."
 > **Dev:** "And when I drag a **Character Card**, is the **Add Card** also draggable?"
 > **Domain expert:** "No — the **Add Card** is explicitly excluded from the sortable items. Only **Character Cards** participate in reorder, and they're confined by the **Drag Boundary**."
 > **Dev:** "The **Reset Countdown** in the header — is that tracking the user's local Thursday or UTC Thursday?"
@@ -331,7 +331,7 @@
 > **Domain expert:** "Zero change. Every consumer — `App`, `KpiCard`, `Roster`, `Drawer` — still destructures `{ mules, addMule, updateMule, deleteMule, deleteMules, reorderMules }`. The refactor is internal: the hook became a CRUD facade over the **Mule Store**. All the **Schema Version** literals, debounce refs, and storage keys moved out of the hook file."
 > **Dev:** "If the user types a new mule name and hits Esc, does the name save?"
 > **Domain expert:** "Yes, now. That's **Commit On Exit**. Before this refactor, Esc and backdrop-click dropped any unblurred **Draft Field** silently — the effect only flushed on **Mule Switch**. The new hook flushes on unmount too, so **Drawer Close** commits drafts the same way `onBlur` would. The name lands before the **Drawer** goes away."
-> **Dev:** "And per-keystroke in the name field — does that re-render the **Split Card** donut?"
+> **Dev:** "And per-keystroke in the name field — does that re-render the **PieChart Card** donut?"
 > **Domain expert:** "No. **Draft Field**'s `onChange` only touches local `draft` state. The parent `mules` array doesn't move until **Commit**, so the donut and the **Roster** stay put while the user is typing. That's the whole reason we kept the draft/commit split in the hooks refactor."
 > **Dev:** "When I click **CTENE** while **CRA** is already an **Active Preset**, do both stay on?"
 > **Domain expert:** "No — **Preset Swap**. The **Boss Matrix View** hook strips the **CRA** keys before applying the **CTENE** keys, in one `onUpdate` call. The user sees a clean swap, not a union. If **CTENE** were a strict superset of **CRA**, the final **Active Presets** would show only **CTENE** — that's the LOMIEN-supersedes-CRA case."
@@ -342,7 +342,7 @@
 
 - "Income" was used inconsistently — sometimes meaning a mule's individual total, sometimes the global sum. Canonical terms: **Potential Income** (per mule) and **Total Weekly Income** (all mules). **Resolved in code:** `calculateMuleIncome` → `calculatePotentialIncome`, `totalIncome` → `totalWeeklyIncome`, local `income` → `potentialIncome`.
 - "Boss" was overloaded to mean both the encounter and the crystal it drops. Canonical separation: **Boss** = the encounter, **Crystal** = the sellable item, **Crystal Value** = the mesos received. **Resolved in code:** `mesoValue` → `crystalValue` on the `Boss` type and all boss data entries.
-- "Card" is repeatedly overloaded — **Character Card**, **KPI Card**, **Split Card**, **Add Card** all coexist. Always use the full compound name; never write "the card" unqualified when more than one is in context.
+- "Card" is repeatedly overloaded — **Character Card**, **KPI Card**, **PieChart Card**, **Add Card** all coexist. Always use the full compound name; never write "the card" unqualified when more than one is in context.
 - "Mule Card" (from the **Handoff** files) refers to the same concept as **Character Card**. Canonical term: **Character Card**. The component file is named `MuleCharacterCard.tsx` for historical reasons; the class name and type stay but prose and PR descriptions should say **Character Card**.
 - "Dark mode" / "light mode" were used interchangeably with the **Theme** names. Canonical terms: **Dark-Amber** and **Cozy-Pastel**. "Dark mode" is acceptable shorthand when contrast with "light mode" is the point, but never imply a third option — only these two themes exist.
 - "Accent" in CSS has multiple variables (`--accent`, `--accent-raw`, `--accent-soft`, `--accent-glow`, `--accent-primary`, `--accent-secondary`, `--accent-numeric`). Prose canonical: **Accent** (the raw source color), **Accent Soft** (hover tint), **Accent Glow** (shadow halo). The shadcn-compatible `--accent` / `--accent-primary` / `--accent-numeric` are all aliases of the raw accent; prefer `--accent-raw` in new code.
