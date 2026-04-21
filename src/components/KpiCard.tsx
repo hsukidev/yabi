@@ -15,7 +15,7 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
   return (
     <div
       data-testid="income-card"
-      className="panel panel-glow relative overflow-hidden"
+      className="panel panel-glow relative overflow-hidden h-full"
       style={{ padding: '24px' }}
     >
       <div className="eyebrow">
