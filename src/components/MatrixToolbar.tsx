@@ -66,8 +66,7 @@ export function MatrixToolbar({
   weeklyCount,
   onReset,
 }: MatrixToolbarProps) {
-  const countColor =
-    weeklyCount > 0 ? 'var(--accent)' : 'var(--muted-foreground)';
+  const countColor = weeklyCount > 0 ? 'var(--accent)' : 'var(--muted-foreground)';
   return (
     <div className="flex items-center justify-between gap-2">
       <div className="flex items-center">

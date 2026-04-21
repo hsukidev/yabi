@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  MuleBossSlate,
-  type SlateKey,
-  type SlateRow,
-  type SlateFamily,
-} from '../muleBossSlate';
+import { MuleBossSlate, type SlateKey, type SlateRow, type SlateFamily } from '../muleBossSlate';
 import { bosses, getBossById } from '../bosses';
 import type { BossCadence, BossTier } from '../../types';
 
@@ -101,10 +96,7 @@ describe('MuleBossSlate.from — normalization', () => {
     // Normal Vellum is daily; Chaos Vellum is weekly — distinct buckets.
     const normalDaily = key(VELLUM, 'normal');
     const chaosWeekly = key(VELLUM, 'chaos');
-    expect(MuleBossSlate.from([normalDaily, chaosWeekly]).keys).toEqual([
-      normalDaily,
-      chaosWeekly,
-    ]);
+    expect(MuleBossSlate.from([normalDaily, chaosWeekly]).keys).toEqual([normalDaily, chaosWeekly]);
   });
 
   it('keeps only the highest daily when two daily tiers of one boss conflict', () => {
@@ -120,31 +112,18 @@ describe('MuleBossSlate.from — normalization', () => {
 
   it('preserves original order among surviving keys', () => {
     const keys = [key(WILL, 'hard'), key(LUCID, 'normal'), key(LUCID, 'hard')];
-    expect(MuleBossSlate.from(keys).keys).toEqual([
-      key(WILL, 'hard'),
-      key(LUCID, 'hard'),
-    ]);
+    expect(MuleBossSlate.from(keys).keys).toEqual([key(WILL, 'hard'), key(LUCID, 'hard')]);
   });
 
   it('drops invalid + conflicting entries together', () => {
-    const keys = [
-      'fake-key',
-      key(LUCID, 'easy'),
-      key(LUCID, 'hard'),
-      key(WILL, 'hard'),
-    ];
-    expect(MuleBossSlate.from(keys).keys).toEqual([
-      key(LUCID, 'hard'),
-      key(WILL, 'hard'),
-    ]);
+    const keys = ['fake-key', key(LUCID, 'easy'), key(LUCID, 'hard'), key(WILL, 'hard')];
+    expect(MuleBossSlate.from(keys).keys).toEqual([key(LUCID, 'hard'), key(WILL, 'hard')]);
   });
 });
 
 describe('MuleBossSlate.toggle', () => {
   it('adds a key when not present', () => {
-    expect(MuleBossSlate.EMPTY.toggle(key(LUCID, 'hard')).keys).toEqual([
-      key(LUCID, 'hard'),
-    ]);
+    expect(MuleBossSlate.EMPTY.toggle(key(LUCID, 'hard')).keys).toEqual([key(LUCID, 'hard')]);
   });
 
   it('deselects when toggling the same key twice', () => {
@@ -159,10 +138,7 @@ describe('MuleBossSlate.toggle', () => {
 
   it('preserves Slate Keys on other families during a Tier Swap', () => {
     const slate = MuleBossSlate.from([key(WILL, 'normal'), key(LUCID, 'hard')]);
-    expect(slate.toggle(key(WILL, 'hard')).keys).toEqual([
-      key(WILL, 'hard'),
-      key(LUCID, 'hard'),
-    ]);
+    expect(slate.toggle(key(WILL, 'hard')).keys).toEqual([key(WILL, 'hard'), key(LUCID, 'hard')]);
   });
 
   it('adds a different-cadence key as a coexisting selection', () => {
@@ -379,28 +355,17 @@ describe('MuleBossSlate.totalCrystalValue', () => {
 
   it('folds daily keys × 7', () => {
     // Normal Vellum is daily. Look up its actual crystalValue from bosses.ts.
-    const diff = getBossById(VELLUM)!.difficulty.find(
-      (d) => d.tier === 'normal',
-    )!;
+    const diff = getBossById(VELLUM)!.difficulty.find((d) => d.tier === 'normal')!;
     expect(diff.cadence).toBe('daily');
     const slate = MuleBossSlate.from([key(VELLUM, 'normal')]);
     expect(slate.totalCrystalValue).toBe(diff.crystalValue * 7);
   });
 
   it('sums a mixed daily + weekly slate', () => {
-    const weeklyDiff = getBossById(LUCID)!.difficulty.find(
-      (d) => d.tier === 'hard',
-    )!;
-    const dailyDiff = getBossById(VELLUM)!.difficulty.find(
-      (d) => d.tier === 'normal',
-    )!;
-    const slate = MuleBossSlate.from([
-      key(LUCID, 'hard'),
-      key(VELLUM, 'normal'),
-    ]);
-    expect(slate.totalCrystalValue).toBe(
-      weeklyDiff.crystalValue + dailyDiff.crystalValue * 7,
-    );
+    const weeklyDiff = getBossById(LUCID)!.difficulty.find((d) => d.tier === 'hard')!;
+    const dailyDiff = getBossById(VELLUM)!.difficulty.find((d) => d.tier === 'normal')!;
+    const slate = MuleBossSlate.from([key(LUCID, 'hard'), key(VELLUM, 'normal')]);
+    expect(slate.totalCrystalValue).toBe(weeklyDiff.crystalValue + dailyDiff.crystalValue * 7);
   });
 });
 

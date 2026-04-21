@@ -1,12 +1,12 @@
-import { describe, expect, it, vi } from 'vitest'
-import { render, screen, fireEvent } from '@/test/test-utils'
+import { describe, expect, it, vi } from 'vitest';
+import { render, screen, fireEvent } from '@/test/test-utils';
 
-import { MuleDetailDrawer } from '../MuleDetailDrawer'
-import type { Mule } from '../../types'
-import { bosses } from '../../data/bosses'
+import { MuleDetailDrawer } from '../MuleDetailDrawer';
+import type { Mule } from '../../types';
+import { bosses } from '../../data/bosses';
 
-const LUCID_BOSS = bosses.find((b) => b.family === 'lucid')!
-const HARD_LUCID = `${LUCID_BOSS.id}:hard:weekly`
+const LUCID_BOSS = bosses.find((b) => b.family === 'lucid')!;
+const HARD_LUCID = `${LUCID_BOSS.id}:hard:weekly`;
 
 const baseMule: Mule = {
   id: 'test-mule-1',
@@ -15,11 +15,9 @@ const baseMule: Mule = {
   muleClass: 'Hero',
   selectedBosses: [],
   active: true,
-}
+};
 
-function renderDrawer(
-  overrides: Partial<Parameters<typeof MuleDetailDrawer>[0]> = {},
-) {
+function renderDrawer(overrides: Partial<Parameters<typeof MuleDetailDrawer>[0]> = {}) {
   const props = {
     mule: baseMule,
     open: true,
@@ -27,11 +25,11 @@ function renderDrawer(
     onUpdate: vi.fn(),
     onDelete: vi.fn(),
     ...overrides,
-  }
+  };
   return {
     ...render(<MuleDetailDrawer {...props} />),
     props,
-  }
+  };
 }
 
 /**
@@ -46,66 +44,66 @@ function renderDrawer(
  */
 describe('MuleDetailDrawer (smoke)', () => {
   it('renders content when open with a mule', () => {
-    renderDrawer()
-    expect(screen.getByRole('heading', { name: 'TestMule' })).toBeTruthy()
-  })
+    renderDrawer();
+    expect(screen.getByRole('heading', { name: 'TestMule' })).toBeTruthy();
+  });
 
   it('renders a Sheet even when mule is null so Base-UI can animate out', () => {
-    renderDrawer({ mule: null })
-    expect(document.querySelector('[data-slot="sheet-content"]')).toBeTruthy()
-    expect(screen.queryByRole('heading', { name: 'TestMule' })).toBeNull()
-  })
+    renderDrawer({ mule: null });
+    expect(document.querySelector('[data-slot="sheet-content"]')).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'TestMule' })).toBeNull();
+  });
 
   it('wires the Close button to onClose', () => {
-    const { props } = renderDrawer()
-    fireEvent.click(screen.getByRole('button', { name: /^close$/i }))
-    expect(props.onClose).toHaveBeenCalled()
-  })
+    const { props } = renderDrawer();
+    fireEvent.click(screen.getByRole('button', { name: /^close$/i }));
+    expect(props.onClose).toHaveBeenCalled();
+  });
 
   it('wires the name input to the identity draft hook (commit on blur)', () => {
-    const { props } = renderDrawer()
-    const input = screen.getByLabelText('Character Name') as HTMLInputElement
-    fireEvent.change(input, { target: { value: 'NewName' } })
-    fireEvent.blur(input)
-    expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, { name: 'NewName' })
-  })
+    const { props } = renderDrawer();
+    const input = screen.getByLabelText('Character Name') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'NewName' } });
+    fireEvent.blur(input);
+    expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, { name: 'NewName' });
+  });
 
   it('wires the matrix Reset button to resetBosses (empty selectedBosses)', () => {
     const { props } = renderDrawer({
       mule: { ...baseMule, selectedBosses: [HARD_LUCID] },
-    })
-    fireEvent.click(screen.getByRole('button', { name: /^reset$/i }))
+    });
+    fireEvent.click(screen.getByRole('button', { name: /^reset$/i }));
     expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, {
       selectedBosses: [],
-    })
-  })
+    });
+  });
 
   it('wires matrix cells to toggleKey (dispatches onUpdate with slate.toggle(key).keys)', () => {
-    const { props } = renderDrawer()
-    fireEvent.click(screen.getByTestId(`matrix-cell-${LUCID_BOSS.id}-hard`))
+    const { props } = renderDrawer();
+    fireEvent.click(screen.getByTestId(`matrix-cell-${LUCID_BOSS.id}-hard`));
     expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, {
       selectedBosses: [HARD_LUCID],
-    })
-  })
+    });
+  });
 
   it('wires the delete button through the two-step confirm flow (delete + close)', () => {
-    const onDelete = vi.fn()
-    const onClose = vi.fn()
-    renderDrawer({ onDelete, onClose })
+    const onDelete = vi.fn();
+    const onClose = vi.fn();
+    renderDrawer({ onDelete, onClose });
 
-    fireEvent.click(screen.getByRole('button', { name: /delete/i }))
-    expect(screen.getByText('Delete?')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: /delete/i }));
+    expect(screen.getByText('Delete?')).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Yes' }))
-    expect(onDelete).toHaveBeenCalledWith(baseMule.id)
-    expect(onClose).toHaveBeenCalled()
-  })
+    fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
+    expect(onDelete).toHaveBeenCalledWith(baseMule.id);
+    expect(onClose).toHaveBeenCalled();
+  });
 
   it('Cancel hides the confirm prompt without calling onDelete', () => {
-    const { props } = renderDrawer()
-    fireEvent.click(screen.getByRole('button', { name: /delete/i }))
-    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
-    expect(screen.queryByText('Delete?')).toBeNull()
-    expect(props.onDelete).not.toHaveBeenCalled()
-  })
-})
+    const { props } = renderDrawer();
+    fireEvent.click(screen.getByRole('button', { name: /delete/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByText('Delete?')).toBeNull();
+    expect(props.onDelete).not.toHaveBeenCalled();
+  });
+});

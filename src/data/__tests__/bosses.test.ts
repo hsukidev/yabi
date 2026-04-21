@@ -93,10 +93,7 @@ describe('bosses data (Matrix schema)', () => {
     for (const boss of bosses) {
       for (const d of boss.difficulty) {
         const expected = dailyLookup.has(`${boss.family}:${d.tier}`) ? 'daily' : 'weekly';
-        expect(
-          d.cadence,
-          `${boss.family} ${d.tier} expected cadence=${expected}`,
-        ).toBe(expected);
+        expect(d.cadence, `${boss.family} ${d.tier} expected cadence=${expected}`).toBe(expected);
         if (d.cadence === 'daily') dailyCount++;
       }
     }

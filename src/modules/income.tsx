@@ -7,9 +7,9 @@ import {
   useRef,
   useState,
   type ReactNode,
-} from 'react'
-import { MuleBossSlate } from '../data/muleBossSlate'
-import { formatMeso } from '../utils/meso'
+} from 'react';
+import { MuleBossSlate } from '../data/muleBossSlate';
+import { formatMeso } from '../utils/meso';
 
 /**
  * An **Income Source** — anything whose **Raw Income** is the cadence-weighted
@@ -19,8 +19,8 @@ import { formatMeso } from '../utils/meso'
  * churn.
  */
 export interface IncomeSource {
-  selectedBosses: string[]
-  active?: boolean
+  selectedBosses: string[];
+  active?: boolean;
 }
 
 /**
@@ -30,12 +30,12 @@ export interface IncomeSource {
  */
 // eslint-disable-next-line react-refresh/only-export-components
 export class Income {
-  readonly raw: number
-  private readonly abbr: boolean
+  readonly raw: number;
+  private readonly abbr: boolean;
 
   private constructor(raw: number, abbr: boolean) {
-    this.raw = raw
-    this.abbr = abbr
+    this.raw = raw;
+    this.abbr = abbr;
   }
 
   /**
@@ -48,33 +48,33 @@ export class Income {
    *   `active === false` and includes `active === true` / `active === undefined`.
    */
   static of(source: IncomeSource | IncomeSource[], abbreviated: boolean): Income {
-    const sources = Array.isArray(source) ? source : [source]
-    let raw = 0
+    const sources = Array.isArray(source) ? source : [source];
+    let raw = 0;
     for (const s of sources) {
-      if (s.active === false) continue
-      raw += MuleBossSlate.from(s.selectedBosses).totalCrystalValue
+      if (s.active === false) continue;
+      raw += MuleBossSlate.from(s.selectedBosses).totalCrystalValue;
     }
-    return new Income(raw, abbreviated)
+    return new Income(raw, abbreviated);
   }
 
   /** Rendered `raw` in the active **Format Preference**. Lazy — not precomputed. */
   get formatted(): string {
-    return formatMeso(this.raw, this.abbr)
+    return formatMeso(this.raw, this.abbr);
   }
 
   toString(): string {
-    return this.formatted
+    return this.formatted;
   }
 }
 
 interface IncomeContextValue {
-  abbreviated: boolean
-  toggle: () => void
+  abbreviated: boolean;
+  toggle: () => void;
 }
 
 // Private to this module on purpose: slice 1 keeps the new module standalone
 // so slice 2 can migrate call sites in a single atomic pass.
-const IncomeContext = createContext<IncomeContextValue | undefined>(undefined)
+const IncomeContext = createContext<IncomeContextValue | undefined>(undefined);
 
 /**
  * Holds the global **Format Preference** state and exposes a toggle to every
@@ -84,24 +84,24 @@ export function IncomeProvider({
   children,
   defaultAbbreviated = true,
 }: {
-  children: ReactNode
-  defaultAbbreviated?: boolean
+  children: ReactNode;
+  defaultAbbreviated?: boolean;
 }) {
-  const [abbreviated, setAbbreviated] = useState(defaultAbbreviated)
-  const toggle = useCallback(() => setAbbreviated((a) => !a), [])
-  const value = useMemo(() => ({ abbreviated, toggle }), [abbreviated, toggle])
-  return <IncomeContext.Provider value={value}>{children}</IncomeContext.Provider>
+  const [abbreviated, setAbbreviated] = useState(defaultAbbreviated);
+  const toggle = useCallback(() => setAbbreviated((a) => !a), []);
+  const value = useMemo(() => ({ abbreviated, toggle }), [abbreviated, toggle]);
+  return <IncomeContext.Provider value={value}>{children}</IncomeContext.Provider>;
 }
 
 function useIncomeContext(): IncomeContextValue {
-  const ctx = useContext(IncomeContext)
+  const ctx = useContext(IncomeContext);
   if (!ctx) {
-    throw new Error('useIncome must be used within an IncomeProvider')
+    throw new Error('useIncome must be used within an IncomeProvider');
   }
-  return ctx
+  return ctx;
 }
 
-type UseIncomeResult = Income & { abbreviated: boolean; toggle: () => void }
+type UseIncomeResult = Income & { abbreviated: boolean; toggle: () => void };
 
 /**
  * Read **Potential Income** for a single **Mule**, a roster, or nothing (for
@@ -115,11 +115,11 @@ type UseIncomeResult = Income & { abbreviated: boolean; toggle: () => void }
  */
 // eslint-disable-next-line react-refresh/only-export-components
 export function useIncome(source?: IncomeSource | IncomeSource[]): UseIncomeResult {
-  const { abbreviated, toggle } = useIncomeContext()
+  const { abbreviated, toggle } = useIncomeContext();
   return useMemo(
     () => Object.assign(Income.of(source ?? [], abbreviated), { abbreviated, toggle }),
     [source, abbreviated, toggle],
-  )
+  );
 }
 
 /**
@@ -130,16 +130,16 @@ export function useIncome(source?: IncomeSource | IncomeSource[]): UseIncomeResu
  */
 // eslint-disable-next-line react-refresh/only-export-components
 export function useAutoFullFormatOnZero(raw: number): void {
-  const { abbreviated, toggle } = useIncomeContext()
-  const firedRef = useRef(false)
+  const { abbreviated, toggle } = useIncomeContext();
+  const firedRef = useRef(false);
   useEffect(() => {
     if (raw === 0 && abbreviated) {
       if (!firedRef.current) {
-        firedRef.current = true
-        toggle()
+        firedRef.current = true;
+        toggle();
       }
     } else {
-      firedRef.current = false
+      firedRef.current = false;
     }
-  }, [raw, abbreviated, toggle])
+  }, [raw, abbreviated, toggle]);
 }

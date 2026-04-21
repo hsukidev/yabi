@@ -1,16 +1,16 @@
-import { memo } from 'react'
-import { useAutoFullFormatOnZero, useIncome } from '../modules/income'
-import type { Mule } from '../types'
+import { memo } from 'react';
+import { useAutoFullFormatOnZero, useIncome } from '../modules/income';
+import type { Mule } from '../types';
 
 interface KpiCardProps {
-  mules: Mule[]
+  mules: Mule[];
 }
 
 export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
-  const { raw: totalRaw, formatted: totalWeeklyIncome, toggle } = useIncome(mules)
-  useAutoFullFormatOnZero(totalRaw)
-  const activeMuleCount = mules.filter((m) => m.active).length
-  const canToggleFormat = totalRaw > 0
+  const { raw: totalRaw, formatted: totalWeeklyIncome, toggle } = useIncome(mules);
+  useAutoFullFormatOnZero(totalRaw);
+  const activeMuleCount = mules.filter((m) => m.active).length;
+  const canToggleFormat = totalRaw > 0;
 
   return (
     <div
@@ -32,7 +32,13 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
         >
           {totalWeeklyIncome}
         </button>
-        <span style={{ color: 'var(--muted-raw, var(--muted-foreground))', fontStyle: 'italic', fontFamily: 'monospace' }}>
+        <span
+          style={{
+            color: 'var(--muted-raw, var(--muted-foreground))',
+            fontStyle: 'italic',
+            fontFamily: 'monospace',
+          }}
+        >
           mesos
         </span>
       </div>
@@ -41,21 +47,23 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
         <KpiStat label="ACTIVE" value={String(activeMuleCount)} accent />
       </div>
     </div>
-  )
-})
+  );
+});
 
 function KpiStat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div>
       <div className="eyebrow-plain">{label}</div>
-      <div style={{
-        color: accent ? 'var(--accent-raw, var(--accent))' : 'var(--text, var(--foreground))',
-        fontFamily: 'JetBrains Mono, monospace',
-        fontSize: 22,
-        marginTop: 4,
-      }}>
+      <div
+        style={{
+          color: accent ? 'var(--accent-raw, var(--accent))' : 'var(--text, var(--foreground))',
+          fontFamily: 'JetBrains Mono, monospace',
+          fontSize: 22,
+          marginTop: 4,
+        }}
+      >
         {value}
       </div>
     </div>
-  )
+  );
 }

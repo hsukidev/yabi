@@ -52,9 +52,7 @@ function makeKey(bossId: string, tier: BossTier, cadence: BossCadence): string {
  * on the last two colons so `bossId` (a UUID with its own dashes) stays
  * intact as the prefix.
  */
-function parseKey(
-  key: string,
-): { bossId: string; tier: BossTier; cadence: BossCadence } | null {
+function parseKey(key: string): { bossId: string; tier: BossTier; cadence: BossCadence } | null {
   const lastColon = key.lastIndexOf(':');
   if (lastColon < 0) return null;
   const tierColon = key.lastIndexOf(':', lastColon - 1);
@@ -341,10 +339,7 @@ export class MuleBossSlate {
    * are sorted by **Crystal Value** descending. `search` filters
    * case-insensitively on family slug + display name + boss/row name.
    */
-  view(
-    search: string = '',
-    opts: { abbreviated?: boolean } = {},
-  ): SlateFamily[] {
+  view(search: string = '', opts: { abbreviated?: boolean } = {}): SlateFamily[] {
     const families = getFamilies(this.keys as string[], search, opts);
     return families.map((f) => ({
       family: f.family,
@@ -378,9 +373,7 @@ export class MuleBossSlate {
     for (const key of this.keys) {
       const parsed = parseKey(key);
       if (!parsed) continue;
-      const diff = getBossById(parsed.bossId)!.difficulty.find(
-        (d) => d.tier === parsed.tier,
-      )!;
+      const diff = getBossById(parsed.bossId)!.difficulty.find((d) => d.tier === parsed.tier)!;
       total += diff.crystalValue * (parsed.cadence === 'daily' ? 7 : 1);
     }
     return total;

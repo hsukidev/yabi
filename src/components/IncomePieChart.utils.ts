@@ -66,17 +66,9 @@ export function describeArc(
  * Center-of-pie percentage label. Hovered slice → its share of the total;
  * no hover → "100.0%" (the donut as a whole).
  */
-export function formatCenterPercent(
-  activeIndex: number | undefined,
-  values: number[],
-): string {
+export function formatCenterPercent(activeIndex: number | undefined, values: number[]): string {
   const total = values.reduce((sum, v) => sum + v, 0);
-  if (
-    activeIndex === undefined ||
-    activeIndex < 0 ||
-    activeIndex >= values.length ||
-    total <= 0
-  ) {
+  if (activeIndex === undefined || activeIndex < 0 || activeIndex >= values.length || total <= 0) {
     return '100.0%';
   }
   return `${((values[activeIndex] / total) * 100).toFixed(1)}%`;

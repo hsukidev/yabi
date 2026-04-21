@@ -10,14 +10,7 @@ interface Props {
   className?: string;
 }
 
-export function ClassAutocomplete({
-  id,
-  value,
-  options,
-  onSelect,
-  placeholder,
-  className,
-}: Props) {
+export function ClassAutocomplete({ id, value, options, onSelect, placeholder, className }: Props) {
   const [draft, setDraft] = useState(value);
   const [open, setOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -104,9 +97,7 @@ export function ClassAutocomplete({
         aria-expanded={open}
         aria-autocomplete="list"
         aria-activedescendant={
-          open && highlightedIndex >= 0 && id
-            ? `${id}-option-${highlightedIndex}`
-            : undefined
+          open && highlightedIndex >= 0 && id ? `${id}-option-${highlightedIndex}` : undefined
         }
         onChange={(e) => {
           setDraft(e.currentTarget.value);

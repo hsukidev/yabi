@@ -1,14 +1,14 @@
-import { useDensity } from '../context/DensityProvider'
+import { useDensity } from '../context/DensityProvider';
 
 const OPTIONS: ReadonlyArray<{ value: 'comfy' | 'compact'; label: string }> = [
   { value: 'comfy', label: 'COMFY' },
   { value: 'compact', label: 'COMPACT' },
-]
+];
 
 export function DensityToggle() {
-  const { density, setDensity } = useDensity()
-  const next = density === 'comfy' ? 'compact' : 'comfy'
-  const toggle = () => setDensity(next)
+  const { density, setDensity } = useDensity();
+  const next = density === 'comfy' ? 'compact' : 'comfy';
+  const toggle = () => setDensity(next);
   return (
     <div
       data-testid="density-toggle"
@@ -21,7 +21,7 @@ export function DensityToggle() {
       }}
     >
       {OPTIONS.map((opt) => {
-        const isActive = density === opt.value
+        const isActive = density === opt.value;
         return (
           <button
             key={opt.value}
@@ -47,8 +47,8 @@ export function DensityToggle() {
           >
             {opt.label}
           </button>
-        )
+        );
       })}
     </div>
-  )
+  );
 }

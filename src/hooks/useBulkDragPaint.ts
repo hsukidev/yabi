@@ -60,12 +60,7 @@ function cardIdFromPoint(x: number, y: number): string | null {
   return card.getAttribute('data-mule-card');
 }
 
-export function useBulkDragPaint({
-  enabled,
-  orderRef,
-  isSelected,
-  setSelected,
-}: Args): Handlers {
+export function useBulkDragPaint({ enabled, orderRef, isSelected, setSelected }: Args): Handlers {
   const startIdRef = useRef<string | null>(null);
   const startIdxRef = useRef<number | null>(null);
   const pointerIdRef = useRef<number | null>(null);

@@ -183,7 +183,10 @@ function AppContent() {
           </div>
         </section>
 
-        <section data-testid="roster-section" className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
+        <section
+          data-testid="roster-section"
+          className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
+        >
           <RosterHeader
             muleCount={mules.length}
             bulkMode={bulkMode}

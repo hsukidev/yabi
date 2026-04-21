@@ -51,21 +51,18 @@ export function useMules() {
     return newMule.id;
   }, []);
 
-  const updateMule = useCallback(
-    (id: string, updates: Partial<Omit<Mule, 'id'>>) => {
-      setMules((prev) =>
-        prev.map((m) => {
-          if (m.id !== id) return m;
-          const merged = { ...m, ...updates };
-          if (updates.selectedBosses) {
-            merged.selectedBosses = [...MuleBossSlate.from(updates.selectedBosses).keys];
-          }
-          return merged;
-        }),
-      );
-    },
-    [],
-  );
+  const updateMule = useCallback((id: string, updates: Partial<Omit<Mule, 'id'>>) => {
+    setMules((prev) =>
+      prev.map((m) => {
+        if (m.id !== id) return m;
+        const merged = { ...m, ...updates };
+        if (updates.selectedBosses) {
+          merged.selectedBosses = [...MuleBossSlate.from(updates.selectedBosses).keys];
+        }
+        return merged;
+      }),
+    );
+  }, []);
 
   const deleteMule = useCallback((id: string) => {
     setMules((prev) => prev.filter((m) => m.id !== id));

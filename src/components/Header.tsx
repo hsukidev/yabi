@@ -1,9 +1,9 @@
-import { Sun, Moon } from 'lucide-react'
-import { useTheme } from '../context/ThemeProvider'
-import { ResetCountdown } from './ResetCountdown'
+import { Sun, Moon } from 'lucide-react';
+import { useTheme } from '../context/ThemeProvider';
+import { ResetCountdown } from './ResetCountdown';
 
 export function Header() {
-  const { theme, toggleTheme } = useTheme()
+  const { theme, toggleTheme } = useTheme();
   return (
     <header
       className="sticky top-0 z-50"
@@ -41,9 +41,7 @@ export function Header() {
               }}
             >
               Mule
-              <span style={{ color: 'var(--muted-raw, var(--muted-foreground))' }}>
-                .Income
-              </span>
+              <span style={{ color: 'var(--muted-raw, var(--muted-foreground))' }}>.Income</span>
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
@@ -60,5 +58,5 @@ export function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }

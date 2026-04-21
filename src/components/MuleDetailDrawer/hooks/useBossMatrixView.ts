@@ -1,9 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { Mule } from '../../../types';
-import {
-  MuleBossSlate,
-  type SlateFamily,
-} from '../../../data/muleBossSlate';
+import { MuleBossSlate, type SlateFamily } from '../../../data/muleBossSlate';
 import {
   PRESET_FAMILIES,
   applyPreset,
@@ -22,10 +19,7 @@ const PARTY_SIZE_MAX = 6;
  * the requested cadence. Applied post-`slate.view(search)` so the cadence
  * filter composes with the search filter without reshaping slate internals.
  */
-function filterFamiliesByCadence(
-  families: SlateFamily[],
-  filter: CadenceFilter,
-): SlateFamily[] {
+function filterFamiliesByCadence(families: SlateFamily[], filter: CadenceFilter): SlateFamily[] {
   if (filter === 'All') return families;
   const cadence = filter === 'Weekly' ? 'weekly' : 'daily';
   return families.filter((f) => f.rows.some((r) => r.cadence === cadence));
@@ -83,10 +77,7 @@ export function useBossMatrixView({
     setFilter('All');
   }
 
-  const slate = useMemo(
-    () => MuleBossSlate.from(selectedBosses),
-    [selectedBosses],
-  );
+  const slate = useMemo(() => MuleBossSlate.from(selectedBosses), [selectedBosses]);
 
   const visibleBosses = useMemo(
     () => filterFamiliesByCadence(slate.view(search), filter),
@@ -94,9 +85,7 @@ export function useBossMatrixView({
   );
 
   const activePresets = useMemo<ReadonlySet<PresetKey>>(() => {
-    const set = new Set(
-      PRESET_KEYS.filter((p) => isPresetActive(p, selectedBosses as string[])),
-    );
+    const set = new Set(PRESET_KEYS.filter((p) => isPresetActive(p, selectedBosses as string[])));
     // LOMIEN's resolved keys are a superset of CRA's, so both would light up
     // whenever LOMIEN is fully selected. Prefer the more specific pill.
     if (set.has('LOMIEN')) set.delete('CRA');

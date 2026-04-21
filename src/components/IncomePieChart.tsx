@@ -80,29 +80,22 @@ export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
                 'radial-gradient(closest-side, hsl(from var(--accent-primary) h s l / 0.12), transparent 70%)',
             }}
           />
-          <p className="font-display italic text-sm text-muted-foreground">
-            No bosses tallied yet
-          </p>
+          <p className="font-display italic text-sm text-muted-foreground">No bosses tallied yet</p>
         </div>
       </div>
     );
   }
 
   const total = data.reduce((sum, d) => sum + d.value, 0);
-  const hoveredName =
-    activeIndex !== undefined ? data[activeIndex]?.name : undefined;
-  const hoveredValue =
-    activeIndex !== undefined ? data[activeIndex]?.formatted : undefined;
+  const hoveredName = activeIndex !== undefined ? data[activeIndex]?.name : undefined;
+  const hoveredValue = activeIndex !== undefined ? data[activeIndex]?.formatted : undefined;
   const centerPercentText = formatCenterPercent(
     activeIndex,
     data.map((d) => d.value),
   );
 
   const chartConfig: ChartConfig = Object.fromEntries(
-    data.map((item) => [
-      item.muleId,
-      { label: item.name, color: item.fill },
-    ])
+    data.map((item) => [item.muleId, { label: item.name, color: item.fill }]),
   );
 
   return (
@@ -133,7 +126,6 @@ export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
               <Cell key={`cell-${index}`} fill={entry.fill} />
             ))}
           </Pie>
-
         </PieChart>
       </ChartContainer>
 
@@ -142,9 +134,7 @@ export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
           {hoveredName ?? 'Total'}
         </span>
         <span className="font-mono-nums text-sm text-(--accent-numeric) mt-1">
-          {hoveredValue ?? (abbreviated
-            ? formatCompact(total)
-            : total.toLocaleString())}
+          {hoveredValue ?? (abbreviated ? formatCompact(total) : total.toLocaleString())}
         </span>
         <span className="font-mono-nums text-xs text-muted-foreground mt-0.5">
           {centerPercentText}
@@ -186,5 +176,7 @@ function renderSector(props: SectorShapeProps) {
       </g>
     );
   }
-  return <path d={path} fill={fill} stroke="var(--card)" strokeWidth={2} style={{ cursor: 'pointer' }} />;
+  return (
+    <path d={path} fill={fill} stroke="var(--card)" strokeWidth={2} style={{ cursor: 'pointer' }} />
+  );
 }

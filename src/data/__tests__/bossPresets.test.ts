@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest';
 import {
   PRESET_FAMILIES,
   applyPreset,
@@ -7,9 +7,9 @@ import {
   presetEntryKey,
   presetEntryFamily,
   type PresetFamily,
-} from '../bossPresets'
-import type { Boss, BossDifficulty } from '../../types'
-import { bosses, getBossByFamily } from '../bosses'
+} from '../bossPresets';
+import type { Boss, BossDifficulty } from '../../types';
+import { bosses, getBossByFamily } from '../bosses';
 
 /**
  * Test-local key-shape helpers. The selection-key grammar itself is
@@ -23,28 +23,24 @@ function buildKey(
   tier: BossDifficulty['tier'],
   cadence: BossDifficulty['cadence'],
 ): string {
-  return `${bossId}:${tier}:${cadence}`
+  return `${bossId}:${tier}:${cadence}`;
 }
 
 function pickHardest(boss: Boss): BossDifficulty {
-  return boss.difficulty.reduce((best, d) =>
-    d.crystalValue > best.crystalValue ? d : best,
-  )
+  return boss.difficulty.reduce((best, d) => (d.crystalValue > best.crystalValue ? d : best));
 }
 
 /** Parse `<uuid>:<tier>:<cadence>` without any validation against boss data. */
-function shallowParseKey(
-  key: string,
-): { bossId: string; tier: string; cadence: string } | null {
-  const lastColon = key.lastIndexOf(':')
-  if (lastColon < 0) return null
-  const tierColon = key.lastIndexOf(':', lastColon - 1)
-  if (tierColon < 0) return null
+function shallowParseKey(key: string): { bossId: string; tier: string; cadence: string } | null {
+  const lastColon = key.lastIndexOf(':');
+  if (lastColon < 0) return null;
+  const tierColon = key.lastIndexOf(':', lastColon - 1);
+  if (tierColon < 0) return null;
   return {
     bossId: key.slice(0, tierColon),
     tier: key.slice(tierColon + 1, lastColon),
     cadence: key.slice(lastColon + 1),
-  }
+  };
 }
 
 const CRA_FAMILIES = [
@@ -59,7 +55,7 @@ const CRA_FAMILIES = [
   'magnus',
   'zakum',
   'princess-no',
-] as const
+] as const;
 
 const CTENE_FAMILIES: readonly PresetFamily[] = [
   'akechi-mitsuhide',
@@ -76,160 +72,152 @@ const CTENE_FAMILIES: readonly PresetFamily[] = [
   'crimson-queen',
   'papulatus',
   'magnus',
-]
+];
 
-const CTENE_OVERLAP = [
-  'vellum',
-  'crimson-queen',
-  'papulatus',
-  'magnus',
-  'princess-no',
-] as const
+const CTENE_OVERLAP = ['vellum', 'crimson-queen', 'papulatus', 'magnus', 'princess-no'] as const;
 
 /** Hardest-tier selection key for a family slug. */
 function hardestKey(family: string): string {
-  const boss = getBossByFamily(family)!
-  const diff = pickHardest(boss)
-  return buildKey(boss.id, diff.tier, diff.cadence)
+  const boss = getBossByFamily(family)!;
+  const diff = pickHardest(boss);
+  return buildKey(boss.id, diff.tier, diff.cadence);
 }
 
 /** Resolved selection key for a preset entry (respects tier overrides). */
 function entryKey(entry: PresetFamily): string {
-  return presetEntryKey(entry)!
+  return presetEntryKey(entry)!;
 }
 
 describe('PRESET_FAMILIES membership', () => {
   it('contains exactly the 11 CRA families in spec order', () => {
-    expect(PRESET_FAMILIES.CRA).toEqual(CRA_FAMILIES)
-  })
+    expect(PRESET_FAMILIES.CRA).toEqual(CRA_FAMILIES);
+  });
 
   it('contains exactly the 14 CTENE families in spec order', () => {
-    expect(PRESET_FAMILIES.CTENE).toEqual(CTENE_FAMILIES)
-  })
+    expect(PRESET_FAMILIES.CTENE).toEqual(CTENE_FAMILIES);
+  });
 
   it('every CRA family resolves to a known boss', () => {
     for (const f of PRESET_FAMILIES.CRA) {
-      expect(bosses.find((b) => b.family === f)).toBeDefined()
+      expect(bosses.find((b) => b.family === f)).toBeDefined();
     }
-  })
+  });
 
   it('every CTENE family resolves to a known boss', () => {
     for (const entry of PRESET_FAMILIES.CTENE) {
-      const family = presetEntryFamily(entry)
-      expect(bosses.find((b) => b.family === family)).toBeDefined()
+      const family = presetEntryFamily(entry);
+      expect(bosses.find((b) => b.family === family)).toBeDefined();
     }
-  })
+  });
 
   it('CRA ∩ CTENE shares Vellum, Crimson Queen, Papulatus, Magnus, Princess No', () => {
-    const craSet: ReadonlySet<string> = new Set(PRESET_FAMILIES.CRA)
-    const overlap = PRESET_FAMILIES.CTENE.map(presetEntryFamily).filter((f) =>
-      craSet.has(f),
-    )
-    expect(new Set(overlap)).toEqual(new Set(CTENE_OVERLAP))
-  })
-})
+    const craSet: ReadonlySet<string> = new Set(PRESET_FAMILIES.CRA);
+    const overlap = PRESET_FAMILIES.CTENE.map(presetEntryFamily).filter((f) => craSet.has(f));
+    expect(new Set(overlap)).toEqual(new Set(CTENE_OVERLAP));
+  });
+});
 
 describe('applyPreset', () => {
   it('selects the hardest-tier key for each preset family from an empty selection', () => {
-    const result = applyPreset([], PRESET_FAMILIES.CRA)
-    const expected = CRA_FAMILIES.map(hardestKey)
-    expect(new Set(result)).toEqual(new Set(expected))
-    expect(result).toHaveLength(CRA_FAMILIES.length)
-  })
+    const result = applyPreset([], PRESET_FAMILIES.CRA);
+    const expected = CRA_FAMILIES.map(hardestKey);
+    expect(new Set(result)).toEqual(new Set(expected));
+    expect(result).toHaveLength(CRA_FAMILIES.length);
+  });
 
   it('preserves pre-existing non-preset keys', () => {
-    const lucid = hardestKey('lucid')
-    const result = applyPreset([lucid], PRESET_FAMILIES.CRA)
-    expect(result).toContain(lucid)
+    const lucid = hardestKey('lucid');
+    const result = applyPreset([lucid], PRESET_FAMILIES.CRA);
+    expect(result).toContain(lucid);
     for (const f of PRESET_FAMILIES.CRA) {
-      expect(result).toContain(hardestKey(f))
+      expect(result).toContain(hardestKey(f));
     }
-  })
+  });
 
   it('is idempotent: applying twice yields the same set', () => {
-    const once = applyPreset([], PRESET_FAMILIES.CRA)
-    const twice = applyPreset(once, PRESET_FAMILIES.CRA)
-    expect(new Set(twice)).toEqual(new Set(once))
-  })
+    const once = applyPreset([], PRESET_FAMILIES.CRA);
+    const twice = applyPreset(once, PRESET_FAMILIES.CRA);
+    expect(new Set(twice)).toEqual(new Set(once));
+  });
 
   it('swaps a lower-tier same-cadence selection up to the hardest tier', () => {
     // Start with a lower-tier Vellum daily selection (Normal Vellum daily).
-    const vellum = getBossByFamily('vellum')!
-    const lowDailyKey = buildKey(vellum.id, 'normal', 'daily')
-    const result = applyPreset([lowDailyKey], ['vellum'])
+    const vellum = getBossByFamily('vellum')!;
+    const lowDailyKey = buildKey(vellum.id, 'normal', 'daily');
+    const result = applyPreset([lowDailyKey], ['vellum']);
     // Hardest Vellum is chaos weekly; the daily entry is on a different
     // cadence bucket so both selections coexist.
-    const hardestWeekly = hardestKey('vellum')
-    expect(result).toContain(hardestWeekly)
+    const hardestWeekly = hardestKey('vellum');
+    expect(result).toContain(hardestWeekly);
     // Daily selection is preserved — applyPreset only swaps *same-cadence*
     // siblings on the same boss, so opposite-cadence selections coexist.
-    expect(result).toContain(lowDailyKey)
-  })
+    expect(result).toContain(lowDailyKey);
+  });
 
   it('keeps CRA and CTENE overlap intact when both are applied', () => {
-    const withCra = applyPreset([], PRESET_FAMILIES.CRA)
-    const withBoth = applyPreset(withCra, PRESET_FAMILIES.CTENE)
+    const withCra = applyPreset([], PRESET_FAMILIES.CRA);
+    const withBoth = applyPreset(withCra, PRESET_FAMILIES.CTENE);
     for (const f of CTENE_OVERLAP) {
-      expect(withBoth).toContain(hardestKey(f))
+      expect(withBoth).toContain(hardestKey(f));
     }
     // All CRA and all CTENE resolved keys present.
     for (const f of PRESET_FAMILIES.CRA) {
-      expect(withBoth).toContain(hardestKey(f))
+      expect(withBoth).toContain(hardestKey(f));
     }
     for (const entry of PRESET_FAMILIES.CTENE) {
-      expect(withBoth).toContain(entryKey(entry))
+      expect(withBoth).toContain(entryKey(entry));
     }
-  })
+  });
 
   it('selects Hard Lotus (not Extreme) for the CTENE preset', () => {
-    const result = applyPreset([], PRESET_FAMILIES.CTENE)
-    const lotus = getBossByFamily('lotus')!
-    const hardLotus = buildKey(lotus.id, 'hard', 'weekly')
-    const extremeLotus = buildKey(lotus.id, 'extreme', 'weekly')
-    expect(result).toContain(hardLotus)
-    expect(result).not.toContain(extremeLotus)
-  })
-})
+    const result = applyPreset([], PRESET_FAMILIES.CTENE);
+    const lotus = getBossByFamily('lotus')!;
+    const hardLotus = buildKey(lotus.id, 'hard', 'weekly');
+    const extremeLotus = buildKey(lotus.id, 'extreme', 'weekly');
+    expect(result).toContain(hardLotus);
+    expect(result).not.toContain(extremeLotus);
+  });
+});
 
 describe('LOMIEN preset', () => {
   it('applies CRA hardest keys plus Normal Lotus and Normal Damien from empty', () => {
-    const result = applyPreset([], PRESET_FAMILIES.LOMIEN)
+    const result = applyPreset([], PRESET_FAMILIES.LOMIEN);
     for (const f of CRA_FAMILIES) {
-      expect(result).toContain(hardestKey(f))
+      expect(result).toContain(hardestKey(f));
     }
-    const lotus = getBossByFamily('lotus')!
-    const damien = getBossByFamily('damien')!
-    expect(result).toContain(buildKey(lotus.id, 'normal', 'weekly'))
-    expect(result).toContain(buildKey(damien.id, 'normal', 'weekly'))
-  })
+    const lotus = getBossByFamily('lotus')!;
+    const damien = getBossByFamily('damien')!;
+    expect(result).toContain(buildKey(lotus.id, 'normal', 'weekly'));
+    expect(result).toContain(buildKey(damien.id, 'normal', 'weekly'));
+  });
 
   it('includes Akechi Mitsuhide', () => {
-    const result = applyPreset([], PRESET_FAMILIES.LOMIEN)
-    expect(result).toContain(hardestKey('akechi-mitsuhide'))
-  })
-})
+    const result = applyPreset([], PRESET_FAMILIES.LOMIEN);
+    expect(result).toContain(hardestKey('akechi-mitsuhide'));
+  });
+});
 
 describe('removePreset', () => {
   it('drops every key whose boss family is in the list', () => {
-    const withCra = applyPreset([], PRESET_FAMILIES.CRA)
-    const result = removePreset(withCra, PRESET_FAMILIES.CRA)
-    expect(result).toEqual([])
-  })
+    const withCra = applyPreset([], PRESET_FAMILIES.CRA);
+    const result = removePreset(withCra, PRESET_FAMILIES.CRA);
+    expect(result).toEqual([]);
+  });
 
   it('preserves non-preset keys', () => {
-    const lucid = hardestKey('lucid')
-    const withCra = applyPreset([lucid], PRESET_FAMILIES.CRA)
-    const result = removePreset(withCra, PRESET_FAMILIES.CRA)
-    expect(result).toEqual([lucid])
-  })
+    const lucid = hardestKey('lucid');
+    const withCra = applyPreset([lucid], PRESET_FAMILIES.CRA);
+    const result = removePreset(withCra, PRESET_FAMILIES.CRA);
+    expect(result).toEqual([lucid]);
+  });
 
   it('drops ALL keys for a family in the list, regardless of tier/cadence', () => {
-    const vellum = getBossByFamily('vellum')!
-    const normalDaily = buildKey(vellum.id, 'normal', 'daily')
-    const chaosWeekly = buildKey(vellum.id, 'chaos', 'weekly')
-    const result = removePreset([normalDaily, chaosWeekly], ['vellum'])
-    expect(result).toEqual([])
-  })
+    const vellum = getBossByFamily('vellum')!;
+    const normalDaily = buildKey(vellum.id, 'normal', 'daily');
+    const chaosWeekly = buildKey(vellum.id, 'chaos', 'weekly');
+    const result = removePreset([normalDaily, chaosWeekly], ['vellum']);
+    expect(result).toEqual([]);
+  });
 
   it('leaves CTENE overlap intact when only CRA is removed while CTENE is still active', () => {
     // Apply CRA and CTENE; then remove CRA. The 4 overlap families
@@ -240,86 +228,81 @@ describe('removePreset', () => {
     // and the overlap persistence is realized by re-applying CTENE after
     // CRA-remove. At the helper level: removePreset(CRA) drops all 10 CRA
     // families including the overlap.
-    const withBoth = applyPreset(
-      applyPreset([], PRESET_FAMILIES.CRA),
-      PRESET_FAMILIES.CTENE,
-    )
-    const afterCraRemoved = removePreset(withBoth, PRESET_FAMILIES.CRA)
+    const withBoth = applyPreset(applyPreset([], PRESET_FAMILIES.CRA), PRESET_FAMILIES.CTENE);
+    const afterCraRemoved = removePreset(withBoth, PRESET_FAMILIES.CRA);
     // Non-overlap CTENE families survive.
-    const craSet: ReadonlySet<string> = new Set(CRA_FAMILIES)
+    const craSet: ReadonlySet<string> = new Set(CRA_FAMILIES);
     for (const entry of PRESET_FAMILIES.CTENE) {
-      if (craSet.has(presetEntryFamily(entry))) continue
-      expect(afterCraRemoved).toContain(entryKey(entry))
+      if (craSet.has(presetEntryFamily(entry))) continue;
+      expect(afterCraRemoved).toContain(entryKey(entry));
     }
     // Overlap dropped (not re-added by this helper).
     for (const f of CTENE_OVERLAP) {
-      expect(afterCraRemoved).not.toContain(hardestKey(f))
+      expect(afterCraRemoved).not.toContain(hardestKey(f));
     }
-  })
+  });
 
   it('ignores malformed keys in the input (no crash)', () => {
-    const result = removePreset(['stale-key'], PRESET_FAMILIES.CRA)
+    const result = removePreset(['stale-key'], PRESET_FAMILIES.CRA);
     // Malformed keys have no parseable bossId; they are preserved since
     // they do not match any family in the drop list.
-    expect(result).toEqual(['stale-key'])
-  })
+    expect(result).toEqual(['stale-key']);
+  });
 
   it('returns empty input unchanged', () => {
-    expect(removePreset([], PRESET_FAMILIES.CRA)).toEqual([])
-  })
-})
+    expect(removePreset([], PRESET_FAMILIES.CRA)).toEqual([]);
+  });
+});
 
 describe('isPresetActive', () => {
   it('returns false for an empty selection', () => {
-    expect(isPresetActive('CRA', [])).toBe(false)
-    expect(isPresetActive('CTENE', [])).toBe(false)
-  })
+    expect(isPresetActive('CRA', [])).toBe(false);
+    expect(isPresetActive('CTENE', [])).toBe(false);
+  });
 
   it('returns true iff every preset entry has its resolved key present', () => {
-    const withCra = applyPreset([], PRESET_FAMILIES.CRA)
-    expect(isPresetActive('CRA', withCra)).toBe(true)
-    expect(isPresetActive('CTENE', withCra)).toBe(false)
-  })
+    const withCra = applyPreset([], PRESET_FAMILIES.CRA);
+    expect(isPresetActive('CRA', withCra)).toBe(true);
+    expect(isPresetActive('CTENE', withCra)).toBe(false);
+  });
 
   it('returns false when one CRA family is missing', () => {
-    const withCra = applyPreset([], PRESET_FAMILIES.CRA)
+    const withCra = applyPreset([], PRESET_FAMILIES.CRA);
     // Drop just Magnus's hardest key.
-    const magnusHard = hardestKey('magnus')
-    const missingOne = withCra.filter((k) => k !== magnusHard)
-    expect(isPresetActive('CRA', missingOne)).toBe(false)
-  })
+    const magnusHard = hardestKey('magnus');
+    const missingOne = withCra.filter((k) => k !== magnusHard);
+    expect(isPresetActive('CRA', missingOne)).toBe(false);
+  });
 
   it('returns false when a family has only a lower-tier key', () => {
     // Replace the hardest Vellum key with Normal (daily) — lower tier.
-    const withCra = applyPreset([], PRESET_FAMILIES.CRA)
-    const vellum = getBossByFamily('vellum')!
-    const hardestVellum = hardestKey('vellum')
-    const normalDaily = buildKey(vellum.id, 'normal', 'daily')
-    const downgraded = withCra
-      .filter((k) => k !== hardestVellum)
-      .concat(normalDaily)
-    expect(isPresetActive('CRA', downgraded)).toBe(false)
-  })
+    const withCra = applyPreset([], PRESET_FAMILIES.CRA);
+    const vellum = getBossByFamily('vellum')!;
+    const hardestVellum = hardestKey('vellum');
+    const normalDaily = buildKey(vellum.id, 'normal', 'daily');
+    const downgraded = withCra.filter((k) => k !== hardestVellum).concat(normalDaily);
+    expect(isPresetActive('CRA', downgraded)).toBe(false);
+  });
 
   it('returns true for CTENE iff all 14 resolved keys are present', () => {
-    const withCtene = applyPreset([], PRESET_FAMILIES.CTENE)
-    expect(isPresetActive('CTENE', withCtene)).toBe(true)
-  })
-})
+    const withCtene = applyPreset([], PRESET_FAMILIES.CTENE);
+    expect(isPresetActive('CTENE', withCtene)).toBe(true);
+  });
+});
 
 describe('cross-helper sanity', () => {
   it('applyPreset output has parseable keys for every family', () => {
-    const keys = applyPreset([], PRESET_FAMILIES.CRA)
+    const keys = applyPreset([], PRESET_FAMILIES.CRA);
     for (const k of keys) {
-      expect(shallowParseKey(k)).not.toBeNull()
+      expect(shallowParseKey(k)).not.toBeNull();
     }
-  })
+  });
 
   it('removePreset output has parseable keys (or malformed pass-through)', () => {
-    const withCra = applyPreset([], PRESET_FAMILIES.CRA)
-    const lucid = hardestKey('lucid')
-    const partial = removePreset([...withCra, lucid], PRESET_FAMILIES.CRA)
-    expect(partial).toEqual([lucid])
-    expect(shallowParseKey(partial[0])).not.toBeNull()
-  })
-})
+    const withCra = applyPreset([], PRESET_FAMILIES.CRA);
+    const lucid = hardestKey('lucid');
+    const partial = removePreset([...withCra, lucid], PRESET_FAMILIES.CRA);
+    expect(partial).toEqual([lucid]);
+    expect(shallowParseKey(partial[0])).not.toBeNull();
+  });
+});

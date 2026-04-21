@@ -26,11 +26,7 @@ import { getBossByFamily } from './bosses';
  */
 
 /** Build a native `<uuid>:<tier>:<cadence>` selection key. */
-function buildSelectionKey(
-  bossId: string,
-  tier: BossTier,
-  cadence: BossCadence,
-): string {
+function buildSelectionKey(bossId: string, tier: BossTier, cadence: BossCadence): string {
   return `${bossId}:${tier}:${cadence}`;
 }
 
@@ -60,21 +56,15 @@ function keyCadenceSuffix(key: string): string | null {
  * cadence — e.g. Vellum's weekly chaos beats its daily normal.
  */
 function pickHardest(boss: Boss): BossDifficulty {
-  return boss.difficulty.reduce((best, d) =>
-    d.crystalValue > best.crystalValue ? d : best,
-  );
+  return boss.difficulty.reduce((best, d) => (d.crystalValue > best.crystalValue ? d : best));
 }
 
 /** Resolve a preset entry to `{ boss, diff }`, or `null` on an unknown family/tier. */
-function resolveEntry(
-  entry: PresetFamily,
-): { boss: Boss; diff: BossDifficulty } | null {
+function resolveEntry(entry: PresetFamily): { boss: Boss; diff: BossDifficulty } | null {
   const { family, tier } = entryInfo(entry);
   const boss = getBossByFamily(family);
   if (!boss) return null;
-  const diff = tier
-    ? boss.difficulty.find((d) => d.tier === tier)
-    : pickHardest(boss);
+  const diff = tier ? boss.difficulty.find((d) => d.tier === tier) : pickHardest(boss);
   if (!diff) return null;
   return { boss, diff };
 }
@@ -161,10 +151,7 @@ export function presetEntryFamily(entry: PresetFamily): string {
  * sibling on that boss is replaced in-place (opposite-cadence selections are
  * preserved so a mule keeps its daily + weekly selections side-by-side).
  */
-export function applyPreset(
-  keys: string[],
-  families: readonly PresetFamily[],
-): string[] {
+export function applyPreset(keys: string[], families: readonly PresetFamily[]): string[] {
   let next = keys;
   for (const entry of families) {
     const resolved = resolveEntry(entry);
@@ -193,10 +180,7 @@ export function applyPreset(
  * ignored here — removal is family-wide, matching the "Ctrl-click the pill
  * to clear the whole preset" gesture.
  */
-export function removePreset(
-  keys: string[],
-  families: readonly PresetFamily[],
-): string[] {
+export function removePreset(keys: string[], families: readonly PresetFamily[]): string[] {
   const dropFamilyIds = new Set<string>();
   for (const entry of families) {
     const boss = getBossByFamily(entryInfo(entry).family);
