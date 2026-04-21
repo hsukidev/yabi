@@ -46,31 +46,29 @@ describe('KpiCard', () => {
     const { rerender } = render(<KpiCard mules={[nonzeroMule]} />);
     // Abbreviated by default → "504M"
     expect(bignumText()).toBe('504M');
-    // Click while zero — should no-op (canToggleFormat=false).
     rerender(<KpiCard mules={[{ ...mule, selectedBosses: [] }]} />);
-    // Auto-fullformat-on-zero flipped us to full: "0" (not "0B").
+    // formatMeso(0, true) renders as "0"; format preference unchanged.
     expect(bignumText()).toBe('0');
     fireEvent.click(screen.getByRole('button', { name: /toggle abbreviated meso format/i }));
     // Still "0" — the onClick guard stops the toggle when raw===0.
     expect(bignumText()).toBe('0');
   });
 
-  it('auto-flips to full format when total income is zero from mount', () => {
-    // Dead roster starts abbreviated; the Auto-Fullformat-On-Zero Rule flips
-    // it to full so a zero renders as "0" instead of "0B".
+  it('shows 0 when total income is zero from mount', () => {
     render(<KpiCard mules={[{ ...mule, selectedBosses: [] }]} />);
     expect(bignumText()).toBe('0');
   });
 
-  it('auto-flips to full format when total income transitions to zero', () => {
+  it('preserves abbreviated format when total income transitions to zero then back', () => {
     const nonzero: Mule[] = [{ ...mule, selectedBosses: [HARD_LUCID] }];
     const zero: Mule[] = [{ ...mule, selectedBosses: [] }];
     const { rerender } = render(<KpiCard mules={nonzero} />);
-    // Abbreviated default → "504M".
     expect(bignumText()).toBe('504M');
     rerender(<KpiCard mules={zero} />);
-    // Transition to zero triggers the hook → full format "0".
     expect(bignumText()).toBe('0');
+    // Format preference stays abbreviated — back to non-zero renders abbreviated.
+    rerender(<KpiCard mules={nonzero} />);
+    expect(bignumText()).toBe('504M');
   });
 
   it('does not count mules with active: false even if they have bosses selected', () => {

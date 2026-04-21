@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { useAutoFullFormatOnZero, useIncome } from '../modules/income';
+import { useIncome } from '../modules/income';
 import type { Mule } from '../types';
 
 interface KpiCardProps {
@@ -8,7 +8,6 @@ interface KpiCardProps {
 
 export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
   const { raw: totalRaw, formatted: totalWeeklyIncome, toggle } = useIncome(mules);
-  useAutoFullFormatOnZero(totalRaw);
   const activeMuleCount = mules.filter((m) => m.active).length;
   const canToggleFormat = totalRaw > 0;
 
