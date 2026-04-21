@@ -10,7 +10,7 @@
         "--",
         "bash",
         "-lc",
-        "export NVM_DIR=/home/jondwoo/.nvm; . /home/jondwoo/.nvm/nvm.sh; cd /home/jondwoo/dev/ms-mule-income-tracker && npm run dev -- --host 127.0.0.1"
+        "export NVM_DIR=/home/jondwoo/.nvm; . /home/jondwoo/.nvm/nvm.sh; cd /home/jondwoo/dev/ms-mule-income-tracker && pnpm dev -- --host 127.0.0.1"
       ],
       "port": 5173
     }
