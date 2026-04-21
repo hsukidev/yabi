@@ -33,8 +33,9 @@ function filterFamiliesByCadence(families: SlateFamily[], filter: CadenceFilter)
  *   wins over a canonical match so the pill visibly confirms the click,
  *   without touching the selection. The override clears on: mule switch
  *   (drawer close/reopen), selection emptying out (reset or deselect-all),
- *   or any canonical pill click. With an empty weekly selection the pill
- *   stays dark regardless.
+ *   any canonical pill click, or a **Slate Key** toggle (the modified
+ *   selection now speaks for what pill should light). With an empty weekly
+ *   selection the pill stays dark regardless.
  * - Party-Size Clamp to [1, 6] on write.
  * - Toggle / reset dispatches routed through `onUpdate`. All dispatchers
  *   no-op when `muleId === null`.
@@ -112,6 +113,10 @@ export function useBossMatrixView({
   const toggleKey = useCallback(
     (key: string) => {
       if (!muleId) return;
+      // A toggle modifies the real selection, so the Custom override (which
+      // only exists to confirm a click) is no longer needed — let the
+      // derivation decide which pill lights.
+      setCustomClicked(false);
       onUpdate(muleId, { selectedBosses: slate.toggle(key).keys as string[] });
     },
     [muleId, slate, onUpdate],

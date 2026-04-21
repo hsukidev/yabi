@@ -498,6 +498,46 @@ describe('useBossMatrixView', () => {
       expect(result.current.activePill).toBe('CRA');
     });
 
+    it('toggling a boss clears the CUSTOM override so canonical can reassert', () => {
+      // CTENE → click CUSTOM → toggle an extra boss on → toggle it off.
+      // After the second toggle the selection is exactly CTENE again, so
+      // the pill should revert from CUSTOM to CTENE.
+      const onUpdate = vi.fn();
+      const { result, rerender } = renderHook(
+        ({ selectedBosses }: { selectedBosses: string[] }) =>
+          useBossMatrixView({
+            muleId: 'mule-1',
+            selectedBosses,
+            partySizes: undefined,
+            onUpdate,
+          }),
+        { initialProps: { selectedBosses: CTENE_KEYS } },
+      );
+      expect(result.current.activePill).toBe('CTENE');
+
+      act(() => {
+        result.current.applyPreset('CUSTOM');
+      });
+      expect(result.current.activePill).toBe('CUSTOM');
+
+      // User adds Baldrix Hard (Black Mage stands in as a non-CTENE weekly).
+      const extraKey = `${BLACK_MAGE_BOSS.id}:hard:weekly`;
+      act(() => {
+        result.current.toggleKey(extraKey);
+      });
+      rerender({ selectedBosses: [...CTENE_KEYS, extraKey] });
+      // Selection no longer matches CTENE, but the override is already
+      // cleared by the toggle — CUSTOM still lights via derivation.
+      expect(result.current.activePill).toBe('CUSTOM');
+
+      // User removes Baldrix Hard: selection returns to CTENE_KEYS.
+      act(() => {
+        result.current.toggleKey(extraKey);
+      });
+      rerender({ selectedBosses: CTENE_KEYS });
+      expect(result.current.activePill).toBe('CTENE');
+    });
+
     it('clicking a canonical pill clears the CUSTOM override', () => {
       const { result } = renderHook(() =>
         useBossMatrixView({
