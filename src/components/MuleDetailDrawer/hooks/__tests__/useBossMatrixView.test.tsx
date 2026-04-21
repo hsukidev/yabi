@@ -3,7 +3,7 @@ import { act, renderHook } from '@testing-library/react';
 
 import { useBossMatrixView } from '../useBossMatrixView';
 import { bosses } from '../../../../data/bosses';
-import { PRESET_FAMILIES, presetEntryFamily, presetEntryKey } from '../../../../data/bossPresets';
+import { PRESET_FAMILIES, presetEntryKey } from '../../../../data/bossPresets';
 import { MuleBossSlate } from '../../../../data/muleBossSlate';
 
 const LUCID_BOSS = bosses.find((b) => b.family === 'lucid')!;
@@ -18,6 +18,9 @@ const CRIMSON_QUEEN_BOSS = bosses.find((b) => b.family === 'crimson-queen')!;
 const BLACK_MAGE_BOSS = bosses.find((b) => b.family === 'black-mage')!;
 const HORNTAIL_BOSS = bosses.find((b) => b.family === 'horntail')!;
 const MORI_BOSS = bosses.find((b) => b.family === 'mori-ranmaru')!;
+const DAMIEN_BOSS = bosses.find((b) => b.family === 'damien')!;
+const LOTUS_BOSS = bosses.find((b) => b.family === 'lotus')!;
+const ARKARIUM_BOSS = bosses.find((b) => b.family === 'arkarium')!;
 
 const CRA_KEYS = PRESET_FAMILIES.CRA.map((entry) => presetEntryKey(entry)!);
 const LOMIEN_KEYS = PRESET_FAMILIES.LOMIEN.map((entry) => presetEntryKey(entry)!);
@@ -82,8 +85,8 @@ describe('useBossMatrixView', () => {
     });
   });
 
-  describe('togglePreset (Preset Swap)', () => {
-    it('applies preset on empty selection', () => {
+  describe('applyPreset (Conform)', () => {
+    it('applies CRA on empty selection', () => {
       const onUpdate = vi.fn();
       const { result } = renderHook(() =>
         useBossMatrixView({
@@ -95,13 +98,35 @@ describe('useBossMatrixView', () => {
       );
 
       act(() => {
-        result.current.togglePreset('CRA');
+        result.current.applyPreset('CRA');
       });
       const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] };
       expect(new Set(update.selectedBosses)).toEqual(new Set(CRA_KEYS));
     });
 
-    it('strips other active presets before applying (swap semantics)', () => {
+    it('wipes non-preset weeklies when swapping from CRA + extra to CRA', () => {
+      // Starts in Custom territory (no canonical match because Arkarium is
+      // non-preset). Clicking CRA conforms, wiping Arkarium.
+      const arkariumKey = `${ARKARIUM_BOSS.id}:normal:weekly`;
+      const onUpdate = vi.fn();
+      const { result } = renderHook(() =>
+        useBossMatrixView({
+          muleId: 'mule-1',
+          selectedBosses: [...CRA_KEYS, arkariumKey],
+          partySizes: undefined,
+          onUpdate,
+        }),
+      );
+
+      act(() => {
+        result.current.applyPreset('CRA');
+      });
+      const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] };
+      expect(update.selectedBosses).not.toContain(arkariumKey);
+      for (const k of CRA_KEYS) expect(update.selectedBosses).toContain(k);
+    });
+
+    it('swap CRA → CTENE: adds CTENE keys and drops CRA-only families', () => {
       const onUpdate = vi.fn();
       const { result } = renderHook(() =>
         useBossMatrixView({
@@ -113,22 +138,13 @@ describe('useBossMatrixView', () => {
       );
 
       act(() => {
-        result.current.togglePreset('CTENE');
+        result.current.applyPreset('CTENE');
       });
       const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] };
-      // All CTENE keys present.
-      for (const k of CTENE_KEYS) {
-        expect(update.selectedBosses).toContain(k);
-      }
-      // CRA-only families cleared.
-      const cteneFamilies = new Set(PRESET_FAMILIES.CTENE.map(presetEntryFamily));
-      for (const entry of PRESET_FAMILIES.CRA) {
-        if (cteneFamilies.has(presetEntryFamily(entry))) continue;
-        expect(update.selectedBosses).not.toContain(presetEntryKey(entry)!);
-      }
+      for (const k of CTENE_KEYS) expect(update.selectedBosses).toContain(k);
     });
 
-    it('clicking the currently active preset deselects it', () => {
+    it('short-circuits (zero onUpdate) when clicking the Active Pill', () => {
       const onUpdate = vi.fn();
       const { result } = renderHook(() =>
         useBossMatrixView({
@@ -140,29 +156,51 @@ describe('useBossMatrixView', () => {
       );
 
       act(() => {
-        result.current.togglePreset('CRA');
+        result.current.applyPreset('CRA');
       });
-      const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] };
-      expect(update.selectedBosses).toEqual([]);
+      expect(onUpdate).not.toHaveBeenCalled();
     });
 
-    it('preserves hand-picked non-preset keys on a swap', () => {
+    it('preserves daily keys on conform', () => {
+      const horntailDaily = `${HORNTAIL_BOSS.id}:chaos:daily`;
       const onUpdate = vi.fn();
-      const HARD_HORNTAIL = `${HORNTAIL_BOSS.id}:chaos:daily`;
       const { result } = renderHook(() =>
         useBossMatrixView({
           muleId: 'mule-1',
-          selectedBosses: [...CRA_KEYS, HARD_HORNTAIL],
+          selectedBosses: [horntailDaily],
           partySizes: undefined,
           onUpdate,
         }),
       );
 
       act(() => {
-        result.current.togglePreset('CTENE');
+        result.current.applyPreset('CRA');
       });
       const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] };
-      expect(update.selectedBosses).toContain(HARD_HORNTAIL);
+      expect(update.selectedBosses).toContain(horntailDaily);
+    });
+
+    it('LOMIEN swap from CTENE preserves Hard Damien + Hard Lotus', () => {
+      // CTENE has Damien (hardest = hard) + Hard Lotus — both tiers LOMIEN
+      // accepts. After swap, those keys stay put; the rest of CTENE's unique
+      // families (Darknell, Verus Hilla, etc.) get wiped; CRA-shared families
+      // in LOMIEN remain at Hardest.
+      const onUpdate = vi.fn();
+      const { result } = renderHook(() =>
+        useBossMatrixView({
+          muleId: 'mule-1',
+          selectedBosses: CTENE_KEYS,
+          partySizes: undefined,
+          onUpdate,
+        }),
+      );
+
+      act(() => {
+        result.current.applyPreset('LOMIEN');
+      });
+      const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] };
+      expect(update.selectedBosses).toContain(`${DAMIEN_BOSS.id}:hard:weekly`);
+      expect(update.selectedBosses).toContain(`${LOTUS_BOSS.id}:hard:weekly`);
     });
 
     it('normalizes resulting keys through MuleBossSlate.from (Selection Invariant)', () => {
@@ -177,10 +215,9 @@ describe('useBossMatrixView', () => {
       );
 
       act(() => {
-        result.current.togglePreset('CRA');
+        result.current.applyPreset('CRA');
       });
       const update = onUpdate.mock.calls[0][1] as { selectedBosses: string[] };
-      // `MuleBossSlate.from` round-trips to the same key set.
       expect(new Set(update.selectedBosses)).toEqual(
         new Set(MuleBossSlate.from(update.selectedBosses).keys),
       );
@@ -198,26 +235,39 @@ describe('useBossMatrixView', () => {
       );
 
       act(() => {
-        result.current.togglePreset('CRA');
+        result.current.applyPreset('CRA');
       });
       expect(onUpdate).not.toHaveBeenCalled();
     });
   });
 
-  describe('activePresets', () => {
-    it('is empty when no preset is fully selected', () => {
+  describe('activePill (Same-Cadence Equality)', () => {
+    it('is null for an empty selection', () => {
       const { result } = renderHook(() =>
         useBossMatrixView({
           muleId: 'mule-1',
-          selectedBosses: [HARD_LUCID],
+          selectedBosses: [],
           partySizes: undefined,
           onUpdate: vi.fn(),
         }),
       );
-      expect(result.current.activePresets.size).toBe(0);
+      expect(result.current.activePill).toBeNull();
     });
 
-    it('includes CRA when all CRA keys selected', () => {
+    it('is null for CRA + extra non-preset weekly (CUSTOM comes in slice 2)', () => {
+      const arkariumKey = `${ARKARIUM_BOSS.id}:normal:weekly`;
+      const { result } = renderHook(() =>
+        useBossMatrixView({
+          muleId: 'mule-1',
+          selectedBosses: [...CRA_KEYS, arkariumKey],
+          partySizes: undefined,
+          onUpdate: vi.fn(),
+        }),
+      );
+      expect(result.current.activePill).toBeNull();
+    });
+
+    it('is "CRA" for an exact CRA selection', () => {
       const { result } = renderHook(() =>
         useBossMatrixView({
           muleId: 'mule-1',
@@ -226,10 +276,10 @@ describe('useBossMatrixView', () => {
           onUpdate: vi.fn(),
         }),
       );
-      expect(result.current.activePresets.has('CRA')).toBe(true);
+      expect(result.current.activePill).toBe('CRA');
     });
 
-    it('excludes CRA when LOMIEN is active (LOMIEN supersedes)', () => {
+    it('is "LOMIEN" for an exact LOMIEN selection', () => {
       const { result } = renderHook(() =>
         useBossMatrixView({
           muleId: 'mule-1',
@@ -238,8 +288,47 @@ describe('useBossMatrixView', () => {
           onUpdate: vi.fn(),
         }),
       );
-      expect(result.current.activePresets.has('LOMIEN')).toBe(true);
-      expect(result.current.activePresets.has('CRA')).toBe(false);
+      expect(result.current.activePill).toBe('LOMIEN');
+    });
+
+    it('is "CTENE" for an exact CTENE selection', () => {
+      const { result } = renderHook(() =>
+        useBossMatrixView({
+          muleId: 'mule-1',
+          selectedBosses: CTENE_KEYS,
+          partySizes: undefined,
+          onUpdate: vi.fn(),
+        }),
+      );
+      expect(result.current.activePill).toBe('CTENE');
+    });
+
+    it('LOMIEN stays lit when Damien is swapped Normal → Hard', () => {
+      const swapped = LOMIEN_KEYS.filter((k) => !k.startsWith(`${DAMIEN_BOSS.id}:`)).concat([
+        `${DAMIEN_BOSS.id}:hard:weekly`,
+      ]);
+      const { result } = renderHook(() =>
+        useBossMatrixView({
+          muleId: 'mule-1',
+          selectedBosses: swapped,
+          partySizes: undefined,
+          onUpdate: vi.fn(),
+        }),
+      );
+      expect(result.current.activePill).toBe('LOMIEN');
+    });
+
+    it('is null when only daily keys are selected', () => {
+      const vellumDaily = `${VELLUM_BOSS.id}:normal:daily`;
+      const { result } = renderHook(() =>
+        useBossMatrixView({
+          muleId: 'mule-1',
+          selectedBosses: [vellumDaily],
+          partySizes: undefined,
+          onUpdate: vi.fn(),
+        }),
+      );
+      expect(result.current.activePill).toBeNull();
     });
   });
 

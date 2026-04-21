@@ -2,80 +2,88 @@ import type { Boss, BossCadence, BossDifficulty, BossTier } from '../types';
 import { getBossByFamily } from './bosses';
 
 /**
- * Boss Preset shortcuts for the Matrix Toolbar. Each preset is a fixed list
- * of boss family entries; clicking a preset pill swaps in (or drops) one
- * selection key per entry. A bare family slug resolves to the Hardest-Tier
- * key; an `{ family, tier }` entry pins a specific tier (e.g. CTENE's Hard
- * Lotus, chosen over the Extreme tier most mules can't clear).
+ * **Boss Preset** shortcuts for the **Matrix Toolbar**. Each preset is an
+ * ordered list of **Preset Entries**; clicking a **Preset Pill** runs
+ * **Conform**, which wipes weekly **Slate Keys** whose family is outside the
+ * preset and replaces non-**Accepted Tier** keys with the **Default Tier**.
+ * Dailies are always preserved.
  *
- * Single-select swap semantics: at most one preset pill is ever active.
- * Clicking an inactive preset while another is active first removes the
- * previously active preset's families from the selection, then applies the
- * clicked preset — so the CRA ∩ CTENE overlap (Vellum / Crimson Queen /
- * Papulatus / Magnus / Princess No) is just re-added by the apply step with
- * the clicked preset's resolved tiers, no special-casing needed. Clicking
- * the currently active preset deselects it. The drawer-level handler owns
- * this policy; the helpers below (`applyPreset` / `removePreset` /
- * `isPresetActive`) stay single-purpose and family-scoped.
+ * Entry authoring forms:
+ * - Bare string — family slug; **Accepted Tiers** = `[hardest]`.
+ * - `{ family, tier }` — legacy single-tier pin; desugars to `tiers: [tier]`.
+ * - `{ family, tiers }` — **Multi-Tier Entry** (e.g. LOMIEN's Damien and
+ *   Lotus `['normal', 'hard']`); `tiers[0]` is the **Default Tier**.
+ *
+ * **Same-Cadence Equality**: a **Canonical Preset** is **Active Preset** iff
+ * every **Preset Entry** is satisfied by exactly one weekly key on that
+ * family whose tier is in **Accepted Tiers**, and no weekly keys exist on
+ * families outside the preset's entries. Daily keys never affect the result.
  *
  * The selection-key grammar itself lives module-private inside
- * `muleBossSlate.ts`; the two tiny helpers below duplicate only the string
- * shape, because every key this module produces flows through
- * `MuleBossSlate.from` or `slate.toggle` downstream where the Selection
- * Invariant is actually enforced.
+ * `muleBossSlate.ts`; the helpers here duplicate only the string shape,
+ * because every key this module produces flows through `MuleBossSlate.from`
+ * or `slate.toggle` downstream where the **Selection Invariant** is actually
+ * enforced.
  */
 
-/** Build a native `<uuid>:<tier>:<cadence>` selection key. */
-function buildSelectionKey(bossId: string, tier: BossTier, cadence: BossCadence): string {
-  return `${bossId}:${tier}:${cadence}`;
+export type PresetKey = 'CRA' | 'LOMIEN' | 'CTENE';
+
+/** Authoring form for a preset entry; normalized via `normalizeEntry`. */
+export type PresetFamily =
+  | string
+  | { family: string; tier: BossTier }
+  | { family: string; tiers: readonly BossTier[] };
+
+/** Normalized **Preset Entry**; `tiers[0]` is the **Default Tier**. */
+export interface PresetEntry {
+  family: string;
+  tiers: readonly BossTier[];
 }
 
-/**
- * Extract the bossId prefix from a selection key. Returns `null` for any
- * string that doesn't have at least two colons, so malformed keys can pass
- * through `removePreset` untouched.
- */
-function keyBossIdPrefix(key: string): string | null {
+/** Shallow-parsed segments of a `<bossId>:<tier>:<cadence>` selection key. */
+interface ParsedKey {
+  bossId: string;
+  tier: string;
+  cadence: string;
+}
+
+/** Split a selection key on its last two colons; `null` if malformed. */
+function parseKey(key: string): ParsedKey | null {
   const lastColon = key.lastIndexOf(':');
   if (lastColon < 0) return null;
   const tierColon = key.lastIndexOf(':', lastColon - 1);
   if (tierColon < 0) return null;
-  return key.slice(0, tierColon);
+  return {
+    bossId: key.slice(0, tierColon),
+    tier: key.slice(tierColon + 1, lastColon),
+    cadence: key.slice(lastColon + 1),
+  };
 }
 
-/** Extract the `<cadence>` tail segment of a selection key, if present. */
-function keyCadenceSuffix(key: string): string | null {
-  const lastColon = key.lastIndexOf(':');
-  if (lastColon < 0) return null;
-  return key.slice(lastColon + 1);
+function buildSelectionKey(bossId: string, tier: BossTier, cadence: BossCadence): string {
+  return `${bossId}:${tier}:${cadence}`;
 }
 
-/**
- * Return the difficulty entry with the highest crystalValue for this boss.
- * "Hardest" means "biggest numeric reward", irrespective of tier name or
- * cadence — e.g. Vellum's weekly chaos beats its daily normal.
- */
+/** Hardest-Tier difficulty — biggest `crystalValue` wins, tier name ignored. */
 function pickHardest(boss: Boss): BossDifficulty {
   return boss.difficulty.reduce((best, d) => (d.crystalValue > best.crystalValue ? d : best));
 }
 
-/** Resolve a preset entry to `{ boss, diff }`, or `null` on an unknown family/tier. */
-function resolveEntry(entry: PresetFamily): { boss: Boss; diff: BossDifficulty } | null {
-  const { family, tier } = entryInfo(entry);
-  const boss = getBossByFamily(family);
-  if (!boss) return null;
-  const diff = tier ? boss.difficulty.find((d) => d.tier === tier) : pickHardest(boss);
-  if (!diff) return null;
-  return { boss, diff };
-}
-
-export type PresetKey = 'CRA' | 'LOMIEN' | 'CTENE';
-
 /**
- * A preset entry is either a family slug (resolves to the hardest tier) or
- * an `{ family, tier }` object that pins a specific tier for that family.
+ * Desugar an authoring-form entry into a normalized `PresetEntry`. Bare
+ * strings resolve **Default Tier** to the boss's **Hardest Tier**; legacy
+ * `{ family, tier }` becomes `tiers: [tier]`; `{ family, tiers }` passes
+ * through. Returns `null` for unknown families.
  */
-export type PresetFamily = string | { family: string; tier: BossTier };
+export function normalizeEntry(spec: PresetFamily): PresetEntry | null {
+  if (typeof spec === 'string') {
+    const boss = getBossByFamily(spec);
+    if (!boss) return null;
+    return { family: spec, tiers: [pickHardest(boss).tier] };
+  }
+  if ('tiers' in spec) return { family: spec.family, tiers: spec.tiers };
+  return { family: spec.family, tiers: [spec.tier] };
+}
 
 export const PRESET_FAMILIES = {
   CRA: [
@@ -104,8 +112,8 @@ export const PRESET_FAMILIES = {
     'zakum',
     'princess-no',
     'akechi-mitsuhide',
-    { family: 'lotus', tier: 'normal' },
-    { family: 'damien', tier: 'normal' },
+    { family: 'lotus', tiers: ['normal', 'hard'] },
+    { family: 'damien', tiers: ['normal', 'hard'] },
   ],
   CTENE: [
     'akechi-mitsuhide',
@@ -125,85 +133,104 @@ export const PRESET_FAMILIES = {
   ],
 } as const satisfies Record<PresetKey, readonly PresetFamily[]>;
 
-/** Unwrap a preset entry to `{ family, tier? }`. */
-function entryInfo(entry: PresetFamily): { family: string; tier?: BossTier } {
-  return typeof entry === 'string' ? { family: entry } : entry;
+/** Resolved **Default Tier** selection key for an entry, or `null`. */
+export function presetEntryKey(spec: PresetFamily): string | null {
+  const entry = normalizeEntry(spec);
+  if (!entry) return null;
+  return defaultTierKey(entry);
+}
+
+/** Family slug for an authoring-form entry. */
+export function presetEntryFamily(spec: PresetFamily): string {
+  return typeof spec === 'string' ? spec : spec.family;
+}
+
+/** Resolved **Default Tier** key for a normalized entry, or `null`. */
+function defaultTierKey(entry: PresetEntry): string | null {
+  const boss = getBossByFamily(entry.family);
+  if (!boss) return null;
+  const diff = boss.difficulty.find((d) => d.tier === entry.tiers[0]);
+  if (!diff) return null;
+  return buildSelectionKey(boss.id, diff.tier, diff.cadence);
 }
 
 /**
- * Selection key for a preset entry — uses the explicit tier if the entry
- * specifies one, else falls back to the hardest tier. Returns null if the
- * family is unknown or the pinned tier isn't offered by the boss.
+ * Build `{ bossId → entry }` for a preset's entries. Entries whose family
+ * doesn't resolve are skipped so callers can iterate without null checks.
  */
-export function presetEntryKey(entry: PresetFamily): string | null {
-  const resolved = resolveEntry(entry);
-  if (!resolved) return null;
-  return buildSelectionKey(resolved.boss.id, resolved.diff.tier, resolved.diff.cadence);
-}
-
-/** Family slug for a preset entry (unwraps the `{ family, tier }` form). */
-export function presetEntryFamily(entry: PresetFamily): string {
-  return entryInfo(entry).family;
-}
-
-/**
- * Swap each entry's target selection key into `keys`. Any prior same-cadence
- * sibling on that boss is replaced in-place (opposite-cadence selections are
- * preserved so a mule keeps its daily + weekly selections side-by-side).
- */
-export function applyPreset(keys: string[], families: readonly PresetFamily[]): string[] {
-  let next = keys;
-  for (const entry of families) {
-    const resolved = resolveEntry(entry);
-    if (!resolved) continue;
-    const { boss, diff } = resolved;
-    const target = buildSelectionKey(boss.id, diff.tier, diff.cadence);
-    if (next.includes(target)) continue; // idempotent
-
-    // Same-cadence sibling on this boss: replace in-place so array order
-    // (and opposite-cadence selections) are preserved.
-    const siblingIdx = next.findIndex(
-      (k) => keyBossIdPrefix(k) === boss.id && keyCadenceSuffix(k) === diff.cadence,
-    );
-    if (siblingIdx >= 0) {
-      next = next.map((k, i) => (i === siblingIdx ? target : k));
-    } else {
-      next = [...next, target];
-    }
+function entryByBossId(preset: PresetKey): Map<string, PresetEntry> {
+  const map = new Map<string, PresetEntry>();
+  for (const spec of PRESET_FAMILIES[preset]) {
+    const entry = normalizeEntry(spec);
+    if (!entry) continue;
+    const boss = getBossByFamily(entry.family);
+    if (!boss) continue;
+    map.set(boss.id, entry);
   }
-  return next;
+  return map;
 }
 
 /**
- * Drop every key whose bossId resolves to a family in `families`. Malformed
- * keys (unparseable) pass through untouched. Tier overrides on entries are
- * ignored here — removal is family-wide, matching the "Ctrl-click the pill
- * to clear the whole preset" gesture.
+ * **Same-Cadence Equality**: `true` iff every **Preset Entry** is satisfied
+ * by exactly one weekly key whose tier is in **Accepted Tiers**, AND no
+ * weekly keys exist on families outside the preset's entries. Daily keys
+ * are ignored entirely.
  */
-export function removePreset(keys: string[], families: readonly PresetFamily[]): string[] {
-  const dropFamilyIds = new Set<string>();
-  for (const entry of families) {
-    const boss = getBossByFamily(entryInfo(entry).family);
-    if (boss) dropFamilyIds.add(boss.id);
+export function isPresetActive(preset: PresetKey, keys: readonly string[]): boolean {
+  const entries = entryByBossId(preset);
+  const weeklyTierByBossId = new Map<string, string>();
+
+  for (const key of keys) {
+    const parsed = parseKey(key);
+    if (!parsed || parsed.cadence !== 'weekly') continue;
+    // Any weekly key on a non-preset family breaks the match.
+    if (!entries.has(parsed.bossId)) return false;
+    weeklyTierByBossId.set(parsed.bossId, parsed.tier);
   }
-  return keys.filter((k) => {
-    const bossId = keyBossIdPrefix(k);
-    if (bossId === null) return true;
-    return !dropFamilyIds.has(bossId);
-  });
-}
 
-/**
- * Active iff every preset entry has its resolved key present in `keys`.
- * Mirrors the visual: pill highlights iff the selection state fully matches
- * what `applyPreset` would have produced.
- */
-export function isPresetActive(preset: PresetKey, keys: string[]): boolean {
-  const keySet = new Set(keys);
-  for (const entry of PRESET_FAMILIES[preset]) {
-    const target = presetEntryKey(entry);
-    if (!target) return false;
-    if (!keySet.has(target)) return false;
+  for (const [bossId, entry] of entries) {
+    const tier = weeklyTierByBossId.get(bossId);
+    if (!tier) return false;
+    if (!entry.tiers.includes(tier as BossTier)) return false;
   }
   return true;
+}
+
+/**
+ * **Conform** the mule's selection to `preset`:
+ *
+ * - Preserve weekly keys whose family is in the preset's entries AND whose
+ *   tier is in **Accepted Tiers**.
+ * - Wipe every other weekly key (non-preset families + non-accepted tiers).
+ * - For every entry not already satisfied, add the **Default Tier** key.
+ * - All daily keys pass through untouched.
+ *
+ * Idempotent on an already-**Active Preset** selection.
+ */
+export function conform(keys: readonly string[], preset: PresetKey): string[] {
+  const entries = entryByBossId(preset);
+  const next: string[] = [];
+  const satisfied = new Set<string>();
+
+  for (const key of keys) {
+    const parsed = parseKey(key);
+    // Malformed keys (un-parseable) pass through. Dailies pass through too.
+    if (!parsed || parsed.cadence !== 'weekly') {
+      next.push(key);
+      continue;
+    }
+    const entry = entries.get(parsed.bossId);
+    if (!entry) continue; // weekly on non-preset family → wipe
+    if (!entry.tiers.includes(parsed.tier as BossTier)) continue; // non-accepted tier → wipe
+    next.push(key);
+    satisfied.add(parsed.bossId);
+  }
+
+  for (const [bossId, entry] of entries) {
+    if (satisfied.has(bossId)) continue;
+    const key = defaultTierKey(entry);
+    if (key) next.push(key);
+  }
+
+  return next;
 }

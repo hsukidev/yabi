@@ -4,8 +4,9 @@ export type PresetKey = 'CRA' | 'LOMIEN' | 'CTENE';
 interface MatrixToolbarProps {
   filter: CadenceFilter;
   onFilterChange: (next: CadenceFilter) => void;
-  activePresets: ReadonlySet<PresetKey>;
-  onTogglePreset: (preset: PresetKey) => void;
+  /** The single currently-lit **Preset Pill**, or `null` when none matches. */
+  activePill: PresetKey | null;
+  onApplyPreset: (preset: PresetKey) => void;
   /** Count of `weekly`-cadence selections; displayed as `{weeklyCount}/14`. */
   weeklyCount: number;
   /** Invoked when the Matrix Reset button is clicked. */
@@ -61,8 +62,8 @@ const PRESETS: readonly PresetKey[] = ['CRA', 'LOMIEN', 'CTENE'];
 export function MatrixToolbar({
   filter,
   onFilterChange,
-  activePresets,
-  onTogglePreset,
+  activePill,
+  onApplyPreset,
   weeklyCount,
   onReset,
 }: MatrixToolbarProps) {
@@ -89,8 +90,8 @@ export function MatrixToolbar({
             <button
               key={preset}
               type="button"
-              className={activePresets.has(preset) ? 'on' : ''}
-              onClick={() => onTogglePreset(preset)}
+              className={activePill === preset ? 'on' : ''}
+              onClick={() => onApplyPreset(preset)}
             >
               {preset}
             </button>

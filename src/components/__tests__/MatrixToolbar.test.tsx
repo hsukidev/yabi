@@ -4,14 +4,13 @@ import { render, screen, fireEvent } from '@/test/test-utils';
 import { MatrixToolbar } from '../MatrixToolbar';
 
 const noop = () => {};
-const EMPTY_PRESETS: ReadonlySet<'CRA' | 'LOMIEN' | 'CTENE'> = new Set();
 
 function renderToolbar(overrides: Partial<Parameters<typeof MatrixToolbar>[0]> = {}) {
   const props = {
     filter: 'All' as const,
     onFilterChange: vi.fn(),
-    activePresets: EMPTY_PRESETS,
-    onTogglePreset: vi.fn(),
+    activePill: null as Parameters<typeof MatrixToolbar>[0]['activePill'],
+    onApplyPreset: vi.fn(),
     weeklyCount: 0,
     onReset: vi.fn(),
     ...overrides,
@@ -84,7 +83,6 @@ describe('MatrixToolbar', () => {
     const weeklyBtn = screen.getByRole('button', { name: /^weekly$/i });
     const svg = weeklyBtn.querySelector('svg');
     expect(svg).toBeTruthy();
-    // Calendar shape: rect + 2 lines for tabs + 1 horizontal line
     expect(svg?.querySelector('rect')).toBeTruthy();
     expect(svg?.querySelectorAll('line').length).toBeGreaterThanOrEqual(3);
   });
@@ -94,7 +92,6 @@ describe('MatrixToolbar', () => {
     const dailyBtn = screen.getByRole('button', { name: /^daily$/i });
     const svg = dailyBtn.querySelector('svg');
     expect(svg).toBeTruthy();
-    // Clock shape: circle + polyline for the hands
     expect(svg?.querySelector('circle')).toBeTruthy();
     expect(svg?.querySelector('polyline')).toBeTruthy();
   });
@@ -106,11 +103,9 @@ describe('MatrixToolbar', () => {
   });
 
   it('accepts the unused preset / count / reset props without crashing', () => {
-    // Smoke test: full prop surface is declared up front so future slices
-    // can add right-side controls without churning the API.
     renderToolbar({
-      activePresets: new Set(['CRA']),
-      onTogglePreset: noop,
+      activePill: 'CRA',
+      onApplyPreset: noop,
       weeklyCount: 5,
       onReset: noop,
     });
@@ -151,8 +146,6 @@ describe('MatrixToolbar', () => {
     it('uses JetBrains Mono at 11px for the count text', () => {
       renderToolbar({ weeklyCount: 3 });
       const count = screen.getByLabelText(/weekly boss selections/i) as HTMLElement;
-      // Either inline font-family or font-mono-nums class satisfies monospaced
-      // numerics; inline font-size must be 11px per the design spec.
       const hasMonoClass = count.classList.contains('font-mono-nums');
       const hasMonoInline = /JetBrains Mono/i.test(count.style.fontFamily ?? '');
       expect(hasMonoClass || hasMonoInline).toBe(true);
@@ -187,9 +180,6 @@ describe('MatrixToolbar', () => {
       expect(seps.length).toBeGreaterThanOrEqual(1);
       const count = screen.getByLabelText(/weekly boss selections/i);
       const resetBtn = screen.getByRole('button', { name: /^reset$/i });
-      // Find the separator that sits between the count and the reset button.
-      // After Slice 4, an earlier .d-toolbar-sep also separates the cadence
-      // filter from the Boss Presets control; that one is not the subject here.
       const sep = Array.from(seps).find((s) => {
         const countVsSep = count.compareDocumentPosition(s);
         const sepVsReset = s.compareDocumentPosition(resetBtn);
@@ -203,15 +193,15 @@ describe('MatrixToolbar', () => {
   });
 
   describe('Boss Presets segmented control', () => {
-    it('renders CRA and CTENE buttons after the Cadence Filter', () => {
+    it('renders CRA, LOMIEN, CTENE buttons after the Cadence Filter', () => {
       renderToolbar();
       expect(screen.getByRole('button', { name: /^cra$/i })).toBeTruthy();
+      expect(screen.getByRole('button', { name: /^lomien$/i })).toBeTruthy();
       expect(screen.getByRole('button', { name: /^ctene$/i })).toBeTruthy();
     });
 
     it('wraps the preset buttons in their own .d-c-toggle container', () => {
       const { container } = renderToolbar();
-      // Two .d-c-toggle groups: cadence filter (3 buttons) + preset row (3 buttons: CRA, LOMIEN, CTENE).
       const groups = container.querySelectorAll('.d-c-toggle');
       expect(groups.length).toBeGreaterThanOrEqual(2);
       const presetGroup = Array.from(groups).find((g) => {
@@ -239,35 +229,57 @@ describe('MatrixToolbar', () => {
       expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     });
 
-    it('applies the .on class to active preset pills only', () => {
-      renderToolbar({ activePresets: new Set(['CRA']) });
-      const craBtn = screen.getByRole('button', { name: /^cra$/i });
-      const cteneBtn = screen.getByRole('button', { name: /^ctene$/i });
-      expect(craBtn.classList.contains('on')).toBe(true);
-      expect(cteneBtn.classList.contains('on')).toBe(false);
+    it('applies the .on class to the single active pill only', () => {
+      renderToolbar({ activePill: 'CRA' });
+      expect(screen.getByRole('button', { name: /^cra$/i }).classList.contains('on')).toBe(true);
+      expect(screen.getByRole('button', { name: /^lomien$/i }).classList.contains('on')).toBe(
+        false,
+      );
+      expect(screen.getByRole('button', { name: /^ctene$/i }).classList.contains('on')).toBe(false);
     });
 
-    it('marks both pills active when activePresets holds CRA and CTENE', () => {
-      renderToolbar({ activePresets: new Set(['CRA', 'CTENE']) });
-      expect(screen.getByRole('button', { name: /^cra$/i }).classList.contains('on')).toBe(true);
+    it('lights LOMIEN when activePill === "LOMIEN"', () => {
+      renderToolbar({ activePill: 'LOMIEN' });
+      expect(screen.getByRole('button', { name: /^lomien$/i }).classList.contains('on')).toBe(true);
+      expect(screen.getByRole('button', { name: /^cra$/i }).classList.contains('on')).toBe(false);
+    });
+
+    it('lights CTENE when activePill === "CTENE"', () => {
+      renderToolbar({ activePill: 'CTENE' });
       expect(screen.getByRole('button', { name: /^ctene$/i }).classList.contains('on')).toBe(true);
     });
 
-    it('calls onTogglePreset with "CRA" when CRA is clicked', () => {
-      const onTogglePreset = vi.fn();
-      renderToolbar({ onTogglePreset });
+    it('lights no pills when activePill is null', () => {
+      renderToolbar({ activePill: null });
+      expect(screen.getByRole('button', { name: /^cra$/i }).classList.contains('on')).toBe(false);
+      expect(screen.getByRole('button', { name: /^lomien$/i }).classList.contains('on')).toBe(
+        false,
+      );
+      expect(screen.getByRole('button', { name: /^ctene$/i }).classList.contains('on')).toBe(false);
+    });
+
+    it('calls onApplyPreset with "CRA" when CRA is clicked', () => {
+      const onApplyPreset = vi.fn();
+      renderToolbar({ onApplyPreset });
       fireEvent.click(screen.getByRole('button', { name: /^cra$/i }));
-      expect(onTogglePreset).toHaveBeenCalledWith('CRA');
+      expect(onApplyPreset).toHaveBeenCalledWith('CRA');
     });
 
-    it('calls onTogglePreset with "CTENE" when CTENE is clicked', () => {
-      const onTogglePreset = vi.fn();
-      renderToolbar({ onTogglePreset });
+    it('calls onApplyPreset with "LOMIEN" when LOMIEN is clicked', () => {
+      const onApplyPreset = vi.fn();
+      renderToolbar({ onApplyPreset });
+      fireEvent.click(screen.getByRole('button', { name: /^lomien$/i }));
+      expect(onApplyPreset).toHaveBeenCalledWith('LOMIEN');
+    });
+
+    it('calls onApplyPreset with "CTENE" when CTENE is clicked', () => {
+      const onApplyPreset = vi.fn();
+      renderToolbar({ onApplyPreset });
       fireEvent.click(screen.getByRole('button', { name: /^ctene$/i }));
-      expect(onTogglePreset).toHaveBeenCalledWith('CTENE');
+      expect(onApplyPreset).toHaveBeenCalledWith('CTENE');
     });
 
-    it('renders a LOMIEN pill between CRA and CTENE', () => {
+    it('renders LOMIEN between CRA and CTENE', () => {
       renderToolbar();
       const craBtn = screen.getByRole('button', { name: /^cra$/i });
       const lomienBtn = screen.getByRole('button', { name: /^lomien$/i });
@@ -283,6 +295,7 @@ describe('MatrixToolbar', () => {
     it('preset buttons render no SVG icons', () => {
       renderToolbar();
       expect(screen.getByRole('button', { name: /^cra$/i }).querySelector('svg')).toBeNull();
+      expect(screen.getByRole('button', { name: /^lomien$/i }).querySelector('svg')).toBeNull();
       expect(screen.getByRole('button', { name: /^ctene$/i }).querySelector('svg')).toBeNull();
     });
   });

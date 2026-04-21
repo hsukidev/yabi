@@ -250,8 +250,8 @@ export function MuleDetailDrawer({
                 <MatrixToolbar
                   filter={matrix.filter}
                   onFilterChange={matrix.setFilter}
-                  activePresets={matrix.activePresets}
-                  onTogglePreset={matrix.togglePreset}
+                  activePill={matrix.activePill}
+                  onApplyPreset={matrix.applyPreset}
                   weeklyCount={matrix.weeklyCount}
                   onReset={matrix.resetBosses}
                 />
