@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
 interface AddCardProps {
-  onClick: () => void
+  onClick: () => void;
 }
 
 export function AddCard({ onClick }: AddCardProps) {
-  const [isHovered, setIsHovered] = useState(false)
+  const [isHovered, setIsHovered] = useState(false);
   return (
     <div
       data-add-card
@@ -14,7 +14,10 @@ export function AddCard({ onClick }: AddCardProps) {
       aria-label="Add mule"
       onClick={onClick}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() }
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -35,20 +38,35 @@ export function AddCard({ onClick }: AddCardProps) {
       }}
     >
       <div style={{ display: 'grid', placeItems: 'center', gap: 10 }}>
-        <div style={{
-          width: 40, height: 40, borderRadius: '50%',
-          background: isHovered ? 'var(--accent-soft)' : 'var(--surface)',
-          border: '1px solid var(--border)',
-          display: 'grid', placeItems: 'center',
-          color: isHovered ? 'var(--accent-raw, var(--accent))' : 'var(--muted-raw, var(--muted-foreground))',
-          fontSize: 24, lineHeight: 1,
-          transition: 'background 150ms, color 150ms',
-        }}>+</div>
-        <span style={{
-          color: 'var(--muted-raw, var(--muted-foreground))',
-          fontSize: 13, fontWeight: 500,
-        }}>Add Mule</span>
+        <div
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            background: isHovered ? 'var(--accent-soft)' : 'var(--surface)',
+            border: '1px solid var(--border)',
+            display: 'grid',
+            placeItems: 'center',
+            color: isHovered
+              ? 'var(--accent-raw, var(--accent))'
+              : 'var(--muted-raw, var(--muted-foreground))',
+            fontSize: 24,
+            lineHeight: 1,
+            transition: 'background 150ms, color 150ms',
+          }}
+        >
+          +
+        </div>
+        <span
+          style={{
+            color: 'var(--muted-raw, var(--muted-foreground))',
+            fontSize: 13,
+            fontWeight: 500,
+          }}
+        >
+          Add Mule
+        </span>
       </div>
     </div>
-  )
+  );
 }
