@@ -5,6 +5,17 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Theme-swap guard — paired with ThemeProvider.applyTheme. While the attribute
+ * is set (for one reflow during the swap), transitions are suppressed on every
+ * element except body. This stops per-element color transitions (panel borders,
+ * button hover colors, etc.) from fading over 150ms on theme toggle, which
+ * otherwise reads as a flash. Body is exempt so its background still fades. */
+html[data-theme-swap] *:not(body),
+html[data-theme-swap] *:not(body)::before,
+html[data-theme-swap] *:not(body)::after {
+  transition: none !important;
+}
+
 @theme {
   --color-dark-0: #2a2a3a;
   --color-dark-1: #272736;

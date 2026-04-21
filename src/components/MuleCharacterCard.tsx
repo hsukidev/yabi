@@ -200,7 +200,7 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
           boxShadow: panelBoxShadow,
           borderColor: bulkMode && selected ? DESTRUCTIVE : undefined,
           background: bulkMode && selected ? destructiveAlpha(10) : undefined,
-          transition: 'transform 150ms, box-shadow 150ms, border-color 150ms, background 150ms',
+          transition: 'transform 150ms, box-shadow 150ms, border-color 150ms',
         }}
         role="button"
         tabIndex={0}

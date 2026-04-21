@@ -27,13 +27,20 @@ function getInitialTheme(fallback: Theme): Theme {
 }
 
 function applyTheme(theme: Theme) {
+  // Suppress per-element color transitions across the swap via data-theme-swap
+  // (see index.css). Body is exempt so its background still fades smoothly;
+  // without this, every `.panel` border visibly fades over 150ms on toggle.
+  const root = document.documentElement
+  root.setAttribute('data-theme-swap', '')
   if (theme === 'dark') {
-    document.documentElement.classList.add('dark')
+    root.classList.add('dark')
     document.body.classList.remove('light')
   } else {
-    document.documentElement.classList.remove('dark')
+    root.classList.remove('dark')
     document.body.classList.add('light')
   }
+  void root.offsetHeight
+  root.removeAttribute('data-theme-swap')
 }
 
 interface ThemeProviderProps {
