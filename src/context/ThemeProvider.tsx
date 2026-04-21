@@ -26,11 +26,15 @@ function getInitialTheme(fallback: Theme): Theme {
   return getSystemPreference() ?? fallback;
 }
 
+let swapTimer: number | undefined;
+
 function applyTheme(theme: Theme) {
-  // Suppress per-element color transitions across the swap via data-theme-swap
-  // (see index.css). Body is exempt so its background still fades smoothly;
-  // without this, every `.panel` border visibly fades over 150ms on toggle.
+  // Drive a unified 220ms ease-out cross-fade across every element during the
+  // swap via data-theme-swap (see index.css). The attribute stays set through
+  // the transition window so the browser can animate between the old and new
+  // token values; without the window, the class change would snap instantly.
   const root = document.documentElement;
+  if (swapTimer !== undefined) window.clearTimeout(swapTimer);
   root.setAttribute('data-theme-swap', '');
   if (theme === 'dark') {
     root.classList.add('dark');
@@ -40,7 +44,10 @@ function applyTheme(theme: Theme) {
     document.body.classList.add('light');
   }
   void root.offsetHeight;
-  root.removeAttribute('data-theme-swap');
+  swapTimer = window.setTimeout(() => {
+    root.removeAttribute('data-theme-swap');
+    swapTimer = undefined;
+  }, 240);
 }
 
 interface ThemeProviderProps {

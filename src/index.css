@@ -5,15 +5,22 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Theme-swap guard — paired with ThemeProvider.applyTheme. While the attribute
- * is set (for one reflow during the swap), transitions are suppressed on every
- * element except body. This stops per-element color transitions (panel borders,
- * button hover colors, etc.) from fading over 150ms on theme toggle, which
- * otherwise reads as a flash. Body is exempt so its background still fades. */
-html[data-theme-swap] *:not(body),
-html[data-theme-swap] *:not(body)::before,
-html[data-theme-swap] *:not(body)::after {
-  transition: none !important;
+/* Theme-swap cross-fade — paired with ThemeProvider.applyTheme. While the
+ * attribute is set (for the transition's duration), every element cross-fades
+ * its color tokens together on a unified 220ms ease-out curve (matching the
+ * bulk-slide animation), so the swap reads as one smooth transition rather
+ * than each element fading on its own hover-timing. */
+html[data-theme-swap] *,
+html[data-theme-swap] *::before,
+html[data-theme-swap] *::after {
+  transition:
+    background-color 0.22s ease-out,
+    color 0.22s ease-out,
+    border-color 0.22s ease-out,
+    fill 0.22s ease-out,
+    stroke 0.22s ease-out,
+    box-shadow 0.22s ease-out,
+    outline-color 0.22s ease-out !important;
 }
 
 @theme {
@@ -358,7 +365,7 @@ html[data-theme-swap] *:not(body)::after {
     border-color: var(--accent-raw, var(--accent));
   }
   .panel-glow {
-    background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+    background-color: var(--surface);
     box-shadow:
       0 0 0 1px var(--border),
       0 20px 60px -30px var(--accent-glow),
