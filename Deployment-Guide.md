@@ -204,6 +204,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd ~/app
+            docker compose down
             docker compose pull
             docker compose up -d
 ```
@@ -323,6 +324,7 @@ On your droplet:
 
 ```bash
 cd ~/app
+docker compose down
 docker compose pull
 docker compose up -d
 ```
