@@ -5,22 +5,14 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Theme-swap cross-fade — paired with ThemeProvider.applyTheme. While the
- * attribute is set (for the transition's duration), every element cross-fades
- * its color tokens together on a unified 220ms ease-out curve (matching the
- * bulk-slide animation), so the swap reads as one smooth transition rather
- * than each element fading on its own hover-timing. */
+/* Disable all transitions on every element for one frame during a theme swap
+ * (see ThemeProvider.applyTheme). Keeps per-component hover/focus transitions
+ * intact while making the theme switch itself instant. */
+html[data-theme-swap],
 html[data-theme-swap] *,
 html[data-theme-swap] *::before,
 html[data-theme-swap] *::after {
-  transition:
-    background-color 0.22s ease-out,
-    color 0.22s ease-out,
-    border-color 0.22s ease-out,
-    fill 0.22s ease-out,
-    stroke 0.22s ease-out,
-    box-shadow 0.22s ease-out,
-    outline-color 0.22s ease-out !important;
+  transition: none !important;
 }
 
 @theme {

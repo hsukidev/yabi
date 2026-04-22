@@ -26,15 +26,12 @@ function getInitialTheme(fallback: Theme): Theme {
   return getSystemPreference() ?? fallback;
 }
 
-let swapTimer: number | undefined;
-
 function applyTheme(theme: Theme) {
-  // Drive a unified 220ms ease-out cross-fade across every element during the
-  // swap via data-theme-swap (see index.css). The attribute stays set through
-  // the transition window so the browser can animate between the old and new
-  // token values; without the window, the class change would snap instantly.
+  // Suppress per-component color/border transitions during the class flip so
+  // the swap lands in one frame. Without this, hover/focus transitions on
+  // individual components (transition-colors, transition-all, explicit
+  // border-color transitions) all fire in parallel and read as a lag.
   const root = document.documentElement;
-  if (swapTimer !== undefined) window.clearTimeout(swapTimer);
   root.setAttribute('data-theme-swap', '');
   if (theme === 'dark') {
     root.classList.add('dark');
@@ -43,11 +40,9 @@ function applyTheme(theme: Theme) {
     root.classList.remove('dark');
     document.body.classList.add('light');
   }
-  void root.offsetHeight;
-  swapTimer = window.setTimeout(() => {
+  requestAnimationFrame(() => {
     root.removeAttribute('data-theme-swap');
-    swapTimer = undefined;
-  }, 240);
+  });
 }
 
 interface ThemeProviderProps {
