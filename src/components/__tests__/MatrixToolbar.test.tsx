@@ -11,7 +11,6 @@ function renderToolbar(overrides: Partial<Parameters<typeof MatrixToolbar>[0]> =
     onFilterChange: vi.fn(),
     activePill: null as Parameters<typeof MatrixToolbar>[0]['activePill'],
     onApplyPreset: vi.fn(),
-    weeklyCount: 0,
     onReset: vi.fn(),
     ...overrides,
   };
@@ -102,54 +101,24 @@ describe('MatrixToolbar', () => {
     expect(allBtn.querySelector('svg')).toBeNull();
   });
 
-  it('accepts the unused preset / count / reset props without crashing', () => {
+  it('accepts the preset / reset props without crashing', () => {
     renderToolbar({
       activePill: 'CRA',
       onApplyPreset: noop,
-      weeklyCount: 5,
       onReset: noop,
     });
     expect(screen.getByRole('button', { name: /^all$/i })).toBeTruthy();
   });
 
-  describe('weekly count display', () => {
-    it('renders "{weeklyCount}/14" with the Weekly-selections aria-label', () => {
-      renderToolbar({ weeklyCount: 5 });
-      const count = screen.getByLabelText(/weekly boss selections/i);
-      expect(count.textContent).toBe('5/14');
+  describe('weekly count display (moved to CrystalTally)', () => {
+    it('no longer renders a weekly-selections readout inside the toolbar', () => {
+      renderToolbar();
+      expect(screen.queryByLabelText(/weekly boss selections/i)).toBeNull();
     });
 
-    it('shows "0/14" when weeklyCount is 0', () => {
-      renderToolbar({ weeklyCount: 0 });
-      const count = screen.getByLabelText(/weekly boss selections/i);
-      expect(count.textContent).toBe('0/14');
-    });
-
-    it('does not clamp and can display values greater than 14', () => {
-      renderToolbar({ weeklyCount: 16 });
-      const count = screen.getByLabelText(/weekly boss selections/i);
-      expect(count.textContent).toBe('16/14');
-    });
-
-    it('uses var(--muted-foreground) color when weeklyCount is 0', () => {
-      renderToolbar({ weeklyCount: 0 });
-      const count = screen.getByLabelText(/weekly boss selections/i) as HTMLElement;
-      expect(count.style.color).toContain('var(--muted-foreground)');
-    });
-
-    it('uses var(--accent) color when weeklyCount > 0', () => {
-      renderToolbar({ weeklyCount: 1 });
-      const count = screen.getByLabelText(/weekly boss selections/i) as HTMLElement;
-      expect(count.style.color).toContain('var(--accent)');
-    });
-
-    it('uses JetBrains Mono at 11px for the count text', () => {
-      renderToolbar({ weeklyCount: 3 });
-      const count = screen.getByLabelText(/weekly boss selections/i) as HTMLElement;
-      const hasMonoClass = count.classList.contains('font-mono-nums');
-      const hasMonoInline = /JetBrains Mono/i.test(count.style.fontFamily ?? '');
-      expect(hasMonoClass || hasMonoInline).toBe(true);
-      expect(count.style.fontSize).toBe('11px');
+    it('no longer renders a .d-toolbar-crystal image in the toolbar', () => {
+      const { container } = renderToolbar();
+      expect(container.querySelector('.d-toolbar-crystal')).toBeNull();
     });
   });
 
@@ -173,39 +142,10 @@ describe('MatrixToolbar', () => {
     });
   });
 
-  describe('weekly crystal icon', () => {
-    it('renders a .d-toolbar-crystal image between the count and the separator', () => {
-      const { container } = renderToolbar();
-      const crystal = container.querySelector('.d-toolbar-crystal');
-      expect(crystal).toBeTruthy();
-      expect(crystal?.getAttribute('aria-hidden')).toBe('true');
-
-      const count = screen.getByLabelText(/weekly boss selections/i);
-      const resetBtn = screen.getByRole('button', { name: /^reset$/i });
-      expect(
-        count.compareDocumentPosition(crystal!) & Node.DOCUMENT_POSITION_FOLLOWING,
-      ).toBeTruthy();
-      expect(
-        crystal!.compareDocumentPosition(resetBtn) & Node.DOCUMENT_POSITION_FOLLOWING,
-      ).toBeTruthy();
-    });
-  });
-
   describe('toolbar separator', () => {
-    it('renders a .d-toolbar-sep element between the count and the reset button', () => {
+    it('keeps a .d-toolbar-sep between the cadence filter and the preset pills', () => {
       const { container } = renderToolbar();
-      const seps = container.querySelectorAll('.d-toolbar-sep');
-      expect(seps.length).toBeGreaterThanOrEqual(1);
-      const count = screen.getByLabelText(/weekly boss selections/i);
-      const resetBtn = screen.getByRole('button', { name: /^reset$/i });
-      const sep = Array.from(seps).find((s) => {
-        const countVsSep = count.compareDocumentPosition(s);
-        const sepVsReset = s.compareDocumentPosition(resetBtn);
-        return (
-          (countVsSep & Node.DOCUMENT_POSITION_FOLLOWING) !== 0 &&
-          (sepVsReset & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
-        );
-      });
+      const sep = container.querySelector('.d-toolbar-sep');
       expect(sep).toBeTruthy();
     });
   });

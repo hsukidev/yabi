@@ -61,6 +61,7 @@ export function useBossMatrixView({
   setFilter: (f: CadenceFilter) => void;
   visibleBosses: SlateFamily[];
   weeklyCount: number;
+  dailyCount: number;
   activePill: PresetKey | null;
   stablePartySizes: Record<string, number>;
   toggleKey: (key: string) => void;
@@ -169,6 +170,7 @@ export function useBossMatrixView({
     setFilter,
     visibleBosses,
     weeklyCount: slate.weeklyCount,
+    dailyCount: slate.dailyCount,
     activePill,
     stablePartySizes,
     toggleKey,

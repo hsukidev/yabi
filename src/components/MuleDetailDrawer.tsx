@@ -14,6 +14,7 @@ import { GMS_CLASSES } from '../constants/classes';
 import { useMuleIdentityDraft } from './MuleDetailDrawer/hooks/useMuleIdentityDraft';
 import { useBossMatrixView } from './MuleDetailDrawer/hooks/useBossMatrixView';
 import { useDeleteConfirm } from './MuleDetailDrawer/hooks/useDeleteConfirm';
+import { CrystalTally } from './MuleDetailDrawer/CrystalTally';
 
 interface MuleDetailDrawerProps {
   mule: Mule | null;
@@ -153,6 +154,10 @@ export function MuleDetailDrawer({
                 </div>
               </div>
 
+              <div className="shrink-0 self-end">
+                <CrystalTally weeklyCount={matrix.weeklyCount} dailyCount={matrix.dailyCount} />
+              </div>
+
               {del.confirming ? (
                 <div className="absolute top-3 right-3 flex items-center gap-2 rounded-lg bg-popover p-3 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10">
                   <span>Delete?</span>
@@ -252,7 +257,6 @@ export function MuleDetailDrawer({
                   onFilterChange={matrix.setFilter}
                   activePill={matrix.activePill}
                   onApplyPreset={matrix.applyPreset}
-                  weeklyCount={matrix.weeklyCount}
                   onReset={matrix.resetBosses}
                 />
                 <div className="mt-2">

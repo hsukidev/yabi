@@ -215,6 +215,15 @@ function countWeeklySelections(keys: string[]): number {
   return count;
 }
 
+function countDailySelections(keys: string[]): number {
+  let count = 0;
+  for (const key of keys) {
+    const parsed = parseKey(key);
+    if (parsed?.cadence === 'daily') count++;
+  }
+  return count;
+}
+
 function getFamilies(
   keys: string[],
   search: string,
@@ -361,6 +370,11 @@ export class MuleBossSlate {
   /** Count of **Slate Keys** whose **Boss Cadence** is `weekly`. */
   get weeklyCount(): number {
     return countWeeklySelections(this.keys as string[]);
+  }
+
+  /** Count of **Slate Keys** whose **Boss Cadence** is `daily`. */
+  get dailyCount(): number {
+    return countDailySelections(this.keys as string[]);
   }
 
   /**

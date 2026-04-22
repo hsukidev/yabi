@@ -836,6 +836,35 @@ describe('useBossMatrixView', () => {
     });
   });
 
+  describe('dailyCount', () => {
+    const NORMAL_VELLUM_DAILY = `${VELLUM_BOSS.id}:normal:daily`;
+
+    it('counts daily selections separately from weekly selections', () => {
+      const { result } = renderHook(() =>
+        useBossMatrixView({
+          muleId: 'mule-1',
+          selectedBosses: [HARD_LUCID, NORMAL_VELLUM_DAILY],
+          partySizes: undefined,
+          onUpdate: vi.fn(),
+        }),
+      );
+      expect(result.current.dailyCount).toBe(1);
+      expect(result.current.weeklyCount).toBe(1);
+    });
+
+    it('returns 0 when no selections', () => {
+      const { result } = renderHook(() =>
+        useBossMatrixView({
+          muleId: 'mule-1',
+          selectedBosses: [],
+          partySizes: undefined,
+          onUpdate: vi.fn(),
+        }),
+      );
+      expect(result.current.dailyCount).toBe(0);
+    });
+  });
+
   describe('stablePartySizes', () => {
     it('keeps identity stable across renders when partySizes does not change', () => {
       const partySizes = { lucid: 2 };

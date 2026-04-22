@@ -1,5 +1,3 @@
-import weeklyCrystalPng from '../assets/weekly-crystal.png';
-
 export type CadenceFilter = 'All' | 'Weekly' | 'Daily';
 export type PresetKey = 'CRA' | 'LOMIEN' | 'CTENE' | 'CUSTOM';
 
@@ -9,14 +7,9 @@ interface MatrixToolbarProps {
   /** The single currently-lit **Preset Pill**, or `null` when none matches. */
   activePill: PresetKey | null;
   onApplyPreset: (preset: PresetKey) => void;
-  /** Count of `weekly`-cadence selections; displayed as `{weeklyCount}/14`. */
-  weeklyCount: number;
   /** Invoked when the Matrix Reset button is clicked. */
   onReset: () => void;
 }
-
-/** Weekly Crystal Cap reference — displayed, not enforced. */
-const WEEKLY_CRYSTAL_CAP = 14;
 
 function CadenceIcon({ children }: { children: React.ReactNode }) {
   return (
@@ -66,10 +59,8 @@ export function MatrixToolbar({
   onFilterChange,
   activePill,
   onApplyPreset,
-  weeklyCount,
   onReset,
 }: MatrixToolbarProps) {
-  const countColor = weeklyCount > 0 ? 'var(--accent)' : 'var(--muted-foreground)';
   return (
     <div className="flex items-center justify-between gap-2">
       <div className="flex items-center">
@@ -100,37 +91,9 @@ export function MatrixToolbar({
           ))}
         </div>
       </div>
-      <div className="flex items-center">
-        <span
-          aria-label="Weekly boss selections"
-          className="font-mono-nums"
-          style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: '11px',
-            color: countColor,
-          }}
-        >
-          {weeklyCount}/{WEEKLY_CRYSTAL_CAP}
-        </span>
-        <img
-          src={weeklyCrystalPng}
-          alt=""
-          aria-hidden
-          draggable={false}
-          width={17}
-          height={20}
-          className="d-toolbar-crystal"
-        />
-        <span className="d-toolbar-sep" aria-hidden style={{ margin: '0 8px' }} />
-        <button
-          type="button"
-          onClick={onReset}
-          className="d-toolbar-reset"
-          style={{ opacity: 0.6 }}
-        >
-          Reset
-        </button>
-      </div>
+      <button type="button" onClick={onReset} className="d-toolbar-reset" style={{ opacity: 0.6 }}>
+        Reset
+      </button>
     </div>
   );
 }
