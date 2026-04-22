@@ -516,11 +516,11 @@ html[data-theme-swap] *::after {
   .crystal-tally {
     position: relative;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: stretch;
     gap: 0;
-    padding: 12px 10px;
-    min-width: 196px;
+    padding: 10px 12px;
+    min-width: 168px;
     border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
     border-radius: 14px;
     background: color-mix(in srgb, var(--surface-2) 92%, transparent);
@@ -532,23 +532,23 @@ html[data-theme-swap] *::after {
   }
   .crystal-tally__row {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 2px 4px;
-    flex: 1 1 0;
+    justify-content: flex-start;
+    gap: 16px;
+    padding: 6px 2px;
+    flex: 0 0 auto;
     min-width: 0;
     position: relative;
-    text-align: center;
+    text-align: left;
   }
 
   .crystal-tally__icon {
     position: relative;
     display: grid;
     place-items: center;
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
     flex-shrink: 0;
   }
   /* Radial halo pedestal beneath the crystal — brightens when the tile
@@ -578,8 +578,12 @@ html[data-theme-swap] *::after {
     );
   }
 
+  /* The daily crystal PNG has a slightly shorter native aspect ratio than the
+   * weekly and monthly assets; `aspect-ratio` forces all three to render on
+   * the same 22:26.13 footprint regardless of their intrinsic dimensions. */
   .crystal-tally__crystal {
-    width: 26px;
+    width: 30px;
+    aspect-ratio: 22 / 26.13;
     height: auto;
     display: block;
     user-select: none;
@@ -594,10 +598,11 @@ html[data-theme-swap] *::after {
   .crystal-tally__readout {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 3px;
+    align-items: flex-start;
+    gap: 2px;
     min-width: 0;
     line-height: 1;
+    flex: 0 1 auto;
   }
 
   .crystal-tally__count {
@@ -615,7 +620,7 @@ html[data-theme-swap] *::after {
   }
 
   .crystal-tally__cap {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 500;
     opacity: 0.55;
     margin-left: 1px;
@@ -623,22 +628,23 @@ html[data-theme-swap] *::after {
 
   .crystal-tally__label {
     font-family: var(--font-sans);
-    font-size: 8.5px;
-    letter-spacing: 0.26em;
+    font-size: 9.5px;
+    letter-spacing: 0.24em;
     text-transform: uppercase;
     color: color-mix(in srgb, var(--muted-foreground) 95%, transparent);
     white-space: nowrap;
   }
 
-  /* Vertical hairline between cells — mirrors the old horizontal divider's
-   * gradient fade, rotated 90°. `align-self: stretch` lets it reach the
-   * top/bottom padding edge so the fade reads as a column rule. */
+  /* Horizontal hairline between stacked rows — a gradient fades in from the
+   * left padding, peaks under the readout, and fades out on the right so the
+   * rule reads as a delicate seam rather than a hard line. */
   .crystal-tally__divider {
-    width: 1px;
+    height: 1px;
+    width: auto;
     align-self: stretch;
-    margin: 4px 0;
+    margin: 0 2px;
     background: linear-gradient(
-      180deg,
+      90deg,
       transparent,
       color-mix(in srgb, var(--border) 90%, transparent),
       transparent

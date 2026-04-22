@@ -56,13 +56,13 @@ describe('CrystalTally', () => {
     expect(container.querySelector('.crystal-tally__crystal.is-monthly')).toBeTruthy();
   });
 
-  it('orders the cells Weekly, Daily, Monthly left-to-right', () => {
+  it('orders the cells Weekly, Daily, Monthly top-to-bottom', () => {
     const { container } = render(<CrystalTally weeklyCount={1} dailyCount={1} monthlyCount={1} />);
     const cells = Array.from(container.querySelectorAll('[data-kind]'));
     expect(cells.map((c) => c.getAttribute('data-kind'))).toEqual(['weekly', 'daily', 'monthly']);
   });
 
-  it('places a vertical divider between each pair of adjacent cells', () => {
+  it('places a horizontal divider between each pair of adjacent cells', () => {
     const { container } = render(<CrystalTally weeklyCount={1} dailyCount={1} monthlyCount={1} />);
     // Three cells → two dividers.
     expect(container.querySelectorAll('.crystal-tally__divider')).toHaveLength(2);

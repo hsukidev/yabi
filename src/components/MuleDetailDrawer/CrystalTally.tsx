@@ -18,12 +18,17 @@ const WEEKLY_CRYSTAL_CAP = 14;
 const MONTHLY_CRYSTAL_CAP = 1;
 
 /**
- * Three crystal tiles arrayed horizontally in the drawer header:
- *   Weekly ({n}/14) | Daily ({n}) | Monthly ({n}/1)
+ * Three crystal plates stacked vertically in the drawer header:
+ *   Weekly ({n}/14)
+ *   ──────────────
+ *   Daily  ({n})
+ *   ──────────────
+ *   Monthly ({n}/1)
  *
- * Each tile stacks an icon on a radial halo atop a mono-numeric count and
- * a micro-tracked caption. Empty tiles fade to muted; filled tiles lift to
- * the accent colour. Vertical gradient dividers separate the three columns.
+ * Each plate pairs an icon on a radial halo with a two-line readout — a
+ * micro-tracked eyebrow label above a mono-numeric count. Empty plates
+ * fade to muted; filled plates lift to the accent colour. Horizontal
+ * gradient hairlines separate the three rows.
  *
  * The count span carries an `aria-label` so SR users get context without
  * reading the adjacent caption as label text.
@@ -77,11 +82,11 @@ function CrystalCell({ kind, icon, label, count, cap, ariaLabel }: CrystalCellPr
         <img src={icon} alt="" draggable={false} className={`crystal-tally__crystal is-${kind}`} />
       </span>
       <div className="crystal-tally__readout">
+        <span className="crystal-tally__label">{label}</span>
         <span className="crystal-tally__count font-mono-nums" aria-label={ariaLabel}>
           {count}
           {cap !== undefined && <span className="crystal-tally__cap">/{cap}</span>}
         </span>
-        <span className="crystal-tally__label">{label}</span>
       </div>
     </div>
   );
