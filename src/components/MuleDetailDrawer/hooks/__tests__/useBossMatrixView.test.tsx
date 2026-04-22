@@ -16,6 +16,11 @@ const HARD_WILL = `${WILL_BOSS.id}:hard:weekly`;
 const VELLUM_BOSS = bosses.find((b) => b.family === 'vellum')!;
 const CRIMSON_QUEEN_BOSS = bosses.find((b) => b.family === 'crimson-queen')!;
 const BLACK_MAGE_BOSS = bosses.find((b) => b.family === 'black-mage')!;
+// Baldrix is a weekly-only family that sits outside every canonical preset —
+// the stand-in for "a weekly key on a non-preset family" role that Black Mage
+// used to play before it flipped to a monthly cadence.
+const BALDRIX_BOSS = bosses.find((b) => b.family === 'baldrix')!;
+const FIRST_ADVERSARY_BOSS = bosses.find((b) => b.family === 'first-adversary')!;
 const HORNTAIL_BOSS = bosses.find((b) => b.family === 'horntail')!;
 const MORI_BOSS = bosses.find((b) => b.family === 'mori-ranmaru')!;
 const DAMIEN_BOSS = bosses.find((b) => b.family === 'damien')!;
@@ -255,12 +260,12 @@ describe('useBossMatrixView', () => {
     });
 
     it('is "CUSTOM" for CRA + extra non-preset weekly (no canonical match, weekly ≥ 1)', () => {
-      // Black Mage is weekly-cadence and outside every canonical preset.
-      const blackMageKey = `${BLACK_MAGE_BOSS.id}:hard:weekly`;
+      // Baldrix is weekly-cadence and outside every canonical preset.
+      const baldrixKey = `${BALDRIX_BOSS.id}:hard:weekly`;
       const { result } = renderHook(() =>
         useBossMatrixView({
           muleId: 'mule-1',
-          selectedBosses: [...CRA_KEYS, blackMageKey],
+          selectedBosses: [...CRA_KEYS, baldrixKey],
           partySizes: undefined,
           onUpdate: vi.fn(),
         }),
@@ -269,11 +274,11 @@ describe('useBossMatrixView', () => {
     });
 
     it('is "CUSTOM" for a single weekly key on a family no canonical preset covers', () => {
-      const blackMageKey = `${BLACK_MAGE_BOSS.id}:hard:weekly`;
+      const baldrixKey = `${BALDRIX_BOSS.id}:hard:weekly`;
       const { result } = renderHook(() =>
         useBossMatrixView({
           muleId: 'mule-1',
-          selectedBosses: [blackMageKey],
+          selectedBosses: [baldrixKey],
           partySizes: undefined,
           onUpdate: vi.fn(),
         }),
@@ -520,8 +525,8 @@ describe('useBossMatrixView', () => {
       });
       expect(result.current.activePill).toBe('CUSTOM');
 
-      // User adds Baldrix Hard (Black Mage stands in as a non-CTENE weekly).
-      const extraKey = `${BLACK_MAGE_BOSS.id}:hard:weekly`;
+      // User adds a non-CTENE weekly (Baldrix is outside every preset).
+      const extraKey = `${BALDRIX_BOSS.id}:hard:weekly`;
       act(() => {
         result.current.toggleKey(extraKey);
       });
@@ -742,7 +747,7 @@ describe('useBossMatrixView', () => {
       expect(result.current.visibleBosses[0].displayName).toBe(VELLUM_BOSS.name);
     });
 
-    it('responds to cadence filter (Weekly hides daily-only families)', () => {
+    it('responds to cadence filter (Weekly hides daily-only and monthly-only families)', () => {
       const { result } = renderHook(() =>
         useBossMatrixView({
           muleId: 'mule-1',
@@ -758,7 +763,9 @@ describe('useBossMatrixView', () => {
       const names = result.current.visibleBosses.map((f) => f.displayName);
       expect(names).not.toContain(HORNTAIL_BOSS.name);
       expect(names).not.toContain(MORI_BOSS.name);
-      expect(names).toContain(BLACK_MAGE_BOSS.name);
+      // Black Mage is monthly-only (Hard + Extreme) — should NOT appear under Weekly.
+      expect(names).not.toContain(BLACK_MAGE_BOSS.name);
+      expect(names).toContain(FIRST_ADVERSARY_BOSS.name);
       expect(names).toContain(VELLUM_BOSS.name);
     });
 

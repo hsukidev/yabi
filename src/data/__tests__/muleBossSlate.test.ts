@@ -84,6 +84,12 @@ describe('MuleBossSlate.from — normalization', () => {
   });
 
   it('drops keys with an unknown cadence segment', () => {
+    expect(MuleBossSlate.from([`${LUCID}:hard:biweekly`]).keys).toEqual([]);
+  });
+
+  it('drops a valid-cadence key whose cadence disagrees with boss data', () => {
+    // Lucid Hard is weekly in boss data; asserting monthly makes the key
+    // stale even though `monthly` is a recognized cadence segment.
     expect(MuleBossSlate.from([`${LUCID}:hard:monthly`]).keys).toEqual([]);
   });
 
@@ -370,11 +376,18 @@ describe('MuleBossSlate.totalCrystalValue', () => {
 });
 
 describe('cross-family sanity', () => {
-  it('Extreme Black Mage resolves as a weekly Slate Key', () => {
-    const k = `${BLACK_MAGE}:extreme:weekly`;
+  it('Extreme Black Mage resolves as a monthly Slate Key', () => {
+    const k = `${BLACK_MAGE}:extreme:monthly`;
     const slate = MuleBossSlate.from([k]);
     expect(slate.keys).toEqual([k]);
-    expect(slate.weeklyCount).toBe(1);
+    expect(slate.monthlyCount).toBe(1);
+    expect(slate.weeklyCount).toBe(0);
+  });
+
+  it('drops a stale Extreme Black Mage weekly key (cadence disagrees post-flip)', () => {
+    // Users who persisted BM Extreme as weekly before the cadence flip
+    // should silently lose the key on next load (no migration by design).
+    expect(MuleBossSlate.from([`${BLACK_MAGE}:extreme:weekly`]).keys).toEqual([]);
   });
 
   it('Akechi (tier-less family) normal-weekly resolves', () => {
@@ -393,6 +406,83 @@ describe('cross-family sanity', () => {
   it('LOTUS selection participates in Tier Swap correctly', () => {
     const slate = MuleBossSlate.from([key(LOTUS, 'normal')]);
     expect(slate.toggle(key(LOTUS, 'hard')).keys).toEqual([key(LOTUS, 'hard')]);
+  });
+});
+
+describe('MuleBossSlate.monthlyCount & Monthly Radio Mutex', () => {
+  const BM_HARD = `${BLACK_MAGE}:hard:monthly`;
+  const BM_EXTREME = `${BLACK_MAGE}:extreme:monthly`;
+
+  it('is 0 for EMPTY', () => {
+    expect(MuleBossSlate.EMPTY.monthlyCount).toBe(0);
+  });
+
+  it('counts a Black Mage monthly Slate Key', () => {
+    expect(MuleBossSlate.from([BM_HARD]).monthlyCount).toBe(1);
+    expect(MuleBossSlate.from([BM_EXTREME]).monthlyCount).toBe(1);
+  });
+
+  it('treats monthly as a distinct cadence from weekly and daily', () => {
+    const slate = MuleBossSlate.from([BM_EXTREME, key(LUCID, 'hard'), key(VELLUM, 'normal')]);
+    expect(slate.monthlyCount).toBe(1);
+    expect(slate.weeklyCount).toBe(1);
+    expect(slate.dailyCount).toBe(1);
+  });
+
+  it('from() keeps only the highest-value monthly key per (bossId, cadence) bucket', () => {
+    // Stale persistence with both BM monthlies resolves to Extreme (higher value).
+    const slate = MuleBossSlate.from([BM_HARD, BM_EXTREME]);
+    expect(slate.keys).toEqual([BM_EXTREME]);
+    expect(slate.monthlyCount).toBe(1);
+  });
+
+  it('selecting BM Extreme while BM Hard is selected tier-swaps to Extreme', () => {
+    const slate = MuleBossSlate.from([BM_HARD]);
+    const next = slate.toggle(BM_EXTREME);
+    expect(next.keys).toEqual([BM_EXTREME]);
+    expect(next.monthlyCount).toBe(1);
+  });
+
+  it('selecting BM Hard while BM Extreme is selected tier-swaps to Hard', () => {
+    const slate = MuleBossSlate.from([BM_EXTREME]);
+    const next = slate.toggle(BM_HARD);
+    expect(next.keys).toEqual([BM_HARD]);
+    expect(next.monthlyCount).toBe(1);
+  });
+
+  it('toggling the same monthly key twice deselects (not stuck by mutex)', () => {
+    const slate = MuleBossSlate.from([BM_EXTREME]);
+    expect(slate.toggle(BM_EXTREME).keys).toEqual([]);
+    expect(slate.toggle(BM_EXTREME).monthlyCount).toBe(0);
+  });
+
+  it('monthly selection coexists with weekly/daily selections on other bosses', () => {
+    const slate = MuleBossSlate.from([key(LUCID, 'hard'), key(VELLUM, 'normal')]);
+    const next = slate.toggle(BM_EXTREME);
+    expect(next.keys).toContain(BM_EXTREME);
+    expect(next.keys).toContain(key(LUCID, 'hard'));
+    expect(next.keys).toContain(key(VELLUM, 'normal'));
+  });
+
+  it('monthly keys contribute 0 to totalCrystalValue (deferred to monthly readout)', () => {
+    const monthlyOnly = MuleBossSlate.from([BM_EXTREME]);
+    expect(monthlyOnly.totalCrystalValue).toBe(0);
+
+    const mixed = MuleBossSlate.from([key(LUCID, 'hard'), BM_EXTREME]);
+    // Lucid hard's 504M alone, no contribution from the 18B monthly Extreme.
+    expect(mixed.totalCrystalValue).toBe(504_000_000);
+  });
+
+  it('view() marks BM monthly rows as cadence: "monthly"', () => {
+    const slate = MuleBossSlate.from([BM_EXTREME]);
+    const view = slate.view();
+    const bmFamily = view.find((f) => f.family === 'black-mage')!;
+    for (const row of bmFamily.rows) {
+      expect(row.cadence).toBe('monthly');
+    }
+    const extremeRow = bmFamily.rows.find((r) => r.tier === 'extreme')!;
+    expect(extremeRow.selected).toBe(true);
+    expect(extremeRow.key).toBe(BM_EXTREME);
   });
 });
 

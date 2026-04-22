@@ -10,7 +10,10 @@ const HILLA = bosses.find((b) => b.family === 'hilla')!.id;
 // Normal Hilla is a daily tier (slice 2, per the PRD daily classification).
 const NORMAL_HILLA = `${HILLA}:normal:daily`;
 const BLACK_MAGE = bosses.find((b) => b.family === 'black-mage')!.id;
-const HARD_BLACK_MAGE = `${BLACK_MAGE}:hard:weekly`;
+// Black Mage Hard is monthly cadence; monthly selections don't contribute to
+// totalCrystalValue (weekly-basis), so a mule holding only this key renders
+// as an empty slice in the pie — mind that when asserting visibility.
+const HARD_BLACK_MAGE = `${BLACK_MAGE}:hard:monthly`;
 
 const muleWithBosses: Mule = {
   id: 'mule-1',

@@ -144,7 +144,11 @@ export function MuleDetailDrawer({
               </div>
 
               <div className="shrink-0 self-end mr-6">
-                <CrystalTally weeklyCount={matrix.weeklyCount} dailyCount={matrix.dailyCount} />
+                <CrystalTally
+                  weeklyCount={matrix.weeklyCount}
+                  dailyCount={matrix.dailyCount}
+                  monthlyCount={matrix.monthlyCount}
+                />
               </div>
 
               {del.confirming ? (

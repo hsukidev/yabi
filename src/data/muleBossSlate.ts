@@ -31,7 +31,7 @@ const TIER_ORDER: BossTier[] = ['extreme', 'chaos', 'hard', 'normal', 'easy'];
 
 const TIER_SET: ReadonlySet<BossTier> = new Set(TIER_ORDER);
 
-const CADENCE_SET: ReadonlySet<BossCadence> = new Set(['daily', 'weekly']);
+const CADENCE_SET: ReadonlySet<BossCadence> = new Set(['daily', 'weekly', 'monthly']);
 
 const TIER_LABEL: Record<BossTier, BossDifficultyLabel> = {
   easy: 'Easy',
@@ -130,8 +130,8 @@ function validateBossSelection(keys: string[]): string[] {
     }
   }
 
-  // One winner per (bossId, cadence): a boss can retain one daily AND one
-  // weekly selection simultaneously.
+  // One winner per (bossId, cadence): a boss can retain one daily, one
+  // weekly, and one monthly selection simultaneously.
   const winner = new Map<string, ResolvedKey>();
   for (const r of resolved) {
     const bucket = `${r.bossId}:${r.cadence}`;
@@ -150,7 +150,11 @@ function toggleBoss(keys: string[], bossId: string, tier: BossTier): string[] {
 
   const target = makeKey(bossId, tier, diff.cadence);
   // Same-cadence sibling on the same boss: opposite-cadence selections are
-  // untouched so a mule can keep one daily + one weekly simultaneously.
+  // untouched so a mule can keep one daily + one weekly + one monthly
+  // simultaneously. For monthly Black Mage this doubles as the **Monthly
+  // Radio Mutex** — selecting Extreme while Hard is selected tier-swaps
+  // (both live in the same (bossId, 'monthly') bucket), so `monthlyCount`
+  // stays in {0, 1} without any extra branching here.
   const existingKey = keys.find((k) => {
     const p = parseKey(k);
     return p?.bossId === bossId && p.cadence === diff.cadence;
@@ -220,6 +224,15 @@ function countDailySelections(keys: string[]): number {
   for (const key of keys) {
     const parsed = parseKey(key);
     if (parsed?.cadence === 'daily') count++;
+  }
+  return count;
+}
+
+function countMonthlySelections(keys: string[]): number {
+  let count = 0;
+  for (const key of keys) {
+    const parsed = parseKey(key);
+    if (parsed?.cadence === 'monthly') count++;
   }
   return count;
 }
@@ -378,15 +391,28 @@ export class MuleBossSlate {
   }
 
   /**
-   * Cadence-weighted sum: daily **Slate Keys** contribute `crystalValue × 7`,
-   * weekly contribute `crystalValue × 1`. The basis for **Potential Income**
-   * before **Active Flag** / **Party Size** adjustments (caller applies those).
+   * Count of **Slate Keys** whose **Boss Cadence** is `monthly`. Scoped
+   * today to Black Mage Hard/Extreme, and capped at 1 per mule by the
+   * **Monthly Radio Mutex** (see `toggleBoss`).
+   */
+  get monthlyCount(): number {
+    return countMonthlySelections(this.keys as string[]);
+  }
+
+  /**
+   * Cadence-weighted sum on a **weekly basis**: daily **Slate Keys**
+   * contribute `crystalValue × 7`, weekly contribute `crystalValue × 1`,
+   * and monthly contribute `0` — monthly income is intentionally absent
+   * from the weekly-basis sum until a proper monthly readout ships
+   * (follow-up). The basis for **Potential Income** before **Active Flag**
+   * / **Party Size** adjustments (caller applies those).
    */
   get totalCrystalValue(): number {
     let total = 0;
     for (const key of this.keys) {
       const parsed = parseKey(key);
       if (!parsed) continue;
+      if (parsed.cadence === 'monthly') continue;
       const diff = getBossById(parsed.bossId)!.difficulty.find((d) => d.tier === parsed.tier)!;
       total += diff.crystalValue * (parsed.cadence === 'daily' ? 7 : 1);
     }

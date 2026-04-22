@@ -64,6 +64,7 @@ export function useBossMatrixView({
   visibleBosses: SlateFamily[];
   weeklyCount: number;
   dailyCount: number;
+  monthlyCount: number;
   activePill: PresetKey | null;
   stablePartySizes: Record<string, number>;
   toggleKey: (key: string) => void;
@@ -175,6 +176,7 @@ export function useBossMatrixView({
     visibleBosses,
     weeklyCount: slate.weeklyCount,
     dailyCount: slate.dailyCount,
+    monthlyCount: slate.monthlyCount,
     activePill,
     stablePartySizes,
     toggleKey,

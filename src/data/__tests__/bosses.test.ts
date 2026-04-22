@@ -6,8 +6,15 @@ const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f
 
 /**
  * PRD §2 daily-tier classification — 23 `(family, tier)` pairs that MUST have
- * `cadence: 'daily'`. All other tiers MUST be `'weekly'`. See issue #118.
+ * `cadence: 'daily'`. See issue #118.
+ *
+ * The 2 Black Mage tiers (Hard + Extreme) are monthly; every other tier not
+ * in `DAILY_PAIRS` or `MONTHLY_PAIRS` MUST be `'weekly'`.
  */
+const MONTHLY_PAIRS: ReadonlyArray<readonly [string, BossTier]> = [
+  ['black-mage', 'hard'],
+  ['black-mage', 'extreme'],
+];
 const DAILY_PAIRS: ReadonlyArray<readonly [string, BossTier]> = [
   ['mori-ranmaru', 'hard'],
   ['papulatus', 'normal'],
@@ -74,30 +81,40 @@ describe('bosses data (Matrix schema)', () => {
     }
   });
 
-  it('every difficulty entry has a valid cadence (daily|weekly)', () => {
+  it('every difficulty entry has a valid cadence (daily|weekly|monthly)', () => {
     for (const boss of bosses) {
       for (const d of boss.difficulty) {
         expect(
-          ['daily', 'weekly'],
-          `${boss.family} ${d.tier} must have daily|weekly cadence`,
+          ['daily', 'weekly', 'monthly'],
+          `${boss.family} ${d.tier} must have daily|weekly|monthly cadence`,
         ).toContain(d.cadence);
       }
     }
   });
 
-  it('classifies the 23 PRD daily tiers as cadence: "daily" and all others as "weekly"', () => {
+  it('classifies the 23 daily tiers as "daily", the 2 BM tiers as "monthly", and everything else as "weekly"', () => {
     const dailyLookup = new Set(DAILY_PAIRS.map(([f, t]) => `${f}:${t}`));
+    const monthlyLookup = new Set(MONTHLY_PAIRS.map(([f, t]) => `${f}:${t}`));
     expect(dailyLookup.size).toBe(23);
+    expect(monthlyLookup.size).toBe(2);
 
     let dailyCount = 0;
+    let monthlyCount = 0;
     for (const boss of bosses) {
       for (const d of boss.difficulty) {
-        const expected = dailyLookup.has(`${boss.family}:${d.tier}`) ? 'daily' : 'weekly';
+        const key = `${boss.family}:${d.tier}`;
+        const expected = dailyLookup.has(key)
+          ? 'daily'
+          : monthlyLookup.has(key)
+            ? 'monthly'
+            : 'weekly';
         expect(d.cadence, `${boss.family} ${d.tier} expected cadence=${expected}`).toBe(expected);
         if (d.cadence === 'daily') dailyCount++;
+        if (d.cadence === 'monthly') monthlyCount++;
       }
     }
     expect(dailyCount).toBe(23);
+    expect(monthlyCount).toBe(2);
   });
 
   it('tier-less bosses collapse to a single { tier: "normal", ... } entry', () => {

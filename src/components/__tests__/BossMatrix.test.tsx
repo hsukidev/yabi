@@ -447,9 +447,18 @@ describe('BossMatrix', () => {
       expect(screen.getByTestId(`party-stepper-${VELLUM_BOSS.family}`)).toBeTruthy();
     });
 
-    it('keeps the party stepper on weekly-only bosses (Black Mage)', () => {
+    it('keeps the party stepper on weekly-only bosses (Baldrix)', () => {
+      const BALDRIX = bosses.find((b) => b.family === 'baldrix')!;
       renderMatrix();
-      expect(screen.getByTestId(`party-stepper-${BLACK_MAGE_BOSS.family}`)).toBeTruthy();
+      expect(screen.getByTestId(`party-stepper-${BALDRIX.family}`)).toBeTruthy();
+    });
+
+    it('omits the party stepper on monthly-only bosses (Black Mage)', () => {
+      // Black Mage Hard + Extreme are both monthly. The stepper is gated on
+      // hasWeeklyTier, so a monthly-only row renders without one today.
+      // Revisit when a monthly income readout ships.
+      renderMatrix();
+      expect(screen.queryByTestId(`party-stepper-${BLACK_MAGE_BOSS.family}`)).toBeNull();
     });
 
     it('daily-only rows still render with the same tier column layout as other rows', () => {

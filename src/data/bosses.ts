@@ -22,8 +22,8 @@ export const bosses: Boss[] = [
     name: 'Black Mage',
     family: 'black-mage',
     difficulty: [
-      { tier: 'hard', crystalValue: 4500000000, cadence: 'weekly' },
-      { tier: 'extreme', crystalValue: 18000000000, cadence: 'weekly' },
+      { tier: 'hard', crystalValue: 4500000000, cadence: 'monthly' },
+      { tier: 'extreme', crystalValue: 18000000000, cadence: 'monthly' },
     ],
   },
   {

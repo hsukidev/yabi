@@ -2,11 +2,14 @@ export type BossTier = 'easy' | 'normal' | 'hard' | 'chaos' | 'extreme';
 
 /**
  * Per-tier cadence: daily tiers are farmable up to 7× per week and fold into
- * the weekly headline at `crystalValue × 7`; weekly tiers clear once. The
- * selection-key format carries the cadence segment explicitly so a single
- * boss can retain one daily + one weekly selection simultaneously.
+ * the weekly headline at `crystalValue × 7`; weekly tiers clear once per
+ * week; monthly tiers clear once per month (scoped today to Black Mage's
+ * Hard/Extreme entries, which are mutually exclusive — see the **Monthly
+ * Radio Mutex** in `muleBossSlate.ts`). The selection-key format carries the
+ * cadence segment explicitly so a single boss can retain one daily + one
+ * weekly + one monthly selection simultaneously.
  */
-export type BossCadence = 'daily' | 'weekly';
+export type BossCadence = 'daily' | 'weekly' | 'monthly';
 
 export interface BossDifficulty {
   tier: BossTier;
