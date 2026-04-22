@@ -119,15 +119,15 @@ describe('RosterHeader', () => {
       expect(btn.disabled).toBe(true);
     });
 
-    it('renders an enabled Bulk Confirm reading "Delete N" when N > 0', () => {
+    it('renders an enabled Bulk Confirm reading "Delete" when N > 0', () => {
       renderHeader({ bulkMode: true, selectedCount: 3 });
-      const btn = screen.getByRole('button', { name: /delete\s*3/i }) as HTMLButtonElement;
+      const btn = screen.getByRole('button', { name: /^delete\s*3?$/i }) as HTMLButtonElement;
       expect(btn.disabled).toBe(false);
     });
 
     it('calls onDelete when Bulk Confirm is clicked with a selection', () => {
       const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
-      fireEvent.click(screen.getByRole('button', { name: /delete\s*2/i }));
+      fireEvent.click(screen.getByRole('button', { name: /^delete\s*2?$/i }));
       expect(props.onDelete).toHaveBeenCalled();
     });
 

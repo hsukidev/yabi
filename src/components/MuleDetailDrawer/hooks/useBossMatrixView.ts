@@ -169,7 +169,7 @@ export function useBossMatrixView({
     // Reset is authoritative: always clear the Custom override, even when the
     // selection is already empty (the transition effect wouldn't fire).
     setCustomClicked(false);
-    onUpdate(muleId, { selectedBosses: [] });
+    onUpdate(muleId, { selectedBosses: [], partySizes: {} });
   }, [muleId, onUpdate]);
 
   return {

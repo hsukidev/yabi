@@ -984,13 +984,13 @@ describe('useBossMatrixView', () => {
   });
 
   describe('resetBosses', () => {
-    it('dispatches onUpdate with empty selectedBosses', () => {
+    it('dispatches onUpdate with empty selectedBosses and cleared partySizes', () => {
       const onUpdate = vi.fn();
       const { result } = renderHook(() =>
         useBossMatrixView({
           muleId: 'mule-1',
           selectedBosses: [HARD_LUCID],
-          partySizes: undefined,
+          partySizes: { lucid: 4 },
           onUpdate,
         }),
       );
@@ -999,10 +999,13 @@ describe('useBossMatrixView', () => {
         result.current.resetBosses();
       });
       expect(onUpdate).toHaveBeenCalledTimes(1);
-      expect(onUpdate).toHaveBeenCalledWith('mule-1', { selectedBosses: [] });
+      expect(onUpdate).toHaveBeenCalledWith('mule-1', {
+        selectedBosses: [],
+        partySizes: {},
+      });
     });
 
-    it('payload contains only selectedBosses', () => {
+    it('payload contains selectedBosses and partySizes only', () => {
       const onUpdate = vi.fn();
       const { result } = renderHook(() =>
         useBossMatrixView({
@@ -1017,7 +1020,7 @@ describe('useBossMatrixView', () => {
         result.current.resetBosses();
       });
       const update = onUpdate.mock.calls[0][1];
-      expect(Object.keys(update)).toEqual(['selectedBosses']);
+      expect(Object.keys(update).sort()).toEqual(['partySizes', 'selectedBosses']);
     });
 
     it('no-ops when muleId is null', () => {
