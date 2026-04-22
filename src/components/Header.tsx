@@ -45,7 +45,7 @@ export function Header() {
               <span style={{ color: 'var(--muted-raw, var(--muted-foreground))' }}>.Income</span>
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <div className="flex items-center gap-5 max-[479.99px]:gap-2">
             <ResetCountdown />
             <WorldSelect />
             <button

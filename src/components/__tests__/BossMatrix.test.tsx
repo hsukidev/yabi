@@ -336,13 +336,13 @@ describe('BossMatrix', () => {
     it('shows the full crystalValue in cells when partySize is 1 (default)', () => {
       renderMatrix();
       const cell = screen.getByTestId(`matrix-cell-${BLACK_MAGE}-extreme`);
-      expect(cell.textContent).toBe(formatMeso(BLACK_MAGE_EXTREME_VALUE, true));
+      expect(cell.textContent).toContain(formatMeso(BLACK_MAGE_EXTREME_VALUE, true));
     });
 
     it('divides the displayed meso value by the family party size', () => {
       renderMatrix([], vi.fn(), { [LUCID_BOSS.family]: 2 });
       const cell = screen.getByTestId(`matrix-cell-${LUCID}-hard`);
-      expect(cell.textContent).toBe(formatMeso(LUCID_HARD_VALUE / 2, true));
+      expect(cell.textContent).toContain(formatMeso(LUCID_HARD_VALUE / 2, true));
     });
 
     it('cells do not contain any "÷N" hint', () => {
@@ -354,7 +354,7 @@ describe('BossMatrix', () => {
     it('party size for one family does not affect another family', () => {
       renderMatrix([], vi.fn(), { [LUCID_BOSS.family]: 4 });
       const cell = screen.getByTestId(`matrix-cell-${BLACK_MAGE}-extreme`);
-      expect(cell.textContent).toBe(formatMeso(BLACK_MAGE_EXTREME_VALUE, true));
+      expect(cell.textContent).toContain(formatMeso(BLACK_MAGE_EXTREME_VALUE, true));
     });
 
     // Slice 2: daily tier cells render at full crystalValue — only weekly
@@ -371,7 +371,7 @@ describe('BossMatrix', () => {
       // Vellum Chaos is weekly; divides by party size.
       renderMatrix([], vi.fn(), { [VELLUM_BOSS.family]: 2 });
       const cell = screen.getByTestId(`matrix-cell-${VELLUM}-chaos`);
-      expect(cell.textContent).toBe(formatMeso(VELLUM_CHAOS_VALUE / 2, true));
+      expect(cell.textContent).toContain(formatMeso(VELLUM_CHAOS_VALUE / 2, true));
     });
   });
 
@@ -474,7 +474,7 @@ describe('BossMatrix', () => {
     it('weekly cells on a mixed boss (Chaos Vellum) divide by party size', () => {
       renderMatrix([], vi.fn(), { [VELLUM_BOSS.family]: 3 });
       const chaosCell = screen.getByTestId(`matrix-cell-${VELLUM}-chaos`);
-      expect(chaosCell.textContent).toBe(formatMeso(VELLUM_CHAOS_VALUE / 3, true));
+      expect(chaosCell.textContent).toContain(formatMeso(VELLUM_CHAOS_VALUE / 3, true));
     });
 
     it('daily cells on a mixed boss (Normal Vellum) ignore party size', () => {
@@ -503,7 +503,7 @@ describe('BossMatrix', () => {
       const normalAt3 = screen.getByTestId(`matrix-cell-${VELLUM}-normal`).textContent;
 
       expect(chaosAt3).not.toBe(chaosAt1);
-      expect(chaosAt3).toBe(formatMeso(VELLUM_CHAOS_VALUE / 3, true));
+      expect(chaosAt3).toContain(formatMeso(VELLUM_CHAOS_VALUE / 3, true));
       expect(normalAt3).toBe(normalAt1);
       expect(normalAt3).toContain(formatMeso(VELLUM_NORMAL_VALUE, true));
     });

@@ -26,3 +26,15 @@ export function formatMeso(value: number, abbreviated: boolean = true): string {
 
   return value.toLocaleString('en-US');
 }
+
+/**
+ * Compact, no-decimal variant for contexts where horizontal space is tight —
+ * e.g. narrow Matrix cells where "1.2M x 7" would wrap. Always abbreviates to
+ * K/M/B and rounds to the nearest whole unit.
+ */
+export function formatMesoCompact(value: number): string {
+  if (value >= 1_000_000_000) return `${Math.round(value / 1_000_000_000)}B`;
+  if (value >= 1_000_000) return `${Math.round(value / 1_000_000)}M`;
+  if (value >= 1_000) return `${Math.round(value / 1_000)}K`;
+  return value.toLocaleString('en-US');
+}

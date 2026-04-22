@@ -664,6 +664,7 @@ html[data-theme-swap] *::after {
     .crystal-tally__row {
       flex: 1 1 0;
       justify-content: center;
+      gap: 6px;
       padding: 4px 8px;
     }
     .crystal-tally__label {

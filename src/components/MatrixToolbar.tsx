@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -64,6 +65,7 @@ export function MatrixToolbar({
   onApplyPreset,
   onReset,
 }: MatrixToolbarProps) {
+  const [infoOpen, setInfoOpen] = useState(false);
   return (
     <div className="flex flex-wrap items-center gap-y-2">
       <div className="@max-[544.99px]/drawer:basis-full">
@@ -98,10 +100,12 @@ export function MatrixToolbar({
           </button>
         ))}
       </div>
-      <Tooltip>
+      <Tooltip open={infoOpen} onOpenChange={setInfoOpen}>
         <TooltipTrigger
           aria-label="Weekly preset info"
-          className="ml-1.5 inline-flex size-5  items-center justify-center rounded-full text-muted-foreground/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          closeOnClick={false}
+          onClick={() => setInfoOpen(true)}
+          className="ml-1.5 inline-flex size-5 cursor-pointer items-center justify-center rounded-full text-muted-foreground/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
           <Info className="size-3.5 " aria-hidden />
         </TooltipTrigger>

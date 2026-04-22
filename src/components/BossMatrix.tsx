@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import type { BossTier } from '../types';
 import type { SlateFamily, SlateKey, SlateRow } from '../data/muleBossSlate';
-import { formatMeso } from '../utils/meso';
+import { formatMeso, formatMesoCompact } from '../utils/meso';
 
 /** Column order in the Matrix — extreme → easy, hardest first. */
 const MATRIX_TIER_COLUMNS: BossTier[] = ['extreme', 'chaos', 'hard', 'normal', 'easy'];
@@ -85,7 +85,7 @@ function PartyStepper({
 
   return (
     <div data-testid={`party-stepper-${family}`} className="inline-flex items-center gap-1.5">
-      <span className="font-mono-nums text-[9px] uppercase tracking-widest text-(--muted-raw,var(--muted-foreground))">
+      <span className="font-mono-nums text-[9px] uppercase tracking-widest text-(--muted-raw,var(--muted-foreground)) @max-[599.99px]/drawer:hidden">
         Party
       </span>
       <div
@@ -215,7 +215,10 @@ function FamilyMatrixRow({
             ].join(' ')}
           >
             <span style={isDim ? { opacity: 0.35 } : undefined}>
-              {formatMeso(displayedValue, true)}
+              <span className="@max-[500px]/drawer:hidden">{formatMeso(displayedValue, true)}</span>
+              <span className="hidden @max-[500px]/drawer:inline">
+                {formatMesoCompact(displayedValue)}
+              </span>
               {row.cadence === 'daily' && <span className="ml-1 text-[9px] opacity-60">x 7</span>}
             </span>
           </button>
