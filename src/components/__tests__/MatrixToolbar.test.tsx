@@ -173,6 +173,24 @@ describe('MatrixToolbar', () => {
     });
   });
 
+  describe('weekly crystal icon', () => {
+    it('renders a .d-toolbar-crystal image between the count and the separator', () => {
+      const { container } = renderToolbar();
+      const crystal = container.querySelector('.d-toolbar-crystal');
+      expect(crystal).toBeTruthy();
+      expect(crystal?.getAttribute('aria-hidden')).toBe('true');
+
+      const count = screen.getByLabelText(/weekly boss selections/i);
+      const resetBtn = screen.getByRole('button', { name: /^reset$/i });
+      expect(
+        count.compareDocumentPosition(crystal!) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+      expect(
+        crystal!.compareDocumentPosition(resetBtn) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    });
+  });
+
   describe('toolbar separator', () => {
     it('renders a .d-toolbar-sep element between the count and the reset button', () => {
       const { container } = renderToolbar();

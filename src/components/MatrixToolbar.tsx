@@ -1,3 +1,5 @@
+import weeklyCrystalPng from '../assets/weekly-crystal.png';
+
 export type CadenceFilter = 'All' | 'Weekly' | 'Daily';
 export type PresetKey = 'CRA' | 'LOMIEN' | 'CTENE' | 'CUSTOM';
 
@@ -110,6 +112,15 @@ export function MatrixToolbar({
         >
           {weeklyCount}/{WEEKLY_CRYSTAL_CAP}
         </span>
+        <img
+          src={weeklyCrystalPng}
+          alt=""
+          aria-hidden
+          draggable={false}
+          width={17}
+          height={20}
+          className="d-toolbar-crystal"
+        />
         <span className="d-toolbar-sep" aria-hidden style={{ margin: '0 8px' }} />
         <button
           type="button"

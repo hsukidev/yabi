@@ -497,6 +497,15 @@ html[data-theme-swap] *::after {
     flex-shrink: 0;
   }
 
+  .d-toolbar-crystal {
+    width: 17px;
+    height: 20px;
+    margin-left: 6px;
+    flex-shrink: 0;
+    display: block;
+    transform: translateY(-3px);
+  }
+
   /* Matrix Reset — flat muted text button; hovers to the destructive red. */
   .d-toolbar-reset {
     background: transparent;
