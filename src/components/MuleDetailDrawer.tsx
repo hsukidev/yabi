@@ -1,4 +1,4 @@
-import { Trash2, X } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -63,7 +63,7 @@ export function MuleDetailDrawer({
       <SheetContent
         side="right"
         showCloseButton={false}
-        className="data-[side=right]:w-screen data-[side=right]:sm:max-w-none data-[side=right]:md:w-[640px] data-[side=right]:md:max-w-[640px] overflow-y-auto p-0 bg-(--surface)"
+        className="data-[side=right]:w-screen data-[side=right]:max-w-none data-[side=right]:sm:w-[640px] data-[side=right]:sm:max-w-[640px] overflow-y-auto p-0 bg-(--surface)"
         style={{ borderLeft: '1px solid var(--border)' }}
       >
         <SheetTitle className="sr-only">Mule Details</SheetTitle>
@@ -72,8 +72,8 @@ export function MuleDetailDrawer({
         </SheetDescription>
 
         {mule && (
-          <div className="relative">
-            <div className="relative p-8 flex items-center gap-5">
+          <div className="relative @container/drawer">
+            <div className="relative p-8 flex flex-col gap-5 @min-[600px]/drawer:flex-row @min-[600px]/drawer:items-center">
               <div className="flex items-end gap-5 flex-1 min-w-0">
                 <img
                   src={blankCharacterPng}
@@ -149,7 +149,7 @@ export function MuleDetailDrawer({
                 </div>
               </div>
 
-              <div className="shrink-0 self-end mr-6">
+              <div className="shrink-0 self-stretch @min-[600px]/drawer:self-end @min-[600px]/drawer:mr-6">
                 <CrystalTally
                   weeklyCount={matrix.weeklyCount}
                   dailyCount={matrix.dailyCount}
@@ -177,15 +177,6 @@ export function MuleDetailDrawer({
                   >
                     <Trash2 />
                     <span className="sr-only">Delete</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="md:hidden text-muted-foreground hover:text-foreground hover:bg-muted"
-                    onClick={onClose}
-                  >
-                    <X />
-                    <span className="sr-only">Close</span>
                   </Button>
                 </div>
               )}
@@ -269,6 +260,15 @@ export function MuleDetailDrawer({
                   />
                 </div>
               </div>
+
+              <Button
+                variant="outline"
+                size="lg"
+                className="sm:hidden w-full mt-2"
+                onClick={onClose}
+              >
+                Close
+              </Button>
             </div>
           </div>
         )}

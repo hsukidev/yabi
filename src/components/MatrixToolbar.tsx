@@ -65,14 +65,14 @@ export function MatrixToolbar({
   onReset,
 }: MatrixToolbarProps) {
   return (
-    <div className="flex items-center justify-between gap-2">
-      <div className="flex items-center">
-        <div className="d-c-toggle" role="group" aria-label="Cadence filter">
+    <div className="flex flex-wrap items-center gap-y-2">
+      <div className="@max-[544.99px]/drawer:basis-full">
+        <div className="d-c-toggle inline-flex" role="group" aria-label="Cadence filter">
           {CADENCES.map(({ value, icon }) => (
             <button
               key={value}
               type="button"
-              className={filter === value ? 'on' : ''}
+              className={`uppercase ${filter === value ? 'on' : ''}`}
               onClick={() => onFilterChange(value)}
             >
               {icon}
@@ -80,30 +80,39 @@ export function MatrixToolbar({
             </button>
           ))}
         </div>
-        <span className="d-toolbar-sep" aria-hidden style={{ margin: '0 8px' }} />
-        <div className="d-c-toggle" role="group" aria-label="Boss presets">
-          {PRESETS.map((preset) => (
-            <button
-              key={preset}
-              type="button"
-              className={activePill === preset ? 'on' : ''}
-              onClick={() => onApplyPreset(preset)}
-            >
-              {preset}
-            </button>
-          ))}
-        </div>
-        <Tooltip>
-          <TooltipTrigger
-            aria-label="Weekly preset info"
-            className="ml-1.5 inline-flex size-5  items-center justify-center rounded-full text-muted-foreground/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <Info className="size-3.5 " aria-hidden />
-          </TooltipTrigger>
-          <TooltipContent>Weekly preset</TooltipContent>
-        </Tooltip>
       </div>
-      <button type="button" onClick={onReset} className="d-toolbar-reset" style={{ opacity: 0.6 }}>
+      <span
+        className="d-toolbar-sep @max-[544.99px]/drawer:hidden"
+        aria-hidden
+        style={{ margin: '0 8px' }}
+      />
+      <div className="d-c-toggle" role="group" aria-label="Boss presets">
+        {PRESETS.map((preset) => (
+          <button
+            key={preset}
+            type="button"
+            className={activePill === preset ? 'on' : ''}
+            onClick={() => onApplyPreset(preset)}
+          >
+            {preset}
+          </button>
+        ))}
+      </div>
+      <Tooltip>
+        <TooltipTrigger
+          aria-label="Weekly preset info"
+          className="ml-1.5 inline-flex size-5  items-center justify-center rounded-full text-muted-foreground/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        >
+          <Info className="size-3.5 " aria-hidden />
+        </TooltipTrigger>
+        <TooltipContent>Weekly preset</TooltipContent>
+      </Tooltip>
+      <button
+        type="button"
+        onClick={onReset}
+        className="d-toolbar-reset ml-auto"
+        style={{ opacity: 0.6 }}
+      >
         Reset
       </button>
     </div>

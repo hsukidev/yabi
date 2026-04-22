@@ -139,7 +139,9 @@ function FamilyMatrixRow({
   // A tier cell dims iff another tier of the SAME cadence is selected on this
   // boss — opposite-cadence tiers stay fully clickable (slice 2).
   const selectedCadences = new Set(family.rows.filter((r) => r.selected).map((r) => r.cadence));
-  const hasWeeklyTier = family.rows.some((r) => r.cadence === 'weekly');
+  const hasPartyableTier = family.rows.some(
+    (r) => r.cadence === 'weekly' || r.cadence === 'monthly',
+  );
   const displayName = family.displayName;
   // Any row carries the bossId we need for stable test ids across cells.
   const bossId = family.rows[0]?.bossId ?? family.family;
@@ -157,7 +159,7 @@ function FamilyMatrixRow({
         <span data-testid="family-name" className="font-display leading-[1.2] truncate">
           {displayName}
         </span>
-        {hasWeeklyTier ? (
+        {hasPartyableTier ? (
           <PartyStepper
             family={family.family}
             party={partySize}
@@ -191,8 +193,8 @@ function FamilyMatrixRow({
 
         const isSelected = row.selected;
         const isDim = !isSelected && selectedCadences.has(row.cadence);
-        // Daily cells always render at full crystalValue; only weekly cells
-        // divide by the party size.
+        // Daily cells always render at full crystalValue; weekly and monthly
+        // cells divide by the party size.
         const displayedValue =
           row.cadence === 'daily' ? row.crystalValue : row.crystalValue / partySize;
 

@@ -650,6 +650,37 @@ html[data-theme-swap] *::after {
       transparent
     );
   }
+
+  /* Narrow drawer (container < 600px): flip the tally to a horizontal strip
+   * so it can sit beneath the avatar/info block without crushing the weekly
+   * mesos chip. Each cell flexes equally and the dividers rotate 90°. */
+  @container drawer (max-width: 599.99px) {
+    .crystal-tally {
+      flex-direction: row;
+      align-items: stretch;
+      min-width: 0;
+      padding: 8px 4px;
+    }
+    .crystal-tally__row {
+      flex: 1 1 0;
+      justify-content: center;
+      padding: 4px 8px;
+    }
+    .crystal-tally__label {
+      display: none;
+    }
+    .crystal-tally__divider {
+      height: auto;
+      width: 1px;
+      margin: 2px 0;
+      background: linear-gradient(
+        180deg,
+        transparent,
+        color-mix(in srgb, var(--border) 90%, transparent),
+        transparent
+      );
+    }
+  }
 }
 
 /* ──────────────────────────────────────────────────────────────────────────

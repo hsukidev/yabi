@@ -47,8 +47,8 @@ const HORNTAIL = HORNTAIL_BOSS.id;
 const CHAOS_HORNTAIL_DAILY = `${HORNTAIL}:chaos:daily`;
 
 const DAILY_ONLY_FAMILIES = ['horntail', 'von-leon', 'arkarium', 'mori-ranmaru', 'omni-cln'];
-const BOSSES_WITH_WEEKLY_TIER_COUNT = bosses.filter((b) =>
-  b.difficulty.some((d) => d.cadence === 'weekly'),
+const BOSSES_WITH_PARTYABLE_TIER_COUNT = bosses.filter((b) =>
+  b.difficulty.some((d) => d.cadence === 'weekly' || d.cadence === 'monthly'),
 ).length;
 
 function renderMatrix(
@@ -261,10 +261,10 @@ describe('BossMatrix', () => {
   });
 
   describe('party stepper', () => {
-    it('renders a Party label per family row that has at least one weekly tier', () => {
+    it('renders a Party label per family row that has at least one weekly or monthly tier', () => {
       renderMatrix();
       const labels = screen.getAllByText('Party');
-      expect(labels.length).toBe(BOSSES_WITH_WEEKLY_TIER_COUNT);
+      expect(labels.length).toBe(BOSSES_WITH_PARTYABLE_TIER_COUNT);
     });
 
     it('renders a party stepper per family showing "1" when partySizes is absent', () => {
@@ -453,12 +453,9 @@ describe('BossMatrix', () => {
       expect(screen.getByTestId(`party-stepper-${BALDRIX.family}`)).toBeTruthy();
     });
 
-    it('omits the party stepper on monthly-only bosses (Black Mage)', () => {
-      // Black Mage Hard + Extreme are both monthly. The stepper is gated on
-      // hasWeeklyTier, so a monthly-only row renders without one today.
-      // Revisit when a monthly income readout ships.
+    it('renders the party stepper on monthly-only bosses (Black Mage)', () => {
       renderMatrix();
-      expect(screen.queryByTestId(`party-stepper-${BLACK_MAGE_BOSS.family}`)).toBeNull();
+      expect(screen.getByTestId(`party-stepper-${BLACK_MAGE_BOSS.family}`)).toBeTruthy();
     });
 
     it('daily-only rows still render with the same tier column layout as other rows', () => {
