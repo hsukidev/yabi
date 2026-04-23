@@ -23,7 +23,7 @@ import { createPortal } from 'react-dom';
 
 import { ThemeProvider } from './context/ThemeProvider';
 import { DensityProvider } from './context/DensityProvider';
-import { WorldProvider } from './context/WorldProvider';
+import { WorldProvider, useWorld } from './context/WorldProvider';
 import { IncomeProvider } from './modules/income';
 import { useMules } from './hooks/useMules';
 import { useBulkDragPaint } from './hooks/useBulkDragPaint';
@@ -34,6 +34,7 @@ import { Header } from './components/Header';
 import { KpiCard } from './components/KpiCard';
 import { PieChartCard } from './components/PieChartCard';
 import { RosterHeader } from './components/RosterHeader';
+import { WorldMissingBanner } from './components/WorldMissingBanner';
 
 const dragBoundaryBaseStyle: React.CSSProperties = {
   borderRadius: '1rem',
@@ -57,29 +58,33 @@ const dropAnimation: DropAnimation = {
   }),
 };
 
-function AppContent() {
+export function AppContent() {
   const { mules, addMule, updateMule, deleteMule, deleteMules, reorderMules } = useMules();
+  const { world } = useWorld();
+  // Unfiltered `mules` is intentionally kept for drag-reorder index math and
+  // the selected/active lookups, which must address the full array.
+  const mulesInWorld = useMemo(
+    () => (world ? mules.filter((m) => m.worldId === world.id) : []),
+    [mules, world],
+  );
   // KpiCard/PieChartCard defer to absorb boss-matrix burst updates. Roster stays
   // live — stale mules on drop causes FLIP to target the wrong layout.
-  const deferredMules = useDeferredValue(mules);
+  const deferredMulesInWorld = useDeferredValue(mulesInWorld);
   const [selectedMuleId, setSelectedMuleId] = useState<string | null>(null);
   const [activeMuleId, setActiveMuleId] = useState<string | null>(null);
   const [bulkMode, setBulkMode] = useState(false);
   const [toDelete, setToDelete] = useState<Set<string>>(() => new Set());
+  const [showWorldNeededBanner, setShowWorldNeededBanner] = useState(false);
 
   const selectedMule = mules.find((m) => m.id === selectedMuleId) ?? null;
   const activeMule = activeMuleId ? (mules.find((m) => m.id === activeMuleId) ?? null) : null;
   const isDragging = activeMuleId !== null;
 
-  // Stabilize SortableContext items by value — updateMule rebuilds the array
-  // on every edit, but ids only change on add/delete/reorder. Without this,
-  // SortableContext rebroadcasts per edit and all cards re-render O(N).
-  const muleIdsKey = mules.map((m) => m.id).join('\u0000');
-  const muleIds = useMemo(
-    () => mules.map((m) => m.id),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [muleIdsKey],
-  );
+  // Stable ids array for SortableContext — `mulesInWorld` is already memoized
+  // on `[mules, world]`, and `mules` identity only changes on add / delete /
+  // reorder, so a single memo keyed on the filtered list keeps items stable
+  // through drawer edits (which don't touch ids).
+  const muleIds = useMemo(() => mulesInWorld.map((m) => m.id), [mulesInWorld]);
 
   // Split sensors so mouse stays instant (distance: 0) while touch gates
   // behind a 250ms long-press — a unified PointerSensor would delay desktop
@@ -112,9 +117,13 @@ function AppContent() {
   }, []);
 
   const handleAddMule = useCallback(() => {
-    const id = addMule();
+    if (!world) {
+      setShowWorldNeededBanner(true);
+      return;
+    }
+    const id = addMule(world.id);
     setSelectedMuleId(id);
-  }, [addMule]);
+  }, [addMule, world]);
 
   const handleCardClick = useCallback((muleId: string) => {
     setSelectedMuleId(muleId);
@@ -162,8 +171,8 @@ function AppContent() {
   // recreating its callbacks on every toggle.
   const orderRef = useRef<string[]>([]);
   useEffect(() => {
-    orderRef.current = mules.map((m) => m.id);
-  }, [mules]);
+    orderRef.current = mulesInWorld.map((m) => m.id);
+  }, [mulesInWorld]);
 
   const toDeleteRef = useRef(toDelete);
   useEffect(() => {
@@ -191,10 +200,10 @@ function AppContent() {
       <main className="container mx-auto max-w-352 px-4 sm:px-6 py-8">
         <section className="grid grid-cols-1 min-[1100px]:grid-cols-12 gap-6 mb-10">
           <div className="min-[1100px]:col-span-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
-            <KpiCard mules={deferredMules} />
+            <KpiCard mules={deferredMulesInWorld} />
           </div>
           <div className="min-[1100px]:col-span-4 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
-            <PieChartCard mules={deferredMules} onSliceClick={handleCardClick} />
+            <PieChartCard mules={deferredMulesInWorld} onSliceClick={handleCardClick} />
           </div>
         </section>
 
@@ -202,8 +211,10 @@ function AppContent() {
           data-testid="roster-section"
           className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
         >
+          {showWorldNeededBanner && !world && <WorldMissingBanner />}
+
           <RosterHeader
-            muleCount={mules.length}
+            muleCount={mulesInWorld.length}
             bulkMode={bulkMode}
             selectedCount={toDelete.size}
             onEnterBulk={enterBulk}
@@ -235,7 +246,7 @@ function AppContent() {
                     gridAutoRows: 'minmax(var(--roster-card-min-height, 260px), auto)',
                   }}
                 >
-                  {mules.map((mule) => (
+                  {mulesInWorld.map((mule) => (
                     <MuleCharacterCard
                       key={mule.id}
                       mule={mule}

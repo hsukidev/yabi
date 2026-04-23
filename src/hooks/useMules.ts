@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 import { v4 as uuidv4 } from 'uuid';
 import type { Mule } from '../types';
+import type { WorldId } from '../data/worlds';
 import { MuleBossSlate } from '../data/muleBossSlate';
 import { createMuleStore } from '../persistence/muleStore';
 
@@ -37,7 +38,7 @@ export function useMules() {
     };
   }, []);
 
-  const addMule = useCallback(() => {
+  const addMule = useCallback((worldId: WorldId) => {
     const newMule: Mule = {
       id: uuidv4(),
       name: '',
@@ -46,6 +47,7 @@ export function useMules() {
       selectedBosses: [],
       partySizes: {},
       active: true,
+      worldId,
     };
     setMules((prev) => [...prev, newMule]);
     return newMule.id;

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { WORLD_IDS, findWorld, type World, type WorldId } from '@/data/worlds';
+import { findWorld, isWorldId, type World, type WorldId } from '@/data/worlds';
 
 interface WorldContextValue {
   world: World | null;
@@ -13,7 +13,7 @@ const STORAGE_KEY = 'world';
 function readStoredWorldId(): WorldId | null {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored && WORLD_IDS.has(stored as WorldId)) return stored as WorldId;
+    if (isWorldId(stored)) return stored;
   } catch {
     // localStorage can throw in private-mode / sandboxed iframes — fall through.
   }

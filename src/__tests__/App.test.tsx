@@ -1,12 +1,22 @@
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, act } from '@/test/test-utils';
-import App from '../App';
+import { render, screen, fireEvent, waitFor, within, act } from '@/test/test-utils';
+import App, { AppContent } from '../App';
 import type { Mule } from '../types';
+import { useWorld } from '../context/WorldProvider';
+import type { WorldId } from '../data/worlds';
 
 const STORAGE_KEY = 'maplestory-mule-tracker';
 
 const testMules: Mule[] = [
-  { id: 'mule-a', name: 'Alpha', level: 200, muleClass: 'Hero', selectedBosses: [], active: true },
+  {
+    id: 'mule-a',
+    name: 'Alpha',
+    level: 200,
+    muleClass: 'Hero',
+    selectedBosses: [],
+    active: true,
+    worldId: 'heroic-kronos',
+  },
   {
     id: 'mule-b',
     name: 'Beta',
@@ -14,6 +24,7 @@ const testMules: Mule[] = [
     muleClass: 'Paladin',
     selectedBosses: [],
     active: true,
+    worldId: 'heroic-kronos',
   },
   {
     id: 'mule-c',
@@ -22,6 +33,7 @@ const testMules: Mule[] = [
     muleClass: 'Dark Knight',
     selectedBosses: [],
     active: true,
+    worldId: 'heroic-kronos',
   },
 ];
 
@@ -49,6 +61,11 @@ function seedMules(mules: Mule[]) {
 function resetTestEnvironment() {
   localStorage.clear();
   document.documentElement.classList.remove('dark');
+  // Seed a Kronos lens so legacy fixtures (mule-a, mule-b, mule-c — all
+  // stamped with worldId='heroic-kronos') are visible by default. Tests
+  // that care about the no-world state override by calling
+  // localStorage.removeItem('world') before render.
+  localStorage.setItem('world', 'heroic-kronos');
 }
 
 function mockGetBoundingClientRect() {
@@ -157,10 +174,176 @@ describe('App', () => {
   });
 
   it('clicking Add Card creates a new mule and opens the detail drawer', async () => {
+    localStorage.setItem('world', 'heroic-kronos');
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: /add mule/i }));
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Unnamed Mule' })).toBeTruthy();
+    });
+  });
+
+  describe('World Lens — Add Mule gating', () => {
+    beforeEach(() => {
+      // resetTestEnvironment defaults to a Kronos lens for legacy fixtures.
+      // Gating tests exercise the "no world yet" state explicitly.
+      localStorage.removeItem('world');
+    });
+
+    it('shows the WorldMissingBanner and creates no mule when no world is selected', () => {
+      const { container } = render(<App />);
+      expect(container.querySelector('[data-world-missing-banner]')).toBeNull();
+
+      fireEvent.click(screen.getByRole('button', { name: /add mule/i }));
+
+      expect(container.querySelector('[data-world-missing-banner]')).toBeTruthy();
+      expect(screen.getByText(/please select a world first\./i)).toBeTruthy();
+      expect(container.querySelectorAll('[data-mule-card]')).toHaveLength(0);
+      expect(screen.queryByRole('heading', { name: 'Unnamed Mule' })).toBeNull();
+    });
+
+    it('stamps the currently-selected worldId onto the new mule', async () => {
+      localStorage.setItem('world', 'heroic-hyperion');
+      const { unmount } = render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /add mule/i }));
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'Unnamed Mule' })).toBeTruthy();
+      });
+      unmount();
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const parsed = JSON.parse(raw!) as { mules: Mule[] };
+      expect(parsed.mules).toHaveLength(1);
+      expect(parsed.mules[0].worldId).toBe('heroic-hyperion');
+    });
+
+    it('unmounts the banner when the user picks a world', async () => {
+      const { container } = render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: /add mule/i }));
+      expect(container.querySelector('[data-world-missing-banner]')).toBeTruthy();
+
+      fireEvent.click(screen.getByLabelText('Select world'));
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Kronos' })).toBeTruthy();
+      });
+      fireEvent.click(screen.getByRole('option', { name: 'Kronos' }));
+
+      await waitFor(() => {
+        expect(container.querySelector('[data-world-missing-banner]')).toBeNull();
+      });
+    });
+  });
+
+  describe('World Lens — roster filtering', () => {
+    const crossWorldMules: Mule[] = [
+      {
+        id: 'k1',
+        name: 'Kronos-1',
+        level: 200,
+        muleClass: 'Hero',
+        selectedBosses: [],
+        active: true,
+        worldId: 'heroic-kronos',
+      },
+      {
+        id: 'k2',
+        name: 'Kronos-2',
+        level: 180,
+        muleClass: 'Paladin',
+        selectedBosses: [],
+        active: true,
+        worldId: 'heroic-kronos',
+      },
+      {
+        id: 'h1',
+        name: 'Hyperion-1',
+        level: 220,
+        muleClass: 'Bishop',
+        selectedBosses: [],
+        active: true,
+        worldId: 'heroic-hyperion',
+      },
+      {
+        id: 'h2',
+        name: 'Hyperion-2',
+        level: 210,
+        muleClass: 'Shadower',
+        selectedBosses: [],
+        active: true,
+        worldId: 'heroic-hyperion',
+      },
+      {
+        id: 'h3',
+        name: 'Hyperion-3',
+        level: 150,
+        muleClass: 'Night Lord',
+        selectedBosses: [],
+        active: true,
+        worldId: 'heroic-hyperion',
+      },
+    ];
+
+    function mulesStatValue(): string {
+      const card = screen.getByTestId('income-card') as HTMLElement;
+      const label = within(card).getByText('MULES');
+      return label.parentElement!.querySelectorAll('div')[1]!.textContent ?? '';
+    }
+
+    it('renders only Kronos cards and Kronos counts when Kronos is the lens', () => {
+      localStorage.setItem('world', 'heroic-kronos');
+      seedMules(crossWorldMules);
+      const { container } = render(<App />);
+
+      const ids = Array.from(container.querySelectorAll('[data-mule-card]')).map((c) =>
+        c.getAttribute('data-mule-card'),
+      );
+      expect(ids).toEqual(['k1', 'k2']);
+      expect(mulesStatValue()).toBe('2');
+    });
+
+    it('swaps which cards render when the user changes the lens', async () => {
+      // TestLensDriver exposes setWorld as a regular button so the test drives
+      // the lens switch through the public `useWorld()` contract. Base UI's
+      // Select reliably sends the first `onValueChange` but skips subsequent
+      // clicks in jsdom, which would turn this into a test of the select
+      // widget rather than the roster filter we care about.
+      function TestLensDriver({ worldId }: { worldId: WorldId }) {
+        const { setWorld } = useWorld();
+        return (
+          <button data-testid="lens-set" onClick={() => setWorld(worldId)}>
+            set
+          </button>
+        );
+      }
+
+      seedMules(crossWorldMules);
+      const { container, rerender } = render(
+        <>
+          <TestLensDriver worldId="heroic-kronos" />
+          <AppContent />
+        </>,
+        { defaultWorld: 'heroic-kronos' },
+      );
+
+      const kronosIds = Array.from(container.querySelectorAll('[data-mule-card]')).map((c) =>
+        c.getAttribute('data-mule-card'),
+      );
+      expect(kronosIds).toEqual(['k1', 'k2']);
+      expect(mulesStatValue()).toBe('2');
+
+      rerender(
+        <>
+          <TestLensDriver worldId="heroic-hyperion" />
+          <AppContent />
+        </>,
+      );
+      fireEvent.click(screen.getByTestId('lens-set'));
+
+      await waitFor(() => {
+        const ids = Array.from(container.querySelectorAll('[data-mule-card]')).map((c) =>
+          c.getAttribute('data-mule-card'),
+        );
+        expect(ids).toEqual(['h1', 'h2', 'h3']);
+      });
+      expect(mulesStatValue()).toBe('3');
     });
   });
 
@@ -181,6 +364,7 @@ describe('App', () => {
           muleClass: 'Hero',
           selectedBosses: [],
           active: true,
+          worldId: 'heroic-kronos',
         },
       ];
       localStorage.setItem('maplestory-mule-tracker', JSON.stringify(persistedRoot(mules)));
@@ -206,6 +390,7 @@ describe('App', () => {
           muleClass: 'Hero',
           selectedBosses: [],
           active: true,
+          worldId: 'heroic-kronos',
         },
         {
           id: 'mule-b',
@@ -214,6 +399,7 @@ describe('App', () => {
           muleClass: 'Paladin',
           selectedBosses: [],
           active: true,
+          worldId: 'heroic-kronos',
         },
       ];
       localStorage.setItem('maplestory-mule-tracker', JSON.stringify(persistedRoot(mules)));
@@ -291,7 +477,7 @@ describe('Bulk Delete Mode', () => {
     expect(screen.queryByRole('heading', { name: 'Alpha' })).toBeNull();
   });
 
-  it('Bulk Confirm updates its label to "Delete N" and is enabled when N > 0', () => {
+  it('surfaces the selected count in the pill and enables Delete when N > 0', () => {
     seedMules(testMules);
     const { container } = render(<App />);
     enterBulk();
@@ -300,13 +486,15 @@ describe('Bulk Delete Mode', () => {
     expect((screen.getByRole('button', { name: /^delete$/i }) as HTMLButtonElement).disabled).toBe(
       true,
     );
+    expect(screen.getByText(/0\s*SELECTED/i)).toBeTruthy();
 
     const panelA = container.querySelector('[data-mule-card="mule-a"] .panel') as HTMLElement;
     const panelB = container.querySelector('[data-mule-card="mule-b"] .panel') as HTMLElement;
     fireEvent.click(panelA);
     fireEvent.click(panelB);
 
-    const confirm = screen.getByRole('button', { name: /delete\s*2/i }) as HTMLButtonElement;
+    expect(screen.getByText(/2\s*SELECTED/i)).toBeTruthy();
+    const confirm = screen.getByRole('button', { name: /^delete$/i }) as HTMLButtonElement;
     expect(confirm.disabled).toBe(false);
   });
 
@@ -317,7 +505,7 @@ describe('Bulk Delete Mode', () => {
 
     fireEvent.click(container.querySelector('[data-mule-card="mule-a"] .panel') as HTMLElement);
     fireEvent.click(container.querySelector('[data-mule-card="mule-b"] .panel') as HTMLElement);
-    fireEvent.click(screen.getByRole('button', { name: /delete\s*2/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
 
     await waitFor(() => {
       expect(container.querySelector('[data-mule-card="mule-a"]')).toBeNull();
@@ -335,7 +523,7 @@ describe('Bulk Delete Mode', () => {
     enterBulk();
 
     fireEvent.click(container.querySelector('[data-mule-card="mule-a"] .panel') as HTMLElement);
-    fireEvent.click(screen.getByRole('button', { name: /delete\s*1/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
 
     await waitFor(() => {
       expect(container.querySelector('[data-mule-card="mule-a"]')).toBeNull();

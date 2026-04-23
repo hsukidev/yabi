@@ -51,6 +51,7 @@ function makeMule(overrides: Partial<Mule> = {}): Mule {
     muleClass: 'Hero',
     selectedBosses: [],
     active: true,
+    worldId: 'heroic-kronos',
     ...overrides,
   };
 }
@@ -58,6 +59,9 @@ function makeMule(overrides: Partial<Mule> = {}): Mule {
 beforeEach(() => {
   localStorage.clear();
   document.documentElement.removeAttribute('data-density');
+  // Seed a Kronos lens so the `<App />`-level tests see the seeded mules
+  // under the World Lens filter.
+  localStorage.setItem('world', 'heroic-kronos');
 });
 
 describe('Roster card height parity contract', () => {

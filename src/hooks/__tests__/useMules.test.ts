@@ -98,7 +98,7 @@ describe('useMules', () => {
       const { result } = renderHook(() => useMules());
       let newId: string | undefined;
       act(() => {
-        newId = result.current.addMule();
+        newId = result.current.addMule('heroic-kronos');
       });
       expect(result.current.mules).toHaveLength(1);
       const created = result.current.mules[0];
@@ -111,10 +111,18 @@ describe('useMules', () => {
       expect(created.active).toBe(true);
     });
 
+    it('stamps the supplied worldId on the new mule', () => {
+      const { result } = renderHook(() => useMules());
+      act(() => {
+        result.current.addMule('heroic-hyperion');
+      });
+      expect(result.current.mules[0].worldId).toBe('heroic-hyperion');
+    });
+
     it('flows through to store.save (persisted after flush)', () => {
       const { result } = renderHook(() => useMules());
       act(() => {
-        result.current.addMule();
+        result.current.addMule('heroic-kronos');
       });
       flushPersist();
       const saved = JSON.parse(localStorageStore['maplestory-mule-tracker']);
@@ -128,7 +136,7 @@ describe('useMules', () => {
       const { result } = renderHook(() => useMules());
       let id = '';
       act(() => {
-        id = result.current.addMule();
+        id = result.current.addMule('heroic-kronos');
       });
       act(() => {
         result.current.updateMule(id, { name: 'Alice', level: 250 });
@@ -143,7 +151,7 @@ describe('useMules', () => {
       const { result } = renderHook(() => useMules());
       let id = '';
       act(() => {
-        id = result.current.addMule();
+        id = result.current.addMule('heroic-kronos');
       });
       act(() => {
         result.current.updateMule(id, {
@@ -157,7 +165,7 @@ describe('useMules', () => {
       const { result } = renderHook(() => useMules());
       let id = '';
       act(() => {
-        id = result.current.addMule();
+        id = result.current.addMule('heroic-kronos');
       });
       act(() => {
         result.current.updateMule(id, { name: 'Alice' });
@@ -173,7 +181,7 @@ describe('useMules', () => {
       const { result } = renderHook(() => useMules());
       let id = '';
       act(() => {
-        id = result.current.addMule();
+        id = result.current.addMule('heroic-kronos');
       });
       act(() => {
         result.current.deleteMule(id);
@@ -187,13 +195,13 @@ describe('useMules', () => {
       const { result } = renderHook(() => useMules());
       const ids: string[] = [];
       act(() => {
-        ids.push(result.current.addMule());
+        ids.push(result.current.addMule('heroic-kronos'));
       });
       act(() => {
-        ids.push(result.current.addMule());
+        ids.push(result.current.addMule('heroic-kronos'));
       });
       act(() => {
-        ids.push(result.current.addMule());
+        ids.push(result.current.addMule('heroic-kronos'));
       });
       const before = result.current.mules;
       act(() => {
@@ -206,7 +214,7 @@ describe('useMules', () => {
     it('is a no-op on an empty ids array (same array reference)', () => {
       const { result } = renderHook(() => useMules());
       act(() => {
-        result.current.addMule();
+        result.current.addMule('heroic-kronos');
       });
       const before = result.current.mules;
       act(() => {
@@ -218,7 +226,7 @@ describe('useMules', () => {
     it('is a no-op when every id is unknown', () => {
       const { result } = renderHook(() => useMules());
       act(() => {
-        result.current.addMule();
+        result.current.addMule('heroic-kronos');
       });
       const before = result.current.mules;
       act(() => {
@@ -231,10 +239,10 @@ describe('useMules', () => {
       const { result } = renderHook(() => useMules());
       const ids: string[] = [];
       act(() => {
-        ids.push(result.current.addMule());
+        ids.push(result.current.addMule('heroic-kronos'));
       });
       act(() => {
-        ids.push(result.current.addMule());
+        ids.push(result.current.addMule('heroic-kronos'));
       });
       act(() => {
         result.current.deleteMules([ids[0]]);
@@ -250,10 +258,10 @@ describe('useMules', () => {
       const { result } = renderHook(() => useMules());
       const ids: string[] = [];
       act(() => {
-        ids.push(result.current.addMule());
+        ids.push(result.current.addMule('heroic-kronos'));
       });
       act(() => {
-        ids.push(result.current.addMule());
+        ids.push(result.current.addMule('heroic-kronos'));
       });
       act(() => {
         result.current.reorderMules(0, 1);
@@ -273,7 +281,7 @@ describe('useMules', () => {
     it('does not write to localStorage synchronously on state change', () => {
       const { result } = renderHook(() => useMules());
       act(() => {
-        result.current.addMule();
+        result.current.addMule('heroic-kronos');
       });
       expect(localStorageStore['maplestory-mule-tracker']).toBeUndefined();
       act(() => {
@@ -285,7 +293,7 @@ describe('useMules', () => {
     it('flushes pending writes synchronously on pagehide', () => {
       const { result } = renderHook(() => useMules());
       act(() => {
-        result.current.addMule();
+        result.current.addMule('heroic-kronos');
       });
       expect(localStorageStore['maplestory-mule-tracker']).toBeUndefined();
       act(() => {
@@ -297,7 +305,7 @@ describe('useMules', () => {
     it('flushes pending writes synchronously on beforeunload', () => {
       const { result } = renderHook(() => useMules());
       act(() => {
-        result.current.addMule();
+        result.current.addMule('heroic-kronos');
       });
       expect(localStorageStore['maplestory-mule-tracker']).toBeUndefined();
       act(() => {
@@ -309,7 +317,7 @@ describe('useMules', () => {
     it('flushes pending writes on unmount', () => {
       const { result, unmount } = renderHook(() => useMules());
       act(() => {
-        result.current.addMule();
+        result.current.addMule('heroic-kronos');
       });
       expect(localStorageStore['maplestory-mule-tracker']).toBeUndefined();
       unmount();

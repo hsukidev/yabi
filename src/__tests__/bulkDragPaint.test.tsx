@@ -8,7 +8,15 @@ const STORAGE_KEY = 'maplestory-mule-tracker';
 // Seven mules give us enough runway for revert-on-backtrack and cross-start tests.
 // PRD walkthrough uses A,B,C,D,E,F,G with S=start in the middle (index 3 = D).
 const testMules: Mule[] = [
-  { id: 'mule-a', name: 'Alpha', level: 200, muleClass: 'Hero', selectedBosses: [], active: true },
+  {
+    id: 'mule-a',
+    name: 'Alpha',
+    level: 200,
+    muleClass: 'Hero',
+    selectedBosses: [],
+    active: true,
+    worldId: 'heroic-kronos',
+  },
   {
     id: 'mule-b',
     name: 'Beta',
@@ -16,6 +24,7 @@ const testMules: Mule[] = [
     muleClass: 'Paladin',
     selectedBosses: [],
     active: true,
+    worldId: 'heroic-kronos',
   },
   {
     id: 'mule-c',
@@ -24,6 +33,7 @@ const testMules: Mule[] = [
     muleClass: 'Dark Knight',
     selectedBosses: [],
     active: true,
+    worldId: 'heroic-kronos',
   },
   {
     id: 'mule-d',
@@ -32,6 +42,7 @@ const testMules: Mule[] = [
     muleClass: 'Bishop',
     selectedBosses: [],
     active: true,
+    worldId: 'heroic-kronos',
   },
   {
     id: 'mule-e',
@@ -40,6 +51,7 @@ const testMules: Mule[] = [
     muleClass: 'Shadower',
     selectedBosses: [],
     active: true,
+    worldId: 'heroic-kronos',
   },
   {
     id: 'mule-f',
@@ -48,6 +60,7 @@ const testMules: Mule[] = [
     muleClass: 'Night Lord',
     selectedBosses: [],
     active: true,
+    worldId: 'heroic-kronos',
   },
   {
     id: 'mule-g',
@@ -56,6 +69,7 @@ const testMules: Mule[] = [
     muleClass: 'Mercedes',
     selectedBosses: [],
     active: true,
+    worldId: 'heroic-kronos',
   },
 ];
 
@@ -70,6 +84,9 @@ function seedMules(mules: Mule[]) {
 function resetTestEnvironment() {
   localStorage.clear();
   document.documentElement.classList.remove('dark');
+  // Seed a Kronos lens so every `testMules` fixture (all stamped
+  // `worldId='heroic-kronos'`) is visible under the World Lens filter.
+  localStorage.setItem('world', 'heroic-kronos');
 }
 
 /**

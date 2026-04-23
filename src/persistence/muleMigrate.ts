@@ -1,6 +1,7 @@
 import type { BossTier, Mule } from '../types';
 import { getBossById } from '../data/bosses';
 import { MuleBossSlate } from '../data/muleBossSlate';
+import { isWorldId } from '../data/worlds';
 
 /**
  * Pure migration module for the **Persisted Root**. Owns the **Schema
@@ -106,6 +107,9 @@ function validateMule(raw: unknown, mode: LoadMode): Mule | null {
     // `true` so pre-v4 payloads (and new mules added this slice) behave
     // identically to the current app.
     active: typeof obj.active === 'boolean' ? obj.active : true,
+    // Absent or invalid `worldId` → omit the field so the mule stays hidden
+    // under any World Lens until the user replaces it.
+    ...(isWorldId(obj.worldId) ? { worldId: obj.worldId } : {}),
   };
 }
 

@@ -50,3 +50,8 @@ export function findWorld(id: string | null): World | null {
   if (!id) return null;
   return worldById.get(id as WorldId) ?? null;
 }
+
+/** Narrows an unknown value to `WorldId` against the canonical set. */
+export function isWorldId(value: unknown): value is WorldId {
+  return typeof value === 'string' && WORLD_IDS.has(value as WorldId);
+}

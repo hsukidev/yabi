@@ -1,3 +1,5 @@
+import type { WorldId } from '../data/worlds';
+
 export type BossTier = 'easy' | 'normal' | 'hard' | 'chaos' | 'extreme';
 
 /**
@@ -59,4 +61,11 @@ export interface Mule {
    * the ACTIVE KPI. New mules default to `true`; toggled in the drawer.
    */
   active: boolean;
+  /**
+   * World the mule belongs to. Set at creation via `addMule(worldId)` and
+   * never edited afterward. Optional so legacy payloads (no worldId) still
+   * load — they simply won't match any World Lens and stay invisible until
+   * the user replaces them.
+   */
+  worldId?: WorldId;
 }
