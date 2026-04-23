@@ -426,7 +426,7 @@ describe('MuleBossSlate.monthlyCount & Monthly Radio Mutex', () => {
     const slate = MuleBossSlate.from([BM_EXTREME, key(LUCID, 'hard'), key(VELLUM, 'normal')]);
     expect(slate.monthlyCount).toBe(1);
     expect(slate.weeklyCount).toBe(1);
-    expect(slate.dailyCount).toBe(1);
+    expect(slate.dailyCount).toBe(7);
   });
 
   it('from() keeps only the highest-value monthly key per (bossId, cadence) bucket', () => {

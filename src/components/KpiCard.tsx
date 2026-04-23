@@ -1,7 +1,14 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Info } from 'lucide-react';
 import { useIncome } from '../modules/income';
 import { formatMeso } from '../utils/meso';
+import { MuleBossSlate } from '../data/muleBossSlate';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import weeklyCrystalPng from '../assets/weekly-crystal.png';
+import dailyCrystalPng from '../assets/daily-crystal.png';
 import type { Mule } from '../types';
+
+const WORLD_WEEKLY_CRYSTAL_CAP = 180;
 
 interface KpiCardProps {
   mules: Mule[];
@@ -11,7 +18,16 @@ const NARROW_VIEWPORT_QUERY = '(max-width: 374.99px)';
 
 export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
   const { raw: totalRaw, abbreviated, toggle } = useIncome(mules);
-  const activeMuleCount = mules.filter((m) => m.active).length;
+  const activeMules = mules.filter((m) => m.active);
+  const activeMuleCount = activeMules.length;
+  const weeklyTotal = activeMules.reduce(
+    (sum, m) => sum + MuleBossSlate.from(m.selectedBosses).weeklyCount,
+    0,
+  );
+  const dailyTotal = activeMules.reduce(
+    (sum, m) => sum + MuleBossSlate.from(m.selectedBosses).dailyCount,
+    0,
+  );
   const canToggleFormat = totalRaw > 0;
 
   // Below 375px the abbreviated value drops decimals (e.g. "504.32M" → "504M")
@@ -122,6 +138,9 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
       <div style={{ display: 'flex', gap: 28, marginTop: 18 }}>
         <KpiStat label="MULES" value={String(mules.length)} />
         <KpiStat label="ACTIVE" value={String(activeMuleCount)} accent />
+        <CrystalKpiStat icon={weeklyCrystalPng} label="WEEKLY" value={String(weeklyTotal)} />
+        <CrystalKpiStat icon={dailyCrystalPng} label="DAILY" value={String(dailyTotal)} />
+        <WeeklyCapKpiStat crystalTotal={weeklyTotal + dailyTotal} cap={WORLD_WEEKLY_CRYSTAL_CAP} />
       </div>
     </div>
   );
@@ -140,6 +159,67 @@ function KpiStat({ label, value, accent }: { label: string; value: string; accen
         }}
       >
         {value}
+      </div>
+    </div>
+  );
+}
+
+function CrystalKpiStat({ icon, label, value }: { icon: string; label: string; value: string }) {
+  return (
+    <div>
+      <div className="eyebrow-plain" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <img
+          src={icon}
+          alt=""
+          draggable={false}
+          style={{ width: 16, height: 16, objectFit: 'contain' }}
+        />
+        {label}
+      </div>
+      <div
+        style={{
+          color: 'var(--text, var(--foreground))',
+          fontFamily: 'JetBrains Mono, monospace',
+          fontSize: 22,
+          marginTop: 4,
+        }}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function WeeklyCapKpiStat({ crystalTotal, cap }: { crystalTotal: number; cap: number }) {
+  const [infoOpen, setInfoOpen] = useState(false);
+  return (
+    <div>
+      <div className="eyebrow-plain" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        WEEKLY CAP
+        <Tooltip open={infoOpen} onOpenChange={setInfoOpen}>
+          <TooltipTrigger
+            aria-label="Weekly cap info"
+            closeOnClick={false}
+            onClick={() => setInfoOpen(true)}
+            className="inline-flex size-4 cursor-pointer items-center justify-center rounded-full text-muted-foreground/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          >
+            <Info className="size-3" aria-hidden />
+          </TooltipTrigger>
+          <TooltipContent className="px-3.5 py-2.5">Monthly crystals excluded</TooltipContent>
+        </Tooltip>
+      </div>
+      <div
+        style={{
+          color: 'var(--text, var(--foreground))',
+          fontFamily: 'JetBrains Mono, monospace',
+          fontSize: 22,
+          marginTop: 4,
+        }}
+      >
+        {crystalTotal}
+        <span style={{ color: 'var(--muted-raw, var(--muted-foreground))', fontSize: 16 }}>
+          /{cap}
+        </span>
       </div>
     </div>
   );

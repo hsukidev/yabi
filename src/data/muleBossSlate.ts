@@ -385,9 +385,14 @@ export class MuleBossSlate {
     return countWeeklySelections(this.keys as string[]);
   }
 
-  /** Count of **Slate Keys** whose **Boss Cadence** is `daily`. */
+  /**
+   * Weekly-basis count of crystals contributed by daily **Slate Keys**: each
+   * daily selection yields 7 crystals (one per day). Used by the **Crystal
+   * Tally** readouts, which express all cadences on a per-week basis so the
+   * 180-crystal weekly cap comparison is meaningful.
+   */
   get dailyCount(): number {
-    return countDailySelections(this.keys as string[]);
+    return countDailySelections(this.keys as string[]) * 7;
   }
 
   /**

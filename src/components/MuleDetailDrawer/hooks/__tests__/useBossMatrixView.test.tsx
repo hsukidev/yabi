@@ -937,7 +937,7 @@ describe('useBossMatrixView', () => {
           onUpdate: vi.fn(),
         }),
       );
-      expect(result.current.dailyCount).toBe(1);
+      expect(result.current.dailyCount).toBe(7);
       expect(result.current.weeklyCount).toBe(1);
     });
 
