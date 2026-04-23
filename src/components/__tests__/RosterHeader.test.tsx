@@ -121,14 +121,36 @@ describe('RosterHeader', () => {
 
     it('renders an enabled Bulk Confirm reading "Delete" when N > 0', () => {
       renderHeader({ bulkMode: true, selectedCount: 3 });
-      const btn = screen.getByRole('button', { name: /^delete\s*3?$/i }) as HTMLButtonElement;
+      const btn = screen.getByRole('button', { name: /^delete$/i }) as HTMLButtonElement;
       expect(btn.disabled).toBe(false);
     });
 
     it('calls onDelete when Bulk Confirm is clicked with a selection', () => {
       const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
-      fireEvent.click(screen.getByRole('button', { name: /^delete\s*2?$/i }));
+      fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
       expect(props.onDelete).toHaveBeenCalled();
+    });
+
+    it('does not render a count inside the Delete button', () => {
+      renderHeader({ bulkMode: true, selectedCount: 3 });
+      const btn = screen.getByRole('button', { name: /^delete$/i }) as HTMLButtonElement;
+      expect(btn.textContent?.trim()).toBe('Delete');
+    });
+
+    it('hides "Select or drag mules to delete" text on small screens via max-[524.99px]:hidden', () => {
+      const { container } = renderHeader({ bulkMode: true });
+      const textSpan = Array.from(container.querySelectorAll('span')).find(
+        (el) => el.textContent?.trim() === 'Select or drag mules to delete',
+      );
+      expect(textSpan).toBeTruthy();
+      expect(textSpan!.className).toContain('max-[524.99px]:hidden');
+    });
+
+    it('shows the Bulk Selection Pill at all screen sizes (no responsive-hidden class)', () => {
+      const { container } = renderHeader({ bulkMode: true });
+      const pill = container.querySelector('[data-bulk-selection-pill]') as HTMLElement;
+      expect(pill).toBeTruthy();
+      expect(pill.className).not.toContain('hidden');
     });
 
     it('does not render the default Roster heading in bulk mode', () => {

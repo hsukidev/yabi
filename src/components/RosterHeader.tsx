@@ -55,6 +55,7 @@ export function RosterHeader({
             }}
           />
           <span
+            className="max-[524.99px]:hidden"
             style={{
               color: destructive,
               fontWeight: 500,
@@ -66,7 +67,6 @@ export function RosterHeader({
           </span>
           <span
             data-bulk-selection-pill
-            className="max-[524.99px]:hidden"
             style={{
               padding: '3px 9px',
               borderRadius: 999,
@@ -88,7 +88,6 @@ export function RosterHeader({
           </Button>
           <Button size="sm" variant="destructive" onClick={onDelete} disabled={selectedCount === 0}>
             Delete
-            {selectedCount > 0 && <span className="min-[525px]:hidden">{selectedCount}</span>}
           </Button>
         </div>
       </div>
