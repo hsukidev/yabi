@@ -32,5 +32,10 @@ describe('formatMeso', () => {
     it('formats smaller numbers with separators', () => {
       expect(formatMeso(4840000, false)).toBe('4,840,000');
     });
+
+    it('rounds fractional values to an integer', () => {
+      expect(formatMeso(4840000.4, false)).toBe('4,840,000');
+      expect(formatMeso(4840000.5, false)).toBe('4,840,001');
+    });
   });
 });

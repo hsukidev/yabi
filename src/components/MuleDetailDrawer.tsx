@@ -37,7 +37,10 @@ export function MuleDetailDrawer({
   // show potential income regardless of active state. Force abbreviation in
   // the header chip so the readout stays compact regardless of the global
   // Format Preference.
-  const { raw: potentialIncomeRaw } = useIncome({ selectedBosses: mule?.selectedBosses ?? [] });
+  const { raw: potentialIncomeRaw } = useIncome({
+    selectedBosses: mule?.selectedBosses ?? [],
+    partySizes: mule?.partySizes,
+  });
   const potentialIncome = formatMeso(potentialIncomeRaw, true);
 
   const identity = useMuleIdentityDraft(mule, onUpdate);

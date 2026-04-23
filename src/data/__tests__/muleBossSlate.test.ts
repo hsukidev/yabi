@@ -350,13 +350,13 @@ describe('MuleBossSlate.weeklyCount', () => {
 
 describe('MuleBossSlate.totalCrystalValue', () => {
   it('is 0 for EMPTY', () => {
-    expect(MuleBossSlate.EMPTY.totalCrystalValue).toBe(0);
+    expect(MuleBossSlate.EMPTY.totalCrystalValue()).toBe(0);
   });
 
   it('folds weekly keys × 1', () => {
     // Hard Lucid is weekly, crystalValue 504,000,000.
     const slate = MuleBossSlate.from([key(LUCID, 'hard')]);
-    expect(slate.totalCrystalValue).toBe(504_000_000);
+    expect(slate.totalCrystalValue()).toBe(504_000_000);
   });
 
   it('folds daily keys × 7', () => {
@@ -364,14 +364,78 @@ describe('MuleBossSlate.totalCrystalValue', () => {
     const diff = getBossById(VELLUM)!.difficulty.find((d) => d.tier === 'normal')!;
     expect(diff.cadence).toBe('daily');
     const slate = MuleBossSlate.from([key(VELLUM, 'normal')]);
-    expect(slate.totalCrystalValue).toBe(diff.crystalValue * 7);
+    expect(slate.totalCrystalValue()).toBe(diff.crystalValue * 7);
   });
 
   it('sums a mixed daily + weekly slate', () => {
     const weeklyDiff = getBossById(LUCID)!.difficulty.find((d) => d.tier === 'hard')!;
     const dailyDiff = getBossById(VELLUM)!.difficulty.find((d) => d.tier === 'normal')!;
     const slate = MuleBossSlate.from([key(LUCID, 'hard'), key(VELLUM, 'normal')]);
-    expect(slate.totalCrystalValue).toBe(weeklyDiff.crystalValue + dailyDiff.crystalValue * 7);
+    expect(slate.totalCrystalValue()).toBe(weeklyDiff.crystalValue + dailyDiff.crystalValue * 7);
+  });
+
+  it('divides a Weekly Cadence key by the family Party Size (Computed Value)', () => {
+    // Hard Lucid: weekly, crystalValue 504M. Lucid family = 'lucid'. Party 2 → 252M.
+    const slate = MuleBossSlate.from([key(LUCID, 'hard')]);
+    expect(slate.totalCrystalValue({ lucid: 2 })).toBe(252_000_000);
+  });
+
+  it('ignores Party Size on Daily Cadence keys (crystalValue × 7, no division)', () => {
+    // Normal Vellum is daily. Even with party=3 on its family, the daily total
+    // stays at crystalValue × 7 — daily cells are not divided by party.
+    const diff = getBossById(VELLUM)!.difficulty.find((d) => d.tier === 'normal')!;
+    expect(diff.cadence).toBe('daily');
+    const slate = MuleBossSlate.from([key(VELLUM, 'normal')]);
+    const vellumFamily = getBossById(VELLUM)!.family;
+    expect(slate.totalCrystalValue({ [vellumFamily]: 3 })).toBe(diff.crystalValue * 7);
+  });
+
+  /**
+   * Pick `count` Weekly Cadence selections across distinct families, each
+   * returned with its **Computed Value** (party=1). Used by the Top-14
+   * Weekly Cut tests below.
+   */
+  function pickWeeklies(count: number): { slateKey: SlateKey; value: number }[] {
+    const picks: { slateKey: SlateKey; value: number }[] = [];
+    for (const b of bosses) {
+      const diff = b.difficulty.find((d) => d.cadence === 'weekly');
+      if (!diff) continue;
+      picks.push({ slateKey: key(b.id, diff.tier), value: diff.crystalValue });
+      if (picks.length === count) break;
+    }
+    if (picks.length < count) {
+      throw new Error(`Only found ${picks.length} weekly-capable families`);
+    }
+    return picks;
+  }
+
+  it('applies the Top-14 Weekly Cut — 15th weekly is the lowest and drops out', () => {
+    const picks = pickWeeklies(15);
+    const sortedDesc = [...picks].map((p) => p.value).sort((a, b) => b - a);
+    const top14Sum = sortedDesc.slice(0, 14).reduce((s, v) => s + v, 0);
+    const slate = MuleBossSlate.from(picks.map((p) => p.slateKey));
+    expect(slate.weeklyCount).toBe(15);
+    expect(slate.totalCrystalValue()).toBe(top14Sum);
+  });
+
+  it('handles Computed Value ties at the boundary — includes only one copy of a tied value', () => {
+    // Princess-no (normal), Zakum (chaos), and Pierre (chaos) all weekly @
+    // crystalValue 81,000,000. That's three bosses tied at the same Computed
+    // Value under party=1. With 13 higher-valued weeklies ahead of them we
+    // have 16 total; the top 14 must include all 13 highs plus exactly ONE
+    // of the tied triplet, not two or three.
+    const TIED_VALUE = 81_000_000;
+    const highs = pickWeeklies(20)
+      .filter((p) => p.value > TIED_VALUE)
+      .slice(0, 13);
+    expect(highs).toHaveLength(13);
+    const princessNo = key(idForFamily('princess-no'), 'normal');
+    const zakum = key(idForFamily('zakum'), 'chaos');
+    const pierre = key(idForFamily('pierre'), 'chaos');
+    const slate = MuleBossSlate.from([...highs.map((p) => p.slateKey), princessNo, zakum, pierre]);
+    expect(slate.weeklyCount).toBe(16);
+    const highSum = highs.reduce((s, p) => s + p.value, 0);
+    expect(slate.totalCrystalValue()).toBe(highSum + TIED_VALUE);
   });
 });
 
@@ -466,11 +530,11 @@ describe('MuleBossSlate.monthlyCount & Monthly Radio Mutex', () => {
 
   it('monthly keys contribute 0 to totalCrystalValue (deferred to monthly readout)', () => {
     const monthlyOnly = MuleBossSlate.from([BM_EXTREME]);
-    expect(monthlyOnly.totalCrystalValue).toBe(0);
+    expect(monthlyOnly.totalCrystalValue()).toBe(0);
 
     const mixed = MuleBossSlate.from([key(LUCID, 'hard'), BM_EXTREME]);
     // Lucid hard's 504M alone, no contribution from the 18B monthly Extreme.
-    expect(mixed.totalCrystalValue).toBe(504_000_000);
+    expect(mixed.totalCrystalValue()).toBe(504_000_000);
   });
 
   it('view() marks BM monthly rows as cadence: "monthly"', () => {

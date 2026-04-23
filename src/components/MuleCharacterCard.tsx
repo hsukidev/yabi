@@ -30,10 +30,14 @@ const MuleCardInner = memo(function MuleCardInner({
   mule: Mule;
   hideLevelBadge?: boolean;
 }) {
-  // Pass only `selectedBosses` so the Active-Flag Filter doesn't zero out
-  // a per-mule card just because its roster toggle is off — the card shows
-  // potential income regardless of active state.
-  const { formatted: potentialIncome } = useIncome({ selectedBosses: mule.selectedBosses });
+  // Omit `active` so the Active-Flag Filter doesn't zero the card when its
+  // roster toggle is off — the card shows potential income regardless of
+  // active state. `partySizes` is threaded so the Computed Value matches
+  // the drawer and KPI total for party-adjusted weeklies.
+  const { formatted: potentialIncome } = useIncome({
+    selectedBosses: mule.selectedBosses,
+    partySizes: mule.partySizes,
+  });
   const hasBosses = mule.selectedBosses.length > 0;
   const incomeColor =
     mule.active && hasBosses

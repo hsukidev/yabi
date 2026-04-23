@@ -17,9 +17,20 @@ const AbbrevOff = ({ children }: { children: ReactNode }) => (
 describe('Income.of', () => {
   it('delegates per-mule arithmetic to MuleBossSlate.totalCrystalValue', () => {
     const mule = { selectedBosses: [HARD_LUCID, HARD_WILL] };
-    const expected = MuleBossSlate.from(mule.selectedBosses).totalCrystalValue;
+    const expected = MuleBossSlate.from(mule.selectedBosses).totalCrystalValue();
     expect(Income.of(mule, true).raw).toBe(expected);
     expect(Income.of(mule, false).raw).toBe(expected);
+  });
+
+  it('threads partySizes through to the slate (weekly Computed Value halves at party 2)', () => {
+    // Hard Lucid weekly @ 504M, Hard Will weekly @ 621.81M at party 1.
+    // At party 2 on both families, each Computed Value halves.
+    const mule = {
+      selectedBosses: [HARD_LUCID, HARD_WILL],
+      partySizes: { lucid: 2, will: 2 },
+    };
+    const full = MuleBossSlate.from(mule.selectedBosses).totalCrystalValue();
+    expect(Income.of(mule, false).raw).toBe(full / 2);
   });
 
   it('formatted calls formatMeso with the abbreviation flag', () => {
@@ -37,9 +48,9 @@ describe('Income.of', () => {
     ];
     // active===false (HARD_WILL) excluded; the rest sum normally
     const expected =
-      MuleBossSlate.from([HARD_LUCID]).totalCrystalValue +
-      MuleBossSlate.from([HARD_WILL]).totalCrystalValue +
-      MuleBossSlate.from([HARD_LUCID]).totalCrystalValue;
+      MuleBossSlate.from([HARD_LUCID]).totalCrystalValue() +
+      MuleBossSlate.from([HARD_WILL]).totalCrystalValue() +
+      MuleBossSlate.from([HARD_LUCID]).totalCrystalValue();
     expect(Income.of(mules, false).raw).toBe(expected);
   });
 

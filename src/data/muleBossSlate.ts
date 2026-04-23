@@ -20,6 +20,15 @@ import { formatMeso } from '../utils/meso';
 export type SlateKey = string;
 
 /**
+ * MapleStory's weekly boss crystal sale limit. Advisory as a selection-count
+ * reference in the **Crystal Tally** (the tally renders `15/14` in red
+ * without clamping), and enforced as the **Top-14 Weekly Cut** inside
+ * `MuleBossSlate.totalCrystalValue` (only the 14 highest **Computed Values**
+ * among Weekly Cadence selections contribute).
+ */
+export const WEEKLY_CRYSTAL_CAP = 14;
+
+/**
  * Capitalized difficulty label for the pip colour / row name prefix. Distinct
  * from the `BossDifficulty` *interface* in `../types` that holds the
  * `{ tier, crystalValue, cadence }` shape.
@@ -405,22 +414,38 @@ export class MuleBossSlate {
   }
 
   /**
-   * Cadence-weighted sum on a **weekly basis**: daily **Slate Keys**
-   * contribute `crystalValue × 7`, weekly contribute `crystalValue × 1`,
-   * and monthly contribute `0` — monthly income is intentionally absent
-   * from the weekly-basis sum until a proper monthly readout ships
-   * (follow-up). The basis for **Potential Income** before **Active Flag**
-   * / **Party Size** adjustments (caller applies those).
+   * Weekly-basis meso total. Each selection contributes its **Computed
+   * Value**: Daily Cadence → `crystalValue × 7` (Party Size ignored,
+   * matching BossMatrix's cell rule); Weekly Cadence → `crystalValue /
+   * partySize` with Party Size defaulting to 1; Monthly Cadence → 0
+   * (deferred to a dedicated monthly readout). Only the **Top-14 Weekly
+   * Cut** contributes — the `WEEKLY_CRYSTAL_CAP` highest **Computed
+   * Values** among Weekly Cadence keys, ties broken by insertion order
+   * (stable sort). The basis for **Potential Income** before the
+   * **Active-Flag Filter**.
    */
-  get totalCrystalValue(): number {
-    let total = 0;
+  totalCrystalValue(partySizes: Record<string, number> = {}): number {
+    const weeklies: number[] = [];
+    let dailyTotal = 0;
     for (const key of this.keys) {
       const parsed = parseKey(key);
       if (!parsed) continue;
       if (parsed.cadence === 'monthly') continue;
-      const diff = getBossById(parsed.bossId)!.difficulty.find((d) => d.tier === parsed.tier)!;
-      total += diff.crystalValue * (parsed.cadence === 'daily' ? 7 : 1);
+      const boss = getBossById(parsed.bossId)!;
+      const diff = boss.difficulty.find((d) => d.tier === parsed.tier)!;
+      if (parsed.cadence === 'daily') {
+        dailyTotal += diff.crystalValue * 7;
+      } else {
+        const party = partySizes[boss.family] ?? 1;
+        weeklies.push(diff.crystalValue / party);
+      }
     }
-    return total;
+    // Stable sort preserves insertion order on ties, so earlier selections
+    // win the last slot when Computed Values are equal.
+    const top14Sum = [...weeklies]
+      .sort((a, b) => b - a)
+      .slice(0, WEEKLY_CRYSTAL_CAP)
+      .reduce((s, v) => s + v, 0);
+    return dailyTotal + top14Sum;
   }
 }

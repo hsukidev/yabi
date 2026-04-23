@@ -1,14 +1,12 @@
 import weeklyCrystalPng from '../../assets/weekly-crystal.png';
 import dailyCrystalPng from '../../assets/daily-crystal.png';
+import { WEEKLY_CRYSTAL_CAP } from '../../data/muleBossSlate';
 
 interface CrystalTallyProps {
   weeklyCount: number;
   dailyCount: number;
   monthlyCount: number;
 }
-
-/** Weekly Crystal Cap reference — displayed, not enforced. */
-const WEEKLY_CRYSTAL_CAP = 14;
 
 /**
  * Two crystal plates stacked vertically in the drawer header:

@@ -4,7 +4,7 @@ export function formatMeso(
   integer: boolean = false,
 ): string {
   if (!abbreviated) {
-    return value.toLocaleString('en-US');
+    return Math.round(value).toLocaleString('en-US');
   }
 
   if (value >= 1_000_000_000) {

@@ -21,6 +21,7 @@ import { formatMeso } from '../utils/meso';
 export interface IncomeSource {
   selectedBosses: string[];
   active?: boolean;
+  partySizes?: Record<string, number>;
 }
 
 /**
@@ -52,7 +53,7 @@ export class Income {
     let raw = 0;
     for (const s of sources) {
       if (s.active === false) continue;
-      raw += MuleBossSlate.from(s.selectedBosses).totalCrystalValue;
+      raw += MuleBossSlate.from(s.selectedBosses).totalCrystalValue(s.partySizes);
     }
     return new Income(raw, abbreviated);
   }
