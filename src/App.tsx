@@ -20,7 +20,8 @@ import { ThemeProvider } from './context/ThemeProvider';
 import { DensityProvider } from './context/DensityProvider';
 import { WorldProvider, useWorld } from './context/WorldProvider';
 import { IncomeProvider } from './modules/income';
-import { useMules } from './hooks/useMules';
+import { useMuleActions } from './hooks/useMuleActions';
+import { Toaster } from './components/ui/sonner';
 import { useBulkDragPaint } from './hooks/useBulkDragPaint';
 import { MuleCharacterCard } from './components/MuleCharacterCard';
 import { MuleDetailDrawer } from './components/MuleDetailDrawer';
@@ -46,7 +47,7 @@ const dragBoundaryActiveStyle: React.CSSProperties = {
 };
 
 export function AppContent() {
-  const { mules, addMule, updateMule, deleteMule, deleteMules, reorderMules } = useMules();
+  const { mules, addMule, updateMule, deleteMule, deleteMules, reorderMules } = useMuleActions();
   const { world } = useWorld();
   // Unfiltered `mules` is intentionally kept for drag-reorder index math and
   // the selected/active lookups, which must address the full array.
@@ -272,6 +273,7 @@ function App() {
           </IncomeProvider>
         </WorldProvider>
       </DensityProvider>
+      <Toaster />
     </ThemeProvider>
   );
 }
