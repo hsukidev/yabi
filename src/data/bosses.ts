@@ -56,7 +56,7 @@ export const bosses: Boss[] = [
       },
       {
         tier: 'extreme',
-        crystalValue: { Heroic: 6026000000, Interactive: 1205250000 },
+        crystalValue: { Heroic: 6026000000, Interactive: 1205200000 },
         cadence: 'weekly',
       },
     ],

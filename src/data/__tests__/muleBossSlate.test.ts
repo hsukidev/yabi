@@ -459,12 +459,11 @@ describe('MuleBossSlate.totalCrystalValue', () => {
     expect(slate.totalCrystalValue()).toBe(504_000_000);
   });
 
-  it('Extreme Kaling honours its non-5x Interactive ratio (1.20525B, not 1.2052B)', () => {
-    // The one boss in the current matrix where Interactive != Heroic/5.
-    // Heroic 6_026_000_000; Interactive 1_205_250_000.
+  it('Extreme Kaling Interactive crystal value follows the 5x ratio (1.2052B, not 1.20525B)', () => {
+    // Heroic 6_026_000_000; Interactive 1_205_200_000 = Heroic / 5.
     const KALING = idForFamily('kaling');
     const slate = MuleBossSlate.from([key(KALING, 'extreme')], 'Interactive');
-    expect(slate.totalCrystalValue()).toBe(1_205_250_000);
+    expect(slate.totalCrystalValue()).toBe(1_205_200_000);
   });
 });
 
