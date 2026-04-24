@@ -24,15 +24,6 @@ describe('useMuleIdentityDraft', () => {
 
     expect(result.current.name.draft).toBe('Alpha');
     expect(result.current.level.draft).toBe('200');
-    expect(result.current.level.displayNumber).toBe(200);
-  });
-
-  it('seeds empty drafts when mule is null', () => {
-    const onUpdate = vi.fn();
-    const { result } = renderHook(() => useMuleIdentityDraft(null, onUpdate));
-    expect(result.current.name.draft).toBe('');
-    expect(result.current.level.draft).toBe('');
-    expect(result.current.level.displayNumber).toBe(0);
   });
 
   it('sanitizes name input on change (strips non-letters, caps at 12)', () => {
@@ -146,8 +137,8 @@ describe('useMuleIdentityDraft', () => {
   it('flushes both name and level on Mule Switch', () => {
     const onUpdate = vi.fn();
     const { result, rerender } = renderHook(
-      ({ mule }: { mule: Mule | null }) => useMuleIdentityDraft(mule, onUpdate),
-      { initialProps: { mule: baseMule as Mule | null } },
+      ({ mule }: { mule: Mule }) => useMuleIdentityDraft(mule, onUpdate),
+      { initialProps: { mule: baseMule } },
     );
 
     // Edit both without blurring.
@@ -199,21 +190,5 @@ describe('useMuleIdentityDraft', () => {
 
     expect(result.current.name.draft).toBe('Beta');
     expect(result.current.level.draft).toBe('77');
-  });
-
-  it('displayNumber reflects live draft for the hero tag', () => {
-    const { result } = renderHook(() => useMuleIdentityDraft(baseMule, vi.fn()));
-    act(() => {
-      result.current.level.onChange(makeOnChange('250'));
-    });
-    expect(result.current.level.displayNumber).toBe(250);
-  });
-
-  it('displayNumber is 0 when draft is empty', () => {
-    const { result } = renderHook(() => useMuleIdentityDraft(baseMule, vi.fn()));
-    act(() => {
-      result.current.level.onChange(makeOnChange(''));
-    });
-    expect(result.current.level.displayNumber).toBe(0);
   });
 });

@@ -14,15 +14,11 @@ function clampLevel(raw: string): number {
 }
 
 /**
- * Mule Identity Draft: pairs name + level Draft Fields with a single
- * Commit On Exit so callers cannot forget the pairing. Owns the name
- * sanitizer, Level Clamp 0–300, and digit-only input stripping.
- *
- * Level is held as a string draft (the `<input type="text" inputMode="numeric">`
- * lets users briefly type "500" before the blur clamps it to 300). Commit
- * converts the string to a clamped number and mirrors the clamp back into
- * the draft so the input visibly reflects the clamp before the parent's
- * mule prop re-renders.
+ * Pairs name + level Draft Fields with a single Commit On Exit so callers
+ * cannot forget the pairing. Level is held as a string draft so the
+ * `<input inputMode="numeric">` can briefly show "500" before blur clamps
+ * it to 300 — the clamp is also mirrored back into the draft so the input
+ * visibly settles before the parent's mule prop re-renders.
  */
 export function useMuleIdentityDraft(
   mule: Mule | null,
@@ -35,7 +31,6 @@ export function useMuleIdentityDraft(
   };
   level: {
     draft: string;
-    displayNumber: number;
     onChange: (e: ChangeEvent<HTMLInputElement>) => void;
     onBlur: () => void;
   };
@@ -46,7 +41,8 @@ export function useMuleIdentityDraft(
 
   const commitName = useCallback(
     (v: string) => {
-      if (muleId) onUpdate(muleId, { name: v });
+      if (muleId === null) return;
+      onUpdate(muleId, { name: v });
     },
     [muleId, onUpdate],
   );
@@ -55,15 +51,16 @@ export function useMuleIdentityDraft(
     parse: sanitizeMuleName,
   });
 
-  // We don't pass a commit to level's useDraftField because the level blur
-  // has two extra concerns (clamp write-back + empty→0) that need access to
+  // Level's useDraftField gets a no-op commit because the level blur has
+  // two extra concerns (clamp write-back + empty→0) that need access to
   // `level.setDraft`. We rebind onBlur below.
   const level = useDraftField<string>(sourceLevelStr, () => {}, {
     parse: (raw) => raw.replace(/\D/g, '').slice(0, 3),
   });
 
   const levelOnBlur = useCallback(() => {
-    if (!muleId || level.draft === sourceLevelStr) return;
+    if (muleId === null) return;
+    if (level.draft === sourceLevelStr) return;
     const clamped = clampLevel(level.draft);
     const clampedStr = level.draft === '' ? '' : String(clamped);
     if (clampedStr !== level.draft) level.setDraft(clampedStr);
@@ -93,8 +90,6 @@ export function useMuleIdentityDraft(
     ),
   );
 
-  const displayNumber = Number(level.draft) || 0;
-
   return {
     name: {
       draft: name.draft,
@@ -103,7 +98,6 @@ export function useMuleIdentityDraft(
     },
     level: {
       draft: level.draft,
-      displayNumber,
       onChange: level.onChange,
       onBlur: levelOnBlur,
     },

@@ -1,7 +1,6 @@
+import { useMemo } from 'react';
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import type { Mule } from '../types';
 import { useIncome } from '../modules/income';
@@ -10,12 +9,11 @@ import { BossMatrix } from './BossMatrix';
 import { BossSearch } from './BossSearch';
 import { MatrixToolbar } from './MatrixToolbar';
 import blankCharacterPng from '../assets/blank-character.png';
-import { ClassAutocomplete } from './ClassAutocomplete';
-import { GMS_CLASSES } from '../constants/classes';
-import { useMuleIdentityDraft } from './MuleDetailDrawer/hooks/useMuleIdentityDraft';
 import { useBossMatrixView } from './MuleDetailDrawer/hooks/useBossMatrixView';
 import { useDeleteConfirm } from './MuleDetailDrawer/hooks/useDeleteConfirm';
+import { useMuleIdentityDraft } from './MuleDetailDrawer/hooks/useMuleIdentityDraft';
 import { CrystalTally } from './MuleDetailDrawer/CrystalTally';
+import { MuleIdentityFields } from './MuleDetailDrawer/MuleIdentityFields';
 
 interface MuleDetailDrawerProps {
   mule: Mule | null;
@@ -36,14 +34,15 @@ export function MuleDetailDrawer({
   // drawer opens on an inactive mule — the drawer is the editor and needs to
   // show potential income regardless of active state. Force abbreviation in
   // the header chip so the readout stays compact regardless of the global
-  // Format Preference.
-  const { raw: potentialIncomeRaw } = useIncome({
-    selectedBosses: mule?.selectedBosses ?? [],
-    partySizes: mule?.partySizes,
-  });
+  // Format Preference. The source object is memoized so per-keystroke drawer
+  // re-renders (from the lifted identity draft) don't blow the income cache.
+  const incomeSource = useMemo(
+    () => ({ selectedBosses: mule?.selectedBosses ?? [], partySizes: mule?.partySizes }),
+    [mule?.selectedBosses, mule?.partySizes],
+  );
+  const { raw: potentialIncomeRaw } = useIncome(incomeSource);
   const potentialIncome = formatMeso(potentialIncomeRaw, true);
 
-  const identity = useMuleIdentityDraft(mule, onUpdate);
   const matrix = useBossMatrixView({
     muleId: mule?.id ?? null,
     selectedBosses: mule?.selectedBosses ?? [],
@@ -55,6 +54,8 @@ export function MuleDetailDrawer({
     onDelete,
     onAfterDelete: onClose,
   });
+  const identity = useMuleIdentityDraft(mule, onUpdate);
+  const liveLevel = Number(identity.level.draft) || 0;
 
   return (
     <Sheet
@@ -80,7 +81,7 @@ export function MuleDetailDrawer({
               <div className="flex flex-col items-center gap-3 min-[425px]:flex-row min-[425px]:items-end min-[425px]:gap-5 flex-1 min-w-0">
                 <img
                   src={blankCharacterPng}
-                  alt={identity.name.draft || 'Mule avatar'}
+                  alt={mule.name || 'Mule avatar'}
                   className="size-[132px]  object-contain shrink-0"
                 />
                 <div className="min-w-0 w-full text-center min-[425px]:w-auto min-[425px]:flex-1 min-[425px]:text-left">
@@ -94,9 +95,7 @@ export function MuleDetailDrawer({
                       {mule.muleClass || 'no class'}
                     </span>
                     <span className="font-mono-nums text-(--accent-numeric)">
-                      {identity.level.displayNumber > 0
-                        ? `Lv.${identity.level.displayNumber}`
-                        : 'N/A'}
+                      {liveLevel > 0 ? `Lv.${liveLevel}` : 'N/A'}
                     </span>
                   </div>
                   <div
@@ -188,61 +187,7 @@ export function MuleDetailDrawer({
             <div className="mx-6 border-t border-border/50" />
 
             <div className="p-6 flex flex-col gap-5">
-              <div className="flex flex-col gap-3">
-                <div className="grid grid-cols-1 gap-3">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="mule-name" className="font-sans text-xs text-muted-foreground">
-                      Character Name
-                    </Label>
-                    <Input
-                      id="mule-name"
-                      placeholder="Enter name"
-                      value={identity.name.draft}
-                      maxLength={12}
-                      onChange={identity.name.onChange}
-                      onBlur={identity.name.onBlur}
-                      className="bg-(--surface-2) border-border/60 focus-visible:border-(--accent-raw,var(--accent))/60 focus-visible:ring-1 focus-visible:ring-(--ring)/20 placeholder:opacity-60 placeholder:text-xs placeholder:italic"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <Label
-                        htmlFor="mule-class"
-                        className="font-sans text-xs text-muted-foreground"
-                      >
-                        Class
-                      </Label>
-                      <ClassAutocomplete
-                        key={mule.id}
-                        id="mule-class"
-                        placeholder="e.g. Bishop"
-                        value={mule.muleClass ?? ''}
-                        options={GMS_CLASSES}
-                        onSelect={(c) => onUpdate(mule.id, { muleClass: c })}
-                        className="bg-(--surface-2) border-border/60 focus-visible:border-(--accent-raw,var(--accent))/60 focus-visible:ring-1 focus-visible:ring-(--ring)/20 placeholder:opacity-60 placeholder:text-xs placeholder:italic"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label
-                        htmlFor="mule-level"
-                        className="font-sans text-xs text-muted-foreground"
-                      >
-                        Level
-                      </Label>
-                      <Input
-                        id="mule-level"
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="0"
-                        value={identity.level.draft}
-                        onChange={identity.level.onChange}
-                        onBlur={identity.level.onBlur}
-                        className="bg-(--surface-2) border-border/60 focus-visible:border-(--accent-raw,var(--accent))/60 focus-visible:ring-1 focus-visible:ring-(--ring)/20 font-mono-nums placeholder:opacity-60 placeholder:text-xs placeholder:italic"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <MuleIdentityFields mule={mule} identity={identity} onUpdate={onUpdate} />
 
               <div>
                 <MatrixToolbar
@@ -267,7 +212,7 @@ export function MuleDetailDrawer({
               <Button
                 variant="outline"
                 size="lg"
-                className="sm:hidden w-full -mt-2 h-10 rounded-[10px]"
+                className="sm:hidden w-full h-10 rounded-[10px]"
                 onClick={onClose}
               >
                 Close

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Search } from 'lucide-react';
 
 interface BossSearchProps {
@@ -8,7 +9,7 @@ interface BossSearchProps {
   placeholder?: string;
 }
 
-export function BossSearch({
+export const BossSearch = memo(function BossSearch({
   value,
   onChange,
   fused = false,
@@ -27,4 +28,4 @@ export function BossSearch({
       />
     </div>
   );
-}
+});

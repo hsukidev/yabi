@@ -68,6 +68,26 @@ describe('MuleDetailDrawer (smoke)', () => {
     expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, { name: 'NewName' });
   });
 
+  // The drawer header reflects the live identity draft so users see typed
+  // changes immediately, before the blur-driven commit lands.
+  it('header heading reflects the live Name draft as the user types', () => {
+    renderDrawer();
+    const input = screen.getByLabelText('Character Name') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'TypingDraft' } });
+    expect(input.value).toBe('TypingDraft');
+    expect(screen.getByRole('heading', { name: 'TypingDraft' })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'TestMule' })).toBeNull();
+  });
+
+  it('header level chip reflects the live Level draft as the user types', () => {
+    renderDrawer();
+    const input = screen.getByLabelText('Level') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: '150' } });
+    expect(input.value).toBe('150');
+    expect(screen.getByText('Lv.150')).toBeTruthy();
+    expect(screen.queryByText('Lv.200')).toBeNull();
+  });
+
   it('wires the matrix Reset button to resetBosses (wipes selections and party sizes)', () => {
     const { props } = renderDrawer({
       mule: { ...baseMule, selectedBosses: [HARD_LUCID] },

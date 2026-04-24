@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import weeklyCrystalPng from '../../assets/weekly-crystal.png';
 import dailyCrystalPng from '../../assets/daily-crystal.png';
 import { WEEKLY_CRYSTAL_CAP } from '../../data/muleBossSlate';
@@ -22,7 +23,10 @@ interface CrystalTallyProps {
  * The count span carries an `aria-label` so SR users get context without
  * reading the adjacent caption as label text.
  */
-export function CrystalTally({ weeklyCount, dailyCount }: CrystalTallyProps) {
+export const CrystalTally = memo(function CrystalTally({
+  weeklyCount,
+  dailyCount,
+}: CrystalTallyProps) {
   return (
     <div className="crystal-tally" role="group" aria-label="Crystal tally">
       <CrystalCell
@@ -43,7 +47,7 @@ export function CrystalTally({ weeklyCount, dailyCount }: CrystalTallyProps) {
       />
     </div>
   );
-}
+});
 
 interface CrystalCellProps {
   kind: 'weekly' | 'daily' | 'monthly';

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -58,7 +58,7 @@ const CADENCES: ReadonlyArray<{ value: CadenceFilter; icon: React.ReactNode }> =
 
 const PRESETS: readonly PresetKey[] = ['CRA', 'LOMIEN', 'CTENE', 'CUSTOM'];
 
-export function MatrixToolbar({
+export const MatrixToolbar = memo(function MatrixToolbar({
   filter,
   onFilterChange,
   activePill,
@@ -121,4 +121,4 @@ export function MatrixToolbar({
       </button>
     </div>
   );
-}
+});
