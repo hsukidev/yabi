@@ -66,13 +66,16 @@ describe('worker handler — input validation', () => {
     expect(res.status).toBe(400);
   });
 
-  it('returns 400 for an Interactive worldId (out of scope for slice 2)', async () => {
-    const res = await handleLookup(get('/api/character/Alice?worldId=interactive-bera'), deps());
+  it('returns 400 for a Heroic Challenger worldId (still out of scope)', async () => {
+    const res = await handleLookup(get('/api/character/Alice?worldId=heroic-challenger'), deps());
     expect(res.status).toBe(400);
   });
 
-  it('returns 400 for a Challenger worldId (out of scope)', async () => {
-    const res = await handleLookup(get('/api/character/Alice?worldId=heroic-challenger'), deps());
+  it('returns 400 for an Interactive Challenger worldId (still out of scope)', async () => {
+    const res = await handleLookup(
+      get('/api/character/Alice?worldId=interactive-challenger'),
+      deps(),
+    );
     expect(res.status).toBe(400);
   });
 
@@ -88,13 +91,64 @@ describe('worker handler — input validation', () => {
 });
 
 describe('worker handler — adapter orchestration', () => {
-  it('calls the adapter with the rebootIndex from the world ID map (always 1 for Heroic)', async () => {
+  it('calls the adapter with the rebootIndex from the world ID map (1 for Heroic)', async () => {
     const adapter = vi.fn(async () => [rankEntry()]);
     await handleLookup(
       get('/api/character/Alice?worldId=heroic-kronos'),
       deps({ fetchByName: adapter }),
     );
     expect(adapter).toHaveBeenCalledWith('Alice', 1);
+  });
+
+  it('calls the adapter with rebootIndex=0 for an Interactive world (Bera)', async () => {
+    const adapter = vi.fn(async () => [rankEntry({ worldID: 1 })]);
+    await handleLookup(
+      get('/api/character/Alice?worldId=interactive-bera'),
+      deps({ fetchByName: adapter }),
+    );
+    expect(adapter).toHaveBeenCalledWith('Alice', 0);
+  });
+
+  it('reshapes a matching Interactive-world rank into the documented response contract', async () => {
+    // Interactive-bera lives at rebootIndex=0, worldID=1 in the map.
+    const adapter = vi.fn(async () => [
+      rankEntry({
+        characterName: 'Bobby',
+        worldID: 1,
+        level: 250,
+        jobName: 'Hero',
+        characterImgURL: 'https://msavatar1.nexon.net/Character/Bobby.png',
+      }),
+    ]);
+    const res = await handleLookup(
+      get('/api/character/Bobby?worldId=interactive-bera'),
+      deps({ fetchByName: adapter }),
+    );
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as Record<string, unknown>;
+    expect(body.name).toBe('Bobby');
+    expect(body.level).toBe(250);
+    expect(body.className).toBe('Hero');
+    expect(body.worldId).toBe('interactive-bera');
+  });
+
+  it('disambiguates by numeric worldID for an Interactive world (picks Luna over Scania)', async () => {
+    // Map: scania=0, bera=1, luna=19. Adapter returns ranks across all three;
+    // request for `interactive-luna` must pick the worldID=19 entry.
+    const adapter = vi.fn(async () => [
+      rankEntry({ worldID: 0, level: 200, jobName: 'Hero' }),
+      rankEntry({ worldID: 1, level: 210, jobName: 'Bishop' }),
+      rankEntry({ worldID: 19, level: 220, jobName: 'Night Lord' }),
+    ]);
+    const res = await handleLookup(
+      get('/api/character/Echo?worldId=interactive-luna'),
+      deps({ fetchByName: adapter }),
+    );
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as Record<string, unknown>;
+    expect(body.level).toBe(220);
+    expect(body.className).toBe('Night Lord');
+    expect(body.worldId).toBe('interactive-luna');
   });
 
   it('reshapes a matching rank into the documented response contract', async () => {

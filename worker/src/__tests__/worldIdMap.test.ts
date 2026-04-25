@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-  HEROIC_WORLD_IDS,
-  isHeroicWorldId,
+  SUPPORTED_WORLD_IDS,
+  isSupportedWorldId,
   toUpstreamKey,
   fromUpstreamKey,
-  type HeroicWorldId,
+  type SupportedWorldId,
 } from '../worldIdMap';
 
 /**
@@ -12,18 +12,31 @@ import {
  * reverse-engineered empirically and a typo here would silently misroute
  * lookups to the wrong world — the round-trip catches any mapping that
  * isn't bijective, and the per-id checks guard against accidentally
- * collapsing two worlds onto the same numeric id.
+ * collapsing two worlds onto the same numeric id within a reboot bucket.
+ *
+ * Slice 3 expands the supported set from the three Heroic worlds to all
+ * six non-CW worlds (Heroic: Kronos/Hyperion/Solis at `rebootIndex=1`;
+ * Interactive: Bera/Scania/Luna at `rebootIndex=0`). Challenger Worlds
+ * remain out of scope.
  */
 
 describe('worldIdMap', () => {
-  it('exposes the three Heroic worlds in scope for slice 2', () => {
-    expect(new Set(HEROIC_WORLD_IDS)).toEqual(
-      new Set<HeroicWorldId>(['heroic-kronos', 'heroic-hyperion', 'heroic-solis']),
+  it('exposes the six supported worlds (3 Heroic + 3 Interactive)', () => {
+    expect(new Set(SUPPORTED_WORLD_IDS)).toEqual(
+      new Set<SupportedWorldId>([
+        'heroic-kronos',
+        'heroic-hyperion',
+        'heroic-solis',
+        'interactive-bera',
+        'interactive-scania',
+        'interactive-luna',
+      ]),
     );
   });
 
   it('maps every Heroic WorldId to a `{ rebootIndex: 1, worldID }` tuple', () => {
-    for (const id of HEROIC_WORLD_IDS) {
+    const heroic: SupportedWorldId[] = ['heroic-kronos', 'heroic-hyperion', 'heroic-solis'];
+    for (const id of heroic) {
       const key = toUpstreamKey(id);
       expect(key.rebootIndex).toBe(1);
       expect(typeof key.worldID).toBe('number');
@@ -31,46 +44,71 @@ describe('worldIdMap', () => {
     }
   });
 
-  it('round-trips every Heroic WorldId via toUpstreamKey → fromUpstreamKey', () => {
-    for (const id of HEROIC_WORLD_IDS) {
+  it('maps every Interactive WorldId to a `{ rebootIndex: 0, worldID }` tuple', () => {
+    const interactive: SupportedWorldId[] = [
+      'interactive-bera',
+      'interactive-scania',
+      'interactive-luna',
+    ];
+    for (const id of interactive) {
+      const key = toUpstreamKey(id);
+      expect(key.rebootIndex).toBe(0);
+      expect(typeof key.worldID).toBe('number');
+      expect(Number.isInteger(key.worldID)).toBe(true);
+    }
+  });
+
+  it('round-trips every supported WorldId via toUpstreamKey → fromUpstreamKey', () => {
+    for (const id of SUPPORTED_WORLD_IDS) {
       const key = toUpstreamKey(id);
       const reverse = fromUpstreamKey(key.rebootIndex, key.worldID);
       expect(reverse).toBe(id);
     }
   });
 
-  it('assigns a unique numeric worldID to each Heroic WorldId', () => {
-    const numericIds = HEROIC_WORLD_IDS.map((id) => toUpstreamKey(id).worldID);
-    expect(new Set(numericIds).size).toBe(numericIds.length);
+  it('assigns a unique numeric worldID within each reboot bucket', () => {
+    const heroicIds = SUPPORTED_WORLD_IDS.filter((id) => toUpstreamKey(id).rebootIndex === 1).map(
+      (id) => toUpstreamKey(id).worldID,
+    );
+    const interactiveIds = SUPPORTED_WORLD_IDS.filter(
+      (id) => toUpstreamKey(id).rebootIndex === 0,
+    ).map((id) => toUpstreamKey(id).worldID);
+    expect(new Set(heroicIds).size).toBe(heroicIds.length);
+    expect(new Set(interactiveIds).size).toBe(interactiveIds.length);
   });
 
   it('returns null from fromUpstreamKey for an unknown numeric worldID', () => {
     expect(fromUpstreamKey(1, 9999)).toBeNull();
+    expect(fromUpstreamKey(0, 9999)).toBeNull();
   });
 
-  it('returns null from fromUpstreamKey for an Interactive rebootIndex', () => {
-    // Heroic worlds always live at rebootIndex 1; an Interactive (rebootIndex
-    // 0) tuple — even with a numeric id that happens to overlap a Heroic
-    // world — must not resolve to a Heroic WorldId.
+  it('keeps Heroic and Interactive buckets disjoint — same numeric id in the wrong bucket does not resolve', () => {
+    // A Heroic numeric id queried with rebootIndex=0 must NOT resolve to the
+    // Heroic WorldId — and vice versa — even if the numeric values overlap.
     const kronos = toUpstreamKey('heroic-kronos');
-    expect(fromUpstreamKey(0, kronos.worldID)).toBeNull();
+    const reverse = fromUpstreamKey(0, kronos.worldID);
+    expect(reverse === 'heroic-kronos').toBe(false);
+
+    const bera = toUpstreamKey('interactive-bera');
+    const reverseBera = fromUpstreamKey(1, bera.worldID);
+    expect(reverseBera === 'interactive-bera').toBe(false);
   });
 
-  it('narrows isHeroicWorldId to the three Heroic worlds in scope', () => {
-    expect(isHeroicWorldId('heroic-kronos')).toBe(true);
-    expect(isHeroicWorldId('heroic-hyperion')).toBe(true);
-    expect(isHeroicWorldId('heroic-solis')).toBe(true);
+  it('narrows isSupportedWorldId to the six non-CW worlds in scope', () => {
+    expect(isSupportedWorldId('heroic-kronos')).toBe(true);
+    expect(isSupportedWorldId('heroic-hyperion')).toBe(true);
+    expect(isSupportedWorldId('heroic-solis')).toBe(true);
+    expect(isSupportedWorldId('interactive-bera')).toBe(true);
+    expect(isSupportedWorldId('interactive-scania')).toBe(true);
+    expect(isSupportedWorldId('interactive-luna')).toBe(true);
   });
 
-  it('rejects out-of-scope WorldIds (Challenger / Interactive) and garbage', () => {
-    expect(isHeroicWorldId('heroic-challenger')).toBe(false);
-    expect(isHeroicWorldId('interactive-scania')).toBe(false);
-    expect(isHeroicWorldId('interactive-bera')).toBe(false);
-    expect(isHeroicWorldId('interactive-luna')).toBe(false);
-    expect(isHeroicWorldId('interactive-challenger')).toBe(false);
-    expect(isHeroicWorldId('')).toBe(false);
-    expect(isHeroicWorldId(null)).toBe(false);
-    expect(isHeroicWorldId(undefined)).toBe(false);
-    expect(isHeroicWorldId(45)).toBe(false);
+  it('rejects Challenger WorldIds and garbage', () => {
+    expect(isSupportedWorldId('heroic-challenger')).toBe(false);
+    expect(isSupportedWorldId('interactive-challenger')).toBe(false);
+    expect(isSupportedWorldId('')).toBe(false);
+    expect(isSupportedWorldId(null)).toBe(false);
+    expect(isSupportedWorldId(undefined)).toBe(false);
+    expect(isSupportedWorldId(45)).toBe(false);
   });
 });

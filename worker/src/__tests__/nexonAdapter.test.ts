@@ -3,6 +3,7 @@ import { fetchByName, NEXON_RANKING_BASE_URL } from '../nexonAdapter';
 import foundFixture from './fixtures/found.json';
 import notFoundFixture from './fixtures/not-found.json';
 import multiWorldFixture from './fixtures/multi-world.json';
+import multiWorldInteractiveFixture from './fixtures/multi-world-interactive.json';
 
 /**
  * Adapter tests for the Nexon ranking endpoint. Each test stubs
@@ -67,6 +68,21 @@ describe('nexonAdapter.fetchByName', () => {
     const ranks = await fetchByName('Echo', 1);
     expect(ranks).toHaveLength(3);
     expect(ranks.map((r) => r.worldID).sort()).toEqual([45, 46, 47]);
+  });
+
+  it('forwards reboot_index=0 to the upstream URL for Interactive lookups', async () => {
+    const fetchSpy = stubFetchOnce(multiWorldInteractiveFixture);
+    await fetchByName('Echo', 0);
+    const url = fetchSpy.mock.calls[0][0] as string;
+    const parsed = new URL(url);
+    expect(parsed.searchParams.get('reboot_index')).toBe('0');
+  });
+
+  it('returns the Interactive-world rank list so the caller can disambiguate Scania/Bera/Luna', async () => {
+    stubFetchOnce(multiWorldInteractiveFixture);
+    const ranks = await fetchByName('Echo', 0);
+    expect(ranks).toHaveLength(3);
+    expect(ranks.map((r) => r.worldID).sort((a, b) => a - b)).toEqual([0, 1, 19]);
   });
 
   it('throws an UpstreamError when the API returns a non-2xx status', async () => {

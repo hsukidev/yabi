@@ -1,15 +1,15 @@
 /**
- * Character-lookup Worker. Slice 2 swaps the slice-1 stub for the real
- * Nexon adapter wired up to the Cloudflare Cache API. The Worker exposes:
+ * Character-lookup Worker. Slice 3 expands the supported-world surface
+ * to all six non-CW worlds. The Worker exposes:
  *
- *   GET /api/character/:name?worldId=<HeroicWorldId>
+ *   GET /api/character/:name?worldId=<SupportedWorldId>
  *
- * For Heroic worlds (Kronos, Hyperion, Solis) it calls the upstream
- * ranking endpoint via `nexonAdapter.fetchByName`, filters `ranks[]` by
- * the expected numeric `worldID`, and returns the matching rank reshaped
- * into the documented response contract. Successful responses cache for
- * ~6h; 404s cache for ~1h. Interactive worlds and Challenger Worlds are
- * out of scope for slice 2 and respond with 400.
+ * For each supported world it calls the upstream ranking endpoint via
+ * `nexonAdapter.fetchByName` with the bucket's `rebootIndex` (0 for
+ * Interactive, 1 for Heroic), filters `ranks[]` by the expected numeric
+ * `worldID`, and returns the matching rank reshaped into the documented
+ * response contract. Successful responses cache for ~6h; 404s cache for
+ * ~1h. Challenger Worlds remain out of scope and respond 400.
  *
  * The handler is exported with an injectable `HandlerDeps` parameter so
  * the test suite can drive it with a stubbed adapter and an in-memory
@@ -18,7 +18,12 @@
  */
 
 import { fetchByName as defaultFetchByName, UpstreamError } from './nexonAdapter';
-import { fromUpstreamKey, isHeroicWorldId, toUpstreamKey, type HeroicWorldId } from './worldIdMap';
+import {
+  fromUpstreamKey,
+  isSupportedWorldId,
+  toUpstreamKey,
+  type SupportedWorldId,
+} from './worldIdMap';
 
 const SUCCESS_TTL_SECONDS = 21600; // 6 hours
 const NOT_FOUND_TTL_SECONDS = 3600; // 1 hour
@@ -28,7 +33,7 @@ interface CharacterLookupResponse {
   level: number;
   className: string;
   avatarUrl: string;
-  worldId: HeroicWorldId;
+  worldId: SupportedWorldId;
   fetchedAt: string;
 }
 
@@ -63,7 +68,7 @@ export async function handleLookup(request: Request, deps: HandlerDeps = {}): Pr
   const name = decodeURIComponent(routeMatch[1]);
   const worldId = url.searchParams.get('worldId') ?? '';
 
-  if (!isHeroicWorldId(worldId)) {
+  if (!isSupportedWorldId(worldId)) {
     return jsonResponse(400, {
       error: 'invalid-world',
       message: 'unknown or out-of-scope worldId',

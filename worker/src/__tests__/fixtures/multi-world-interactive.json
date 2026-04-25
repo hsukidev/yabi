@@ -1,0 +1,41 @@
+{
+  "totalCount": 3,
+  "ranks": [
+    {
+      "rank": 1,
+      "characterName": "Echo",
+      "characterImgURL": "https://msavatar1.nexon.net/Character/Echo-scania.png",
+      "jobID": 112,
+      "jobName": "Hero",
+      "level": 245,
+      "exp": 700000000,
+      "gap": 0,
+      "worldID": 0,
+      "startRank": 1
+    },
+    {
+      "rank": 2,
+      "characterName": "Echo",
+      "characterImgURL": "https://msavatar1.nexon.net/Character/Echo-bera.png",
+      "jobID": 232,
+      "jobName": "Bishop",
+      "level": 240,
+      "exp": 600000000,
+      "gap": 100000000,
+      "worldID": 1,
+      "startRank": 2
+    },
+    {
+      "rank": 3,
+      "characterName": "Echo",
+      "characterImgURL": "https://msavatar1.nexon.net/Character/Echo-luna.png",
+      "jobID": 412,
+      "jobName": "Night Lord",
+      "level": 235,
+      "exp": 500000000,
+      "gap": 200000000,
+      "worldID": 19,
+      "startRank": 3
+    }
+  ]
+}

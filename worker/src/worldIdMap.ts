@@ -1,23 +1,28 @@
 /**
  * World ID map — owns the bidirectional translation between the SPA's
  * `WorldId` strings and the upstream Nexon API's `{ rebootIndex, worldID }`
- * tuple. Slice 2 covers the three Heroic worlds (Kronos, Hyperion, Solis);
- * Interactive worlds and Challenger Worlds are deliberately out of scope
- * (Challenger Worlds are split across both reboot-index buckets in a way
- * the slice-1/2 contract doesn't address — those mules continue to be
- * hand-edited).
+ * tuple. Slice 3 covers all six non-CW worlds: Heroic (Kronos, Hyperion,
+ * Solis) at `rebootIndex=1` and Interactive (Bera, Scania, Luna) at
+ * `rebootIndex=0`. Challenger Worlds remain out of scope — they are split
+ * across both reboot-index buckets in a way the slice contract doesn't
+ * address, so CW mules continue to be hand-edited.
  *
  * The numeric `worldID`s below were derived empirically by querying
  *
  *   https://www.nexon.com/api/maplestory/no-auth/ranking/v2/na?type=overall
- *     &id=weekly&reboot_index=1&page_index=1&character_name=<known-on-world>
+ *     &id=weekly&reboot_index=<0|1>&page_index=1&character_name=<known>
  *
  * for a known character on each world and recording the `worldID` field
- * the upstream returned. A typo here would silently misroute lookups, so
- * the round-trip + uniqueness invariants are pinned in the test file.
+ * the upstream returned. The Heroic and Interactive buckets are separate
+ * namespaces (different `rebootIndex` values), so numeric ids may overlap
+ * across buckets — uniqueness is only required within a bucket. A typo
+ * here would silently misroute lookups, so the round-trip + uniqueness
+ * invariants are pinned in the test file.
  */
 
 export type HeroicWorldId = 'heroic-kronos' | 'heroic-hyperion' | 'heroic-solis';
+export type InteractiveWorldId = 'interactive-bera' | 'interactive-scania' | 'interactive-luna';
+export type SupportedWorldId = HeroicWorldId | InteractiveWorldId;
 
 export interface UpstreamWorldKey {
   /** `0` for Interactive worlds, `1` for Heroic / Reboot worlds. */
@@ -26,29 +31,32 @@ export interface UpstreamWorldKey {
   worldID: number;
 }
 
-const HEROIC_MAP: Readonly<Record<HeroicWorldId, UpstreamWorldKey>> = {
+const WORLD_MAP: Readonly<Record<SupportedWorldId, UpstreamWorldKey>> = {
   'heroic-kronos': { rebootIndex: 1, worldID: 45 },
   'heroic-hyperion': { rebootIndex: 1, worldID: 46 },
   'heroic-solis': { rebootIndex: 1, worldID: 47 },
+  'interactive-scania': { rebootIndex: 0, worldID: 0 },
+  'interactive-bera': { rebootIndex: 0, worldID: 1 },
+  'interactive-luna': { rebootIndex: 0, worldID: 19 },
 };
 
-export const HEROIC_WORLD_IDS: readonly HeroicWorldId[] = Object.keys(
-  HEROIC_MAP,
-) as HeroicWorldId[];
+export const SUPPORTED_WORLD_IDS: readonly SupportedWorldId[] = Object.keys(
+  WORLD_MAP,
+) as SupportedWorldId[];
 
-const HEROIC_WORLD_ID_SET: ReadonlySet<string> = new Set(HEROIC_WORLD_IDS);
+const SUPPORTED_WORLD_ID_SET: ReadonlySet<string> = new Set(SUPPORTED_WORLD_IDS);
 
-export function isHeroicWorldId(value: unknown): value is HeroicWorldId {
-  return typeof value === 'string' && HEROIC_WORLD_ID_SET.has(value);
+export function isSupportedWorldId(value: unknown): value is SupportedWorldId {
+  return typeof value === 'string' && SUPPORTED_WORLD_ID_SET.has(value);
 }
 
-export function toUpstreamKey(worldId: HeroicWorldId): UpstreamWorldKey {
-  return HEROIC_MAP[worldId];
+export function toUpstreamKey(worldId: SupportedWorldId): UpstreamWorldKey {
+  return WORLD_MAP[worldId];
 }
 
-export function fromUpstreamKey(rebootIndex: number, worldID: number): HeroicWorldId | null {
-  for (const id of HEROIC_WORLD_IDS) {
-    const key = HEROIC_MAP[id];
+export function fromUpstreamKey(rebootIndex: number, worldID: number): SupportedWorldId | null {
+  for (const id of SUPPORTED_WORLD_IDS) {
+    const key = WORLD_MAP[id];
     if (key.rebootIndex === rebootIndex && key.worldID === worldID) return id;
   }
   return null;
