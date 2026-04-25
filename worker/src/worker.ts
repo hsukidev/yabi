@@ -37,8 +37,6 @@ export interface HandlerDeps {
   cache?: Cache;
   /** Adapter swap point for tests. */
   fetchByName?: typeof defaultFetchByName;
-  /** Clock injection so `fetchedAt` is deterministic in tests. */
-  now?: () => Date;
 }
 
 function jsonResponse(status: number, body: unknown, headers: HeadersInit = {}): Response {
@@ -58,24 +56,22 @@ function defaultCache(): Cache | undefined {
 export async function handleLookup(request: Request, deps: HandlerDeps = {}): Promise<Response> {
   const url = new URL(request.url);
 
-  const match = url.pathname.match(/^\/api\/character\/([^/]+)\/?$/);
-  if (!match) {
+  const routeMatch = url.pathname.match(/^\/api\/character\/([^/]+)\/?$/);
+  if (!routeMatch) {
     return jsonResponse(404, { error: 'not-found', message: 'route not found' });
   }
-  const name = decodeURIComponent(match[1]);
-  const worldIdParam = url.searchParams.get('worldId') ?? '';
+  const name = decodeURIComponent(routeMatch[1]);
+  const worldId = url.searchParams.get('worldId') ?? '';
 
-  if (!isHeroicWorldId(worldIdParam)) {
+  if (!isHeroicWorldId(worldId)) {
     return jsonResponse(400, {
       error: 'invalid-world',
       message: 'unknown or out-of-scope worldId',
     });
   }
-  const worldId: HeroicWorldId = worldIdParam;
 
   const cache = deps.cache ?? defaultCache();
   const adapter = deps.fetchByName ?? defaultFetchByName;
-  const now = deps.now ?? (() => new Date());
 
   // Cache check — keyed on the request URL, which already encodes
   // (name, worldId). Hit short-circuits before we touch upstream.
@@ -84,13 +80,12 @@ export async function handleLookup(request: Request, deps: HandlerDeps = {}): Pr
     if (cached) return cached;
   }
 
-  let ranks;
   try {
     const { rebootIndex, worldID: expectedWorldID } = toUpstreamKey(worldId);
-    ranks = await adapter(name, rebootIndex);
-    const match = ranks.find((r) => r.worldID === expectedWorldID);
+    const ranks = await adapter(name, rebootIndex);
+    const rank = ranks.find((r) => r.worldID === expectedWorldID);
 
-    if (!match) {
+    if (!rank) {
       const res = jsonResponse(
         404,
         { error: 'not-found', message: 'character not found on this world' },
@@ -101,12 +96,9 @@ export async function handleLookup(request: Request, deps: HandlerDeps = {}): Pr
     }
 
     // Sanity-check: confirm the matched rank's worldID maps back to the
-    // requested WorldId. This catches an accidental id collision in the
-    // World ID map (the round-trip is also pinned in worldIdMap.test.ts).
-    const reverse = fromUpstreamKey(rebootIndex, match.worldID);
-    if (reverse !== worldId) {
-      // Treat as upstream contract drift — surface as 502 rather than
-      // returning data for the wrong world.
+    // requested WorldId. Catches an accidental id collision in the World
+    // ID map (the round-trip is also pinned in worldIdMap.test.ts).
+    if (fromUpstreamKey(rebootIndex, rank.worldID) !== worldId) {
       return jsonResponse(502, {
         error: 'upstream-mismatch',
         message: 'worldID disagreed with map',
@@ -114,12 +106,12 @@ export async function handleLookup(request: Request, deps: HandlerDeps = {}): Pr
     }
 
     const body: CharacterLookupResponse = {
-      name: match.characterName,
-      level: match.level,
-      className: match.jobName,
-      avatarUrl: match.characterImgURL,
+      name: rank.characterName,
+      level: rank.level,
+      className: rank.jobName,
+      avatarUrl: rank.characterImgURL,
       worldId,
-      fetchedAt: now().toISOString(),
+      fetchedAt: new Date().toISOString(),
     };
     const res = jsonResponse(200, body, {
       'cache-control': `public, max-age=${SUCCESS_TTL_SECONDS}`,
@@ -127,10 +119,10 @@ export async function handleLookup(request: Request, deps: HandlerDeps = {}): Pr
     if (cache) await cache.put(request, res.clone());
     return res;
   } catch (err) {
-    const message = err instanceof UpstreamError ? err.message : 'upstream error';
-    return jsonResponse(502, { error: 'upstream-failed', message });
     // Intentionally do NOT cache 502s — transient upstream failures should
     // not poison subsequent requests.
+    const message = err instanceof UpstreamError ? err.message : 'upstream error';
+    return jsonResponse(502, { error: 'upstream-failed', message });
   }
 }
 
