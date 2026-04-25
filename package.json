@@ -16,7 +16,10 @@
     "deploy:prod": "bash deploy.sh prod",
     "deploy:staging": "bash deploy.sh staging",
     "worktree:prune": "git worktree prune && git branch | grep -vE \"^(main|master)$\" | xargs git branch -D",
-    "prepare": "husky"
+    "prepare": "husky",
+    "sandcastle": "pnpm exec tsx .sandcastle/main.ts",
+    "sandcastle:build-image": "pnpm exec sandcastle build-image",
+    "sandcastle:remove-image": "pnpm exec sandcastle remove-image"
   },
   "dependencies": {
     "@ai-hero/sandcastle": "^0.4.5",
