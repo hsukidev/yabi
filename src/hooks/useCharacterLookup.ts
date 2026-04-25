@@ -20,27 +20,17 @@ import {
 export interface UseCharacterLookupResult {
   loading: boolean;
   run: (args: { name: string; worldId: WorldId }) => Promise<CharacterLookupResult>;
-  /** Cancels any in-flight request. Idempotent. */
-  cancel: () => void;
 }
 
 export function useCharacterLookup(): UseCharacterLookupResult {
   const [loading, setLoading] = useState(false);
   const controllerRef = useRef<AbortController | null>(null);
-  const mountedRef = useRef(true);
 
   useEffect(() => {
-    mountedRef.current = true;
     return () => {
-      mountedRef.current = false;
       controllerRef.current?.abort();
       controllerRef.current = null;
     };
-  }, []);
-
-  const cancel = useCallback(() => {
-    controllerRef.current?.abort();
-    controllerRef.current = null;
   }, []);
 
   const run = useCallback(
@@ -51,9 +41,9 @@ export function useCharacterLookup(): UseCharacterLookupResult {
       controllerRef.current = controller;
       setLoading(true);
       const result = await lookupCharacter({ ...args, signal: controller.signal });
-      if (!mountedRef.current || controller.signal.aborted) {
-        return { kind: 'aborted' };
-      }
+      // `signal.aborted` covers both unmount (cleanup aborts) and a
+      // superseding `run()` call (which aborts before kicking off).
+      if (controller.signal.aborted) return { kind: 'aborted' };
       controllerRef.current = null;
       setLoading(false);
       return result;
@@ -61,5 +51,5 @@ export function useCharacterLookup(): UseCharacterLookupResult {
     [],
   );
 
-  return { loading, run, cancel };
+  return { loading, run };
 }

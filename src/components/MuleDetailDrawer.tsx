@@ -83,7 +83,7 @@ export function MuleDetailDrawer({
                 <img
                   src={mule.avatarUrl || blankCharacterPng}
                   alt={mule.name || 'Mule avatar'}
-                  className="size-[132px]  object-contain shrink-0"
+                  className="size-[132px] object-contain shrink-0"
                   data-testid="drawer-avatar"
                   onError={(e) => {
                     // If a stored avatarUrl 404s, fall back to the blank PNG

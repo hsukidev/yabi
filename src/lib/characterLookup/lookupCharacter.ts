@@ -34,17 +34,13 @@ interface LookupArgs {
   signal?: AbortSignal;
 }
 
-function isAbortError(err: unknown): boolean {
-  return err instanceof Error && (err.name === 'AbortError' || err.name === 'TimeoutError');
-}
-
 export async function lookupCharacter(args: LookupArgs): Promise<CharacterLookupResult> {
   const url = `/api/character/${encodeURIComponent(args.name)}?worldId=${args.worldId}`;
   let response: Response;
   try {
     response = await fetch(url, { signal: args.signal });
   } catch (err) {
-    if (isAbortError(err)) return { kind: 'aborted' };
+    if (err instanceof Error && err.name === 'AbortError') return { kind: 'aborted' };
     return { kind: 'network-error' };
   }
 

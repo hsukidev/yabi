@@ -30,7 +30,7 @@ const VALID_WORLD_IDS = new Set<string>([
 /** Sentinel name that always 404s; tests and manual demos use this. */
 const NOT_FOUND_SENTINEL = 'notfound';
 
-export interface CharacterLookupResponse {
+interface CharacterLookupResponse {
   name: string;
   level: number;
   className: string;
