@@ -1,0 +1,17 @@
+{
+  "totalCount": 1,
+  "ranks": [
+    {
+      "rank": 1,
+      "characterName": "AliceK",
+      "characterImgURL": "https://msavatar1.nexon.net/Character/AliceK.png",
+      "jobID": 232,
+      "jobName": "Bishop",
+      "level": 286,
+      "exp": 1234567890,
+      "gap": 0,
+      "worldID": 45,
+      "startRank": 1
+    }
+  ]
+}
