@@ -109,7 +109,7 @@ describe('createMuleStore', () => {
       vi.advanceTimersByTime(200);
       expect(port.writes).toHaveLength(1);
       const saved = JSON.parse(port.writes[0]);
-      expect(saved).toEqual({ schemaVersion: 4, mules: [m3] });
+      expect(saved).toEqual({ schemaVersion: 5, mules: [m3] });
     });
 
     it('writes exactly once even when the debounce elapses from the last save', () => {
@@ -139,14 +139,14 @@ describe('createMuleStore', () => {
       expect(JSON.parse(port.writes[1]).mules[0].name).toBe('second');
     });
 
-    it('serializes as { schemaVersion: 4, mules }', () => {
+    it('serializes as { schemaVersion: 5, mules }', () => {
       const port = makeFakePort();
       const store = createMuleStore(port);
       const mules = [muleFixture({ selectedBosses: [HARD_LUCID] })];
       store.save(mules);
       vi.advanceTimersByTime(200);
       const saved = JSON.parse(port.writes[0]);
-      expect(saved.schemaVersion).toBe(4);
+      expect(saved.schemaVersion).toBe(5);
       expect(saved.mules).toEqual(mules);
     });
   });

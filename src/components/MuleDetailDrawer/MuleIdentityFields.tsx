@@ -4,6 +4,7 @@ import type { Mule } from '../../types';
 import { ClassAutocomplete } from '../ClassAutocomplete';
 import { GMS_CLASSES } from '../../constants/classes';
 import type { useMuleIdentityDraft } from './hooks/useMuleIdentityDraft';
+import { CharacterLookupButton } from './CharacterLookupButton';
 
 interface Props {
   mule: Mule;
@@ -26,15 +27,18 @@ export function MuleIdentityFields({ mule, identity, onUpdate }: Props) {
         <Label htmlFor="mule-name" className={FIELD_LABEL_CLASS}>
           Character Name
         </Label>
-        <Input
-          id="mule-name"
-          placeholder="Enter name"
-          value={identity.name.draft}
-          maxLength={12}
-          onChange={identity.name.onChange}
-          onBlur={identity.name.onBlur}
-          className={FIELD_INPUT_CLASS}
-        />
+        <div className="flex items-center gap-2">
+          <Input
+            id="mule-name"
+            placeholder="Enter name"
+            value={identity.name.draft}
+            maxLength={12}
+            onChange={identity.name.onChange}
+            onBlur={identity.name.onBlur}
+            className={`${FIELD_INPUT_CLASS} flex-1`}
+          />
+          <CharacterLookupButton mule={mule} draftName={identity.name.draft} onUpdate={onUpdate} />
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">

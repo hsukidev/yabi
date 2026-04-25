@@ -424,9 +424,107 @@ describe('muleMigrate', () => {
   });
 
   describe('schema lineage constant', () => {
-    it('exports CURRENT_SCHEMA_VERSION = 4', () => {
+    it('exports CURRENT_SCHEMA_VERSION = 5', () => {
       // Sanity: guards against an accidental bump without test updates.
-      expect(CURRENT_SCHEMA_VERSION).toBe(4);
+      expect(CURRENT_SCHEMA_VERSION).toBe(5);
+    });
+  });
+
+  describe('schemaVersion 5 → identity round-trip', () => {
+    it('round-trips a canonical v5 payload with avatarUrl', () => {
+      const mules: Mule[] = [
+        {
+          id: 'a',
+          name: 'Test',
+          level: 200,
+          muleClass: 'Hero',
+          selectedBosses: [HARD_LUCID],
+          partySizes: {},
+          active: true,
+          avatarUrl: 'https://msavatar1.nexon.net/Character/example.png',
+        },
+      ];
+      const raw = JSON.stringify({ schemaVersion: 5, mules });
+      expect(muleMigrate(raw)).toEqual(mules);
+    });
+
+    it('omits avatarUrl when absent on a v5 payload', () => {
+      const v5 = {
+        schemaVersion: 5,
+        mules: [
+          {
+            id: 'a',
+            name: 'NoAvatar',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [HARD_LUCID],
+            partySizes: {},
+            active: true,
+          },
+        ],
+      };
+      const [mule] = muleMigrate(JSON.stringify(v5));
+      expect(mule.avatarUrl).toBeUndefined();
+    });
+
+    it('drops a non-string avatarUrl', () => {
+      const v5 = {
+        schemaVersion: 5,
+        mules: [
+          {
+            id: 'a',
+            name: 'BadAvatar',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+            avatarUrl: 42,
+          },
+        ],
+      };
+      expect(muleMigrate(JSON.stringify(v5))[0].avatarUrl).toBeUndefined();
+    });
+
+    it('drops an empty-string avatarUrl', () => {
+      const v5 = {
+        schemaVersion: 5,
+        mules: [
+          {
+            id: 'a',
+            name: 'EmptyAvatar',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+            avatarUrl: '',
+          },
+        ],
+      };
+      expect(muleMigrate(JSON.stringify(v5))[0].avatarUrl).toBeUndefined();
+    });
+  });
+
+  describe('schemaVersion 4 → As-Is Load (legacy mules continue to load)', () => {
+    it('loads a v4 payload unchanged with avatarUrl undefined', () => {
+      const v4 = {
+        schemaVersion: 4,
+        mules: [
+          {
+            id: 'a',
+            name: 'Legacy v4',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [HARD_LUCID],
+            partySizes: {},
+            active: true,
+          },
+        ],
+      };
+      const [mule] = muleMigrate(JSON.stringify(v4));
+      expect(mule.name).toBe('Legacy v4');
+      expect(mule.avatarUrl).toBeUndefined();
     });
   });
 

@@ -127,4 +127,18 @@ describe('MuleDetailDrawer (smoke)', () => {
     expect(screen.queryByText('Delete?')).toBeNull();
     expect(props.onDelete).not.toHaveBeenCalled();
   });
+
+  it('renders mule.avatarUrl in the drawer header when present', () => {
+    renderDrawer({
+      mule: { ...baseMule, avatarUrl: 'https://msavatar1.nexon.net/Character/x.png' },
+    });
+    const img = screen.getByTestId('drawer-avatar') as HTMLImageElement;
+    expect(img.src).toBe('https://msavatar1.nexon.net/Character/x.png');
+  });
+
+  it('falls back to the blank PNG in the drawer header when avatarUrl is absent', () => {
+    renderDrawer();
+    const img = screen.getByTestId('drawer-avatar') as HTMLImageElement;
+    expect(img.src).toMatch(/blank-character/);
+  });
 });

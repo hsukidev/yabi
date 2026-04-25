@@ -1,0 +1,7 @@
+name = "ms-mule-income-tracker-worker"
+main = "src/worker.ts"
+compatibility_date = "2025-04-01"
+
+# Local dev port — must match the Vite dev proxy target in vite.config.ts.
+[dev]
+port = 8787

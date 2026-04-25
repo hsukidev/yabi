@@ -81,9 +81,18 @@ export function MuleDetailDrawer({
             <div className="relative p-8 flex flex-col gap-5 @min-[600px]/drawer:flex-row @min-[600px]/drawer:items-center">
               <div className="flex flex-col items-center gap-3 min-[425px]:flex-row min-[425px]:items-end min-[425px]:gap-5 flex-1 min-w-0">
                 <img
-                  src={blankCharacterPng}
+                  src={mule.avatarUrl || blankCharacterPng}
                   alt={mule.name || 'Mule avatar'}
-                  className="size-[132px]  object-contain shrink-0"
+                  className="size-[132px] object-contain shrink-0"
+                  data-testid="drawer-avatar"
+                  onError={(e) => {
+                    // If a stored avatarUrl 404s, fall back to the blank PNG
+                    // so the drawer header doesn't render a broken-image
+                    // glyph. The fallback is purely cosmetic — the stored
+                    // URL stays on the mule until the next successful
+                    // lookup overwrites it.
+                    e.currentTarget.src = blankCharacterPng;
+                  }}
                 />
                 <div className="min-w-0 w-full text-center min-[425px]:w-auto min-[425px]:flex-1 min-[425px]:text-left">
                   <h2 className="mt-1 font-display text-2xl/tight font-bold  truncate">

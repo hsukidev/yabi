@@ -78,10 +78,16 @@ const MuleCardInner = memo(function MuleCardInner({
 
       <div style={{ display: 'grid', placeItems: 'center', padding: '16px 0 8px', flex: 1 }}>
         <img
-          src={blankCharacterPng}
+          src={mule.avatarUrl || blankCharacterPng}
           alt=""
           aria-hidden
           draggable={false}
+          data-testid="card-avatar"
+          onError={(e) => {
+            // Stored avatarUrl 404? Fall back to the blank PNG so the
+            // roster doesn't show broken-image glyphs.
+            e.currentTarget.src = blankCharacterPng;
+          }}
           style={
             {
               width: 112,

@@ -84,6 +84,18 @@ describe('MuleCharacterCard', () => {
     expect(screen.queryByText('Hero')).toBeNull();
   });
 
+  it('renders mule.avatarUrl when present', () => {
+    renderCard({ avatarUrl: 'https://msavatar1.nexon.net/Character/test.png' });
+    const img = screen.getByTestId('card-avatar') as HTMLImageElement;
+    expect(img.src).toBe('https://msavatar1.nexon.net/Character/test.png');
+  });
+
+  it('falls back to the blank PNG when avatarUrl is absent', () => {
+    renderCard({ avatarUrl: undefined });
+    const img = screen.getByTestId('card-avatar') as HTMLImageElement;
+    expect(img.src).toMatch(/blank-character/);
+  });
+
   it('calls onClick when card is clicked', () => {
     const { onClick } = renderCard();
     fireEvent.click(screen.getByText('TestMule'));

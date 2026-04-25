@@ -77,3 +77,13 @@ export const FALLBACK_WORLD_GROUP: WorldGroup = 'Heroic';
 export function resolveWorldGroup(worldId: string | null | undefined): WorldGroup {
   return findWorld(worldId ?? null)?.group ?? FALLBACK_WORLD_GROUP;
 }
+
+/**
+ * Challenger Worlds are explicitly excluded from character lookup —
+ * the upstream rankings split them across both reboot-index buckets in
+ * a way the slice-1 contract doesn't address, so CW mules continue to
+ * be hand-edited.
+ */
+export function isChallengerWorld(worldId: string | null | undefined): boolean {
+  return worldId === 'heroic-challenger' || worldId === 'interactive-challenger';
+}

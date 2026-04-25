@@ -12,7 +12,7 @@ import { isWorldId } from '../data/worlds';
  * returns `[]` (a **Wipe**).
  */
 
-export const CURRENT_SCHEMA_VERSION = 4;
+export const CURRENT_SCHEMA_VERSION = 5;
 
 /**
  * Which migration path a given **Persisted Root** follows:
@@ -24,10 +24,12 @@ export const CURRENT_SCHEMA_VERSION = 4;
  * - `upgradeV2` — `schemaVersion === 2`. Each `<uuid>:<tier>` key is
  *   resolved against the boss catalog and rewritten as
  *   `<uuid>:<tier>:<cadence>`. Unresolvable entries drop silently.
- * - `asIs` — `schemaVersion === 3 || 4`. Keys are already in the native
- *   shape; `validateMule` still routes them through
+ * - `asIs` — `schemaVersion === 3 || 4 || 5`. Keys are already in the
+ *   native shape; `validateMule` still routes them through
  *   `MuleBossSlate.from(...)` to enforce the **Selection Invariant** and
- *   prune unknown / Legacy Slate Keys.
+ *   prune unknown / Legacy Slate Keys. The v4 → v5 migration is purely
+ *   additive (optional `avatarUrl`); legacy v4 payloads load unchanged
+ *   with `avatarUrl` undefined.
  */
 export type LoadMode = 'wipe' | 'upgradeV2' | 'asIs';
 
@@ -110,6 +112,12 @@ function validateMule(raw: unknown, mode: LoadMode): Mule | null {
     // Absent or invalid `worldId` → omit the field so the mule stays hidden
     // under any World Lens until the user replaces it.
     ...(isWorldId(obj.worldId) ? { worldId: obj.worldId } : {}),
+    // `avatarUrl` lands in schemaVersion 5 as an additive optional field.
+    // Absent or non-string → omit so the card/drawer fall back to the blank
+    // character PNG.
+    ...(typeof obj.avatarUrl === 'string' && obj.avatarUrl.length > 0
+      ? { avatarUrl: obj.avatarUrl }
+      : {}),
   };
 }
 
@@ -142,7 +150,7 @@ function parsePayload(raw: string): { mules: unknown[]; mode: LoadMode } | null 
       const root = parsed as Partial<PersistedRoot>;
       if (Array.isArray(root.mules)) {
         const mode: LoadMode =
-          root.schemaVersion === 4 || root.schemaVersion === 3
+          root.schemaVersion === 5 || root.schemaVersion === 4 || root.schemaVersion === 3
             ? 'asIs'
             : root.schemaVersion === 2
               ? 'upgradeV2'

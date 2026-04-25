@@ -75,4 +75,12 @@ export interface Mule {
    * the user replaces them.
    */
   worldId?: WorldId;
+  /**
+   * URL of the character's avatar PNG, fetched from MapleStory's CDN via
+   * the Worker's character-lookup endpoint. Stored as a plain string —
+   * no proxying or byte caching. Optional so v4 payloads (and mules that
+   * have never been looked up) continue to render the blank-character
+   * fallback.
+   */
+  avatarUrl?: string;
 }
