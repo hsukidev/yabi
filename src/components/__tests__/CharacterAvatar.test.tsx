@@ -64,4 +64,39 @@ describe('CharacterAvatar', () => {
     expect(img.getAttribute('aria-hidden')).toBeNull();
     expect(img.getAttribute('alt')).toBe('HeroOne');
   });
+
+  it('updates the rendered src when avatarUrl changes from undefined to a URL', () => {
+    // Regression: the drawer/card avatar must refresh when a successful
+    // character lookup populates `mule.avatarUrl` after mount.
+    const { rerender } = render(
+      <CharacterAvatar avatarUrl={undefined} size={112} data-testid="avatar" />,
+    );
+    const img = screen.getByTestId('avatar') as HTMLImageElement;
+    expect(img.src).toMatch(/blank-character/);
+    rerender(<CharacterAvatar avatarUrl={REAL_URL} size={112} data-testid="avatar" />);
+    expect(img.src).toBe(REAL_URL);
+  });
+
+  it('attempts a new avatarUrl after a prior URL failed to load', () => {
+    const NEXT_URL = 'https://msavatar1.nexon.net/Character/next.png';
+    const { rerender } = render(
+      <CharacterAvatar avatarUrl={REAL_URL} size={112} data-testid="avatar" />,
+    );
+    const img = screen.getByTestId('avatar') as HTMLImageElement;
+    fireEvent.error(img);
+    expect(img.src).toMatch(/blank-character/);
+    rerender(<CharacterAvatar avatarUrl={NEXT_URL} size={112} data-testid="avatar" />);
+    expect(img.src).toBe(NEXT_URL);
+  });
+
+  it('keeps the placeholder when the same failed avatarUrl is re-applied', () => {
+    const { rerender } = render(
+      <CharacterAvatar avatarUrl={REAL_URL} size={112} data-testid="avatar" />,
+    );
+    const img = screen.getByTestId('avatar') as HTMLImageElement;
+    fireEvent.error(img);
+    expect(img.src).toMatch(/blank-character/);
+    rerender(<CharacterAvatar avatarUrl={REAL_URL} size={112} data-testid="avatar" />);
+    expect(img.src).toMatch(/blank-character/);
+  });
 });

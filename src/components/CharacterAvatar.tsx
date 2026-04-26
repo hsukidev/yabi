@@ -25,7 +25,13 @@ export function CharacterAvatar({
   alt = '',
   'data-testid': testId,
 }: CharacterAvatarProps) {
-  const [displayedSrc, setDisplayedSrc] = useState(avatarUrl || blankCharacterPng);
+  // Track the specific URL that failed to load, not the rendered src — so
+  // when `avatarUrl` changes (e.g. after a successful character lookup) the
+  // new URL is attempted automatically. Keying error state by URL also
+  // means a re-applied known-bad URL stays on the placeholder without a
+  // retry storm.
+  const [erroredSrc, setErroredSrc] = useState<string | null>(null);
+  const displayedSrc = !avatarUrl || erroredSrc === avatarUrl ? blankCharacterPng : avatarUrl;
   const isPlaceholder = displayedSrc === blankCharacterPng;
 
   const isFluid = typeof size === 'string';
@@ -67,10 +73,10 @@ export function CharacterAvatar({
         draggable={false}
         data-testid={testId}
         onError={() => {
-          // Stored avatarUrl 404? Drop to the blank PNG so we don't render a
-          // broken-image glyph. Source-equality is what removes the scale, so
-          // the fallback isn't over-scaled.
-          setDisplayedSrc(blankCharacterPng);
+          // Stored avatarUrl 404? Record the failed URL so render falls
+          // back to the placeholder. A later prop update to a different
+          // URL bypasses this gate and is attempted fresh.
+          setErroredSrc(avatarUrl ?? null);
         }}
         style={imgStyle}
       />
