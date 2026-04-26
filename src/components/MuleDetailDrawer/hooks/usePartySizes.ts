@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { Mule } from '../../../types';
 
 const PARTY_SIZE_MIN = 1;
@@ -25,15 +25,23 @@ export function usePartySizes({
 } {
   const stablePartySizes = useMemo(() => partySizes ?? {}, [partySizes]);
 
+  // Mirror `stablePartySizes` into a ref so `setPartySize` can read the latest
+  // value without listing it as a dep — keeps the callback identity stable
+  // across `partySizes` changes so `BossMatrix.memo` doesn't bail.
+  const stablePartySizesRef = useRef(stablePartySizes);
+  useEffect(() => {
+    stablePartySizesRef.current = stablePartySizes;
+  }, [stablePartySizes]);
+
   const setPartySize = useCallback(
     (family: string, n: number) => {
       if (!muleId) return;
       const clamped = Math.max(PARTY_SIZE_MIN, Math.min(PARTY_SIZE_MAX, n));
       onUpdate(muleId, {
-        partySizes: { ...stablePartySizes, [family]: clamped },
+        partySizes: { ...stablePartySizesRef.current, [family]: clamped },
       });
     },
-    [muleId, stablePartySizes, onUpdate],
+    [muleId, onUpdate],
   );
 
   return { stablePartySizes, setPartySize };
