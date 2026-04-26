@@ -29,6 +29,8 @@ export function Toaster() {
       offset={20}
       gap={10}
       duration={5000}
+      visibleToasts={3}
+      expand
       icons={{ success: <ToastCheckIcon /> }}
       toastOptions={{
         classNames: {
