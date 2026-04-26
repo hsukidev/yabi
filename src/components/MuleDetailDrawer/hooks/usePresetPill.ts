@@ -75,11 +75,18 @@ export function usePresetPill({
   const notifyWeeklyToggle = useCallback(() => setCustomClicked(false), []);
   const notifyReset = useCallback(() => setCustomClicked(false), []);
 
-  return {
-    activePill,
-    clickCustom,
-    clickCanonical,
-    notifyWeeklyToggle,
-    notifyReset,
-  };
+  // Stable identity is part of the contract: `useSlateActions` and
+  // `BossMatrix.memo` rely on it to avoid spurious callback churn.
+  // The four callbacks have empty deps so they're already referentially
+  // stable; listing them keeps the memo correct if that ever changes.
+  return useMemo(
+    () => ({
+      activePill,
+      clickCustom,
+      clickCanonical,
+      notifyWeeklyToggle,
+      notifyReset,
+    }),
+    [activePill, clickCustom, clickCanonical, notifyWeeklyToggle, notifyReset],
+  );
 }

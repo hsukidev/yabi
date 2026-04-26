@@ -101,4 +101,41 @@ describe('usePartySizes', () => {
       expect(result.current.stablePartySizes).not.toBe(first);
     });
   });
+
+  describe('setPartySize identity (ref-stabilized)', () => {
+    it('keeps callback identity stable across rerenders that change partySizes', () => {
+      const onUpdate = vi.fn();
+      const { result, rerender } = renderHook(
+        ({ partySizes }: { partySizes: Record<string, number> | undefined }) =>
+          usePartySizes({ muleId: 'mule-1', partySizes, onUpdate }),
+        { initialProps: { partySizes: { lucid: 2 } as Record<string, number> | undefined } },
+      );
+      const first = result.current.setPartySize;
+      rerender({ partySizes: { lucid: 3 } });
+      expect(result.current.setPartySize).toBe(first);
+      rerender({ partySizes: { lucid: 4, 'black-mage': 5 } });
+      expect(result.current.setPartySize).toBe(first);
+    });
+
+    it('reads the latest partySizes through a ref when invoked after a rerender', () => {
+      const onUpdate = vi.fn();
+      const { result, rerender } = renderHook(
+        ({ partySizes }: { partySizes: Record<string, number> | undefined }) =>
+          usePartySizes({ muleId: 'mule-1', partySizes, onUpdate }),
+        {
+          initialProps: {
+            partySizes: { lucid: 2 } as Record<string, number> | undefined,
+          },
+        },
+      );
+      const captured = result.current.setPartySize;
+      rerender({ partySizes: { lucid: 4, 'black-mage': 5 } });
+      act(() => {
+        captured('lucid', 6);
+      });
+      expect(onUpdate).toHaveBeenCalledWith('mule-1', {
+        partySizes: { lucid: 6, 'black-mage': 5 },
+      });
+    });
+  });
 });

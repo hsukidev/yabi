@@ -158,4 +158,45 @@ describe('usePresetPill', () => {
     );
     expect(result.current.activePill).toBe('CUSTOM');
   });
+
+  it('returned object identity is stable across rerenders that do not change activePill', () => {
+    const { result, rerender } = renderHook(
+      ({ selectedBosses, weeklyCount }: { selectedBosses: string[]; weeklyCount: number }) =>
+        usePresetPill({ muleId: 'mule-1', selectedBosses, weeklyCount }),
+      {
+        initialProps: {
+          selectedBosses: CRA_KEYS,
+          weeklyCount: weeklyCountOf(CRA_KEYS),
+        },
+      },
+    );
+
+    const first = result.current;
+    expect(first.activePill).toBe('CRA');
+
+    // Rerender with a new array reference but identical contents — activePill
+    // is still 'CRA', so the returned object identity must be preserved.
+    rerender({
+      selectedBosses: [...CRA_KEYS],
+      weeklyCount: weeklyCountOf(CRA_KEYS),
+    });
+
+    expect(Object.is(result.current, first)).toBe(true);
+  });
+
+  it('returned object identity changes when an action shifts activePill', () => {
+    const { result } = renderHook(() =>
+      usePresetPill({ muleId: 'mule-1', selectedBosses: [], weeklyCount: 0 }),
+    );
+
+    const before = result.current;
+    expect(before.activePill).toBeNull();
+
+    act(() => {
+      result.current.clickCustom();
+    });
+
+    expect(result.current.activePill).toBe('CUSTOM');
+    expect(Object.is(result.current, before)).toBe(false);
+  });
 });
