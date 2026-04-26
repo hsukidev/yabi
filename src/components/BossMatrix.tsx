@@ -120,7 +120,7 @@ function PartyStepper({
   );
 }
 
-function FamilyMatrixRow({
+const FamilyMatrixRow = memo(function FamilyMatrixRow({
   family,
   partySize,
   onToggleKey,
@@ -222,7 +222,7 @@ function FamilyMatrixRow({
       })}
     </div>
   );
-}
+});
 
 export const BossMatrix = memo(function BossMatrix({
   families,
