@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, type CSSProperties } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Check, Trash2 } from 'lucide-react';
@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { Mule } from '../types';
 import { useIncome } from '../modules/income';
-import blankCharacterPng from '../assets/blank-character.png';
+import { CharacterAvatar } from './CharacterAvatar';
 
 interface MuleCharacterCardProps {
   mule: Mule;
@@ -77,26 +77,12 @@ const MuleCardInner = memo(function MuleCardInner({
       )}
 
       <div style={{ display: 'grid', placeItems: 'center', padding: '16px 0 8px', flex: 1 }}>
-        <img
-          src={mule.avatarUrl || blankCharacterPng}
+        <CharacterAvatar
+          key={mule.id}
+          avatarUrl={mule.avatarUrl}
+          size={112}
           alt=""
-          aria-hidden
-          draggable={false}
           data-testid="card-avatar"
-          onError={(e) => {
-            // Stored avatarUrl 404? Fall back to the blank PNG so the
-            // roster doesn't show broken-image glyphs.
-            e.currentTarget.src = blankCharacterPng;
-          }}
-          style={
-            {
-              width: 112,
-              height: 112,
-              objectFit: 'contain',
-              WebkitUserDrag: 'none',
-              userDrag: 'none',
-            } as CSSProperties
-          }
         />
       </div>
 
