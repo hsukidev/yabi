@@ -160,11 +160,8 @@ html[data-theme-swap] *::after {
   /* ── Density defaults ── */
   --card-pad: 16px;
   --roster-cols: 6;
+  --roster-gap: 16px;
   --mule-name-size: 14px;
-  /* Shared floor read by both MuleCharacterCard and AddCard so their heights
-   * can't drift; also fed into the roster grid's grid-auto-rows so a lone
-   * AddCard row keeps the same floor. */
-  --roster-card-min-height: 280px;
 }
 
 .dark {
@@ -237,51 +234,63 @@ html[data-theme-swap] *::after {
 
 [data-density='comfy'] {
   --card-pad: 16px;
-  --roster-cols: 1;
+  --roster-cols: 2;
+  --roster-gap: 16px;
   --mule-name-size: 14px;
-  --roster-card-min-height: 280px;
 }
 [data-density='compact'] {
   --card-pad: 12px;
-  --roster-cols: 1;
+  --roster-cols: 2;
+  --roster-gap: 16px;
   --mule-name-size: 13px;
-  --roster-card-min-height: 240px;
 }
 
-/* Responsive roster column counts — step down as the viewport narrows so
- * cards stack instead of crushing. Max columns match the prior density
- * defaults (6 comfy, 8 compact) at ≥ 1536px.
+/* Responsive roster column counts:
+ *   <625px: 2 cols (phone floor)
+ *   625–849px: 3 cols (both densities)
+ *   850–1023px: 4 cols (both densities)
+ *   1024–1099px: 4 / 5 (comfy / compact diverge)
+ *   1100–1279px: 5 / 6
+ *   ≥1280px: 6 / 8
  *
- * The density toggle is hidden below the 3-col breakpoint: at ≤ 2 cards/row
- * the comfy/compact distinction buys no visible layout difference. Keep the
- * toggle's visibility rule co-located with this breakpoint so adjustments
- * stay in sync. */
+ * Density toggle stays hidden below 768px: at the 2/3-col floor, the comfy
+ * vs. compact distinction buys no visible column difference. */
 [data-testid='density-toggle'] {
   display: none;
 }
-@media (min-width: 480px) {
-  [data-density='comfy'] {
-    --roster-cols: 2;
-  }
-  [data-density='compact'] {
-    --roster-cols: 2;
-  }
-}
-@media (min-width: 768px) {
+@media (min-width: 625px) {
   [data-density='comfy'] {
     --roster-cols: 3;
   }
   [data-density='compact'] {
-    --roster-cols: 4;
+    --roster-cols: 3;
   }
+}
+@media (min-width: 768px) {
   [data-testid='density-toggle'] {
     display: inline-flex;
   }
 }
-@media (min-width: 1024px) {
+@media (min-width: 850px) {
   [data-density='comfy'] {
     --roster-cols: 4;
   }
+  [data-density='compact'] {
+    --roster-cols: 4;
+  }
+}
+
+/* Phone-mode rules (<480px): card padding tightens to 8px and the roster gap
+ * shrinks to 8px to give each card more inner width on the smallest viewports.
+ * Overrides the density-driven defaults (16px / 12px). */
+@media (max-width: 479px) {
+  [data-density='comfy'],
+  [data-density='compact'] {
+    --card-pad: 8px;
+    --roster-gap: 8px;
+  }
+}
+@media (min-width: 1024px) {
   [data-density='compact'] {
     --roster-cols: 5;
   }

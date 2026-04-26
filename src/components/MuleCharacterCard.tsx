@@ -7,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import type { Mule } from '../types';
 import { useIncome } from '../modules/income';
 import { CharacterAvatar } from './CharacterAvatar';
+import { ROSTER_CARD_ASPECT, ROSTER_CARD_MIN_HEIGHT } from './rosterCardContract';
 
 interface MuleCharacterCardProps {
   mule: Mule;
@@ -247,7 +248,8 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
         className="panel cursor-pointer"
         style={{
           padding: 'var(--card-pad, 16px)',
-          minHeight: 'var(--roster-card-min-height, 260px)',
+          minHeight: ROSTER_CARD_MIN_HEIGHT,
+          aspectRatio: ROSTER_CARD_ASPECT,
           display: 'flex',
           flexDirection: 'column',
           transform: panelTransform,

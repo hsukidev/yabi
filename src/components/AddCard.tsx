@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ROSTER_CARD_ASPECT, ROSTER_CARD_MIN_HEIGHT } from './rosterCardContract';
 
 interface AddCardProps {
   onClick: () => void;
@@ -31,10 +32,8 @@ export function AddCard({ onClick }: AddCardProps) {
         display: 'grid',
         placeItems: 'center',
         transition: 'border-color 150ms, background 150ms',
-        // Reads the shared roster-card height contract (see index.css) so
-        // AddCard can't drift from the mule-card floor — and a lone AddCard
-        // row still renders at the same height thanks to grid-auto-rows.
-        minHeight: 'var(--roster-card-min-height, 260px)',
+        minHeight: ROSTER_CARD_MIN_HEIGHT,
+        aspectRatio: ROSTER_CARD_ASPECT,
       }}
     >
       <div style={{ display: 'grid', placeItems: 'center', gap: 10 }}>

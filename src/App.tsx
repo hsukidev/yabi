@@ -223,11 +223,10 @@ export function AppContent() {
                 {...dragPaintHandlers}
               >
                 <div
-                  className="grid gap-4"
+                  className="grid"
                   style={{
                     gridTemplateColumns: 'repeat(var(--roster-cols, 6), minmax(0, 1fr))',
-                    // Prevents a lone AddCard row from collapsing below the mule-card floor.
-                    gridAutoRows: 'minmax(var(--roster-card-min-height, 260px), auto)',
+                    gap: 'var(--roster-gap, 16px)',
                   }}
                 >
                   {mulesInWorld.map((mule) => (
