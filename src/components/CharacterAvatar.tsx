@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from 'react';
+import { memo, useState, type CSSProperties } from 'react';
 import blankCharacterPng from '../assets/blank-character.png';
 
 // Nexon character avatar PNGs are square (e.g. 96×96) with the figure padded
@@ -22,7 +22,7 @@ interface CharacterAvatarProps {
   'data-testid'?: string;
 }
 
-export function CharacterAvatar({
+function CharacterAvatarImpl({
   avatarUrl,
   size,
   figureScale = 1,
@@ -91,3 +91,5 @@ export function CharacterAvatar({
     </div>
   );
 }
+
+export const CharacterAvatar = memo(CharacterAvatarImpl);
