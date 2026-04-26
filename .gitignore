@@ -27,3 +27,6 @@ dist-ssr
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+# Claude
+.claude/settings.local.json
