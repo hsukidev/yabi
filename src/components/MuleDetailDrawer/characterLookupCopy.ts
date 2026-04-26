@@ -12,8 +12,7 @@ export const CHARACTER_LOOKUP_COPY = {
   },
   notFound: {
     title: 'Character not found',
-    description:
-      "This character isn't in this week's ranking. They must have logged in within the last week to appear in the weekly ranking — log in and try again.",
+    description: 'Unable to locate character.',
   },
   lookupFailed: {
     title: 'Lookup failed',

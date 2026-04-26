@@ -19,6 +19,10 @@ export function ClassAutocomplete({ id, value, options, onSelect, placeholder, c
   // pre-commit `draft` via closure) doesn't revert it.
   const justCommittedRef = useRef(false);
 
+  useEffect(() => {
+    setDraft(value);
+  }, [value]);
+
   const filtered = useMemo(
     () => (draft ? options.filter((o) => o.toLowerCase().includes(draft.toLowerCase())) : options),
     [draft, options],

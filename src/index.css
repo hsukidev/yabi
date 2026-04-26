@@ -143,6 +143,8 @@ html[data-theme-swap] *::after {
   --success: var(--chart-4);
   --success-soft: color-mix(in srgb, var(--success) 14%, transparent);
   --success-glow: color-mix(in srgb, var(--success) 25%, transparent);
+  --destructive-soft: color-mix(in oklab, var(--destructive) 14%, transparent);
+  --destructive-glow: color-mix(in oklab, var(--destructive) 25%, transparent);
 
   --radius: 0.875rem;
 
@@ -220,6 +222,8 @@ html[data-theme-swap] *::after {
    * soft/glow opacities so the accent bar reads clearly against deep amber. */
   --success-soft: color-mix(in srgb, var(--success) 18%, transparent);
   --success-glow: color-mix(in srgb, var(--success) 30%, transparent);
+  --destructive-soft: color-mix(in oklab, var(--destructive) 18%, transparent);
+  --destructive-glow: color-mix(in oklab, var(--destructive) 30%, transparent);
 
   --sidebar: #15161d;
   --sidebar-foreground: #eeecda;
@@ -773,6 +777,19 @@ html[data-theme-swap] *::after {
 }
 [data-sonner-toast].mule-toast[data-styled='true'] [data-button]:hover {
   background: var(--accent-soft);
+}
+/* Error variant: swap the left accent, icon tile, and outer glow to the
+ * destructive token so failures (e.g. character-not-found) read with the
+ * same red language as the bulk-delete action bar. */
+[data-sonner-toast].mule-toast[data-styled='true'][data-type='error'] {
+  border-left-color: var(--destructive);
+  box-shadow:
+    0 16px 36px -20px var(--destructive-glow),
+    0 2px 8px -4px rgba(0, 0, 0, 0.12);
+}
+[data-sonner-toast].mule-toast[data-styled='true'][data-type='error'] [data-icon] {
+  background: var(--destructive-soft);
+  color: var(--destructive);
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
