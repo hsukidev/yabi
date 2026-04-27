@@ -167,9 +167,9 @@ html[data-theme-swap] *::after {
    * donation CTA reads as its own element rather than blending into the brand
    * palette. ── */
   --coffee-fg: #5d3a1f;
-  --coffee-bg: rgba(93, 58, 31, 0.05);
+  --coffee-bg: var(--surface-2);
   --coffee-border: rgba(93, 58, 31, 0.18);
-  --coffee-bg-hover: rgba(93, 58, 31, 0.1);
+  --coffee-bg-hover: var(--surface-2);
   --coffee-border-hover: var(--accent-raw);
   --coffee-glow: rgba(93, 58, 31, 0.18);
 
