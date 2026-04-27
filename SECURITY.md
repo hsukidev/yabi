@@ -65,7 +65,7 @@ below what an attacker needs to do real damage. Tunable later from telemetry.
 ### 2. Lock the Worker behind a shared-secret header
 
 **Concern.** Even with Caddy rate-limiting, the Worker is publicly callable at
-`https://ms-mule-income-tracker-worker.mules-henesys.workers.dev/api/...`.
+`https://<your-worker-slug>.workers.dev/api/...`.
 Attackers bypass the VPS entirely and the rate limit doesn't apply.
 
 **Decision.** nginx attaches `X-Proxy-Auth: <secret>` to every proxied call;
@@ -306,7 +306,7 @@ extraction).
 3. [ ] Create / update `~/app/.env` on the VPS (chmod 600):
    ```
    PROXY_SECRET=<paste the same 64-char value>
-   WORKER_HOST=ms-mule-income-tracker-worker.mules-henesys.workers.dev
+   WORKER_HOST=<your-worker-slug>.workers.dev
    ```
 4. [ ] Apply on the VPS — nginx restarts with the new template values:
    ```bash
@@ -315,7 +315,7 @@ extraction).
    ```
 5. [ ] Verify direct hit to workers.dev is rejected:
    ```bash
-   curl -i https://ms-mule-income-tracker-worker.mules-henesys.workers.dev/api/character/Alice?worldId=heroic-kronos
+   curl -i https://<your-worker-slug>.workers.dev/api/character/Alice?worldId=heroic-kronos
    ```
    Expect `404`.
 6. [ ] Verify proxied lookup still works in the browser at
@@ -412,11 +412,11 @@ The fourth event, `proxy-secret-missing`, was already in `29898a5`.
 
    ```bash
    # proxy-auth-fail
-   curl https://ms-mule-income-tracker-worker.mules-henesys.workers.dev/api/character/Alice?worldId=heroic-kronos
+   curl https://<your-worker-slug>.workers.dev/api/character/Alice?worldId=heroic-kronos
 
    # invalid-name
    curl -H "x-proxy-auth: $SECRET" \
-     "https://ms-mule-income-tracker-worker.mules-henesys.workers.dev/api/character/x?worldId=heroic-kronos"
+     "https://<your-worker-slug>.workers.dev/api/character/x?worldId=heroic-kronos"
    ```
 
    Expect one JSON event line per request in the tail.
@@ -462,7 +462,7 @@ The fourth event, `proxy-secret-missing`, was already in `29898a5`.
 
 #### 6c. Cloudflare Workers usage alert
 
-1. [ ] Cloudflare dashboard → **Workers & Pages → `ms-mule-income-tracker-worker` → Settings → Notifications**.
+1. [ ] Cloudflare dashboard → **Workers & Pages → `<your-worker>` → Settings → Notifications**.
 2. [ ] Add a usage notification at **50,000 requests/day** (50% of the
        100k free-tier ceiling).
 3. [ ] Confirm email destination is your account email.
@@ -482,7 +482,7 @@ The fourth event, `proxy-secret-missing`, was already in `29898a5`.
 6.  [ ] Confirm the **old** secret is now rejected:
     ```bash
     curl -i -H "x-proxy-auth: <OLD_VALUE>" \
-      "https://ms-mule-income-tracker-worker.mules-henesys.workers.dev/api/character/Alice?worldId=heroic-kronos"
+      "https://<your-worker-slug>.workers.dev/api/character/Alice?worldId=heroic-kronos"
     ```
     Expect `404` (and a `proxy-auth-fail` event in `wrangler tail`).
 
