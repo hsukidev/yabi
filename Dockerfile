@@ -1,6 +1,15 @@
 # Stage 1 — build
-FROM node:22-alpine AS builder
+# Debian-based (not alpine) because Puppeteer's bundled headless Chrome,
+# used by scripts/prerender.mjs to capture SSR markup, expects glibc and
+# the Chromium runtime libs installed below.
+FROM node:22-bookworm-slim AS builder
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      libnss3 libnspr4 libatk-bridge2.0-0 libdrm2 libxkbcommon0 \
+      libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 \
+      libasound2 libpango-1.0-0 libcairo2 libcups2 \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 
@@ -8,7 +17,7 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm build
+RUN pnpm build:prerender
 
 # Stage 2 — serve
 FROM nginx:alpine AS runner
