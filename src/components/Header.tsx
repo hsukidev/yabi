@@ -1,6 +1,7 @@
 import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider';
 import { WorldSelect } from './WorldSelect';
+import { BuyMeCoffeeButton } from './BuyMeCoffeeButton';
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
@@ -53,6 +54,7 @@ export function Header() {
             >
               {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
             </button>
+            <BuyMeCoffeeButton />
           </div>
         </div>
       </div>
