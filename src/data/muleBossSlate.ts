@@ -417,6 +417,29 @@ export class MuleBossSlate {
   }
 
   /**
+   * Predicate gate for the **Slate Toggle** action: returns `false` only
+   * when applying `toggle(key)` would push a slate that is already at the
+   * **Weekly Crystal Cap** past the cap — i.e. a Weekly Cadence *add* with
+   * no existing same-`(bossId, weekly)` sibling. Tier-swaps (count
+   * unchanged), removes (count decreases), Daily/Monthly Cadence toggles,
+   * and unresolvable keys all return `true`. The handler layer
+   * (`useSlateActions.toggleKey`) consults this predicate to surface a
+   * rejection toast; `toggle()` itself is unchanged and does not enforce
+   * the cap on its own.
+   */
+  canToggle(key: SlateKey): boolean {
+    const parsed = parseKey(key);
+    if (!parsed) return true;
+    if (parsed.cadence !== 'weekly') return true;
+    if (this.weeklyCount < WEEKLY_CRYSTAL_CAP) return true;
+    const hasSibling = this.keys.some((k) => {
+      const p = parseKey(k);
+      return p?.bossId === parsed.bossId && p.cadence === 'weekly';
+    });
+    return hasSibling;
+  }
+
+  /**
    * Return a new **Boss Slate** after toggling `key`:
    *
    * - Same key present → deselect.

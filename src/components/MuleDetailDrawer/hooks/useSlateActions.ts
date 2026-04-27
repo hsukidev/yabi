@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import type { Mule } from '../../../types';
 import { MuleBossSlate } from '../../../data/muleBossSlate';
 import { conform, isPresetActive } from '../../../data/bossPresets';
+import { toast } from '../../../lib/toast';
 import type { PresetKey } from '../../MatrixToolbar';
 
 /**
@@ -20,7 +21,11 @@ export interface PresetPillView {
  * channels for the drawer's Boss Matrix view, and routes the preset-pill
  * override-clearing notifications at the right moments:
  *
- * - `toggleKey(key)` calls `slate.toggle(key)`. When `next.weeklyCount !==
+ * - `toggleKey(key)` consults `slate.canToggle(key)` first and surfaces a
+ *   `toast.error("Weekly cap reached", …)` when the predicate rejects (a
+ *   weekly *add* on a slate already at the **Weekly Crystal Cap**),
+ *   skipping `onUpdate` and the preset-pill notification entirely. When
+ *   permitted it calls `slate.toggle(key)`. When `next.weeklyCount !==
  *   slate.weeklyCount` (a weekly toggle that can change canonical match
  *   status), it fires `pill.notifyWeeklyToggle()` so the **Custom Preset**
  *   override clears and the derivation reasserts. Daily toggles never
@@ -58,6 +63,10 @@ export function useSlateActions({
   const toggleKey = useCallback(
     (key: string) => {
       if (!muleId) return;
+      if (!slate.canToggle(key)) {
+        toast.error('Weekly cap reached', { description: 'Remove a boss first.' });
+        return;
+      }
       const next = slate.toggle(key);
       if (next.weeklyCount !== slate.weeklyCount) pill.notifyWeeklyToggle();
       onUpdate(muleId, { selectedBosses: next.keys as string[] });

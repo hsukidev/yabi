@@ -1,5 +1,14 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
+
+const toastMock = vi.hoisted(() => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
+vi.mock('../../../../lib/toast', () => toastMock);
 
 import { useSlateActions } from '../useSlateActions';
 import { bosses } from '../../../../data/bosses';
@@ -30,6 +39,30 @@ function makePill() {
 function makeSlate(keys: readonly string[]): MuleBossSlate {
   return MuleBossSlate.from(keys);
 }
+
+/**
+ * Pick `count` distinct-family Weekly Cadence keys, in `bosses[]`
+ * declaration order. Used to fabricate at-the-cap slates for the
+ * Weekly Crystal Cap gate tests.
+ */
+function pickDistinctWeeklyKeys(count: number): string[] {
+  const picks: string[] = [];
+  for (const b of bosses) {
+    const diff = b.difficulty.find((d) => d.cadence === 'weekly');
+    if (!diff) continue;
+    picks.push(`${b.id}:${diff.tier}:weekly`);
+    if (picks.length === count) break;
+  }
+  if (picks.length < count) {
+    throw new Error(`Only found ${picks.length} weekly-capable families`);
+  }
+  return picks;
+}
+
+beforeEach(() => {
+  toastMock.toast.error.mockClear();
+  toastMock.toast.success.mockClear();
+});
 
 describe('useSlateActions', () => {
   describe('toggleKey', () => {
@@ -161,6 +194,145 @@ describe('useSlateActions', () => {
       });
       expect(onUpdate).not.toHaveBeenCalled();
       expect(pill.notifyWeeklyToggle).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('toggleKey — Weekly Crystal Cap gate', () => {
+    it('rejects a 15th weekly add: fires toast.error with the documented copy and skips onUpdate/pill', () => {
+      const fourteen = pickDistinctWeeklyKeys(14);
+      const fifteenth = pickDistinctWeeklyKeys(15)[14];
+      const onUpdate = vi.fn();
+      const pill = makePill();
+      const { result } = renderHook(() =>
+        useSlateActions({
+          muleId: 'mule-1',
+          selectedBosses: fourteen,
+          slate: makeSlate(fourteen),
+          pill,
+          onUpdate,
+        }),
+      );
+
+      act(() => {
+        result.current.toggleKey(fifteenth);
+      });
+      expect(toastMock.toast.error).toHaveBeenCalledTimes(1);
+      expect(toastMock.toast.error).toHaveBeenCalledWith('Weekly cap reached', {
+        description: 'Remove a boss first.',
+      });
+      expect(onUpdate).not.toHaveBeenCalled();
+      expect(pill.notifyWeeklyToggle).not.toHaveBeenCalled();
+    });
+
+    it('allows a weekly tier-swap at the cap: no toast, onUpdate fires', () => {
+      const fourteen = pickDistinctWeeklyKeys(14);
+      const lucidIdx = fourteen.findIndex((k) => k.startsWith(`${LUCID_BOSS.id}:`));
+      expect(lucidIdx).toBeGreaterThanOrEqual(0);
+      fourteen[lucidIdx] = NORMAL_LUCID;
+      const onUpdate = vi.fn();
+      const pill = makePill();
+      const { result } = renderHook(() =>
+        useSlateActions({
+          muleId: 'mule-1',
+          selectedBosses: fourteen,
+          slate: makeSlate(fourteen),
+          pill,
+          onUpdate,
+        }),
+      );
+
+      act(() => {
+        result.current.toggleKey(HARD_LUCID);
+      });
+      expect(toastMock.toast.error).not.toHaveBeenCalled();
+      expect(onUpdate).toHaveBeenCalledTimes(1);
+    });
+
+    it('allows a weekly remove at the cap: no toast, onUpdate fires', () => {
+      const fourteen = pickDistinctWeeklyKeys(14);
+      const onUpdate = vi.fn();
+      const pill = makePill();
+      const { result } = renderHook(() =>
+        useSlateActions({
+          muleId: 'mule-1',
+          selectedBosses: fourteen,
+          slate: makeSlate(fourteen),
+          pill,
+          onUpdate,
+        }),
+      );
+
+      act(() => {
+        result.current.toggleKey(fourteen[0]);
+      });
+      expect(toastMock.toast.error).not.toHaveBeenCalled();
+      expect(onUpdate).toHaveBeenCalledTimes(1);
+    });
+
+    it('allows a daily add at the weekly cap: no toast, onUpdate fires', () => {
+      const fourteen = pickDistinctWeeklyKeys(14);
+      const onUpdate = vi.fn();
+      const pill = makePill();
+      const { result } = renderHook(() =>
+        useSlateActions({
+          muleId: 'mule-1',
+          selectedBosses: fourteen,
+          slate: makeSlate(fourteen),
+          pill,
+          onUpdate,
+        }),
+      );
+
+      act(() => {
+        result.current.toggleKey(HORNTAIL_DAILY);
+      });
+      expect(toastMock.toast.error).not.toHaveBeenCalled();
+      expect(onUpdate).toHaveBeenCalledTimes(1);
+    });
+
+    it('allows a monthly add at the weekly cap: no toast, onUpdate fires', () => {
+      const fourteen = pickDistinctWeeklyKeys(14);
+      const blackMageBoss = bosses.find((b) => b.family === 'black-mage')!;
+      const bmExtreme = `${blackMageBoss.id}:extreme:monthly`;
+      const onUpdate = vi.fn();
+      const pill = makePill();
+      const { result } = renderHook(() =>
+        useSlateActions({
+          muleId: 'mule-1',
+          selectedBosses: fourteen,
+          slate: makeSlate(fourteen),
+          pill,
+          onUpdate,
+        }),
+      );
+
+      act(() => {
+        result.current.toggleKey(bmExtreme);
+      });
+      expect(toastMock.toast.error).not.toHaveBeenCalled();
+      expect(onUpdate).toHaveBeenCalledTimes(1);
+    });
+
+    it('rapid repeat clicks at the cap fire one toast per click (no dedupe at this layer)', () => {
+      const fourteen = pickDistinctWeeklyKeys(14);
+      const fifteenth = pickDistinctWeeklyKeys(15)[14];
+      const pill = makePill();
+      const { result } = renderHook(() =>
+        useSlateActions({
+          muleId: 'mule-1',
+          selectedBosses: fourteen,
+          slate: makeSlate(fourteen),
+          pill,
+          onUpdate: vi.fn(),
+        }),
+      );
+
+      act(() => {
+        result.current.toggleKey(fifteenth);
+        result.current.toggleKey(fifteenth);
+        result.current.toggleKey(fifteenth);
+      });
+      expect(toastMock.toast.error).toHaveBeenCalledTimes(3);
     });
   });
 

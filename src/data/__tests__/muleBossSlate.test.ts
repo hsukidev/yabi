@@ -176,6 +176,90 @@ describe('MuleBossSlate.toggle', () => {
   });
 });
 
+describe('MuleBossSlate.canToggle', () => {
+  /**
+   * Pick `count` distinct-family Weekly Cadence keys, in `bosses[]` declaration
+   * order. Local helper — keeps these tests readable without coupling to the
+   * other suites' picks.
+   */
+  function pickDistinctWeeklyKeys(count: number): SlateKey[] {
+    const picks: SlateKey[] = [];
+    for (const b of bosses) {
+      const diff = b.difficulty.find((d) => d.cadence === 'weekly');
+      if (!diff) continue;
+      picks.push(key(b.id, diff.tier));
+      if (picks.length === count) break;
+    }
+    if (picks.length < count) {
+      throw new Error(`Only found ${picks.length} weekly-capable families`);
+    }
+    return picks;
+  }
+
+  it('returns true when adding a weekly to a slate below the cap', () => {
+    const slate = MuleBossSlate.from([key(LUCID, 'hard')]);
+    expect(slate.canToggle(key(WILL, 'hard'))).toBe(true);
+  });
+
+  it('returns true for the 14th weekly add (cap is reached, not exceeded)', () => {
+    const thirteen = pickDistinctWeeklyKeys(13);
+    const slate = MuleBossSlate.from(thirteen);
+    expect(slate.weeklyCount).toBe(13);
+    const fourteenth = pickDistinctWeeklyKeys(14)[13];
+    expect(slate.canToggle(fourteenth)).toBe(true);
+  });
+
+  it('returns false for a weekly add when already at the Weekly Crystal Cap', () => {
+    const fourteen = pickDistinctWeeklyKeys(14);
+    const slate = MuleBossSlate.from(fourteen);
+    expect(slate.weeklyCount).toBe(14);
+    const fifteenth = pickDistinctWeeklyKeys(15)[14];
+    expect(slate.canToggle(fifteenth)).toBe(false);
+  });
+
+  it('returns true for a weekly tier-swap at the cap (count unchanged)', () => {
+    // Build a 14-weekly slate that includes Normal Lucid; swapping to Hard
+    // Lucid stays in the same (bossId, weekly) bucket → count unchanged.
+    const fourteen = pickDistinctWeeklyKeys(14);
+    // Replace Lucid's pick with Normal Lucid so the swap target (Hard) is a
+    // higher tier on the same bucket.
+    const lucidIdx = fourteen.findIndex((k) => k.startsWith(`${LUCID}:`));
+    expect(lucidIdx).toBeGreaterThanOrEqual(0);
+    fourteen[lucidIdx] = key(LUCID, 'normal');
+    const slate = MuleBossSlate.from(fourteen);
+    expect(slate.weeklyCount).toBe(14);
+    expect(slate.canToggle(key(LUCID, 'hard'))).toBe(true);
+  });
+
+  it('returns true for a weekly remove at the cap (count decreases)', () => {
+    const fourteen = pickDistinctWeeklyKeys(14);
+    const slate = MuleBossSlate.from(fourteen);
+    expect(slate.weeklyCount).toBe(14);
+    expect(slate.canToggle(fourteen[0])).toBe(true);
+  });
+
+  it('returns true for a daily add at the weekly cap', () => {
+    const fourteen = pickDistinctWeeklyKeys(14);
+    const slate = MuleBossSlate.from(fourteen);
+    expect(slate.weeklyCount).toBe(14);
+    expect(slate.canToggle(key(VELLUM, 'normal'))).toBe(true);
+  });
+
+  it('returns true for a monthly add (Black Mage) at the weekly cap', () => {
+    const fourteen = pickDistinctWeeklyKeys(14);
+    const slate = MuleBossSlate.from(fourteen);
+    expect(slate.weeklyCount).toBe(14);
+    expect(slate.canToggle(`${BLACK_MAGE}:extreme:monthly`)).toBe(true);
+  });
+
+  it('returns true for an unresolvable key (gate stays out of the way)', () => {
+    const fourteen = pickDistinctWeeklyKeys(14);
+    const slate = MuleBossSlate.from(fourteen);
+    expect(slate.canToggle('not-a-real-key')).toBe(true);
+    expect(slate.canToggle(`${LUCID}:mythic:weekly`)).toBe(true);
+  });
+});
+
 describe('MuleBossSlate.view', () => {
   it('returns families in the curated Matrix display order', () => {
     const view = MuleBossSlate.EMPTY.view();
