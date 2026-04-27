@@ -741,9 +741,7 @@ html[data-theme-swap] *::after {
   background: var(--surface);
   color: var(--foreground);
   border-radius: var(--radius);
-  box-shadow:
-    0 16px 36px -20px var(--success-glow),
-    0 2px 8px -4px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px -4px rgba(0, 0, 0, 0.12);
 }
 [data-sonner-toast].mule-toast[data-styled='true'] [data-icon] {
   width: 26px;
@@ -792,9 +790,6 @@ html[data-theme-swap] *::after {
  * same red language as the bulk-delete action bar. */
 [data-sonner-toast].mule-toast[data-styled='true'][data-type='error'] {
   border-left-color: var(--destructive);
-  box-shadow:
-    0 16px 36px -20px var(--destructive-glow),
-    0 2px 8px -4px rgba(0, 0, 0, 0.12);
 }
 [data-sonner-toast].mule-toast[data-styled='true'][data-type='error'] [data-icon] {
   background: var(--destructive-soft);
