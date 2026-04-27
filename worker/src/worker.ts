@@ -82,6 +82,7 @@ export async function handleLookup(request: Request, deps: HandlerDeps = {}): Pr
   // route from anyone hitting *.workers.dev directly.
   if (deps.proxySecret) {
     if (request.headers.get('x-proxy-auth') !== deps.proxySecret) {
+      console.log(JSON.stringify({ event: 'proxy-auth-fail' }));
       return jsonResponse(404, { error: 'not-found', message: 'route not found' });
     }
   }
@@ -117,6 +118,9 @@ export async function handleLookup(request: Request, deps: HandlerDeps = {}): Pr
   // cached for an hour so a name-flooder pays one Worker invocation per
   // unique malformed name, never an upstream call.
   if (!VALID_NAME.test(name)) {
+    // Truncate name in logs — full attacker-controlled names risk log
+    // injection / disk fill if Nexon-side bounds are wider than ours.
+    console.log(JSON.stringify({ event: 'invalid-name', name: name.slice(0, 20) }));
     const res = jsonResponse(
       400,
       { error: 'invalid-name', message: 'name must be 2–13 alphanumeric chars' },
@@ -168,6 +172,8 @@ export async function handleLookup(request: Request, deps: HandlerDeps = {}): Pr
     // Intentionally do NOT cache 502s — transient upstream failures should
     // not poison subsequent requests.
     const message = err instanceof UpstreamError ? err.message : 'upstream error';
+    const status = err instanceof UpstreamError ? err.status : undefined;
+    console.log(JSON.stringify({ event: 'upstream-failed', status, message }));
     return jsonResponse(502, { error: 'upstream-failed', message });
   }
 }
