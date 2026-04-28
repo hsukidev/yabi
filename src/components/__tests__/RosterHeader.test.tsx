@@ -1,7 +1,16 @@
-import { describe, expect, it, vi } from 'vitest';
-import { render, screen, fireEvent } from '../../test/test-utils';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  render,
+  screen,
+  fireEvent,
+  within,
+  mockMatchMedia,
+  restoreMatchMedia,
+} from '../../test/test-utils';
 import { DensityProvider } from '../../context/DensityProvider';
 import { RosterHeader } from '../RosterHeader';
+
+const mockCoarsePointer = () => mockMatchMedia((q) => q.includes('pointer: coarse'));
 
 function renderHeader(overrides: Partial<Parameters<typeof RosterHeader>[0]> = {}) {
   const props = {
@@ -158,6 +167,71 @@ describe('RosterHeader', () => {
       const dot = container.querySelector('[data-bulk-pulse-dot]') as HTMLElement;
       expect(dot.style.background.toLowerCase()).not.toContain('#e05040');
       expect(dot.style.background).toContain('destructive');
+    });
+
+    describe('on touch devices', () => {
+      afterEach(restoreMatchMedia);
+
+      // The pill is portaled into document.body (to escape an ancestor
+      // transform that would re-anchor position:fixed), so query it from the
+      // document instead of the test container.
+      const queryPill = () =>
+        document.body.querySelector('[data-bulk-delete-pill]') as HTMLElement | null;
+
+      it('moves Delete out of the action bar into a floating pill', () => {
+        mockCoarsePointer();
+        const { container } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        const bar = container.querySelector('[data-bulk-action-bar]') as HTMLElement;
+        expect(within(bar).queryByRole('button', { name: /^delete/i })).toBeNull();
+        expect(queryPill()).toBeTruthy();
+      });
+
+      it('floating pill reads "Delete N" when count > 0', () => {
+        mockCoarsePointer();
+        renderHeader({ bulkMode: true, selectedCount: 3 });
+        const btn = within(queryPill()!).getByRole('button') as HTMLButtonElement;
+        expect(btn.textContent?.trim()).toBe('Delete 3');
+        expect(btn.disabled).toBe(false);
+      });
+
+      it('does not render the pill at count 0 (in-bar chip and text remain the only affordances)', () => {
+        mockCoarsePointer();
+        renderHeader({ bulkMode: true, selectedCount: 0 });
+        expect(queryPill()).toBeNull();
+      });
+
+      it('clicking the floating pill calls onDelete', () => {
+        mockCoarsePointer();
+        const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        fireEvent.click(within(queryPill()!).getByRole('button'));
+        expect(props.onDelete).toHaveBeenCalled();
+      });
+
+      // The instructional text + count-chip swap roles on touch: at narrow
+      // widths the chip hides (count is on the floating pill instead) and the
+      // text remains visible.
+      it('shows the instructional text at every width (no max-[524.99px]:hidden)', () => {
+        mockCoarsePointer();
+        const { container } = renderHeader({ bulkMode: true });
+        const textSpan = Array.from(container.querySelectorAll('span')).find(
+          (el) => el.textContent?.trim() === 'Select or drag to delete',
+        );
+        expect(textSpan).toBeTruthy();
+        expect(textSpan!.className).not.toContain('max-[524.99px]:hidden');
+      });
+
+      it('hides the count chip at narrow widths via max-[524.99px]:hidden', () => {
+        mockCoarsePointer();
+        const { container } = renderHeader({ bulkMode: true, selectedCount: 4 });
+        const chip = container.querySelector('[data-bulk-selection-pill]') as HTMLElement;
+        expect(chip).toBeTruthy();
+        expect(chip.className).toContain('max-[524.99px]:hidden');
+      });
+    });
+
+    it('does not render the floating Delete pill on non-touch (default jsdom)', () => {
+      renderHeader({ bulkMode: true, selectedCount: 2 });
+      expect(document.body.querySelector('[data-bulk-delete-pill]')).toBeNull();
     });
   });
 });

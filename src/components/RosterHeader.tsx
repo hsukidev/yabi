@@ -1,5 +1,7 @@
+import { createPortal } from 'react-dom';
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useMatchMedia } from '../hooks/useMatchMedia';
 import { DensityToggle } from './DensityToggle';
 
 export interface RosterHeaderProps {
@@ -27,70 +29,104 @@ export function RosterHeader({
   onCancel,
   onDelete,
 }: RosterHeaderProps) {
+  const isTouch = useMatchMedia('(pointer: coarse)');
   if (bulkMode) {
     return (
-      <div
-        data-bulk-action-bar
-        className="mb-4 flex items-center justify-between gap-3"
-        style={{
-          padding: '10px 14px',
-          borderRadius: 10,
-          border: `1px solid ${destructiveAlpha(35)}`,
-          background: destructiveAlpha(10),
-          animation: 'bulk-slide 0.22s ease-out',
-        }}
-      >
-        <div className="flex items-center gap-3 min-w-0">
-          <span
-            aria-hidden
-            data-bulk-pulse-dot
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: destructive,
-              boxShadow: `0 0 10px ${destructive}`,
-              animation: 'bulk-pulse 1.5s ease-in-out infinite',
-              flexShrink: 0,
-            }}
-          />
-          <span
-            className="max-[524.99px]:hidden"
-            style={{
-              color: destructive,
-              fontWeight: 500,
-              fontSize: 14,
-              letterSpacing: '-0.01em',
-            }}
-          >
-            Select or drag to delete
-          </span>
-          <span
-            data-bulk-selection-pill
-            style={{
-              padding: '3px 9px',
-              borderRadius: 999,
-              background: destructiveAlpha(20),
-              border: `1px solid ${destructiveAlpha(40)}`,
-              color: destructive,
-              fontFamily: 'JetBrains Mono, monospace',
-              fontSize: 10,
-              letterSpacing: '0.12em',
-              fontWeight: 500,
-            }}
-          >
-            {selectedCount} SELECTED
-          </span>
+      <>
+        <div
+          data-bulk-action-bar
+          className="mb-4 flex items-center justify-between gap-3"
+          style={{
+            padding: '10px 14px',
+            borderRadius: 10,
+            border: `1px solid ${destructiveAlpha(35)}`,
+            background: destructiveAlpha(10),
+            animation: 'bulk-slide 0.22s ease-out',
+          }}
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <span
+              aria-hidden
+              data-bulk-pulse-dot
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: destructive,
+                boxShadow: `0 0 10px ${destructive}`,
+                animation: 'bulk-pulse 1.5s ease-in-out infinite',
+                flexShrink: 0,
+              }}
+            />
+            <span
+              className={isTouch ? '' : 'max-[524.99px]:hidden'}
+              style={{
+                color: destructive,
+                fontWeight: 500,
+                fontSize: 14,
+                letterSpacing: '-0.01em',
+              }}
+            >
+              Select or drag to delete
+            </span>
+            <span
+              data-bulk-selection-pill
+              className={isTouch ? 'max-[524.99px]:hidden' : ''}
+              style={{
+                padding: '3px 9px',
+                borderRadius: 999,
+                background: destructiveAlpha(20),
+                border: `1px solid ${destructiveAlpha(40)}`,
+                color: destructive,
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: 10,
+                letterSpacing: '0.12em',
+                fontWeight: 500,
+              }}
+            >
+              {selectedCount} SELECTED
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            {!isTouch && (
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={onDelete}
+                disabled={selectedCount === 0}
+              >
+                Delete
+              </Button>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button size="sm" variant="destructive" onClick={onDelete} disabled={selectedCount === 0}>
-            Delete
-          </Button>
-        </div>
-      </div>
+        {isTouch &&
+          selectedCount > 0 &&
+          // Portal to body — an ancestor section uses `animate-in
+          // slide-in-from-bottom-4`, whose residual `transform` creates a
+          // containing block that re-anchors `position: fixed` away from the
+          // viewport. Rendering into `document.body` sidesteps that.
+          createPortal(
+            <div
+              data-bulk-delete-pill
+              className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-10 px-6"
+            >
+              <Button
+                variant="destructive"
+                size="lg"
+                className="w-full h-10 rounded-full shadow-lg"
+                style={{ background: destructive, color: 'white' }}
+                onClick={onDelete}
+              >
+                Delete {selectedCount}
+              </Button>
+            </div>,
+            document.body,
+          )}
+      </>
     );
   }
 

@@ -1,5 +1,6 @@
 import { type ReactElement } from 'react';
 import { render as rtlRender, type RenderOptions } from '@testing-library/react';
+import { vi } from 'vitest';
 import { ThemeProvider } from '@/context/ThemeProvider';
 import { DensityProvider } from '@/context/DensityProvider';
 import { WorldProvider } from '@/context/WorldProvider';
@@ -37,3 +38,29 @@ export function render(
 }
 
 export { screen, fireEvent, waitFor, within, act } from '@testing-library/react';
+
+// Test helper: install a window.matchMedia mock whose `matches` is decided by
+// `predicate`. Pair with `restoreMatchMedia()` in afterEach to drop back to
+// jsdom's default (matchMedia missing → useMatchMedia returns false).
+export function mockMatchMedia(predicate: (query: string) => boolean) {
+  const mock = vi.fn().mockImplementation((query: string) => ({
+    matches: predicate(query),
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    configurable: true,
+    value: mock,
+  });
+}
+
+export function restoreMatchMedia() {
+  // @ts-expect-error - drop back to jsdom default
+  delete window.matchMedia;
+}

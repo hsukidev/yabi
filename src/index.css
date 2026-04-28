@@ -816,11 +816,19 @@ html[data-theme-swap] *::after {
  * sits at safe-area+12px above the bottom edge. Lift sonner's mobile bottom
  * offset above the pill so toasts don't overlap the dismiss control. The
  * extra :has() segment beats sonner's stamped specificity without
- * !important. Desktop is unaffected by the @media gate. */
+ * !important. Desktop is unaffected by the @media gate. The same applies
+ * to the Bulk-Delete floating pill on touch devices. */
 @media (max-width: 600px) {
-  body:has([data-mule-detail-drawer]) [data-sonner-toaster][data-y-position='bottom'] {
+  body:has([data-mule-detail-drawer]) [data-sonner-toaster][data-y-position='bottom'],
+  body:has([data-bulk-delete-pill]) [data-sonner-toaster][data-y-position='bottom'] {
     bottom: calc(env(safe-area-inset-bottom) + 4rem);
   }
+}
+/* When the floating bulk-delete pill is rendered, add bottom padding to the
+ * document so the last roster card scrolls clear of the pill at max scroll
+ * (matches the Close pill's max-sm:pb-24 trick on the drawer's scroll body). */
+body:has([data-bulk-delete-pill]) {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 6rem);
 }
 
 /* ──────────────────────────────────────────────────────────────────────────

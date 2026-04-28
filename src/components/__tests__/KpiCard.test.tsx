@@ -1,36 +1,22 @@
-import { describe, expect, it, vi, afterEach } from 'vitest';
-import { render, screen, within, fireEvent } from '@/test/test-utils';
+import { describe, expect, it, afterEach } from 'vitest';
+import {
+  render,
+  screen,
+  within,
+  fireEvent,
+  mockMatchMedia,
+  restoreMatchMedia,
+} from '@/test/test-utils';
 import { KpiCard } from '../KpiCard';
 import type { Mule } from '../../types';
 import { bosses } from '../../data/bosses';
 
 function mockNarrowViewport(maxPx: number) {
-  const mock = vi.fn().mockImplementation((query: string) => {
+  mockMatchMedia((query) => {
     const m = /max-width:\s*([\d.]+)px/.exec(query);
     const queryMaxPx = m ? Number(m[1]) : Infinity;
-    return {
-      matches: maxPx <= queryMaxPx,
-      media: query,
-      onchange: null,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    };
+    return maxPx <= queryMaxPx;
   });
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    configurable: true,
-    value: mock,
-  });
-}
-
-function restoreMatchMedia() {
-  // Delete back to jsdom default (matchMedia missing → KpiCard's try/catch
-  // returns false, which is the "wide" layout).
-  // @ts-expect-error - we intentionally remove the property
-  delete window.matchMedia;
 }
 
 const HARD_LUCID = `${bosses.find((b) => b.family === 'lucid')!.id}:hard:weekly`;

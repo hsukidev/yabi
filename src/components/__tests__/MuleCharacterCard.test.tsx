@@ -1,5 +1,12 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '../../test/test-utils';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  mockMatchMedia,
+  restoreMatchMedia,
+} from '../../test/test-utils';
 import { DndContext } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { MuleCharacterCard } from '../MuleCharacterCard';
@@ -274,28 +281,9 @@ describe('MuleCharacterCard', () => {
     });
 
     describe('on touch devices', () => {
-      function mockCoarsePointer() {
-        const mock = vi.fn().mockImplementation((query: string) => ({
-          matches: query.includes('pointer: coarse'),
-          media: query,
-          onchange: null,
-          addEventListener: vi.fn(),
-          removeEventListener: vi.fn(),
-          addListener: vi.fn(),
-          removeListener: vi.fn(),
-          dispatchEvent: vi.fn(),
-        }));
-        Object.defineProperty(window, 'matchMedia', {
-          writable: true,
-          configurable: true,
-          value: mock,
-        });
-      }
+      const mockCoarsePointer = () => mockMatchMedia((q) => q.includes('pointer: coarse'));
 
-      afterEach(() => {
-        // @ts-expect-error - drop back to jsdom default so other tests get false
-        delete window.matchMedia;
-      });
+      afterEach(restoreMatchMedia);
 
       it('does not render the quick-delete trigger when (pointer: coarse) matches', () => {
         mockCoarsePointer();

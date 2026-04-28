@@ -167,6 +167,7 @@ export function MuleDetailDrawer({
                           border: '1px solid color-mix(in srgb, var(--border) 60%, transparent)',
                           color: mule.active ? 'var(--chart-4)' : 'var(--muted-foreground)',
                           minWidth: 96,
+                          minHeight: 38,
                           justifyContent: 'center',
                           cursor: 'pointer',
                         }}
@@ -227,7 +228,7 @@ export function MuleDetailDrawer({
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 @max-[599.99px]/drawer:size-9 @max-[599.99px]/drawer:[&_svg]:size-5"
                     onClick={del.request}
                   >
                     <Trash2 />
