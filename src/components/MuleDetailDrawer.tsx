@@ -99,6 +99,7 @@ export function MuleDetailDrawer({
       <SheetContent
         side="right"
         showCloseButton={false}
+        data-mule-detail-drawer
         className="data-[side=right]:w-screen data-[side=right]:max-w-none data-[side=right]:sm:w-[640px] data-[side=right]:sm:max-w-[640px] overflow-y-auto p-0 bg-(--surface)"
         style={{ borderLeft: '1px solid var(--border)' }}
       >

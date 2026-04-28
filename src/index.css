@@ -812,6 +812,16 @@ html[data-theme-swap] *::after {
   background: var(--destructive-soft);
   color: var(--destructive);
 }
+/* While the Mule Detail Drawer is open on a phone, a floating Close pill
+ * sits at safe-area+12px above the bottom edge. Lift sonner's mobile bottom
+ * offset above the pill so toasts don't overlap the dismiss control. The
+ * extra :has() segment beats sonner's stamped specificity without
+ * !important. Desktop is unaffected by the @media gate. */
+@media (max-width: 600px) {
+  body:has([data-mule-detail-drawer]) [data-sonner-toaster][data-y-position='bottom'] {
+    bottom: calc(env(safe-area-inset-bottom) + 4rem);
+  }
+}
 
 /* ──────────────────────────────────────────────────────────────────────────
  * Character Cards never participate in native text selection. Dragging from
