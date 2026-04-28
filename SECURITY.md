@@ -812,7 +812,12 @@ in seconds.
   and PUTs the updated firewall. SSH (port 22) and any other rules are
   untouched. Empty-list and `success != true` guards refuse to push if the
   Cloudflare fetch returns unexpected data (would otherwise zero the
-  allowlist and lock the firewall closed for HTTP/HTTPS).
+  allowlist and lock the firewall closed for HTTP/HTTPS). A second
+  defensive guard refuses to push if the GET returns empty `droplet_ids`
+  and `tags` — typically a sign the token lacks `droplet:read` and DO has
+  redacted the response, which if PUT back would detach the firewall from
+  the droplet. Set `FORCE_EMPTY_ATTACHMENT=1` to bypass for genuinely
+  unattached firewalls.
 - `.github/workflows/refresh-cf-firewall.yml` — runs the script monthly via
   cron (`0 4 1 * *`) and on `workflow_dispatch`. `DO_TOKEN` and
   `DO_FIREWALL_ID` come from GitHub Secrets, never touch the VPS.
@@ -821,7 +826,12 @@ in seconds.
 
 1. [ ] Generate a DO Personal Access Token: DigitalOcean dashboard →
        **API → Tokens → Generate New Token**. Custom scopes:
-       `firewall:read`, `firewall:update`. Nothing else.
+       `firewall:read`, `firewall:update`, **and** `droplet:read`.
+       The `droplet:read` scope is required even when the firewall has
+       no droplets attached — DO's `firewall:update` validates against
+       droplet ownership preemptively, returning 403 with
+       `"Following additional permisisions are needed droplet:read"`
+       if it's missing.
 2. [ ] Look up the firewall ID:
 
    ```bash

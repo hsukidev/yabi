@@ -34,6 +34,25 @@ CURRENT=$(curl -fsSL \
 
 echo "      Got firewall '$(echo "$CURRENT" | jq -r '.firewall.name')'"
 
+# Defensive guard: if the GET returns no droplet attachments AND no tags,
+# either (a) the firewall is genuinely unattached (a no-op anyway), or (b)
+# the token lacks droplet:read scope and DO has redacted the lists. PUTting
+# the empty arrays back would detach any droplets the firewall was applied
+# to. Refuse unless the caller explicitly opts in.
+DROPLET_COUNT=$(echo "$CURRENT" | jq '.firewall.droplet_ids | length')
+TAG_COUNT=$(echo "$CURRENT" | jq '.firewall.tags | length')
+
+if [[ "$DROPLET_COUNT" -eq 0 && "$TAG_COUNT" -eq 0 && "${FORCE_EMPTY_ATTACHMENT:-}" != "1" ]]; then
+  echo "Refusing to push: firewall has empty droplet_ids and tags." >&2
+  echo "Either the firewall is unattached (no-op) or the token lacks" >&2
+  echo "droplet:read scope and DO redacted the response. Pushing this" >&2
+  echo "back would detach any droplets the firewall was applied to." >&2
+  echo "If the firewall is genuinely unattached, set FORCE_EMPTY_ATTACHMENT=1." >&2
+  exit 1
+fi
+
+echo "      Attachments: $DROPLET_COUNT droplet(s), $TAG_COUNT tag(s)"
+
 NEW=$(echo "$CURRENT" | jq --argjson cf "$CF_ALL" '
   .firewall
   | .inbound_rules |= map(
