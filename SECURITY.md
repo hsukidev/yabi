@@ -10,13 +10,15 @@ Anonymous, single-user, browser-local SPA (state lives in `localStorage` —
 no accounts, no backend DB). One Cloudflare Worker endpoint
 (`worker/src/worker.ts`) at `GET /api/character/:name?worldId=…` proxies to
 Nexon's no-auth ranking API and caches success responses for 6h, 404s for 1h.
-The SPA is served from a self-hosted VPS (Docker → Caddy → nginx) and `/api/*`
-is reverse-proxied through nginx to `*.workers.dev`. Avatar URLs from Nexon are
-rendered directly into `<img src>` (`src/components/CharacterAvatar.tsx:77`).
+The SPA is served from a self-hosted VPS (Docker → Caddy → nginx) fronted by
+Cloudflare's free proxy (orange cloud), and `/api/*` is reverse-proxied through
+nginx to `*.workers.dev`. The DO Cloud Firewall accepts HTTP/HTTPS only from
+Cloudflare's published IP ranges. Avatar URLs from Nexon are rendered directly
+into `<img src>` (`src/components/CharacterAvatar.tsx:77`).
 
 ## Threat model
 
-Four concerns, in priority order:
+Five concerns, in priority order:
 
 1. **(a) Cost / quota burn.** An attacker iterates random `name` values to
    defeat the 6h cache, forcing 1:1 Worker→Nexon fanout. Outcomes: Cloudflare
@@ -28,10 +30,16 @@ Four concerns, in priority order:
 3. **(d) ToS / reputation.** Unattended scraping with a generic
    `User-Agent` is exactly the traffic shape Nexon would block first.
 4. **(b) Service availability.** If (a) is contained, the Worker stays healthy.
+5. **(e) VPS bandwidth / availability.** Volumetric DDoS or L7 flood saturates
+   the droplet's NIC or burns through DigitalOcean's bandwidth allowance,
+   racking up overage charges or knocking the SPA offline. Caddy's rate limit
+   (decision 1) catches abusive request patterns but only after bytes have
+   already crossed the NIC.
 
-One mitigation stack — rate limit + origin gate + input validation +
-self-identification — collapses (a), (b), (c) together. (d) is one extra
-header.
+Decisions 1–6 collapse (a), (b), (c) together; (d) is one extra header.
+(e) is handled separately by decision 7 (Cloudflare proxy in front of the SPA
+
+- origin firewall lockdown).
 
 ## Pre-flight: the false alarm
 
@@ -203,6 +211,59 @@ secret should be a 60-second operation:
 1. `openssl rand -hex 32` — new secret
 2. `wrangler secret put PROXY_SECRET` — paste new value
 3. Update VPS env var, `docker compose up -d` — nginx restarts with new value
+
+### 7. Cloudflare proxy in front of the SPA + origin IP lockdown
+
+**Concern.** Caddy's 30/min/IP rate limit (decision 1) catches abusive
+patterns but does so after the bytes have already crossed the droplet's
+NIC and counted against DigitalOcean's bandwidth allowance. A volumetric
+flood — L3/L4 SYN flood, or 10k IPs each hitting just under the 30/min
+threshold — would saturate the network interface and rack up overage
+charges before Caddy ever returns a 429. The Worker-side mitigations
+don't help: the bottleneck is the VPS itself.
+
+**Decision.** Front the SPA with Cloudflare's free proxy (orange cloud)
+on both `mules.henesys.io` and `snow-yeti.henesys.io`, configure Caddy
+to trust Cloudflare as a proxy so `{client_ip}` resolves to the real
+visitor, and lock the DO Cloud Firewall to accept HTTP/HTTPS only from
+Cloudflare's published IP ranges. Automate monthly refresh of the
+firewall's CF range list via GitHub Actions.
+
+**Why this layer.** Cloudflare's edge absorbs L3/L4 and L7 DDoS at no
+cost on the free tier — bytes never reach the droplet, never count
+against DO bandwidth, and never saturate the NIC. Static SPA assets are
+also cached at the edge, so legitimate traffic to the origin drops
+sharply.
+
+**Why also lock the origin firewall.** Without it, attackers can find
+the droplet's IP through historical DNS, certificate transparency logs,
+or simple Censys-style scans, and hit the origin directly. The DO
+firewall enforces "Cloudflare is the only path in," making the proxy
+genuinely unbypassable.
+
+**Why `trusted_proxies cloudflare` over a static IP list in Caddy.**
+The `caddy-cloudflare-ip` module auto-fetches Cloudflare's published
+ranges every 12h. A static list drifts silently; the module refreshes
+continuously inside the long-running process and does not need its own
+cron.
+
+**Why automate the firewall refresh from GitHub Actions, not the VPS.**
+Putting a DO API token on the VPS expands the blast radius of a droplet
+compromise (token can disable the firewall). GHA keeps the token in
+GitHub Secrets, runs in an ephemeral runner, and emails on failure. The
+script's empty-list guard refuses to push if the Cloudflare fetch
+returns nothing, preventing a silent zeroing of the allowlist.
+
+**Why monthly cadence.** Cloudflare's IP ranges change rarely (years
+between updates). Daily would be free and harmless; monthly is enough
+given the change frequency. If Cloudflare publishes a new range,
+worst-case staleness is ~30 days of new visitors briefly hitting a
+firewall block — acceptable for this app's threat profile.
+
+**What this won't do.** Doesn't protect against an attack that targets
+Cloudflare itself, or one that shapes traffic to evade the free-tier
+WAF defaults (rules-based, not behavioral). Sufficient for a low-value,
+non-contested target; revisit if real abuse is observed in telemetry.
 
 ---
 
@@ -486,6 +547,253 @@ The fourth event, `proxy-secret-missing`, was already in `29898a5`.
     ```
     Expect `404` (and a `proxy-auth-fail` event in `wrangler tail`).
 
+### 7. Cloudflare proxy + origin lockdown
+
+#### 7a. Cloudflare zone setup (proxy off)
+
+**Code.** None — Cloudflare configuration is runtime-only.
+
+**Runtime:**
+
+1. [ ] Cloudflare dashboard → **Add a Site** → enter `henesys.io` → choose
+       **Free** plan.
+2. [ ] Audit imported DNS records: confirm `mules` and `snow-yeti` A records
+       point to the droplet IP, and any MX / TXT records you already had are
+       present.
+3. [ ] For every record, click the orange cloud → set to grey (DNS only).
+       The proxy stays off until 7c.
+4. [ ] Update nameservers at the registrar to the two Cloudflare nameservers
+       shown.
+5. [ ] Wait for `Status: Active` email (usually <1h, can be up to 24h).
+6. [ ] Sanity-check: `curl -I https://mules.henesys.io/` should respond
+       exactly as before (no `cf-ray` header yet — that arrives in 7c).
+
+### 7b. Caddy custom build with `caddy-cloudflare-ip`
+
+**Code.** None — Caddy build & config are runtime-only on the VPS.
+
+**Runtime (on VPS, in `~/app/`):**
+
+1. [ ] Add the Cloudflare-IP module to `~/app/caddy/Dockerfile`:
+
+   ```dockerfile
+   FROM caddy:builder AS builder
+   RUN xcaddy build \
+       --with github.com/mholt/caddy-ratelimit \
+       --with github.com/WeidiDeng/caddy-cloudflare-ip
+
+   FROM caddy:latest
+   COPY --from=builder /usr/bin/caddy /usr/bin/caddy
+   ```
+
+   Verify line continuations: `cat -A ~/app/caddy/Dockerfile` — every
+   continuation line must end in ` \$`. A `\` mid-line silently drops the
+   second `--with` and the cloudflare-ip module never gets compiled in.
+
+2. [ ] Update `~/app/Caddyfile` — add a global `servers` block at the top,
+       and change `{client.ip}` to `{client_ip}` (the underscore form is the
+       canonical placeholder that respects `trusted_proxies`). End state below
+       includes the log blocks from 6b for completeness:
+
+   ```caddyfile
+   # Cloudflare Proxy send client ip to caddy
+   {
+       servers {
+           trusted_proxies cloudflare {
+               interval 12h
+               timeout 15s
+           }
+           client_ip_headers CF-Connecting-IP X-Forwarded-For
+       }
+   }
+
+   # Production Site
+   mules.henesys.io {
+       log {
+           output file /var/log/caddy/mules-access.log {
+               roll_size 10MiB
+               roll_keep 5
+               roll_keep_for 720h
+           }
+           format json
+       }
+
+       @api path /api/*
+       rate_limit @api {
+           zone api_per_ip {
+               key {client_ip}
+               events 30
+               window 1m
+           }
+       }
+       reverse_proxy mules:80
+   }
+
+   # Staging Site
+   snow-yeti.henesys.io {
+       log {
+           output file /var/log/caddy/snow-yeti-access.log {
+               roll_size 10MiB
+               roll_keep 5
+               roll_keep_for 720h
+           }
+           format json
+       }
+
+       @api path /api/*
+       rate_limit @api {
+           zone api_per_ip_staging {
+               key {client_ip}
+               events 30
+               window 1m
+           }
+       }
+       reverse_proxy snow-yeti:80
+   }
+   ```
+
+3. [ ] Rebuild without cache and verify the module is in the binary:
+
+   ```bash
+   docker compose build --no-cache caddy
+   docker compose run --rm caddy caddy list-modules | grep -iE 'rate_limit|cloudflare'
+   ```
+
+   Expect both `http.handlers.rate_limit` and `http.ip_sources.cloudflare`.
+   If `cloudflare` is missing, the build did not pick up the module — check
+   the Dockerfile line continuations before continuing.
+
+4. [ ] Validate the Caddyfile:
+
+   ```bash
+   docker compose run --rm caddy caddy validate --config /etc/caddy/Caddyfile
+   ```
+
+5. [ ] Apply: `docker compose up -d caddy`.
+
+### 7c. Flip proxy ON — staging first, then production
+
+**Code.** None.
+
+**Runtime:**
+
+1. [ ] Cloudflare dashboard → **SSL/TLS → Overview** → set mode to
+       **Full (strict)**. Anything looser causes a redirect loop or downgrades
+       the origin hop to plaintext.
+2. [ ] Cloudflare dashboard → **SSL/TLS → Edge Certificates** → enable
+       **Always Use HTTPS** and set **Minimum TLS Version: 1.2**.
+3. [ ] DNS tab → click the grey cloud next to `snow-yeti` → it turns orange.
+4. [ ] Verify staging is now proxied (run from a non-VPS machine):
+
+   ```bash
+   curl -I https://snow-yeti.henesys.io/
+   ```
+
+   Expect `server: cloudflare` and a `cf-ray:` header in the response.
+
+5. [ ] Verify the rate limit still buckets per real client IP:
+
+   ```bash
+   for i in $(seq 1 50); do curl -s -o /dev/null -w "%{http_code} " "https://snow-yeti.henesys.io/api/character/AliceK?worldId=heroic-kronos"; done; echo
+   ```
+
+   Expect ~30 successes (200 or 404) followed by 429s. **No 429s at all
+   means `trusted_proxies` isn't picking up the real client IP — every
+   request is bucketed under one CF edge IP. Roll back to grey cloud and
+   debug 7b before proceeding.**
+
+6. [ ] Verify Caddy logs record real client IPs (not Cloudflare's
+       `104.16.x.x` ranges):
+
+   ```bash
+   docker compose exec caddy tail -n 5 /var/log/caddy/snow-yeti-access.log | jq .request.remote_ip
+   ```
+
+7. [ ] Once staging has been healthy for a few minutes, repeat step 3 for
+       `mules` (production). Re-run the curl checks against
+       `mules.henesys.io`. Click through the deployed app with DevTools
+       Network tab open and confirm `/api/*` calls succeed and show
+       `cf-ray` headers.
+
+**Rollback.** Click the orange cloud back to grey in Cloudflare DNS. Effective
+in seconds.
+
+### 7d. Origin firewall lockdown
+
+**Code.** None — DO firewall is runtime-only.
+
+**Runtime:**
+
+1. [ ] DO dashboard → **Networking → Firewalls → Create Firewall**.
+       Inbound rules:
+
+   | Type  | Protocol | Port | Sources                            |
+   | ----- | -------- | ---- | ---------------------------------- |
+   | HTTP  | TCP      | 80   | Cloudflare IPv4 + IPv6 ranges      |
+   | HTTPS | TCP      | 443  | Cloudflare IPv4 + IPv6 ranges      |
+   | SSH   | TCP      | 22   | Your home IP (or VPN exit IP) only |
+
+   Source IP lists live at <https://www.cloudflare.com/ips-v4/> and
+   <https://www.cloudflare.com/ips-v6/>.
+
+2. [ ] Outbound rules: leave at default (all).
+3. [ ] Apply the firewall to the droplet.
+4. [ ] Verify direct origin access is now blocked. From a non-Cloudflare
+       machine:
+
+   ```bash
+   curl -v --resolve mules.henesys.io:443:<DROPLET_IP> https://mules.henesys.io/
+   ```
+
+   Expect timeout or connection refused. If a response comes back, the
+   firewall isn't applied correctly — fix before continuing.
+
+5. [ ] Verify the proxied path still works:
+
+   ```bash
+   curl -I https://mules.henesys.io/
+   ```
+
+### 7e. Automated Cloudflare-IP refresh
+
+**Code.** Committed in `<commit-hash>` (replace once committed).
+
+- `scripts/refresh-cf-firewall.sh` — fetches Cloudflare's published IPv4 +
+  IPv6 ranges, GETs the current DO firewall config, replaces
+  `sources.addresses` on TCP port 80/443 rules with the fresh list, and PUTs
+  the updated firewall. SSH (port 22) and any other rules are untouched.
+  Empty-list guard refuses to push if the Cloudflare fetch returns nothing
+  (would otherwise zero the allowlist and lock the firewall closed for
+  HTTP/HTTPS).
+- `.github/workflows/refresh-cf-firewall.yml` — runs the script monthly via
+  cron (`0 4 1 * *`) and on `workflow_dispatch`. `DO_TOKEN` and
+  `DO_FIREWALL_ID` come from GitHub Secrets, never touch the VPS.
+
+**Runtime:**
+
+1. [ ] Generate a DO Personal Access Token: DigitalOcean dashboard →
+       **API → Tokens → Generate New Token**. Custom scopes:
+       `firewall:read`, `firewall:update`. Nothing else.
+2. [ ] Look up the firewall ID:
+
+   ```bash
+   curl -fsSL -H "Authorization: Bearer <TOKEN>" \
+     https://api.digitalocean.com/v2/firewalls | jq '.firewalls[] | {id, name}'
+   ```
+
+3. [ ] GitHub repo → **Settings → Secrets and variables → Actions** → add:
+   - `DO_TOKEN` = the API token
+   - `DO_FIREWALL_ID` = the firewall ID
+4. [ ] Smoke-test the workflow manually: GitHub → **Actions → Refresh
+       Cloudflare IPs in DO firewall → Run workflow**. Final log line should
+       read `Firewall <id> updated with <N> Cloudflare ranges`.
+5. [ ] DO dashboard → confirm the firewall's HTTP/HTTPS rules still show the
+       expected number of source CIDRs.
+6. [ ] GitHub → profile → **Settings → Notifications → Actions** → ensure
+       failed-workflow notifications are enabled. Silent failure is the
+       dangerous mode here — a stale list drifts further every month it
+       isn't caught.
+
 ---
 
 ## Out of scope for this review
@@ -508,3 +816,8 @@ Deferred deliberately — flagged for a future pass:
   weekly review; not gating launch.
 - **Sentry / proper APM.** Add when a real user reports an unreproducible
   bug.
+- **Cloudflare edge rate limiting on `/api/*`.** Free-tier WAF allows one
+  rate-limit rule with 10k/month evaluations. Caddy's per-IP rate limit
+  (decision 1) is enforced at the application layer with the real client
+  IP and is sufficient given the threat profile. Revisit if telemetry
+  shows attack patterns evading Caddy's coarse 30/min/IP bucket.

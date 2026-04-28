@@ -1,0 +1,17 @@
+name: Refresh Cloudflare IPs in DO firewall
+
+on:
+  schedule:
+    - cron: '0 4 1 * *' # 04:00 UTC on the 1st of every month
+  workflow_dispatch: # also runnable manually from the Actions tab
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run refresh script
+        env:
+          DO_TOKEN: ${{ secrets.DO_TOKEN }}
+          DO_FIREWALL_ID: ${{ secrets.DO_FIREWALL_ID }}
+        run: ./scripts/refresh-cf-firewall.sh
