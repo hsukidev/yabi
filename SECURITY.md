@@ -265,6 +265,52 @@ Cloudflare itself, or one that shapes traffic to evade the free-tier
 WAF defaults (rules-based, not behavioral). Sufficient for a low-value,
 non-contested target; revisit if real abuse is observed in telemetry.
 
+### 8. Tailscale for deploy-time SSH access
+
+**Concern.** Decision 7d narrowed the DO firewall's port 22 to your home
+IP only. The existing GHA deploy job (`.github/workflows/ci-cd.yaml`)
+uses `appleboy/ssh-action` to SSH into the droplet from a runner with a
+rotating Azure IP — now blocked. Without a fix, every push to
+`deploy-prod` / `deploy-staging` fails at the deploy step.
+
+**Decision.** Add the droplet to a Tailscale tailnet. The GHA workflow
+joins the same tailnet ephemerally via an OAuth-tagged auth key, then
+SSHes over the tailnet using its existing key. Public port 22 stays
+restricted to the home IP for break-glass.
+
+**Why Tailscale over alternatives.**
+
+- **Allowlisting GHA IPs.** Strictly worse than no firewall at all —
+  you'd be opening port 22 to thousands of shared Azure CIDRs that every
+  GHA user worldwide can launch jobs from.
+- **Self-hosted GHA runner on the droplet.** Works with zero firewall
+  changes, but adds an always-on runner process and a new attack vector:
+  a compromised repo/workflow runs arbitrary commands as the runner
+  user.
+- **Pull-based webhook deploy.** Cleanest architecturally — no inbound
+  deploy access at all — but the most code to write and maintain.
+  Deferred for now.
+- **Tailscale.** ~15-min setup, no inbound port needed (WireGuard NAT
+  traversal or DERP relay), authenticated by tailnet identity, free
+  Personal plan up to 100 devices.
+
+**Why ephemeral OAuth-tagged auth keys vs a static auth key.** Static
+keys persist if leaked (e.g., committed accidentally, scraped from a
+build log). The OAuth-client + `tag:ci` pattern mints fresh credentials
+per job, scoped to a single tag, expiring when the runner exits.
+
+**Why keep public port 22 (home IP) instead of removing it entirely.**
+Break-glass. If Tailscale ever has an outage that coincides with you
+needing direct droplet access, the home-IP rule is your fallback. DO's
+web-based recovery console covers the worst case, but having SSH still
+available avoids a forced reboot.
+
+**What this won't do.** A compromised GitHub repo or workflow can still
+trigger the deploy and gain shell on the droplet. Mitigations live
+outside this decision: branch protection on `deploy-prod` /
+`deploy-staging`, required PR review on changes to those branches,
+limiting which collaborators can push there.
+
 ---
 
 ## Action checklist
@@ -793,6 +839,123 @@ in seconds.
        failed-workflow notifications are enabled. Silent failure is the
        dangerous mode here — a stale list drifts further every month it
        isn't caught.
+
+### 8. Tailscale for deploy-time SSH access
+
+#### 8a. Install Tailscale on the droplet
+
+**Code.** None — runtime-only on the VPS.
+
+**Runtime (SSH from home — port 22 still open to your home IP):**
+
+1. [ ] Install Tailscale:
+
+   ```bash
+   curl -fsSL https://tailscale.com/install.sh | sh
+   ```
+
+2. [ ] Bring it up (without tags first — the tag doesn't exist in your
+       tailnet yet):
+
+   ```bash
+   sudo tailscale up --ssh --hostname=mules-vps
+   ```
+
+   Open the printed URL in a browser, log in to Tailscale, authorize
+   the device.
+
+3. [ ] Verify and note the tailnet IP:
+
+   ```bash
+   tailscale status
+   tailscale ip -4
+   ```
+
+#### 8b. Tailscale ACL + OAuth client
+
+**Code.** None — Tailscale admin configuration only.
+
+**Runtime (in <https://login.tailscale.com/admin>):**
+
+1. [ ] **Access Controls → Edit policy file** — add `tag:ci` and
+       `tag:server`, plus an ACL allowing CI runners to SSH to tagged
+       servers:
+
+   ```hujson
+   {
+     "tagOwners": {
+       "tag:ci": ["autogroup:admin"],
+       "tag:server": ["autogroup:admin"],
+     },
+     "acls": [
+       // your existing personal-device rule (keep what's there)
+       { "action": "accept", "src": ["autogroup:member"], "dst": ["*:*"] },
+
+       // CI runners can SSH to tagged servers
+       { "action": "accept", "src": ["tag:ci"], "dst": ["tag:server:22"] },
+     ],
+     "ssh": [
+       { "action": "accept", "src": ["autogroup:member"], "dst": ["autogroup:self"], "users": ["autogroup:nonroot", "root"] },
+     ],
+   }
+   ```
+
+   Save.
+
+2. [ ] On the droplet, re-run `tailscale up` with the tag now that
+       `tag:server` exists:
+
+   ```bash
+   sudo tailscale up --ssh --hostname=mules-vps --advertise-tags=tag:server
+   ```
+
+3. [ ] **Settings → OAuth clients → Generate OAuth client**:
+   - Description: `gha-deploy`
+   - Scopes: **Auth Keys** (read + write)
+   - Tags: `tag:ci`
+   - Generate → copy the client ID and secret. **The secret is shown
+     once.**
+
+#### 8c. Update GHA workflow + secrets
+
+**Code.** Committed in `<commit-hash>` (replace once committed).
+
+- `.github/workflows/ci-cd.yaml` — adds a `Tailscale` step
+  (`tailscale/github-action@v2`) before the SSH step in the `deploy`
+  job; SSH host now resolved via Tailscale MagicDNS.
+
+**Runtime:**
+
+1. [ ] GitHub repo → **Settings → Secrets and variables → Actions** →
+       add:
+   - `TS_OAUTH_CLIENT_ID` = the OAuth client ID from 8b
+   - `TS_OAUTH_SECRET` = the OAuth secret from 8b
+2. [ ] Update existing secret `VPS_HOST` from the droplet's public IP to
+       `mules-vps` (the MagicDNS hostname).
+3. [ ] Smoke-test by pushing an empty commit to `deploy-staging`:
+
+   ```bash
+   git checkout deploy-staging
+   git commit --allow-empty -m "test: verify tailscale deploy path"
+   git push origin deploy-staging
+   ```
+
+   Watch the run. Expect the `Tailscale` step to log `Auth complete`
+   plus a `100.x.y.z` IP, then `SSH and redeploy` to connect and run
+   the deploy script as before.
+
+4. [ ] Once staging is green, merge / push to `deploy-prod` and confirm
+       the same path works for production.
+
+#### 8d. DO firewall: no change
+
+**Code / Runtime.** None — Tailscale traffic doesn't traverse public
+port 22 (rides over WireGuard with NAT traversal, or DERP relay as
+fallback). The home-IP SSH rule from 7d stays in place as break-glass.
+
+If you ever decide to go fully Tailscale-only, the procedure is: delete
+the SSH inbound rule from the DO firewall. DigitalOcean's web recovery
+console handles the worst case if Tailscale itself is unreachable.
 
 ---
 

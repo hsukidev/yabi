@@ -77,6 +77,13 @@ jobs:
             echo "dir=app-staging" >> $GITHUB_OUTPUT
           fi
 
+      - name: Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
       - name: SSH and redeploy
         uses: appleboy/ssh-action@v1
         with:
