@@ -802,7 +802,10 @@ in seconds.
 
 ### 7e. Automated Cloudflare-IP refresh
 
-**Code.** Committed in `<commit-hash>` (replace once committed).
+**Code.** Committed in `cf5a145` (initial script + GHA workflow) and
+`9ce39bb` (switched to `api.cloudflare.com/client/v4/ips` after the docs
+URL began 403'ing CI runners). Diagnostic and safety follow-ups in
+`fe37dd1`, `67e0159`.
 
 - `scripts/refresh-cf-firewall.sh` — fetches Cloudflare's published IPv4 +
   IPv6 ranges from `api.cloudflare.com/client/v4/ips` (the purpose-built
@@ -937,7 +940,8 @@ in seconds.
 
 #### 8c. Update GHA workflow + secrets
 
-**Code.** Committed in `<commit-hash>` (replace once committed).
+**Code.** Committed in `b1421c3` (Tailscale step added to the `deploy`
+job; SSH host resolved via Tailscale MagicDNS).
 
 - `.github/workflows/ci-cd.yaml` — adds a `Tailscale` step
   (`tailscale/github-action@v2`) before the SSH step in the `deploy`
