@@ -48,8 +48,12 @@ export function useMuleActions() {
       if (snapshots.length === 0) return;
       baseDeleteMules(ids);
       const count = snapshots.length;
+      const description =
+        count === 1
+          ? `${snapshots[0].mule.name.trim() || 'Mule'} removed from roster`
+          : `${count} mules removed`;
       toast.success('Successfully deleted', {
-        description: `${count} mule${count === 1 ? '' : 's'} removed`,
+        description,
         action: { label: 'Undo', onClick: () => restoreMules(snapshots) },
       });
     },

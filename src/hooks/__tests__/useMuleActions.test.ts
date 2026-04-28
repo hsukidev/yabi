@@ -192,7 +192,27 @@ describe('useMuleActions', () => {
       );
     });
 
-    it('uses singular "1 mule removed" when only one id is deleted via the batch API', () => {
+    it('uses the named "${name} removed from roster" format when only one id is deleted via the batch API', () => {
+      const { result } = renderHook(() => useMuleActions());
+      let id = '';
+      act(() => {
+        id = result.current.addMule('heroic-kronos');
+      });
+      act(() => {
+        result.current.updateMule(id, { name: 'Alice' });
+      });
+      act(() => {
+        result.current.deleteMules([id]);
+      });
+      expect(sonnerMock.toast.success).toHaveBeenCalledWith(
+        'Successfully deleted',
+        expect.objectContaining({
+          description: 'Alice removed from roster',
+        }),
+      );
+    });
+
+    it('falls back to "Mule removed from roster" when the single batch-deleted mule has an empty name', () => {
       const { result } = renderHook(() => useMuleActions());
       let id = '';
       act(() => {
@@ -204,7 +224,7 @@ describe('useMuleActions', () => {
       expect(sonnerMock.toast.success).toHaveBeenCalledWith(
         'Successfully deleted',
         expect.objectContaining({
-          description: '1 mule removed',
+          description: 'Mule removed from roster',
         }),
       );
     });

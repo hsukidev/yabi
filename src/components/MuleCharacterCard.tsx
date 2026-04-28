@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { Mule } from '../types';
 import { useIncome } from '../modules/income';
+import { useMatchMedia } from '../hooks/useMatchMedia';
 import { CharacterAvatar } from './CharacterAvatar';
 import { ROSTER_CARD_ASPECT, ROSTER_CARD_MIN_HEIGHT } from './rosterCardContract';
 
@@ -175,6 +176,7 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const isTouch = useMatchMedia('(pointer: coarse)');
 
   useEffect(() => {
     if (isPaintEngaged) setIsPressed(false);
@@ -292,7 +294,7 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
           </div>
         )}
 
-        {!bulkMode && (
+        {!bulkMode && !isTouch && (
           <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
             <PopoverTrigger
               render={
