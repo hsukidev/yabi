@@ -238,7 +238,7 @@ export function MuleDetailDrawer({
 
             <div className="mx-6 border-t border-border/50" />
 
-            <div className="p-6 flex flex-col gap-5">
+            <div className="p-6 flex flex-col gap-5 max-sm:pb-24">
               <MuleIdentityFields mule={mule} identity={identity} onUpdate={onUpdate} />
 
               <div>
@@ -260,11 +260,13 @@ export function MuleDetailDrawer({
                   />
                 </div>
               </div>
+            </div>
 
+            <div className="sm:hidden sticky bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-10 px-6">
               <Button
                 variant="outline"
                 size="lg"
-                className="sm:hidden w-full h-10 rounded-[10px]"
+                className="w-full h-10 rounded-full bg-(--surface) shadow-lg"
                 onClick={onClose}
               >
                 Close
