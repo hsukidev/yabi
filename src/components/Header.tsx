@@ -2,6 +2,7 @@ import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider';
 import { WorldSelect } from './WorldSelect';
 import { BuyMeCoffeeButton } from './BuyMeCoffeeButton';
+import logoUrl from '../assets/logo.svg';
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
@@ -17,22 +18,13 @@ export function Header() {
       <div className="container mx-auto max-w-352 px-4 sm:px-6">
         <div className="flex h-14 items-center justify-between">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div
-              style={{
-                width: 26,
-                height: 26,
-                borderRadius: 7,
-                background: 'var(--accent-raw, var(--accent))',
-                display: 'grid',
-                placeItems: 'center',
-                color: 'var(--bg, var(--background))',
-                fontFamily: 'monospace',
-                fontWeight: 800,
-                fontSize: 15,
-              }}
-            >
-              Y
-            </div>
+            <img
+              src={logoUrl}
+              alt="YABI logo"
+              width={28}
+              height={28}
+              style={{ width: 28, height: 28 }}
+            />
             <span
               style={{
                 color: 'var(--text, var(--foreground))',
