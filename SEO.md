@@ -58,7 +58,7 @@ Google. `YABI` matches no real-world query and gets dropped from SERP
 ranking entirely.
 
 **Decision.** Title becomes
-`YABI — Yet Another Boss Income Tracker`, and a
+`YABI — Maplestory's Yet Another Boss Income Tool`, and a
 ~150-char description names the actual capabilities a Reboot player
 searches for: mule roster, weekly boss crystals, top-14 cuts, CRA /
 Lomien / Ctene presets, world pricing. The brand name leads; the
@@ -420,7 +420,7 @@ onboarding state baked in.
        with the OG card auto-rendered.
 
 The community backlinks from steps 1–2 will move SERP ranking faster than
-any meta-tag tweak. Page-1 ranking for "maplestory mule tracker" on
+any meta-tag tweak. Page-1 ranking for "maplestory boss income tool" on
 Google realistically takes 4–8 weeks of indexing + a small tail of
 referring domains.
 
