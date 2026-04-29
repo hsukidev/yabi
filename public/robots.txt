@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mules.henesys.io/sitemap.xml
+Sitemap: https://yabi.henesys.io/sitemap.xml

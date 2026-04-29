@@ -105,9 +105,7 @@ describe('nexonAdapter.fetchByName', () => {
     await fetchByName('AliceK', 'na', 1);
     const init = fetchSpy.mock.calls[0][1] as RequestInit | undefined;
     const headers = new Headers(init?.headers);
-    expect(headers.get('user-agent')).toMatch(
-      /^ms-mule-income-tracker\/[\d.]+ \(\+https:\/\/github\.com\//,
-    );
+    expect(headers.get('user-agent')).toMatch(/^yabi\/[\d.]+ \(\+https:\/\/github\.com\//);
   });
 
   it('throws an UpstreamError when the API returns a non-2xx status', async () => {

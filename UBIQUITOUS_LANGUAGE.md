@@ -83,7 +83,7 @@
 | **Accent Soft**   | A low-opacity derivation of the **Accent** (~15%) used for hover tints and selected-state backgrounds                      | Accent wash, accent tint             |
 | **Accent Glow**   | A low-opacity derivation of the **Accent** (~25%) used for drop shadows and bignum text glow                               | Accent halo, accent shadow           |
 | **Chart Palette** | The five colors (`--c1`–`--c5`) assigned to slices of the **PieChart Card** chart, unique per **Theme**                    | Chart colors, series colors          |
-| **Handoff**       | The reference design package (`MS Mule Income Tracker-handoff.zip`) that defines the intended visual system                | Design reference, mockup, spec       |
+| **Handoff**       | The reference design package (`YABI-handoff.zip`) that defines the intended visual system                                  | Design reference, mockup, spec       |
 
 ## Weekly Cycle
 

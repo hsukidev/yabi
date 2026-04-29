@@ -1,6 +1,6 @@
 # SEO.md
 
-Pre-launch SEO pass for `ms-mule-income-tracker`. Captures what Google and
+Pre-launch SEO pass for `yabi`. Captures what Google and
 link previewers saw before the pass, the chosen mitigations, and the
 step-by-step actions to ship so the app is actually discoverable when
 MapleStory players go looking for a mule planner.
@@ -58,10 +58,11 @@ Google. `Mules` matches no real-world query and gets dropped from SERP
 ranking entirely.
 
 **Decision.** Title becomes
-`MapleStory Mule Income Tracker — Boss Crystal Calculator`, and a
+`YABI — Yet Another Boss Income Tracker`, and a
 ~150-char description names the actual capabilities a Reboot player
 searches for: mule roster, weekly boss crystals, top-14 cuts, CRA /
-Lomien / Ctene presets, world pricing.
+Lomien / Ctene presets, world pricing. The brand name leads; the
+description carries the head SEO terms.
 
 **Why these phrases.** Match the literal terms players type into Google
 and Discord search — `mule tracker`, `boss crystal calculator`, `top 14`.
@@ -81,7 +82,7 @@ community-driven discovery.
 `og:url`, `og:title`, `og:description`, `og:image`,
 `og:image:width/height/alt`) plus Twitter's `summary_large_image` card,
 all pointing at the existing `public/logo.png` (1280×908, served at
-`https://mules.henesys.io/logo.png`).
+`https://yabi.henesys.io/logo.png`).
 
 **Why the existing logo.** It's already 1280px wide which is well above
 the 1200px minimum for `summary_large_image`. Replacing it with a
@@ -95,10 +96,10 @@ already-cached threads. Get the first launch right.
 ### 3. Canonical URL + meta robots + theme-color
 
 **Concern.** Without `<link rel="canonical">`, search engines can fragment
-ranking signal across `https://mules.henesys.io/`,
-`https://mules.henesys.io/?...`, and any future redirected hosts.
+ranking signal across `https://yabi.henesys.io/`,
+`https://yabi.henesys.io/?...`, and any future redirected hosts.
 
-**Decision.** Pin the canonical to `https://mules.henesys.io/`. Add an
+**Decision.** Pin the canonical to `https://yabi.henesys.io/`. Add an
 explicit `<meta name="robots" content="index,follow">` (default behaviour
 made explicit). Add dual `theme-color` entries
 (`#0a0a0a` dark, `#fdf6ec` light) so mobile browser chrome matches the
@@ -151,7 +152,7 @@ and `robots.txt` is the conventional place to advertise it.
 **Decision.** Two static files in `public/`:
 
 - `public/robots.txt` — `User-agent: *` allow all, plus
-  `Sitemap: https://mules.henesys.io/sitemap.xml`.
+  `Sitemap: https://yabi.henesys.io/sitemap.xml`.
 - `public/sitemap.xml` — single `<url>` entry for `/`, `weekly`
   `changefreq`. Vite copies `public/*` into `dist/` at build time so
   nginx serves them at `/robots.txt` and `/sitemap.xml`.
@@ -165,7 +166,7 @@ HTML for `/sitemap.xml` (Google rejects this with
 **Failure-mode anchor.** The first deploy of section 6 hit exactly this
 bug: Search Console reported "Sitemap appears to be an HTML page". Root
 cause was a stale Google fetch from before the new image landed; once
-`curl -I https://mules.henesys.io/sitemap.xml` returned `200` with
+`curl -I https://yabi.henesys.io/sitemap.xml` returned `200` with
 `content-type: text/xml`, **resubmitting in Search Console** unstuck it.
 Don't waste time editing nginx — verify the live response first.
 
@@ -283,13 +284,13 @@ the repo). Tick the runtime boxes as you go.
 
 1. [ ] Verify head tags in production once the deploy lands:
    ```bash
-   curl -s https://mules.henesys.io/ | grep -E \
+   curl -s https://yabi.henesys.io/ | grep -E \
      '<title>|name="description"|property="og:|name="twitter:|rel="canonical"' | head -15
    ```
 2. [ ] Render-check the Open Graph preview (paste the URL):
-       https://www.opengraph.xyz/url/https%3A%2F%2Fmules.henesys.io
+       https://www.opengraph.xyz/url/https%3A%2F%2Fyabi.henesys.io
        — confirm title, description, and image all populate.
-3. [ ] Render-check Discord by pasting `https://mules.henesys.io/` into
+3. [ ] Render-check Discord by pasting `https://yabi.henesys.io/` into
        any throwaway channel — should show a card with the logo. Discord
        caches ~30 days, so do this only when you're confident the head
        tags are final.
@@ -302,7 +303,7 @@ the repo). Tick the runtime boxes as you go.
 **Runtime:**
 
 1. [ ] Validate at https://search.google.com/test/rich-results — paste
-       `https://mules.henesys.io/`, confirm "Page is eligible for rich
+       `https://yabi.henesys.io/`, confirm "Page is eligible for rich
        results" with no errors against the WebApplication type.
 
 ### 3. `robots.txt` and `sitemap.xml`
@@ -318,14 +319,14 @@ the repo). Tick the runtime boxes as you go.
 
 1. [ ] Verify both files are served with the right content-type:
    ```bash
-   curl -I https://mules.henesys.io/robots.txt   # expect text/plain, 200
-   curl -I https://mules.henesys.io/sitemap.xml  # expect text/xml, 200
+   curl -I https://yabi.henesys.io/robots.txt   # expect text/plain, 200
+   curl -I https://yabi.henesys.io/sitemap.xml  # expect text/xml, 200
    ```
    If either returns `text/html` or the SPA shell, the latest deploy
    hasn't picked up `public/`. Re-run `./deploy.sh prod` and wait for
    `docker compose pull && up -d` on the VPS.
 2. [ ] Submit sitemap in **Google Search Console**:
-   1. Verify `https://mules.henesys.io/` ownership (DNS TXT or HTML file).
+   1. Verify `https://yabi.henesys.io/` ownership (DNS TXT or HTML file).
    2. Sitemaps → add `sitemap.xml` → Submit.
    3. If you see "Sitemap appears to be an HTML page", that's the stale-
       fetch failure mode from Decision #6 — confirm the live URL with
@@ -366,7 +367,7 @@ onboarding state baked in.
 2.  [ ] After deploy, verify the live HTML body contains real markup, not
         an empty root:
     ```bash
-    curl -s https://mules.henesys.io/ | grep -E "<h2|Roster|No bosses tallied" | head
+    curl -s https://yabi.henesys.io/ | grep -E "<h2|Roster|No bosses tallied" | head
     ```
         Expect at least one match per pattern. If the body is still ~4 KB
         and contains `<div id="root"></div>` empty, the Docker build ran
@@ -398,7 +399,7 @@ onboarding state baked in.
 ["puppeteer"]` and that the layer running `pnpm install` shows
        `chrome (...) downloaded to /home/.../.cache/puppeteer/chrome/`
        in its log output.
-3. [ ] Image size sanity: `docker images | grep ms-mule-income-tracker`
+3. [ ] Image size sanity: `docker images | grep yabi`
        — final size should match pre-prerender (Chromium lives in the
        discarded builder stage, not the runner).
 
@@ -409,7 +410,7 @@ onboarding state baked in.
 **Runtime (do once after the launch deploy):**
 
 1. [ ] Post once in **r/Maplestory** with a brief description and a
-       direct link to `https://mules.henesys.io/`.
+       direct link to `https://yabi.henesys.io/`.
 2. [ ] Post in the **GMS Reboot Discord** (#tools or whichever channel
        fits) with the same.
 3. [ ] Add a link from a personal site / GitHub repo README under "Live

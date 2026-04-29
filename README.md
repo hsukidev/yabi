@@ -1,8 +1,8 @@
-# MS Mule Income Tracker
+# YABI — Yet Another Boss Income Tracker
 
 A personal tool for MapleStory GMS Reboot players to track potential weekly meso income from boss crystal sales across a roster of mule characters.
 
-**Live app:** [mules.henesys.io](https://mules.henesys.io/)
+**Live app:** [yabi.henesys.io](https://yabi.henesys.io/)
 
 ## Features
 

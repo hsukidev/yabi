@@ -1,6 +1,6 @@
 # SECURITY.md
 
-Pre-launch security review for `ms-mule-income-tracker`. Captures the threat
+Pre-launch security review for `yabi`. Captures the threat
 model, the chosen mitigations, and the step-by-step actions to ship before the
 app is opened to public users.
 
@@ -175,7 +175,7 @@ anti-bot crackdown.
 **Decision.** Set a self-identifying `User-Agent` on the outbound call:
 
 ```
-User-Agent: ms-mule-income-tracker/1.0 (+https://github.com/hsukidev/ms-mule-income-tracker)
+User-Agent: yabi/1.0 (+https://github.com/hsukidev/yabi)
 ```
 
 **Why repo URL, not email.** The repo is already public; GitHub issues are
@@ -223,7 +223,7 @@ charges before Caddy ever returns a 429. The Worker-side mitigations
 don't help: the bottleneck is the VPS itself.
 
 **Decision.** Front the SPA with Cloudflare's free proxy (orange cloud)
-on both `mules.henesys.io` and `snow-yeti.henesys.io`, configure Caddy
+on both `yabi.henesys.io` and `snow-yeti.henesys.io`, configure Caddy
 to trust Cloudflare as a proxy so `{client_ip}` resolves to the real
 visitor, and lock the DO Cloud Firewall to accept HTTP/HTTPS only from
 Cloudflare's published IP ranges. Automate monthly refresh of the
@@ -349,12 +349,12 @@ VPS — these don't live in the repo). Tick the runtime boxes as you go.
        (separate zones so prod and staging buckets don't collide):
 
    ```caddyfile
-   mules.henesys.io {
+   yabi.henesys.io {
        @api path /api/*
        rate_limit @api {
            zone api_per_ip { key {client.ip}; events 30; window 1m }
        }
-       reverse_proxy mules:80
+       reverse_proxy yabi:80
    }
 
    snow-yeti.henesys.io {
@@ -378,7 +378,7 @@ VPS — these don't live in the repo). Tick the runtime boxes as you go.
    ```bash
    for i in $(seq 1 50); do
      curl -s -o /dev/null -w "%{http_code} " \
-       https://mules.henesys.io/api/character/AliceK?worldId=heroic-kronos
+       https://yabi.henesys.io/api/character/AliceK?worldId=heroic-kronos
    done; echo
    ```
    Expect ~30 successes followed by 429s.
@@ -426,7 +426,7 @@ extraction).
    ```
    Expect `404`.
 6. [ ] Verify proxied lookup still works in the browser at
-       `https://mules.henesys.io`.
+       `https://yabi.henesys.io`.
 
 ### 3. Input validation + cached 400
 
@@ -445,7 +445,7 @@ extraction).
 2. [ ] Sanity-check (replace `$PROXY_SECRET` with the real value):
    ```bash
    curl -i -H "x-proxy-auth: $PROXY_SECRET" \
-     "https://mules.henesys.io/api/character/x?worldId=heroic-kronos"
+     "https://yabi.henesys.io/api/character/x?worldId=heroic-kronos"
    ```
    Expect `400` with `{"error":"invalid-name", ...}` (single char fails
    the `{2,13}` length rule).
@@ -463,7 +463,7 @@ extraction).
 
 1. [ ] Verify all five headers in production:
    ```bash
-   curl -I https://mules.henesys.io/ | grep -iE \
+   curl -I https://yabi.henesys.io/ | grep -iE \
      'content-security|strict-transport|x-content|referrer|permissions'
    ```
 2. [ ] Click through the deployed app with DevTools Console open — confirm
@@ -486,7 +486,7 @@ extraction).
 **Code.** Committed in `29898a5`.
 
 - `worker/src/nexonAdapter.ts` — `USER_AGENT` constant
-  (`ms-mule-income-tracker/1.0 (+https://github.com/hsukidev/ms-mule-income-tracker)`)
+  (`yabi/1.0 (+https://github.com/hsukidev/yabi)`)
   threaded into the outbound `fetch`.
 - `worker/src/__tests__/nexonAdapter.test.ts` — test asserts the header is
   sent.
@@ -543,7 +543,7 @@ The fourth event, `proxy-secret-missing`, was already in `29898a5`.
        format json
    }
    ```
-   (Use distinct filenames per site, e.g. `mules-access.log` and
+   (Use distinct filenames per site, e.g. `yabi-access.log` and
    `snow-yeti-access.log`.)
 2. [ ] In `~/app/docker-compose.yml`, add the volume mount to the `caddy`
        service:
@@ -564,7 +564,7 @@ The fourth event, `proxy-secret-missing`, was already in `29898a5`.
 3. [ ] Apply: `docker compose up -d caddy`.
 4. [ ] After a few requests, sanity-check:
    ```bash
-   docker compose exec caddy tail /var/log/caddy/mules-access.log
+   docker compose exec caddy tail /var/log/caddy/yabi-access.log
    ```
 
 #### 6c. Cloudflare Workers usage alert
@@ -603,7 +603,7 @@ The fourth event, `proxy-secret-missing`, was already in `29898a5`.
 
 1. [ ] Cloudflare dashboard → **Add a Site** → enter `henesys.io` → choose
        **Free** plan.
-2. [ ] Audit imported DNS records: confirm `mules` and `snow-yeti` A records
+2. [ ] Audit imported DNS records: confirm `yabi` and `snow-yeti` A records
        point to the droplet IP, and any MX / TXT records you already had are
        present.
 3. [ ] For every record, click the orange cloud → set to grey (DNS only).
@@ -611,7 +611,7 @@ The fourth event, `proxy-secret-missing`, was already in `29898a5`.
 4. [ ] Update nameservers at the registrar to the two Cloudflare nameservers
        shown.
 5. [ ] Wait for `Status: Active` email (usually <1h, can be up to 24h).
-6. [ ] Sanity-check: `curl -I https://mules.henesys.io/` should respond
+6. [ ] Sanity-check: `curl -I https://yabi.henesys.io/` should respond
        exactly as before (no `cf-ray` header yet — that arrives in 7c).
 
 ### 7b. Caddy custom build with `caddy-cloudflare-ip`
@@ -654,9 +654,9 @@ The fourth event, `proxy-secret-missing`, was already in `29898a5`.
    }
 
    # Production Site
-   mules.henesys.io {
+   yabi.henesys.io {
        log {
-           output file /var/log/caddy/mules-access.log {
+           output file /var/log/caddy/yabi-access.log {
                roll_size 10MiB
                roll_keep 5
                roll_keep_for 720h
@@ -672,7 +672,7 @@ The fourth event, `proxy-secret-missing`, was already in `29898a5`.
                window 1m
            }
        }
-       reverse_proxy mules:80
+       reverse_proxy yabi:80
    }
 
    # Staging Site
@@ -729,6 +729,7 @@ The fourth event, `proxy-secret-missing`, was already in `29898a5`.
 2. [ ] Cloudflare dashboard → **SSL/TLS → Edge Certificates** → enable
        **Always Use HTTPS** and set **Minimum TLS Version: 1.2**.
 3. [ ] DNS tab → click the grey cloud next to `snow-yeti` → it turns orange.
+       (Repeat for `yabi` once staging is verified — see step 7 below.)
 4. [ ] Verify staging is now proxied (run from a non-VPS machine):
 
    ```bash
@@ -756,8 +757,8 @@ The fourth event, `proxy-secret-missing`, was already in `29898a5`.
    ```
 
 7. [ ] Once staging has been healthy for a few minutes, repeat step 3 for
-       `mules` (production). Re-run the curl checks against
-       `mules.henesys.io`. Click through the deployed app with DevTools
+       `yabi` (production). Re-run the curl checks against
+       `yabi.henesys.io`. Click through the deployed app with DevTools
        Network tab open and confirm `/api/*` calls succeed and show
        `cf-ray` headers.
 
@@ -788,7 +789,7 @@ in seconds.
        machine:
 
    ```bash
-   curl -v --resolve mules.henesys.io:443:<DROPLET_IP> https://mules.henesys.io/
+   curl -v --resolve yabi.henesys.io:443:<DROPLET_IP> https://yabi.henesys.io/
    ```
 
    Expect timeout or connection refused. If a response comes back, the
@@ -797,7 +798,7 @@ in seconds.
 5. [ ] Verify the proxied path still works:
 
    ```bash
-   curl -I https://mules.henesys.io/
+   curl -I https://yabi.henesys.io/
    ```
 
 ### 7e. Automated Cloudflare-IP refresh
@@ -873,7 +874,7 @@ URL began 403'ing CI runners). Diagnostic and safety follow-ups in
        tailnet yet):
 
    ```bash
-   sudo tailscale up --hostname=mules-vps
+   sudo tailscale up --hostname=yabi-vps
    ```
 
    Open the printed URL in a browser, log in to Tailscale, authorize
@@ -928,7 +929,7 @@ URL began 403'ing CI runners). Diagnostic and safety follow-ups in
        `tag:server` exists:
 
    ```bash
-   sudo tailscale up --hostname=mules-vps --advertise-tags=tag:server
+   sudo tailscale up --hostname=yabi-vps --advertise-tags=tag:server
    ```
 
 3. [ ] **Settings → OAuth clients → Generate OAuth client**:
@@ -954,7 +955,7 @@ job; SSH host resolved via Tailscale MagicDNS).
    - `TS_OAUTH_CLIENT_ID` = the OAuth client ID from 8b
    - `TS_OAUTH_SECRET` = the OAuth secret from 8b
 2. [ ] Update existing secret `VPS_HOST` from the droplet's public IP to
-       `mules-vps` (the MagicDNS hostname).
+       `yabi-vps` (the MagicDNS hostname).
 3. [ ] Smoke-test by pushing an empty commit to `deploy-staging`:
 
    ```bash

@@ -31,7 +31,7 @@ export function Header() {
                 fontSize: 15,
               }}
             >
-              M
+              Y
             </div>
             <span
               style={{
@@ -41,7 +41,7 @@ export function Header() {
                 fontSize: 15,
               }}
             >
-              Mules
+              YABI
             </span>
           </div>
           <div className="flex items-center gap-5 max-[479.99px]:gap-2">

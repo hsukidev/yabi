@@ -1,4 +1,4 @@
-# Design System — Mule Income Tracker
+# Design System — YABI
 
 A MapleStory Reboot weekly-income tracker. The design language is **Dark Amber** (default) / **Pastel Cozy** (light) — warm accent tones over a quiet, low-contrast canvas. Numbers are monospace; chrome is soft; the accent glows.
 

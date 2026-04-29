@@ -77,8 +77,7 @@ function buildUrl(name: string, region: Region, rebootIndex: number): string {
 // Self-identifying UA so Nexon can recognize and (if ever needed) contact
 // this integration instead of treating it as anonymous scraper traffic.
 // The repo URL is the public, non-PII contact channel.
-const USER_AGENT =
-  'ms-mule-income-tracker/1.0 (+https://github.com/hsukidev/ms-mule-income-tracker)';
+const USER_AGENT = 'yabi/1.0 (+https://github.com/hsukidev/yabi)';
 
 export async function fetchByName(
   name: string,

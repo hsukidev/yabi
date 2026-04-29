@@ -58,8 +58,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/ms-mule-income-tracker:${{ steps.vars.outputs.tag }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/ms-mule-income-tracker:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/yabi:${{ steps.vars.outputs.tag }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/yabi:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
