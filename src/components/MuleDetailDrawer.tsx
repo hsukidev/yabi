@@ -240,7 +240,7 @@ export function MuleDetailDrawer({
 
             <div className="mx-6 border-t border-border/50" />
 
-            <div className="p-6 flex flex-col gap-5 max-sm:pb-16">
+            <div className="p-6 flex flex-col gap-5 max-sm:pb-7">
               <MuleIdentityFields mule={mule} identity={identity} onUpdate={onUpdate} />
 
               <div>

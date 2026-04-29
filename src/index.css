@@ -828,7 +828,7 @@ html[data-theme-swap] *::after {
  * document so the last roster card scrolls clear of the pill at max scroll
  * (matches the Close pill's max-sm:pb-24 trick on the drawer's scroll body). */
 body:has([data-bulk-delete-pill]) {
-  padding-bottom: calc(env(safe-area-inset-bottom) + 4rem);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 2rem);
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
