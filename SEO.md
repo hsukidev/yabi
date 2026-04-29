@@ -81,8 +81,8 @@ community-driven discovery.
 **Decision.** Add the canonical OG set (`og:type`, `og:site_name`,
 `og:url`, `og:title`, `og:description`, `og:image`,
 `og:image:width/height/alt`) plus Twitter's `summary_large_image` card,
-all pointing at the existing `public/logo.png` (1280×908, served at
-`https://yabi.henesys.io/logo.png`).
+all pointing at the existing `public/logo-default.png` (1280×908, served at
+`https://yabi.henesys.io/logo-default.png`).
 
 **Why the existing logo.** It's already 1280px wide which is well above
 the 1200px minimum for `summary_large_image`. Replacing it with a
@@ -430,7 +430,7 @@ referring domains.
 
 Deferred deliberately — flagged for a future polish:
 
-- **Dedicated 1200×630 OG card image.** Current `logo.png` (1280×908)
+- **Dedicated 1200×630 OG card image.** Current `logo-default.png` (1280×908)
   works but isn't optimised for social cards. A purpose-built card with
   the app screenshot and tagline would increase share click-through.
   Block on first launch traffic data — not worth the design time before

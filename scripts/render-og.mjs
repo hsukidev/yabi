@@ -1,4 +1,4 @@
-// Renders the OG / social card composition to `public/logo.png`.
+// Renders the OG / social card composition to `public/logo-default.png`.
 // Run with: `node scripts/render-og.mjs`
 //
 // Edit the HTML below to change the card; this script is the source of
@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const outPath = resolve(__dirname, '..', 'public', 'logo.png');
+const outPath = resolve(__dirname, '..', 'public', 'logo-default.png');
 
 const WIDTH = 1200;
 const HEIGHT = 630;
