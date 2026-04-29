@@ -5,13 +5,13 @@ The role of this file is to describe common mistakes and confusion points that a
 ## Worktrees live under `.claude/worktrees/agent-*`
 
 When an agent is launched with its own worktree, the cwd is
-`/home/.../ms-mule-income-tracker/.claude/worktrees/agent-<hash>` — **not** the
-main checkout at `/home/.../ms-mule-income-tracker`. Both paths contain a
+`/home/.../yabi/.claude/worktrees/agent-<hash>` — **not** the
+main checkout at `/home/.../yabi`. Both paths contain a
 `src/` tree, but only the worktree path is on the agent's branch.
 
 Always use the worktree-relative path (either `./src/...` relative paths or the
 absolute worktree path) when reading and editing files. An absolute path
-starting with `/home/.../ms-mule-income-tracker/src/...` will silently read the
+starting with `/home/.../yabi/src/...` will silently read the
 **main branch's** copy of the file, which is confusing when the worktree has
 predecessor-slice changes that aren't yet in main.
 

@@ -10,7 +10,7 @@ MapleStory players go looking for a mule planner.
 Anonymous, single-user, browser-local SPA served by nginx behind Caddy on
 the VPS. Pre-pass `index.html` contained:
 
-- `<title>Mules</title>` — three letters, zero keywords.
+- `<title>YABI</title>` — three letters, zero keywords.
 - No `<meta name="description">`, no `<meta name="keywords">`, no
   `<meta name="robots">`, no `<link rel="canonical">`.
 - No Open Graph or Twitter card tags — Discord / Reddit / Twitter previews
@@ -54,7 +54,7 @@ post-build prerender — addresses all three.
 ### 1. Keyword-rich `<title>` and `<meta name="description">`
 
 **Concern.** `<title>` is the single highest-weight on-page signal for
-Google. `Mules` matches no real-world query and gets dropped from SERP
+Google. `YABI` matches no real-world query and gets dropped from SERP
 ranking entirely.
 
 **Decision.** Title becomes
