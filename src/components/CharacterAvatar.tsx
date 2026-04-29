@@ -35,8 +35,15 @@ export const CharacterAvatar = memo(function CharacterAvatar({
   // means a re-applied known-bad URL stays on the placeholder without a
   // retry storm.
   const [erroredSrc, setErroredSrc] = useState<string | null>(null);
-  const displayedSrc = !avatarUrl || erroredSrc === avatarUrl ? blankCharacterPng : avatarUrl;
-  const isPlaceholder = displayedSrc === blankCharacterPng;
+  // The figure-scale transform must match whatever bitmap the browser is
+  // currently painting, not whatever `src` was just *assigned* — browsers
+  // keep the previously-loaded bitmap on screen during a src change, so
+  // switching scales on src alone visibly rescales the old bitmap before
+  // the new one arrives. Track the kind of the most-recent completed load.
+  const [lastLoadedKind, setLastLoadedKind] = useState<'placeholder' | 'real'>('placeholder');
+  const useFallback = !avatarUrl || erroredSrc === avatarUrl;
+  const displayedSrc = useFallback ? blankCharacterPng : avatarUrl;
+  const showingPlaceholder = lastLoadedKind === 'placeholder';
 
   const isFluid = typeof size === 'string';
   // When the figure is scaled past 1× the wrapper, the inner img grows beyond
@@ -64,7 +71,7 @@ export const CharacterAvatar = memo(function CharacterAvatar({
     width: '100%',
     height: '100%',
     objectFit: 'contain',
-    transform: isPlaceholder
+    transform: showingPlaceholder
       ? `translateY(5%) scale(${PLACEHOLDER_SCALE * figureScale})`
       : `scale(${REAL_AVATAR_SCALE * figureScale})`,
     transformOrigin: 'center',
@@ -80,6 +87,9 @@ export const CharacterAvatar = memo(function CharacterAvatar({
         aria-hidden={alt === '' ? true : undefined}
         draggable={false}
         data-testid={testId}
+        onLoad={() => {
+          setLastLoadedKind(displayedSrc === blankCharacterPng ? 'placeholder' : 'real');
+        }}
         onError={() => {
           // Stored avatarUrl 404? Record the failed URL so render falls
           // back to the placeholder. A later prop update to a different
