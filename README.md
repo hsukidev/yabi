@@ -73,6 +73,26 @@ pnpm worker:dev    # Cloudflare Worker (character lookup)
 pnpm worker:test
 ```
 
+## Releasing
+
+User-facing releases are tracked on the [`/changelog`](https://yabi.henesys.io/changelog) page and rolled out via a lightweight per-PR changeset workflow:
+
+```bash
+# Per PR with a user-visible change — drop a markdown file:
+#   .changes/<slug>.md
+#   ---
+#   bump: patch | minor | major
+#   ---
+#   One-line summary.
+
+# When ready to cut a release:
+pnpm release            # rolls up .changes/* → changelog.ts, bumps package.json, commits, tags
+git push --follow-tags
+pnpm deploy:prod
+```
+
+See [docs/RELEASING.md](./docs/RELEASING.md) for the full workflow and the `patch` / `minor` / `major` rubric.
+
 ## Architecture
 
 | Path                                   | Purpose                                          |

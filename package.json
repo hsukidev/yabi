@@ -1,7 +1,7 @@
 {
   "name": "yabi",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "scripts": {
@@ -21,6 +21,7 @@
     "deploy": "pnpm run deploy:prod && pnpm run deploy:staging",
     "deploy:prod": "bash deploy.sh prod",
     "deploy:staging": "bash deploy.sh staging",
+    "release": "tsx scripts/release.ts",
     "worktree:prune": "rm -rf .sandcastle/logs/ && rm -rf .sandcastle/worktrees/ && git worktree prune && git for-each-ref --format='%(refname:short)' refs/heads | grep -vE '^(main|master)$' | xargs -r git branch -D",
     "prepare": "husky",
     "sandcastle": "pnpm worktree:prune && pnpm exec tsx .sandcastle/main.ts",
