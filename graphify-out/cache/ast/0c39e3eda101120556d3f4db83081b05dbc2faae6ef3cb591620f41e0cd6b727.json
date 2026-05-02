@@ -1,0 +1,210 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_modules_income_tsx",
+      "label": "income.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "modules_income_income",
+      "label": "Income",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L41"
+    },
+    {
+      "id": "modules_income_income_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L45"
+    },
+    {
+      "id": "modules_income_income_of",
+      "label": ".of()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L59"
+    },
+    {
+      "id": "modules_income_income_formatted",
+      "label": ".formatted()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L71"
+    },
+    {
+      "id": "modules_income_income_tostring",
+      "label": ".toString()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L75"
+    },
+    {
+      "id": "modules_income_incomeprovider",
+      "label": "IncomeProvider()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L93"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_modules_income_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_modules_income_tsx",
+      "target": "home_jondwoo_dev_yabi_src_data_mulebossslate",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_modules_income_tsx",
+      "target": "home_jondwoo_dev_yabi_src_data_worlds",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_modules_income_tsx",
+      "target": "home_jondwoo_dev_yabi_src_utils_meso",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_modules_income_tsx",
+      "target": "modules_income_income",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "modules_income_income",
+      "target": "modules_income_income_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "modules_income_income",
+      "target": "modules_income_income_of",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "modules_income_income",
+      "target": "modules_income_income_formatted",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
+      "source": "modules_income_income",
+      "target": "modules_income_income_tostring",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_modules_income_tsx",
+      "target": "modules_income_incomeprovider",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L93",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "modules_income_income_of",
+      "callee": "isArray",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "modules_income_income_of",
+      "callee": "resolveWorldGroup",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L64"
+    },
+    {
+      "caller_nid": "modules_income_income_of",
+      "callee": "totalCrystalValue",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "modules_income_income_of",
+      "callee": "from",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "modules_income_income_formatted",
+      "callee": "formatMeso",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "modules_income_incomeprovider",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "modules_income_incomeprovider",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "modules_income_incomeprovider",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "modules_income_incomeprovider",
+      "callee": "useContext",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/modules/income.tsx",
+      "source_location": "L107"
+    }
+  ]
+}

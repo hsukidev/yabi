@@ -1,0 +1,116 @@
+{
+  "nodes": [
+    {
+      "id": "worlds_world",
+      "label": "World",
+      "file_type": "code",
+      "source_file": "src/data/worlds.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worlds_worldid",
+      "label": "WorldId",
+      "file_type": "code",
+      "source_file": "src/data/worlds.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worlds_worldgroup",
+      "label": "WorldGroup",
+      "file_type": "code",
+      "source_file": "src/data/worlds.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worlds_worlds",
+      "label": "WORLDS",
+      "file_type": "code",
+      "source_file": "src/data/worlds.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worlds_world_ids",
+      "label": "WORLD_IDS",
+      "file_type": "code",
+      "source_file": "src/data/worlds.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worlds_findworld",
+      "label": "findWorld",
+      "file_type": "code",
+      "source_file": "src/data/worlds.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worlds_isworldid",
+      "label": "isWorldId",
+      "file_type": "code",
+      "source_file": "src/data/worlds.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worlds_fallback_world_group",
+      "label": "FALLBACK_WORLD_GROUP",
+      "file_type": "code",
+      "source_file": "src/data/worlds.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worlds_resolveworldgroup",
+      "label": "resolveWorldGroup",
+      "file_type": "code",
+      "source_file": "src/data/worlds.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worlds_lensmules",
+      "label": "lensMules",
+      "file_type": "code",
+      "source_file": "src/data/worlds.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

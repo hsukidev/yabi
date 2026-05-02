@@ -1,0 +1,80 @@
+{
+  "nodes": [
+    {
+      "id": "kpicard_component",
+      "label": "KpiCard",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/KpiCard.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "kpicard_kpistat",
+      "label": "KpiStat",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/KpiCard.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "kpicard_crystalkpistat",
+      "label": "CrystalKpiStat",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/KpiCard.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "kpicard_component",
+      "target": "resetcountdown_component",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/KpiCard.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "kpicard_component",
+      "target": "kpicard_kpistat",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/KpiCard.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "kpicard_component",
+      "target": "kpicard_crystalkpistat",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/KpiCard.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "resetcountdown_component",
+      "target": "kpicard_component",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.7,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/KpiCard.tsx",
+      "source_location": null,
+      "weight": 0.7
+    }
+  ],
+  "hyperedges": []
+}

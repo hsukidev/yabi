@@ -1,0 +1,131 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_components_tests_bossmatrix_test_tsx",
+      "label": "BossMatrix.test.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/BossMatrix.test.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_bossmatrix_test_viewof",
+      "label": "viewOf()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/BossMatrix.test.tsx",
+      "source_location": "L14"
+    },
+    {
+      "id": "tests_bossmatrix_test_rendermatrix",
+      "label": "renderMatrix()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/BossMatrix.test.tsx",
+      "source_location": "L55"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_bossmatrix_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/BossMatrix.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_bossmatrix_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_test_test_utils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/BossMatrix.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_bossmatrix_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_bossmatrix",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/BossMatrix.test.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_bossmatrix_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_data_bosses",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/BossMatrix.test.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_bossmatrix_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_data_mulebossslate",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/BossMatrix.test.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_bossmatrix_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/BossMatrix.test.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_bossmatrix_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_utils_meso",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/BossMatrix.test.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_bossmatrix_test_tsx",
+      "target": "tests_bossmatrix_test_viewof",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/BossMatrix.test.tsx",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_bossmatrix_test_tsx",
+      "target": "tests_bossmatrix_test_rendermatrix",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/BossMatrix.test.tsx",
+      "source_location": "L55",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "tests_bossmatrix_test_viewof",
+      "callee": "view",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/BossMatrix.test.tsx",
+      "source_location": "L15"
+    },
+    {
+      "caller_nid": "tests_bossmatrix_test_viewof",
+      "callee": "from",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/BossMatrix.test.tsx",
+      "source_location": "L15"
+    },
+    {
+      "caller_nid": "tests_bossmatrix_test_rendermatrix",
+      "callee": "render",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/BossMatrix.test.tsx",
+      "source_location": "L62"
+    }
+  ]
+}

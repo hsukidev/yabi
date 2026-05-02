@@ -1,0 +1,60 @@
+{
+  "nodes": [
+    {
+      "id": "releasing_md",
+      "label": "Releasing Workflow",
+      "file_type": "document",
+      "source_file": "docs/RELEASING.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "releasing_changeset_format",
+      "label": "Changeset File Format (.changes/*.md)",
+      "file_type": "document",
+      "source_file": "docs/RELEASING.md",
+      "source_location": "Changeset file format section",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "releasing_pnpm_release",
+      "label": "pnpm release script",
+      "file_type": "document",
+      "source_file": "docs/RELEASING.md",
+      "source_location": "What pnpm release does section",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "releasing_md",
+      "target": "releasing_changeset_format",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/RELEASING.md",
+      "source_location": "Changeset file format section",
+      "weight": 1.0
+    },
+    {
+      "source": "releasing_md",
+      "target": "releasing_pnpm_release",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/RELEASING.md",
+      "source_location": "What pnpm release does",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

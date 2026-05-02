@@ -1,0 +1,70 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_worker_src_worldidmap_ts",
+      "label": "worldIdMap.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_worldidmap_issupportedworldid",
+      "label": "isSupportedWorldId()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": "L55"
+    },
+    {
+      "id": "src_worldidmap_toupstreamkey",
+      "label": "toUpstreamKey()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": "L59"
+    },
+    {
+      "id": "src_worldidmap_fromupstreamkey",
+      "label": "fromUpstreamKey()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": "L63"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_worldidmap_ts",
+      "target": "src_worldidmap_issupportedworldid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_worldidmap_ts",
+      "target": "src_worldidmap_toupstreamkey",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_worldidmap_ts",
+      "target": "src_worldidmap_fromupstreamkey",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": "L63",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "src_worldidmap_issupportedworldid",
+      "callee": "has",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": "L56"
+    }
+  ]
+}

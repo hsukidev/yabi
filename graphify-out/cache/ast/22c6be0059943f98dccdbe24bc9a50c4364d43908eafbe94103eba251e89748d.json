@@ -1,0 +1,225 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_test_test_utils_tsx",
+      "label": "test-utils.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_test_utils_render",
+      "label": "render()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L18"
+    },
+    {
+      "id": "test_test_utils_renderapp",
+      "label": "renderApp()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L47"
+    },
+    {
+      "id": "test_test_utils_mockmatchmedia",
+      "label": "mockMatchMedia()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L61"
+    },
+    {
+      "id": "test_test_utils_restorematchmedia",
+      "label": "restoreMatchMedia()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L79"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_test_utils_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_test_utils_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_test_utils_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_test_utils_tsx",
+      "target": "react_router",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_test_utils_tsx",
+      "target": "home_jondwoo_dev_yabi_src_context_themeprovider",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_test_utils_tsx",
+      "target": "home_jondwoo_dev_yabi_src_context_densityprovider",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_test_utils_tsx",
+      "target": "home_jondwoo_dev_yabi_src_context_worldprovider",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_test_utils_tsx",
+      "target": "home_jondwoo_dev_yabi_src_modules_income",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_test_utils_tsx",
+      "target": "home_jondwoo_dev_yabi_src_routetree_gen",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_test_utils_tsx",
+      "target": "home_jondwoo_dev_yabi_src_data_worlds",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_test_utils_tsx",
+      "target": "test_test_utils_render",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_test_utils_tsx",
+      "target": "test_test_utils_renderapp",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_test_utils_tsx",
+      "target": "test_test_utils_mockmatchmedia",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_test_utils_tsx",
+      "target": "test_test_utils_restorematchmedia",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L79",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "test_test_utils_render",
+      "callee": "rtlRender",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "test_test_utils_renderapp",
+      "callee": "createRouter",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "test_test_utils_renderapp",
+      "callee": "createMemoryHistory",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "test_test_utils_renderapp",
+      "callee": "load",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "test_test_utils_renderapp",
+      "callee": "rtlRender",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "test_test_utils_mockmatchmedia",
+      "callee": "mockImplementation",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "test_test_utils_mockmatchmedia",
+      "callee": "fn",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "test_test_utils_mockmatchmedia",
+      "callee": "defineProperty",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/test/test-utils.tsx",
+      "source_location": "L72"
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_hooks_tests_usemules_test_ts",
+      "label": "useMules.test.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/__tests__/useMules.test.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_usemules_test_length",
+      "label": "length()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/__tests__/useMules.test.ts",
+      "source_location": "L28"
+    },
+    {
+      "id": "tests_usemules_test_flushpersist",
+      "label": "flushPersist()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/__tests__/useMules.test.ts",
+      "source_location": "L60"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_tests_usemules_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/__tests__/useMules.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_tests_usemules_test_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/__tests__/useMules.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_tests_usemules_test_ts",
+      "target": "home_jondwoo_dev_yabi_src_hooks_usemules",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/__tests__/useMules.test.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_tests_usemules_test_ts",
+      "target": "home_jondwoo_dev_yabi_src_data_bosses",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/__tests__/useMules.test.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_tests_usemules_test_ts",
+      "target": "tests_usemules_test_length",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/__tests__/useMules.test.ts",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_tests_usemules_test_ts",
+      "target": "tests_usemules_test_length",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/__tests__/useMules.test.ts",
+      "source_location": "L44",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_tests_usemules_test_ts",
+      "target": "tests_usemules_test_flushpersist",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/__tests__/useMules.test.ts",
+      "source_location": "L60",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "tests_usemules_test_length",
+      "callee": "keys",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/__tests__/useMules.test.ts",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "tests_usemules_test_length",
+      "callee": "keys",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/__tests__/useMules.test.ts",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "tests_usemules_test_flushpersist",
+      "callee": "act",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/__tests__/useMules.test.ts",
+      "source_location": "L61"
+    }
+  ]
+}

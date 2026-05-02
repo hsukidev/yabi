@@ -1,0 +1,32 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_tests_characterlookupcopy_test_ts",
+      "label": "characterLookupCopy.test.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/__tests__/characterLookupCopy.test.ts",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_tests_characterlookupcopy_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/__tests__/characterLookupCopy.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_tests_characterlookupcopy_test_ts",
+      "target": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_characterlookupcopy",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/__tests__/characterLookupCopy.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

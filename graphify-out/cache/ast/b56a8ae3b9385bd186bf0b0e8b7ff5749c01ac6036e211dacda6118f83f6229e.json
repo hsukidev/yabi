@@ -1,0 +1,127 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_tests_mobilenavdrawer_test_tsx",
+      "label": "MobileNavDrawer.test.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/MobileNavDrawer.test.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_mobilenavdrawer_test_querydrawer",
+      "label": "queryDrawer()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/MobileNavDrawer.test.tsx",
+      "source_location": "L37"
+    },
+    {
+      "id": "tests_mobilenavdrawer_test_opendrawer",
+      "label": "openDrawer()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/MobileNavDrawer.test.tsx",
+      "source_location": "L41"
+    },
+    {
+      "id": "tests_mobilenavdrawer_test_waitforopendrawer",
+      "label": "waitForOpenDrawer()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/MobileNavDrawer.test.tsx",
+      "source_location": "L45"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_mobilenavdrawer_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/MobileNavDrawer.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_mobilenavdrawer_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_test_test_utils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/MobileNavDrawer.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_mobilenavdrawer_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_mobilenavdrawer",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/MobileNavDrawer.test.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_mobilenavdrawer_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_constants_navitems",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/MobileNavDrawer.test.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_mobilenavdrawer_test_tsx",
+      "target": "tests_mobilenavdrawer_test_querydrawer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/MobileNavDrawer.test.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_mobilenavdrawer_test_tsx",
+      "target": "tests_mobilenavdrawer_test_opendrawer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/MobileNavDrawer.test.tsx",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_mobilenavdrawer_test_tsx",
+      "target": "tests_mobilenavdrawer_test_waitforopendrawer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/MobileNavDrawer.test.tsx",
+      "source_location": "L45",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "tests_mobilenavdrawer_test_querydrawer",
+      "callee": "querySelector",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/MobileNavDrawer.test.tsx",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "tests_mobilenavdrawer_test_opendrawer",
+      "callee": "click",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/MobileNavDrawer.test.tsx",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "tests_mobilenavdrawer_test_opendrawer",
+      "callee": "getByLabelText",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/MobileNavDrawer.test.tsx",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "tests_mobilenavdrawer_test_waitforopendrawer",
+      "callee": "waitFor",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/MobileNavDrawer.test.tsx",
+      "source_location": "L46"
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_components_dashboard_tsx",
+      "label": "Dashboard.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Dashboard.tsx",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_dashboard_tsx",
+      "target": "core",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Dashboard.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_dashboard_tsx",
+      "target": "sortable",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Dashboard.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_dashboard_tsx",
+      "target": "modifiers",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Dashboard.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_dashboard_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Dashboard.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_dashboard_tsx",
+      "target": "home_jondwoo_dev_yabi_src_context_worldprovider",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Dashboard.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_dashboard_tsx",
+      "target": "home_jondwoo_dev_yabi_src_data_worlds",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Dashboard.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_dashboard_tsx",
+      "target": "home_jondwoo_dev_yabi_src_hooks_usemuleactions",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Dashboard.tsx",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_dashboard_tsx",
+      "target": "home_jondwoo_dev_yabi_src_hooks_usebulkdragpaint",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Dashboard.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_dashboard_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_mulecharactercard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Dashboard.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_dashboard_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_muledetaildrawer",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Dashboard.tsx",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_dashboard_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_addcard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Dashboard.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_dashboard_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_kpicard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Dashboard.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_dashboard_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_piechartcard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Dashboard.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_dashboard_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_rosterheader",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Dashboard.tsx",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_dashboard_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_worldmissingbanner",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Dashboard.tsx",
+      "source_location": "L29",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

@@ -1,0 +1,41 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_tests_usedeleteconfirm_test_tsx",
+      "label": "useDeleteConfirm.test.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/__tests__/useDeleteConfirm.test.tsx",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_tests_usedeleteconfirm_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/__tests__/useDeleteConfirm.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_tests_usedeleteconfirm_test_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/__tests__/useDeleteConfirm.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_tests_usedeleteconfirm_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_usedeleteconfirm",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/__tests__/useDeleteConfirm.test.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

@@ -1,0 +1,106 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_useslateactions_ts",
+      "label": "useSlateActions.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useSlateActions.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "hooks_useslateactions_useslateactions",
+      "label": "useSlateActions()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useSlateActions.ts",
+      "source_location": "L46"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_useslateactions_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useSlateActions.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_useslateactions_ts",
+      "target": "home_jondwoo_dev_yabi_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useSlateActions.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_useslateactions_ts",
+      "target": "home_jondwoo_dev_yabi_src_data_mulebossslate",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useSlateActions.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_useslateactions_ts",
+      "target": "home_jondwoo_dev_yabi_src_data_bosspresets",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useSlateActions.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_useslateactions_ts",
+      "target": "home_jondwoo_dev_yabi_src_lib_toast",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useSlateActions.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_useslateactions_ts",
+      "target": "home_jondwoo_dev_yabi_src_components_matrixtoolbar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useSlateActions.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_useslateactions_ts",
+      "target": "hooks_useslateactions_useslateactions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useSlateActions.ts",
+      "source_location": "L46",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "hooks_useslateactions_useslateactions",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useSlateActions.ts",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "hooks_useslateactions_useslateactions",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useSlateActions.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "hooks_useslateactions_useslateactions",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useSlateActions.ts",
+      "source_location": "L94"
+    }
+  ]
+}

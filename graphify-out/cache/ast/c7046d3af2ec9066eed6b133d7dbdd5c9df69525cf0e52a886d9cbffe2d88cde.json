@@ -1,0 +1,156 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_utils_resetcountdown_ts",
+      "label": "resetCountdown.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "utils_resetcountdown_nextweeklyresetutc",
+      "label": "nextWeeklyResetUtc()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L18"
+    },
+    {
+      "id": "utils_resetcountdown_formatcountdown",
+      "label": "formatCountdown()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L39"
+    },
+    {
+      "id": "utils_resetcountdown_pad2",
+      "label": "pad2()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L56"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_utils_resetcountdown_ts",
+      "target": "utils_resetcountdown_nextweeklyresetutc",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_utils_resetcountdown_ts",
+      "target": "utils_resetcountdown_formatcountdown",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_utils_resetcountdown_ts",
+      "target": "utils_resetcountdown_pad2",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_resetcountdown_formatcountdown",
+      "target": "utils_resetcountdown_pad2",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L47",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "utils_resetcountdown_nextweeklyresetutc",
+      "callee": "UTC",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "utils_resetcountdown_nextweeklyresetutc",
+      "callee": "getUTCFullYear",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "utils_resetcountdown_nextweeklyresetutc",
+      "callee": "getUTCMonth",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "utils_resetcountdown_nextweeklyresetutc",
+      "callee": "getUTCDate",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "utils_resetcountdown_nextweeklyresetutc",
+      "callee": "getUTCDay",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L23"
+    },
+    {
+      "caller_nid": "utils_resetcountdown_formatcountdown",
+      "callee": "max",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "utils_resetcountdown_formatcountdown",
+      "callee": "floor",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "utils_resetcountdown_formatcountdown",
+      "callee": "floor",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "utils_resetcountdown_formatcountdown",
+      "callee": "floor",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L43"
+    },
+    {
+      "caller_nid": "utils_resetcountdown_formatcountdown",
+      "callee": "floor",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L46"
+    },
+    {
+      "caller_nid": "utils_resetcountdown_pad2",
+      "callee": "padStart",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "utils_resetcountdown_pad2",
+      "callee": "String",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/resetCountdown.ts",
+      "source_location": "L57"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "nodes": [
+    {
+      "id": "header_component",
+      "label": "Header",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Header.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "header_headernavlink",
+      "label": "HeaderNavLink",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Header.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "header_component",
+      "target": "worldselect_component",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Header.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "header_component",
+      "target": "buymecoffeebutton_component",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Header.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "header_component",
+      "target": "header_headernavlink",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/Header.tsx",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

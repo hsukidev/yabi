@@ -1,0 +1,105 @@
+{
+  "nodes": [
+    {
+      "id": "worker_worldidmap_module",
+      "label": "worldIdMap",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worker_worldidmap_region",
+      "label": "Region",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worker_worldidmap_supportedworldid",
+      "label": "SupportedWorldId",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worker_worldidmap_upstreamworldkey",
+      "label": "UpstreamWorldKey",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worker_worldidmap_world_map",
+      "label": "WORLD_MAP",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worker_worldidmap_supported_world_ids",
+      "label": "SUPPORTED_WORLD_IDS",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worker_worldidmap_issupportedworldid",
+      "label": "isSupportedWorldId",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worker_worldidmap_toupstreamkey",
+      "label": "toUpstreamKey",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worker_worldidmap_fromupstreamkey",
+      "label": "fromUpstreamKey",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worldIdMap.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

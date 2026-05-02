@@ -1,0 +1,28 @@
+{
+  "nodes": [
+    {
+      "id": "adr_0002_slate_validation",
+      "label": "ADR 0002: Slate-Key Validation Stays in MuleBossSlate.from",
+      "file_type": "document",
+      "source_file": "docs/adr/0002-slate-key-validation-stays-in-from.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "adr_0002_slate_validation",
+      "target": "adr_0001_persisted_context",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.7,
+      "source_file": "docs/adr/0002-slate-key-validation-stays-in-from.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

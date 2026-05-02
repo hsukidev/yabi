@@ -1,0 +1,17 @@
+{
+  "nodes": [
+    {
+      "id": "usedeleteconfirm_test_suite",
+      "label": "useDeleteConfirm.test",
+      "file_type": "code",
+      "source_file": "src/components/MuleDetailDrawer/hooks/__tests__/useDeleteConfirm.test.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

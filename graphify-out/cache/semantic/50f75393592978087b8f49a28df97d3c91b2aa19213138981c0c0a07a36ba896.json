@@ -1,0 +1,149 @@
+{
+  "nodes": [
+    {
+      "id": "seo_md",
+      "label": "SEO.md Pre-Launch Pass",
+      "file_type": "document",
+      "source_file": "SEO.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "seo_head_meta",
+      "label": "Head Meta + OG + Twitter + Canonical",
+      "file_type": "document",
+      "source_file": "SEO.md",
+      "source_location": "Decisions 1-3",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "seo_jsonld",
+      "label": "JSON-LD WebApplication Schema",
+      "file_type": "document",
+      "source_file": "SEO.md",
+      "source_location": "Decision 4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "seo_robots_sitemap",
+      "label": "robots.txt + sitemap.xml",
+      "file_type": "document",
+      "source_file": "SEO.md",
+      "source_location": "Decision 6",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "seo_prerender",
+      "label": "Puppeteer Post-Build Prerender",
+      "file_type": "document",
+      "source_file": "SEO.md",
+      "source_location": "Decision 7",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "seo_dockerfile_debian",
+      "label": "Dockerfile Builder (Alpine -> Debian slim)",
+      "file_type": "document",
+      "source_file": "SEO.md",
+      "source_location": "Decision 8",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "seo_pnpm_only_built_deps",
+      "label": "pnpm.onlyBuiltDependencies for Puppeteer",
+      "file_type": "document",
+      "source_file": "SEO.md",
+      "source_location": "Decision 9",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "seo_md",
+      "target": "index_html",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SEO.md",
+      "source_location": "Decisions 1-5",
+      "weight": 1.0
+    },
+    {
+      "source": "seo_robots_sitemap",
+      "target": "robots_txt",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SEO.md",
+      "source_location": "Decision 6",
+      "weight": 1.0
+    },
+    {
+      "source": "seo_prerender",
+      "target": "seo_dockerfile_debian",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SEO.md",
+      "source_location": "Decision 8 puppeteer needs glibc",
+      "weight": 1.0
+    },
+    {
+      "source": "seo_prerender",
+      "target": "seo_pnpm_only_built_deps",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SEO.md",
+      "source_location": "Decision 9",
+      "weight": 1.0
+    },
+    {
+      "source": "seo_prerender",
+      "target": "index_html_themebootstrap",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "SEO.md",
+      "source_location": "Decision 7 strip theme class",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "seo_prerender_pipeline",
+      "label": "SEO Prerender Build Pipeline",
+      "nodes": [
+        "seo_prerender",
+        "seo_dockerfile_debian",
+        "seo_pnpm_only_built_deps",
+        "deployment_guide"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.9,
+      "source_file": "SEO.md"
+    }
+  ]
+}

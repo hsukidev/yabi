@@ -1,0 +1,28 @@
+{
+  "nodes": [
+    {
+      "id": "muleidentityfields_component",
+      "label": "MuleIdentityFields",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/MuleIdentityFields.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "muleidentityfields_component",
+      "target": "classautocomplete_component",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/MuleIdentityFields.tsx",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

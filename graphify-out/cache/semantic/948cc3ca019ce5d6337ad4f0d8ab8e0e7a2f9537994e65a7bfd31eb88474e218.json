@@ -1,0 +1,39 @@
+{
+  "nodes": [
+    {
+      "id": "densityprovider_densityprovider",
+      "label": "DensityProvider",
+      "file_type": "code",
+      "source_file": "src/context/DensityProvider.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "densityprovider_usedensity",
+      "label": "useDensity",
+      "file_type": "code",
+      "source_file": "src/context/DensityProvider.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "densityprovider_applydensity",
+      "label": "applyDensity",
+      "file_type": "code",
+      "source_file": "src/context/DensityProvider.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

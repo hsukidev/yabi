@@ -1,0 +1,1023 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "label": "release.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "scripts_release_main",
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L23"
+    },
+    {
+      "id": "scripts_release_assertworkingtreeclean",
+      "label": "assertWorkingTreeClean()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L117"
+    },
+    {
+      "id": "scripts_release_loadchangesets",
+      "label": "loadChangesets()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L134"
+    },
+    {
+      "id": "scripts_release_parsechangeset",
+      "label": "parseChangeset()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L148"
+    },
+    {
+      "id": "scripts_release_readcurrentversion",
+      "label": "readCurrentVersion()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L170"
+    },
+    {
+      "id": "scripts_release_bumpversion",
+      "label": "bumpVersion()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L175"
+    },
+    {
+      "id": "scripts_release_writechangelog",
+      "label": "writeChangelog()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L192"
+    },
+    {
+      "id": "scripts_release_writepackageversion",
+      "label": "writePackageVersion()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L229"
+    },
+    {
+      "id": "scripts_release_escapesingle",
+      "label": "escapeSingle()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L238"
+    },
+    {
+      "id": "scripts_release_plural",
+      "label": "plural()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L242"
+    },
+    {
+      "id": "scripts_release_execgit",
+      "label": "execGit()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L246"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "node_child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "node_fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "node_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "node_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "node_url",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "scripts_release_main",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "scripts_release_assertworkingtreeclean",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L117",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "scripts_release_loadchangesets",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L134",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "scripts_release_parsechangeset",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L148",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "scripts_release_readcurrentversion",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L170",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "scripts_release_bumpversion",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L175",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "scripts_release_writechangelog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L192",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "scripts_release_writepackageversion",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L229",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "scripts_release_escapesingle",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L238",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "scripts_release_plural",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L242",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_release_ts",
+      "target": "scripts_release_execgit",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L246",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_release_main",
+      "target": "scripts_release_assertworkingtreeclean",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_release_main",
+      "target": "scripts_release_loadchangesets",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_release_main",
+      "target": "scripts_release_readcurrentversion",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_release_main",
+      "target": "scripts_release_bumpversion",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_release_main",
+      "target": "scripts_release_plural",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_release_main",
+      "target": "scripts_release_writechangelog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L82",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_release_main",
+      "target": "scripts_release_writepackageversion",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L85",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_release_main",
+      "target": "scripts_release_execgit",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L94",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_release_loadchangesets",
+      "target": "scripts_release_parsechangeset",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_release_writechangelog",
+      "target": "scripts_release_escapesingle",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L211",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "error",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L28"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "exit",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "reduce",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L43"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L46"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "createInterface",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "question",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "test",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "error",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "exit",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "question",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "slice",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "toISOString",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L64"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "toLowerCase",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "question",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "exit",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "close",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "unlink",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "error",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "error",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "error",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "error",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L104"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "exit",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "scripts_release_main",
+      "callee": "close",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "scripts_release_assertworkingtreeclean",
+      "callee": "execFileSync",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "scripts_release_assertworkingtreeclean",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "scripts_release_assertworkingtreeclean",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "scripts_release_assertworkingtreeclean",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "scripts_release_assertworkingtreeclean",
+      "callee": "split",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "scripts_release_assertworkingtreeclean",
+      "callee": "error",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "scripts_release_assertworkingtreeclean",
+      "callee": "error",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "scripts_release_assertworkingtreeclean",
+      "callee": "exit",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L130"
+    },
+    {
+      "caller_nid": "scripts_release_loadchangesets",
+      "callee": "existsSync",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "scripts_release_loadchangesets",
+      "callee": "readdir",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "scripts_release_loadchangesets",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L137"
+    },
+    {
+      "caller_nid": "scripts_release_loadchangesets",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L137"
+    },
+    {
+      "caller_nid": "scripts_release_loadchangesets",
+      "callee": "join",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L140"
+    },
+    {
+      "caller_nid": "scripts_release_loadchangesets",
+      "callee": "readFile",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "scripts_release_loadchangesets",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L143"
+    },
+    {
+      "caller_nid": "scripts_release_parsechangeset",
+      "callee": "match",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L149"
+    },
+    {
+      "caller_nid": "scripts_release_parsechangeset",
+      "callee": "match",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "scripts_release_parsechangeset",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "scripts_release_parsechangeset",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "scripts_release_parsechangeset",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "scripts_release_parsechangeset",
+      "callee": "split",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "scripts_release_parsechangeset",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "scripts_release_readcurrentversion",
+      "callee": "parse",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "scripts_release_readcurrentversion",
+      "callee": "readFile",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "scripts_release_bumpversion",
+      "callee": "match",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L176"
+    },
+    {
+      "caller_nid": "scripts_release_bumpversion",
+      "callee": "Number",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "scripts_release_bumpversion",
+      "callee": "Number",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "scripts_release_bumpversion",
+      "callee": "Number",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "scripts_release_writechangelog",
+      "callee": "readFile",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "scripts_release_writechangelog",
+      "callee": "indexOf",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L200"
+    },
+    {
+      "caller_nid": "scripts_release_writechangelog",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L207"
+    },
+    {
+      "caller_nid": "scripts_release_writechangelog",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L208"
+    },
+    {
+      "caller_nid": "scripts_release_writechangelog",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "scripts_release_writechangelog",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L211"
+    },
+    {
+      "caller_nid": "scripts_release_writechangelog",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L214"
+    },
+    {
+      "caller_nid": "scripts_release_writechangelog",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L216"
+    },
+    {
+      "caller_nid": "scripts_release_writechangelog",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L218"
+    },
+    {
+      "caller_nid": "scripts_release_writechangelog",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L220"
+    },
+    {
+      "caller_nid": "scripts_release_writechangelog",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L222"
+    },
+    {
+      "caller_nid": "scripts_release_writechangelog",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L224"
+    },
+    {
+      "caller_nid": "scripts_release_writechangelog",
+      "callee": "slice",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L225"
+    },
+    {
+      "caller_nid": "scripts_release_writechangelog",
+      "callee": "slice",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L225"
+    },
+    {
+      "caller_nid": "scripts_release_writechangelog",
+      "callee": "writeFile",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L226"
+    },
+    {
+      "caller_nid": "scripts_release_writepackageversion",
+      "callee": "readFile",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L230"
+    },
+    {
+      "caller_nid": "scripts_release_writepackageversion",
+      "callee": "replace",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L231"
+    },
+    {
+      "caller_nid": "scripts_release_writepackageversion",
+      "callee": "writeFile",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "scripts_release_escapesingle",
+      "callee": "replace",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L239"
+    },
+    {
+      "caller_nid": "scripts_release_escapesingle",
+      "callee": "replace",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L239"
+    },
+    {
+      "caller_nid": "scripts_release_execgit",
+      "callee": "execFileSync",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/scripts/release.ts",
+      "source_location": "L247"
+    }
+  ]
+}

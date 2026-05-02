@@ -1,0 +1,54 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_lib_toast_ts",
+      "label": "toast.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/lib/toast.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "lib_toast_evictoldestiffull",
+      "label": "evictOldestIfFull()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/lib/toast.ts",
+      "source_location": "L7"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_lib_toast_ts",
+      "target": "sonner",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/lib/toast.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_lib_toast_ts",
+      "target": "lib_toast_evictoldestiffull",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/lib/toast.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "lib_toast_evictoldestiffull",
+      "callee": "getToasts",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/lib/toast.ts",
+      "source_location": "L8"
+    },
+    {
+      "caller_nid": "lib_toast_evictoldestiffull",
+      "callee": "dismiss",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/lib/toast.ts",
+      "source_location": "L12"
+    }
+  ]
+}

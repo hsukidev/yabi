@@ -1,0 +1,54 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_hooks_usematchmedia_ts",
+      "label": "useMatchMedia.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useMatchMedia.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "hooks_usematchmedia_usematchmedia",
+      "label": "useMatchMedia()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useMatchMedia.ts",
+      "source_location": "L6"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_usematchmedia_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useMatchMedia.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_usematchmedia_ts",
+      "target": "hooks_usematchmedia_usematchmedia",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useMatchMedia.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "hooks_usematchmedia_usematchmedia",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useMatchMedia.ts",
+      "source_location": "L7"
+    },
+    {
+      "caller_nid": "hooks_usematchmedia_usematchmedia",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useMatchMedia.ts",
+      "source_location": "L14"
+    }
+  ]
+}

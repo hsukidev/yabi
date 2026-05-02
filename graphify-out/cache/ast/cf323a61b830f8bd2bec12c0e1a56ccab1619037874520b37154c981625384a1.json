@@ -1,0 +1,61 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_lib_characterlookup_lookupcharacter_ts",
+      "label": "lookupCharacter.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/lib/characterLookup/lookupCharacter.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "characterlookup_lookupcharacter_lookupcharacter",
+      "label": "lookupCharacter()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/lib/characterLookup/lookupCharacter.ts",
+      "source_location": "L37"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_lib_characterlookup_lookupcharacter_ts",
+      "target": "home_jondwoo_dev_yabi_src_data_worlds",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/lib/characterLookup/lookupCharacter.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_lib_characterlookup_lookupcharacter_ts",
+      "target": "characterlookup_lookupcharacter_lookupcharacter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/lib/characterLookup/lookupCharacter.ts",
+      "source_location": "L37",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "characterlookup_lookupcharacter_lookupcharacter",
+      "callee": "encodeURIComponent",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/lib/characterLookup/lookupCharacter.ts",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "characterlookup_lookupcharacter_lookupcharacter",
+      "callee": "fetch",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/lib/characterLookup/lookupCharacter.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "characterlookup_lookupcharacter_lookupcharacter",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/lib/characterLookup/lookupCharacter.ts",
+      "source_location": "L51"
+    }
+  ]
+}

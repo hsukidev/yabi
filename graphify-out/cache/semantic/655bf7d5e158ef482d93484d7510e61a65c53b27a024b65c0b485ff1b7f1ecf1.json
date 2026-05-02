@@ -1,0 +1,17 @@
+{
+  "nodes": [
+    {
+      "id": "adr_0001_persisted_context",
+      "label": "ADR 0001: Defer Persisted-Context Factory",
+      "file_type": "document",
+      "source_file": "docs/adr/0001-defer-persisted-context-factory.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

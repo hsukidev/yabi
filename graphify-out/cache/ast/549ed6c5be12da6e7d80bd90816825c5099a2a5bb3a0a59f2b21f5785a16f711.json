@@ -1,0 +1,66 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_tests_usemuleidentitydraft_test_tsx",
+      "label": "useMuleIdentityDraft.test.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/__tests__/useMuleIdentityDraft.test.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_usemuleidentitydraft_test_makeonchange",
+      "label": "makeOnChange()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/__tests__/useMuleIdentityDraft.test.tsx",
+      "source_location": "L16"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_tests_usemuleidentitydraft_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/__tests__/useMuleIdentityDraft.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_tests_usemuleidentitydraft_test_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/__tests__/useMuleIdentityDraft.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_tests_usemuleidentitydraft_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_usemuleidentitydraft",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/__tests__/useMuleIdentityDraft.test.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_tests_usemuleidentitydraft_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/__tests__/useMuleIdentityDraft.test.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_tests_usemuleidentitydraft_test_tsx",
+      "target": "tests_usemuleidentitydraft_test_makeonchange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/__tests__/useMuleIdentityDraft.test.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

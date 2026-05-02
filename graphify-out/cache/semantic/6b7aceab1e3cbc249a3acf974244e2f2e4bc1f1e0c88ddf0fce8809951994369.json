@@ -1,0 +1,38 @@
+{
+  "nodes": [
+    {
+      "id": "rosterheader_component",
+      "label": "RosterHeader",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/RosterHeader.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "rosterheader_component",
+      "target": "densitytoggle_component",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/RosterHeader.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "densitytoggle_component",
+      "target": "rosterheader_component",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/RosterHeader.tsx",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

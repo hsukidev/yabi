@@ -1,0 +1,118 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_data_worlds_ts",
+      "label": "worlds.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/worlds.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "data_worlds_findworld",
+      "label": "findWorld()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/worlds.ts",
+      "source_location": "L48"
+    },
+    {
+      "id": "data_worlds_isworldid",
+      "label": "isWorldId()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/worlds.ts",
+      "source_location": "L54"
+    },
+    {
+      "id": "data_worlds_resolveworldgroup",
+      "label": "resolveWorldGroup()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/worlds.ts",
+      "source_location": "L72"
+    },
+    {
+      "id": "data_worlds_lensmules",
+      "label": "lensMules()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/worlds.ts",
+      "source_location": "L86"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_data_worlds_ts",
+      "target": "home_jondwoo_dev_yabi_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/worlds.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_data_worlds_ts",
+      "target": "data_worlds_findworld",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/worlds.ts",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_data_worlds_ts",
+      "target": "data_worlds_isworldid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/worlds.ts",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_data_worlds_ts",
+      "target": "data_worlds_resolveworldgroup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/worlds.ts",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_data_worlds_ts",
+      "target": "data_worlds_lensmules",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/worlds.ts",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "data_worlds_resolveworldgroup",
+      "target": "data_worlds_findworld",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/worlds.ts",
+      "source_location": "L73",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "data_worlds_findworld",
+      "callee": "get",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/data/worlds.ts",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "data_worlds_isworldid",
+      "callee": "has",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/data/worlds.ts",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "data_worlds_lensmules",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/data/worlds.ts",
+      "source_location": "L88"
+    }
+  ]
+}

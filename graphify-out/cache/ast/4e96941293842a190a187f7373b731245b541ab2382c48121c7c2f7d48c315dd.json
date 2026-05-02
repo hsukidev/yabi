@@ -1,0 +1,50 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_scripts_render_og_mjs",
+      "label": "render-og.mjs",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/render-og.mjs",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_render_og_mjs",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/render-og.mjs",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_render_og_mjs",
+      "target": "node_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/render-og.mjs",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_render_og_mjs",
+      "target": "node_url",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/render-og.mjs",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_render_og_mjs",
+      "target": "puppeteer",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/render-og.mjs",
+      "source_location": "L10",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

@@ -1,0 +1,380 @@
+{
+  "nodes": [
+    {
+      "id": "design_md",
+      "label": "Design System (YABI)",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "design_dark_amber",
+      "label": "Dark Amber Theme",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": "lines 22-43",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "design_pastel_cozy",
+      "label": "Pastel Cozy Light Theme",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": "lines 44-61",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "design_density",
+      "label": "Density Tokens (comfy/compact)",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": "lines 124-136",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "design_responsive",
+      "label": "Responsive System (Tailwind/useMatchMedia/@container)",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": "lines 144-183",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "design_kpicard",
+      "label": "KpiCard Hero",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": "lines 192-201",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "design_muledetaildrawer",
+      "label": "MuleDetailDrawer",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": "lines 231-246",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "design_crystaltally",
+      "label": "CrystalTally",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": "lines 248-252",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "design_weeklycaprail",
+      "label": "WeeklyCapRail",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": "lines 254-260",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "design_resetcountdown",
+      "label": "ResetCountdown Widget",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": "lines 262-270",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "design_worldselect",
+      "label": "WorldSelect (World Lens picker)",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": "lines 272-279",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "design_bossmatrix",
+      "label": "BossMatrix Component",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": "lines 327-336",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "design_bosspresets",
+      "label": "Boss Presets (CRA/LOMIEN/CTENE)",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": "lines 316-326",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "design_toast_sonner",
+      "label": "Sonner Toast (Undo)",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": "lines 341-360",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "design_top14_weekly_cut",
+      "label": "Top-14 Weekly Cut",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "design_rosterheader_bulkbar",
+      "label": "RosterHeader / Bulk Action Bar",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": "lines 285-297",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "design_bulk_delete_pill",
+      "label": "Bulk Delete Pill (touch-only)",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": "lines 296-297",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concept_reset_anchor",
+      "label": "Reset Anchor (Thursday 00:00 UTC)",
+      "file_type": "document",
+      "source_file": "Design.md",
+      "source_location": "lines 264-269",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "design_kpicard",
+      "target": "design_resetcountdown",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Design.md",
+      "source_location": "lines 192-201 V9 Hybrid layout",
+      "weight": 1.0
+    },
+    {
+      "source": "design_kpicard",
+      "target": "design_weeklycaprail",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Design.md",
+      "source_location": "lines 199 stat row",
+      "weight": 1.0
+    },
+    {
+      "source": "design_muledetaildrawer",
+      "target": "design_crystaltally",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Design.md",
+      "source_location": "lines 240",
+      "weight": 1.0
+    },
+    {
+      "source": "design_muledetaildrawer",
+      "target": "design_bossmatrix",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Design.md",
+      "source_location": "line 246",
+      "weight": 1.0
+    },
+    {
+      "source": "design_resetcountdown",
+      "target": "concept_reset_anchor",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Design.md",
+      "source_location": "lines 264-265",
+      "weight": 1.0
+    },
+    {
+      "source": "design_weeklycaprail",
+      "target": "concept_weekly_crystal_cap",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Design.md",
+      "source_location": "lines 254-260",
+      "weight": 1.0
+    },
+    {
+      "source": "design_crystaltally",
+      "target": "design_top14_weekly_cut",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Design.md",
+      "source_location": "line 250",
+      "weight": 1.0
+    },
+    {
+      "source": "design_kpicard",
+      "target": "design_top14_weekly_cut",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "Design.md",
+      "source_location": "stat row mules/active/weekly/daily",
+      "weight": 1.0
+    },
+    {
+      "source": "design_bossmatrix",
+      "target": "design_bosspresets",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Design.md",
+      "source_location": "lines 316-326",
+      "weight": 1.0
+    },
+    {
+      "source": "design_worldselect",
+      "target": "concept_world_lens",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Design.md",
+      "source_location": "line 274 World Lens picker",
+      "weight": 1.0
+    },
+    {
+      "source": "design_rosterheader_bulkbar",
+      "target": "design_bulk_delete_pill",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Design.md",
+      "source_location": "lines 296-297 touch variant",
+      "weight": 1.0
+    },
+    {
+      "source": "design_toast_sonner",
+      "target": "concept_active_inactive_toggle",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.4,
+      "source_file": "Design.md",
+      "source_location": "Undo wiring section",
+      "weight": 1.0
+    },
+    {
+      "source": "design_responsive",
+      "target": "design_density",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Design.md",
+      "source_location": "lines 124-136",
+      "weight": 1.0
+    },
+    {
+      "source": "design_responsive",
+      "target": "design_kpicard",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Design.md",
+      "source_location": "lines 162-163 KpiCard breakpoints",
+      "weight": 1.0
+    },
+    {
+      "source": "design_responsive",
+      "target": "design_muledetaildrawer",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Design.md",
+      "source_location": "lines 165-167 drawer breakpoints",
+      "weight": 1.0
+    },
+    {
+      "source": "design_dark_amber",
+      "target": "design_pastel_cozy",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "Design.md",
+      "source_location": "two themes share token surface",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "drawer_layout_system",
+      "label": "MuleDetailDrawer Container-Query Layout",
+      "nodes": [
+        "design_muledetaildrawer",
+        "design_crystaltally",
+        "design_bossmatrix",
+        "design_responsive"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.9,
+      "source_file": "Design.md"
+    }
+  ]
+}

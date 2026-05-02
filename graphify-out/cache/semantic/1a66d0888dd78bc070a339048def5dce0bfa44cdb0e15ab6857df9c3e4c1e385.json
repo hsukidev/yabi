@@ -1,0 +1,28 @@
+{
+  "nodes": [
+    {
+      "id": "crystaltally_component",
+      "label": "CrystalTally",
+      "file_type": "code",
+      "source_file": "src/components/MuleDetailDrawer/CrystalTally.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "crystaltally_crystalcell",
+      "label": "CrystalCell",
+      "file_type": "code",
+      "source_file": "src/components/MuleDetailDrawer/CrystalTally.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

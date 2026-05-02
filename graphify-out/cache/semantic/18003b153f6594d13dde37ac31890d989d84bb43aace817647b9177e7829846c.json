@@ -1,0 +1,17 @@
+{
+  "nodes": [
+    {
+      "id": "bosssearch_test_suite",
+      "label": "BossSearch.test",
+      "file_type": "code",
+      "source_file": "src/components/__tests__/BossSearch.test.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

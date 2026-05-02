@@ -1,0 +1,17 @@
+{
+  "nodes": [
+    {
+      "id": "densitytoggle_test_suite",
+      "label": "DensityToggle.test",
+      "file_type": "code",
+      "source_file": "src/components/__tests__/DensityToggle.test.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

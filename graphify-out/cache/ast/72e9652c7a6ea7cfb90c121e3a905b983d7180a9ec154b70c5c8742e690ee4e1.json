@@ -1,0 +1,186 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_components_classautocomplete_tsx",
+      "label": "ClassAutocomplete.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "components_classautocomplete_handleselect",
+      "label": "handleSelect()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L46"
+    },
+    {
+      "id": "components_classautocomplete_handlekeydown",
+      "label": "handleKeyDown()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L53"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_classautocomplete_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_classautocomplete_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_ui_input",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_classautocomplete_tsx",
+      "target": "components_classautocomplete_handleselect",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_classautocomplete_tsx",
+      "target": "components_classautocomplete_handlekeydown",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "components_classautocomplete_handlekeydown",
+      "target": "components_classautocomplete_handleselect",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L75",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "components_classautocomplete_handleselect",
+      "callee": "setDraft",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "components_classautocomplete_handleselect",
+      "callee": "setOpen",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "components_classautocomplete_handleselect",
+      "callee": "setHighlightedIndex",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L49"
+    },
+    {
+      "caller_nid": "components_classautocomplete_handleselect",
+      "callee": "onSelect",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "components_classautocomplete_handlekeydown",
+      "callee": "preventDefault",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "components_classautocomplete_handlekeydown",
+      "callee": "setOpen",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "components_classautocomplete_handlekeydown",
+      "callee": "setHighlightedIndex",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "components_classautocomplete_handlekeydown",
+      "callee": "setHighlightedIndex",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "components_classautocomplete_handlekeydown",
+      "callee": "preventDefault",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L64"
+    },
+    {
+      "caller_nid": "components_classautocomplete_handlekeydown",
+      "callee": "setOpen",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "components_classautocomplete_handlekeydown",
+      "callee": "setHighlightedIndex",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "components_classautocomplete_handlekeydown",
+      "callee": "setHighlightedIndex",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "components_classautocomplete_handlekeydown",
+      "callee": "preventDefault",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "components_classautocomplete_handlekeydown",
+      "callee": "preventDefault",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "components_classautocomplete_handlekeydown",
+      "callee": "setOpen",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "components_classautocomplete_handlekeydown",
+      "callee": "setHighlightedIndex",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/ClassAutocomplete.tsx",
+      "source_location": "L88"
+    }
+  ]
+}

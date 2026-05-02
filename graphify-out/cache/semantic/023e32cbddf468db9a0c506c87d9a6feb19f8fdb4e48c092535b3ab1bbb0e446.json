@@ -1,0 +1,94 @@
+{
+  "nodes": [
+    {
+      "id": "bosspresets_canonicalpresetkey",
+      "label": "CanonicalPresetKey",
+      "file_type": "code",
+      "source_file": "src/data/bossPresets.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bosspresets_presetkey",
+      "label": "PresetKey",
+      "file_type": "code",
+      "source_file": "src/data/bossPresets.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bosspresets_preset_families",
+      "label": "PRESET_FAMILIES",
+      "file_type": "code",
+      "source_file": "src/data/bossPresets.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bosspresets_normalizeentry",
+      "label": "normalizeEntry",
+      "file_type": "code",
+      "source_file": "src/data/bossPresets.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bosspresets_ispresetactive",
+      "label": "isPresetActive",
+      "file_type": "code",
+      "source_file": "src/data/bossPresets.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bosspresets_conform",
+      "label": "conform",
+      "file_type": "code",
+      "source_file": "src/data/bossPresets.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bosspresets_pickhardest",
+      "label": "pickHardest",
+      "file_type": "code",
+      "source_file": "src/data/bossPresets.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bosspresets_presetentrykey",
+      "label": "presetEntryKey",
+      "file_type": "code",
+      "source_file": "src/data/bossPresets.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

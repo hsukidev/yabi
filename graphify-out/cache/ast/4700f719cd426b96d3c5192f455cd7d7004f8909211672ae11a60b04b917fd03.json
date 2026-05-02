@@ -1,0 +1,82 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_components_bossmatrix_tsx",
+      "label": "BossMatrix.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/BossMatrix.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "components_bossmatrix_tierheader",
+      "label": "TierHeader()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/BossMatrix.tsx",
+      "source_location": "L48"
+    },
+    {
+      "id": "components_bossmatrix_step",
+      "label": "step()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/BossMatrix.tsx",
+      "source_location": "L76"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_bossmatrix_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/BossMatrix.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_bossmatrix_tsx",
+      "target": "home_jondwoo_dev_yabi_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/BossMatrix.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_bossmatrix_tsx",
+      "target": "home_jondwoo_dev_yabi_src_data_mulebossslate",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/BossMatrix.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_bossmatrix_tsx",
+      "target": "home_jondwoo_dev_yabi_src_utils_meso",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/BossMatrix.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_bossmatrix_tsx",
+      "target": "components_bossmatrix_tierheader",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/BossMatrix.tsx",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_bossmatrix_tsx",
+      "target": "components_bossmatrix_step",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/BossMatrix.tsx",
+      "source_location": "L76",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

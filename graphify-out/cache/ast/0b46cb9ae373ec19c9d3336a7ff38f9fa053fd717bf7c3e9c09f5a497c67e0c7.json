@@ -1,0 +1,75 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_tests_characterlookupbutton_test_tsx",
+      "label": "CharacterLookupButton.test.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/__tests__/CharacterLookupButton.test.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_characterlookupbutton_test_resolvefetch",
+      "label": "resolveFetch()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/__tests__/CharacterLookupButton.test.tsx",
+      "source_location": "L143"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_tests_characterlookupbutton_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/__tests__/CharacterLookupButton.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_tests_characterlookupbutton_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_test_test_utils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/__tests__/CharacterLookupButton.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_tests_characterlookupbutton_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_characterlookupbutton",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/__tests__/CharacterLookupButton.test.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_tests_characterlookupbutton_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_characterlookupcopy",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/__tests__/CharacterLookupButton.test.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_tests_characterlookupbutton_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/__tests__/CharacterLookupButton.test.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_tests_characterlookupbutton_test_tsx",
+      "target": "tests_characterlookupbutton_test_resolvefetch",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/__tests__/CharacterLookupButton.test.tsx",
+      "source_location": "L143",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

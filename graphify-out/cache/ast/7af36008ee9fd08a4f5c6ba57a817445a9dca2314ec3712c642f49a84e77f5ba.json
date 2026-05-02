@@ -1,0 +1,47 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_e2e_fixtures_seed_ts",
+      "label": "seed.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/e2e/fixtures/seed.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "fixtures_seed_seedapp",
+      "label": "seedApp()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/e2e/fixtures/seed.ts",
+      "source_location": "L21"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_e2e_fixtures_seed_ts",
+      "target": "test",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/e2e/fixtures/seed.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_e2e_fixtures_seed_ts",
+      "target": "fixtures_seed_seedapp",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/e2e/fixtures/seed.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "fixtures_seed_seedapp",
+      "callee": "addInitScript",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/e2e/fixtures/seed.ts",
+      "source_location": "L25"
+    }
+  ]
+}

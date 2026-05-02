@@ -1,0 +1,136 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_worker_src_tests_worker_test_ts",
+      "label": "worker.test.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worker.test.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_worker_test_get",
+      "label": "get()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worker.test.ts",
+      "source_location": "L15"
+    },
+    {
+      "id": "tests_worker_test_rankentry",
+      "label": "rankEntry()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worker.test.ts",
+      "source_location": "L19"
+    },
+    {
+      "id": "tests_worker_test_inmemorycache",
+      "label": "inMemoryCache()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worker.test.ts",
+      "source_location": "L41"
+    },
+    {
+      "id": "tests_worker_test_deps",
+      "label": "deps()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worker.test.ts",
+      "source_location": "L55"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_tests_worker_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worker.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_tests_worker_test_ts",
+      "target": "home_jondwoo_dev_yabi_worker_src_worker",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worker.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_tests_worker_test_ts",
+      "target": "home_jondwoo_dev_yabi_worker_src_nexonadapter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worker.test.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_tests_worker_test_ts",
+      "target": "tests_worker_test_get",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worker.test.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_tests_worker_test_ts",
+      "target": "tests_worker_test_rankentry",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worker.test.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_tests_worker_test_ts",
+      "target": "tests_worker_test_inmemorycache",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worker.test.ts",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_tests_worker_test_ts",
+      "target": "tests_worker_test_deps",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worker.test.ts",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_worker_test_deps",
+      "target": "tests_worker_test_inmemorycache",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worker.test.ts",
+      "source_location": "L57",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "tests_worker_test_inmemorycache",
+      "callee": "fn",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worker.test.ts",
+      "source_location": "L43"
+    },
+    {
+      "caller_nid": "tests_worker_test_inmemorycache",
+      "callee": "fn",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worker.test.ts",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "tests_worker_test_deps",
+      "callee": "fn",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worker.test.ts",
+      "source_location": "L58"
+    }
+  ]
+}

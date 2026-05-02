@@ -1,0 +1,70 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_data_bosses_ts",
+      "label": "bosses.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/bosses.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "data_bosses_getbossbyid",
+      "label": "getBossById()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/bosses.ts",
+      "source_location": "L638"
+    },
+    {
+      "id": "data_bosses_getbossbyfamily",
+      "label": "getBossByFamily()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/bosses.ts",
+      "source_location": "L642"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_data_bosses_ts",
+      "target": "home_jondwoo_dev_yabi_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/bosses.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_data_bosses_ts",
+      "target": "data_bosses_getbossbyid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/bosses.ts",
+      "source_location": "L638",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_data_bosses_ts",
+      "target": "data_bosses_getbossbyfamily",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/bosses.ts",
+      "source_location": "L642",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "data_bosses_getbossbyid",
+      "callee": "get",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/data/bosses.ts",
+      "source_location": "L639"
+    },
+    {
+      "caller_nid": "data_bosses_getbossbyfamily",
+      "callee": "get",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/data/bosses.ts",
+      "source_location": "L643"
+    }
+  ]
+}

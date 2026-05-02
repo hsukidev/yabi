@@ -1,0 +1,68 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_scripts_prerender_mjs",
+      "label": "prerender.mjs",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/prerender.mjs",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_prerender_mjs",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/prerender.mjs",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_prerender_mjs",
+      "target": "node_http",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/prerender.mjs",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_prerender_mjs",
+      "target": "node_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/prerender.mjs",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_prerender_mjs",
+      "target": "node_url",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/prerender.mjs",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_prerender_mjs",
+      "target": "sirv",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/prerender.mjs",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_scripts_prerender_mjs",
+      "target": "puppeteer",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/scripts/prerender.mjs",
+      "source_location": "L14",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

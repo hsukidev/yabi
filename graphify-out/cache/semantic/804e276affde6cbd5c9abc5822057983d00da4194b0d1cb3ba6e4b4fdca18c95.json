@@ -1,0 +1,28 @@
+{
+  "nodes": [
+    {
+      "id": "robots_txt",
+      "label": "robots.txt (sitemap pointer)",
+      "file_type": "code",
+      "source_file": "public/robots.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "robots_txt",
+      "target": "seo_robots_sitemap",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "public/robots.txt",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

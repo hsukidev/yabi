@@ -1,0 +1,83 @@
+{
+  "nodes": [
+    {
+      "id": "income_module",
+      "label": "income module",
+      "file_type": "code",
+      "source_file": "src/modules/income.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "income_class",
+      "label": "Income",
+      "file_type": "code",
+      "source_file": "src/modules/income.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "income_source_iface",
+      "label": "IncomeSource",
+      "file_type": "code",
+      "source_file": "src/modules/income.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "income_provider",
+      "label": "IncomeProvider",
+      "file_type": "code",
+      "source_file": "src/modules/income.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "income_context",
+      "label": "IncomeContext",
+      "file_type": "code",
+      "source_file": "src/modules/income.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "income_useincome",
+      "label": "useIncome",
+      "file_type": "code",
+      "source_file": "src/modules/income.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "income_useautofullformatonzero",
+      "label": "useAutoFullFormatOnZero",
+      "file_type": "code",
+      "source_file": "src/modules/income.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

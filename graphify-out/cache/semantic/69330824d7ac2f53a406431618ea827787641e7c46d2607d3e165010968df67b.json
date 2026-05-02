@@ -1,0 +1,59 @@
+{
+  "nodes": [
+    {
+      "id": "mulecharactercard_component",
+      "label": "MuleCharacterCard",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleCharacterCard.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "mulecharactercard_mulecardinner",
+      "label": "MuleCardInner",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleCharacterCard.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "mulecharactercard_component",
+      "target": "characteravatar_component",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleCharacterCard.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "mulecharactercard_component",
+      "target": "rostercardcontract_module",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleCharacterCard.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "mulecharactercard_component",
+      "target": "mulecharactercard_mulecardinner",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleCharacterCard.tsx",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

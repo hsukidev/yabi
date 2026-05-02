@@ -1,0 +1,61 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_hooks_usecountup_ts",
+      "label": "useCountUp.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCountUp.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "hooks_usecountup_usecountup",
+      "label": "useCountUp()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCountUp.ts",
+      "source_location": "L6"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_usecountup_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCountUp.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_usecountup_ts",
+      "target": "hooks_usecountup_usecountup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCountUp.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "hooks_usecountup_usecountup",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCountUp.ts",
+      "source_location": "L7"
+    },
+    {
+      "caller_nid": "hooks_usecountup_usecountup",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCountUp.ts",
+      "source_location": "L8"
+    },
+    {
+      "caller_nid": "hooks_usecountup_usecountup",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCountUp.ts",
+      "source_location": "L10"
+    }
+  ]
+}

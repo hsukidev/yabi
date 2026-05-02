@@ -1,0 +1,132 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_e2e_dnd_touch_spec_ts",
+      "label": "dnd-touch.spec.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/e2e/dnd-touch.spec.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "e2e_dnd_touch_spec_touchstart",
+      "label": "touchStart()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/e2e/dnd-touch.spec.ts",
+      "source_location": "L18"
+    },
+    {
+      "id": "e2e_dnd_touch_spec_touchmove",
+      "label": "touchMove()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/e2e/dnd-touch.spec.ts",
+      "source_location": "L25"
+    },
+    {
+      "id": "e2e_dnd_touch_spec_touchend",
+      "label": "touchEnd()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/e2e/dnd-touch.spec.ts",
+      "source_location": "L32"
+    },
+    {
+      "id": "e2e_dnd_touch_spec_cardcenter",
+      "label": "cardCenter()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/e2e/dnd-touch.spec.ts",
+      "source_location": "L39"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_e2e_dnd_touch_spec_ts",
+      "target": "test",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/e2e/dnd-touch.spec.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_e2e_dnd_touch_spec_ts",
+      "target": "home_jondwoo_dev_yabi_e2e_fixtures_seed",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/e2e/dnd-touch.spec.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_e2e_dnd_touch_spec_ts",
+      "target": "e2e_dnd_touch_spec_touchstart",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/e2e/dnd-touch.spec.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_e2e_dnd_touch_spec_ts",
+      "target": "e2e_dnd_touch_spec_touchmove",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/e2e/dnd-touch.spec.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_e2e_dnd_touch_spec_ts",
+      "target": "e2e_dnd_touch_spec_touchend",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/e2e/dnd-touch.spec.ts",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_e2e_dnd_touch_spec_ts",
+      "target": "e2e_dnd_touch_spec_cardcenter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/e2e/dnd-touch.spec.ts",
+      "source_location": "L39",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "e2e_dnd_touch_spec_touchstart",
+      "callee": "send",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/e2e/dnd-touch.spec.ts",
+      "source_location": "L19"
+    },
+    {
+      "caller_nid": "e2e_dnd_touch_spec_touchmove",
+      "callee": "send",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/e2e/dnd-touch.spec.ts",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "e2e_dnd_touch_spec_touchend",
+      "callee": "send",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/e2e/dnd-touch.spec.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "e2e_dnd_touch_spec_cardcenter",
+      "callee": "boundingBox",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/e2e/dnd-touch.spec.ts",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "e2e_dnd_touch_spec_cardcenter",
+      "callee": "locator",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/e2e/dnd-touch.spec.ts",
+      "source_location": "L40"
+    }
+  ]
+}

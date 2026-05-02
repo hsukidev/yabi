@@ -1,0 +1,86 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_hooks_usecharacterlookup_ts",
+      "label": "useCharacterLookup.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCharacterLookup.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "hooks_usecharacterlookup_usecharacterlookup",
+      "label": "useCharacterLookup()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCharacterLookup.ts",
+      "source_location": "L25"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_usecharacterlookup_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCharacterLookup.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_usecharacterlookup_ts",
+      "target": "home_jondwoo_dev_yabi_src_data_worlds",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCharacterLookup.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_usecharacterlookup_ts",
+      "target": "home_jondwoo_dev_yabi_src_lib_characterlookup_lookupcharacter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCharacterLookup.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_usecharacterlookup_ts",
+      "target": "hooks_usecharacterlookup_usecharacterlookup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCharacterLookup.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "hooks_usecharacterlookup_usecharacterlookup",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCharacterLookup.ts",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "hooks_usecharacterlookup_usecharacterlookup",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCharacterLookup.ts",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "hooks_usecharacterlookup_usecharacterlookup",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCharacterLookup.ts",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "hooks_usecharacterlookup_usecharacterlookup",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useCharacterLookup.ts",
+      "source_location": "L36"
+    }
+  ]
+}

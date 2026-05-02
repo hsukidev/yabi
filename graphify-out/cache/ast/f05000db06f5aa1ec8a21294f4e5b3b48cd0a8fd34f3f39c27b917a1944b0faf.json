@@ -1,0 +1,141 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_components_tests_rosterheader_test_tsx",
+      "label": "RosterHeader.test.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_rosterheader_test_mockcoarsepointer",
+      "label": "mockCoarsePointer()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L13"
+    },
+    {
+      "id": "tests_rosterheader_test_renderheader",
+      "label": "renderHeader()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L15"
+    },
+    {
+      "id": "tests_rosterheader_test_querypill",
+      "label": "queryPill()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L178"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_rosterheader_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_rosterheader_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_test_test_utils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_rosterheader_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_context_densityprovider",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_rosterheader_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_rosterheader",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_rosterheader_test_tsx",
+      "target": "tests_rosterheader_test_mockcoarsepointer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_rosterheader_test_tsx",
+      "target": "tests_rosterheader_test_renderheader",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_rosterheader_test_tsx",
+      "target": "tests_rosterheader_test_querypill",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L178",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "tests_rosterheader_test_mockcoarsepointer",
+      "callee": "mockMatchMedia",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L13"
+    },
+    {
+      "caller_nid": "tests_rosterheader_test_renderheader",
+      "callee": "fn",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "tests_rosterheader_test_renderheader",
+      "callee": "fn",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L21"
+    },
+    {
+      "caller_nid": "tests_rosterheader_test_renderheader",
+      "callee": "fn",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L22"
+    },
+    {
+      "caller_nid": "tests_rosterheader_test_renderheader",
+      "callee": "render",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "tests_rosterheader_test_querypill",
+      "callee": "querySelector",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterHeader.test.tsx",
+      "source_location": "L179"
+    }
+  ]
+}

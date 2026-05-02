@@ -1,0 +1,88 @@
+{
+  "nodes": [
+    {
+      "id": "muledetaildrawer_component",
+      "label": "MuleDetailDrawer",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "muledetaildrawer_component",
+      "target": "characteravatar_component",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "muledetaildrawer_component",
+      "target": "bossmatrix_component",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "muledetaildrawer_component",
+      "target": "bosssearch_component",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "muledetaildrawer_component",
+      "target": "matrixtoolbar_component",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "muledetaildrawer_component",
+      "target": "muleidentityfields_component",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "bosssearch_component",
+      "target": "bossmatrix_component",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer.tsx",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "matrixtoolbar_component",
+      "target": "bossmatrix_component",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer.tsx",
+      "source_location": null,
+      "weight": 0.8
+    }
+  ],
+  "hyperedges": []
+}

@@ -1,0 +1,116 @@
+{
+  "nodes": [
+    {
+      "id": "muleboss_mulebossslate",
+      "label": "MuleBossSlate",
+      "file_type": "code",
+      "source_file": "src/data/muleBossSlate.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "muleboss_slatekey",
+      "label": "SlateKey",
+      "file_type": "code",
+      "source_file": "src/data/muleBossSlate.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "muleboss_slaterow",
+      "label": "SlateRow",
+      "file_type": "code",
+      "source_file": "src/data/muleBossSlate.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "muleboss_slatefamily",
+      "label": "SlateFamily",
+      "file_type": "code",
+      "source_file": "src/data/muleBossSlate.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "muleboss_weekly_crystal_cap",
+      "label": "WEEKLY_CRYSTAL_CAP",
+      "file_type": "code",
+      "source_file": "src/data/muleBossSlate.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "muleboss_validatebossselection",
+      "label": "validateBossSelection",
+      "file_type": "code",
+      "source_file": "src/data/muleBossSlate.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "muleboss_trimweeklies",
+      "label": "trimWeeklies",
+      "file_type": "code",
+      "source_file": "src/data/muleBossSlate.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "muleboss_toggleboss",
+      "label": "toggleBoss",
+      "file_type": "code",
+      "source_file": "src/data/muleBossSlate.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "muleboss_parsekey",
+      "label": "parseKey",
+      "file_type": "code",
+      "source_file": "src/data/muleBossSlate.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "muleboss_makekey",
+      "label": "makeKey",
+      "file_type": "code",
+      "source_file": "src/data/muleBossSlate.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

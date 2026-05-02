@@ -1,0 +1,176 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_test_setup_ts",
+      "label": "setup.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_setup_resizeobservermock",
+      "label": "ResizeObserverMock",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L10"
+    },
+    {
+      "id": "test_setup_resizeobservermock_observe",
+      "label": ".observe()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L11"
+    },
+    {
+      "id": "test_setup_resizeobservermock_unobserve",
+      "label": ".unobserve()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L12"
+    },
+    {
+      "id": "test_setup_resizeobservermock_disconnect",
+      "label": ".disconnect()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L13"
+    },
+    {
+      "id": "test_setup_intersectionobservermock",
+      "label": "IntersectionObserverMock",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L37"
+    },
+    {
+      "id": "test_setup_intersectionobservermock_observe",
+      "label": ".observe()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L41"
+    },
+    {
+      "id": "test_setup_intersectionobservermock_unobserve",
+      "label": ".unobserve()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L42"
+    },
+    {
+      "id": "test_setup_intersectionobservermock_disconnect",
+      "label": ".disconnect()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L43"
+    },
+    {
+      "id": "test_setup_intersectionobservermock_takerecords",
+      "label": ".takeRecords()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L44"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_setup_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_setup_ts",
+      "target": "recharts",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_setup_ts",
+      "target": "test_setup_resizeobservermock",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "test_setup_resizeobservermock",
+      "target": "test_setup_resizeobservermock_observe",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "test_setup_resizeobservermock",
+      "target": "test_setup_resizeobservermock_unobserve",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "test_setup_resizeobservermock",
+      "target": "test_setup_resizeobservermock_disconnect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_test_setup_ts",
+      "target": "test_setup_intersectionobservermock",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "test_setup_intersectionobservermock",
+      "target": "test_setup_intersectionobservermock_observe",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "test_setup_intersectionobservermock",
+      "target": "test_setup_intersectionobservermock_unobserve",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "test_setup_intersectionobservermock",
+      "target": "test_setup_intersectionobservermock_disconnect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "test_setup_intersectionobservermock",
+      "target": "test_setup_intersectionobservermock_takerecords",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/test/setup.ts",
+      "source_location": "L44",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

@@ -1,0 +1,65 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_context_tests_themeprovider_test_tsx",
+      "label": "ThemeProvider.test.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/__tests__/ThemeProvider.test.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_themeprovider_test_themeconsumer",
+      "label": "ThemeConsumer()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/__tests__/ThemeProvider.test.tsx",
+      "source_location": "L5"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_context_tests_themeprovider_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/__tests__/ThemeProvider.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_context_tests_themeprovider_test_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/__tests__/ThemeProvider.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_context_tests_themeprovider_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_context_themeprovider",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/__tests__/ThemeProvider.test.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_context_tests_themeprovider_test_tsx",
+      "target": "tests_themeprovider_test_themeconsumer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/__tests__/ThemeProvider.test.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "tests_themeprovider_test_themeconsumer",
+      "callee": "useTheme",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/context/__tests__/ThemeProvider.test.tsx",
+      "source_location": "L6"
+    }
+  ]
+}

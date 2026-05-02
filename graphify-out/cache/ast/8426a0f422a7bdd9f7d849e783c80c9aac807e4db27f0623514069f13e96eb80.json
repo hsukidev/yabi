@@ -1,0 +1,13 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_data_changelog_ts",
+      "label": "changelog.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/data/changelog.ts",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [],
+  "raw_calls": []
+}

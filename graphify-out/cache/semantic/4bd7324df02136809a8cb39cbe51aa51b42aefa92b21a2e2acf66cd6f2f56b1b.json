@@ -1,0 +1,79 @@
+{
+  "nodes": [
+    {
+      "id": "incomepiechart_component",
+      "label": "IncomePieChart",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "incomepiechart_rendersector",
+      "label": "renderSector",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "incomepiechart_component",
+      "target": "incomepiechartutils_describearc",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "incomepiechart_component",
+      "target": "incomepiechartutils_formatcenterpercent",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "incomepiechart_component",
+      "target": "incomepiechartutils_formatcompact",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "incomepiechart_rendersector",
+      "target": "incomepiechartutils_describearc",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "incomepiechart_component",
+      "target": "incomepiechart_rendersector",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

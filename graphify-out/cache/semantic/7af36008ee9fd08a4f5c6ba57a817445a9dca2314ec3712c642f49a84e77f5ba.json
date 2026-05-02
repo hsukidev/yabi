@@ -1,0 +1,39 @@
+{
+  "nodes": [
+    {
+      "id": "e2e_seed_fixture",
+      "label": "seedApp Test Fixture",
+      "file_type": "code",
+      "source_file": "e2e/fixtures/seed.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "e2e_seed_localstorage_key",
+      "label": "localStorage key 'maplestory-mule-tracker'",
+      "file_type": "code",
+      "source_file": "e2e/fixtures/seed.ts",
+      "source_location": "line 29",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "e2e_seed_fixture",
+      "target": "e2e_seed_localstorage_key",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "e2e/fixtures/seed.ts",
+      "source_location": "line 29",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

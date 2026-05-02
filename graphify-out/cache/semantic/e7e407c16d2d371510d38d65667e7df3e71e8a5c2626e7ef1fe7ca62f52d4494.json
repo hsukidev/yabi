@@ -1,0 +1,154 @@
+{
+  "nodes": [
+    {
+      "id": "readme_yabi",
+      "label": "YABI README",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_techstack",
+      "label": "YABI Tech Stack",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "lines 47-55",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_releasing",
+      "label": "Per-PR Changeset Workflow",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "lines 76-94",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worker_proxy_endpoint",
+      "label": "Cloudflare Worker /api/character endpoint",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "Architecture table",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concept_world_lens",
+      "label": "World Lens (per-world filter)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "World support section",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concept_weekly_crystal_cap",
+      "label": "Weekly Crystal Cap (180/world)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "Income & summary section",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concept_active_inactive_toggle",
+      "label": "Active/Inactive Mule Toggle",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "Roster & character cards section",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "readme_yabi",
+      "target": "design_md",
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "line 120",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_yabi",
+      "target": "ubiquitous_language",
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "line 120",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_releasing",
+      "target": "releasing_md",
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "line 94",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_yabi",
+      "target": "concept_world_lens",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "lines 17-22",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_yabi",
+      "target": "concept_weekly_crystal_cap",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "lines 36-37",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_yabi",
+      "target": "design_top14_weekly_cut",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "line 35",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_releasing",
+      "target": "releasing_changeset_format",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "lines 80-91",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

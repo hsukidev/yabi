@@ -1,0 +1,89 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_usedeleteconfirm_ts",
+      "label": "useDeleteConfirm.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useDeleteConfirm.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "hooks_usedeleteconfirm_usedeleteconfirm",
+      "label": "useDeleteConfirm()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useDeleteConfirm.ts",
+      "source_location": "L19"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_usedeleteconfirm_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useDeleteConfirm.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_usedeleteconfirm_ts",
+      "target": "hooks_usedeleteconfirm_usedeleteconfirm",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useDeleteConfirm.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "hooks_usedeleteconfirm_usedeleteconfirm",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useDeleteConfirm.ts",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "hooks_usedeleteconfirm_usedeleteconfirm",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useDeleteConfirm.ts",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "hooks_usedeleteconfirm_usedeleteconfirm",
+      "callee": "setLastMuleId",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useDeleteConfirm.ts",
+      "source_location": "L36"
+    },
+    {
+      "caller_nid": "hooks_usedeleteconfirm_usedeleteconfirm",
+      "callee": "setConfirming",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useDeleteConfirm.ts",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "hooks_usedeleteconfirm_usedeleteconfirm",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useDeleteConfirm.ts",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "hooks_usedeleteconfirm_usedeleteconfirm",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useDeleteConfirm.ts",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "hooks_usedeleteconfirm_usedeleteconfirm",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/useDeleteConfirm.ts",
+      "source_location": "L42"
+    }
+  ]
+}

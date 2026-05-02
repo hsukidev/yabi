@@ -1,0 +1,310 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_hooks_usebulkdragpaint_ts",
+      "label": "useBulkDragPaint.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "hooks_usebulkdragpaint_cardidfromtarget",
+      "label": "cardIdFromTarget()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L57"
+    },
+    {
+      "id": "hooks_usebulkdragpaint_cardidfrompoint",
+      "label": "cardIdFromPoint()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L64"
+    },
+    {
+      "id": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "label": "useBulkDragPaint()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L76"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_usebulkdragpaint_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_usebulkdragpaint_ts",
+      "target": "hooks_usebulkdragpaint_cardidfromtarget",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_usebulkdragpaint_ts",
+      "target": "hooks_usebulkdragpaint_cardidfrompoint",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L64",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_hooks_usebulkdragpaint_ts",
+      "target": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L76",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "hooks_usebulkdragpaint_cardidfromtarget",
+      "callee": "closest",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_cardidfromtarget",
+      "callee": "getAttribute",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_cardidfrompoint",
+      "callee": "elementFromPoint",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L69"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_cardidfrompoint",
+      "callee": "closest",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_cardidfrompoint",
+      "callee": "getAttribute",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L218"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L239"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L266"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L285"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L300"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L379"
+    },
+    {
+      "caller_nid": "hooks_usebulkdragpaint_usebulkdragpaint",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/hooks/useBulkDragPaint.ts",
+      "source_location": "L389"
+    }
+  ]
+}

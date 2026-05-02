@@ -1,0 +1,74 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_routes_changelog_tsx",
+      "label": "changelog.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/routes/changelog.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "routes_changelog_formatreleasedate",
+      "label": "formatReleaseDate()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/routes/changelog.tsx",
+      "source_location": "L15"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_routes_changelog_tsx",
+      "target": "react_router",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/routes/changelog.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_routes_changelog_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/routes/changelog.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_routes_changelog_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/routes/changelog.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_routes_changelog_tsx",
+      "target": "home_jondwoo_dev_yabi_src_data_changelog",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/routes/changelog.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_routes_changelog_tsx",
+      "target": "routes_changelog_formatreleasedate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/routes/changelog.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "routes_changelog_formatreleasedate",
+      "callee": "format",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/routes/changelog.tsx",
+      "source_location": "L16"
+    }
+  ]
+}

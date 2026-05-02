@@ -1,0 +1,39 @@
+{
+  "nodes": [
+    {
+      "id": "lookupcharacter_fn",
+      "label": "lookupCharacter",
+      "file_type": "code",
+      "source_file": "src/lib/characterLookup/lookupCharacter.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "lookupcharacter_result_type",
+      "label": "CharacterLookupResult",
+      "file_type": "code",
+      "source_file": "src/lib/characterLookup/lookupCharacter.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "lookupcharacter_success_iface",
+      "label": "CharacterLookupSuccess",
+      "file_type": "code",
+      "source_file": "src/lib/characterLookup/lookupCharacter.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

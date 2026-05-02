@@ -1,0 +1,113 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_components_tests_rostercardheightparity_test_tsx",
+      "label": "RosterCardHeightParity.test.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterCardHeightParity.test.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_rostercardheightparity_test_persistedroot",
+      "label": "persistedRoot()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterCardHeightParity.test.tsx",
+      "source_location": "L22"
+    },
+    {
+      "id": "tests_rostercardheightparity_test_seedmules",
+      "label": "seedMules()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterCardHeightParity.test.tsx",
+      "source_location": "L26"
+    },
+    {
+      "id": "tests_rostercardheightparity_test_makemule",
+      "label": "makeMule()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterCardHeightParity.test.tsx",
+      "source_location": "L31"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_rostercardheightparity_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterCardHeightParity.test.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_rostercardheightparity_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_test_test_utils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterCardHeightParity.test.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_rostercardheightparity_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterCardHeightParity.test.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_rostercardheightparity_test_tsx",
+      "target": "tests_rostercardheightparity_test_persistedroot",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterCardHeightParity.test.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_rostercardheightparity_test_tsx",
+      "target": "tests_rostercardheightparity_test_seedmules",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterCardHeightParity.test.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_rostercardheightparity_test_tsx",
+      "target": "tests_rostercardheightparity_test_makemule",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterCardHeightParity.test.tsx",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_rostercardheightparity_test_seedmules",
+      "target": "tests_rostercardheightparity_test_persistedroot",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterCardHeightParity.test.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "tests_rostercardheightparity_test_seedmules",
+      "callee": "setItem",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterCardHeightParity.test.tsx",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "tests_rostercardheightparity_test_seedmules",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/RosterCardHeightParity.test.tsx",
+      "source_location": "L27"
+    }
+  ]
+}

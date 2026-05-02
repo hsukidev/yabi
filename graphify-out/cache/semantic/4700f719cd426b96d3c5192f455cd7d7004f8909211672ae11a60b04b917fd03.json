@@ -1,0 +1,81 @@
+{
+  "nodes": [
+    {
+      "id": "bossmatrix_component",
+      "label": "BossMatrix",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/BossMatrix.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bossmatrix_familymatrixrow",
+      "label": "FamilyMatrixRow",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/BossMatrix.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bossmatrix_partystepper",
+      "label": "PartyStepper",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/BossMatrix.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bossmatrix_tierheader",
+      "label": "TierHeader",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/BossMatrix.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "bossmatrix_component",
+      "target": "bossmatrix_familymatrixrow",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/BossMatrix.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "bossmatrix_familymatrixrow",
+      "target": "bossmatrix_partystepper",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/BossMatrix.tsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "bossmatrix_component",
+      "target": "bossmatrix_tierheader",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/BossMatrix.tsx",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

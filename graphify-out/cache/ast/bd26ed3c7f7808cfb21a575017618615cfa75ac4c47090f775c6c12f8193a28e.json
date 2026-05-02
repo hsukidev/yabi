@@ -1,0 +1,23 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_persistence_mulestorage_ts",
+      "label": "muleStorage.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleStorage.ts",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_persistence_mulestorage_ts",
+      "target": "home_jondwoo_dev_yabi_src_persistence_mulestore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleStorage.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

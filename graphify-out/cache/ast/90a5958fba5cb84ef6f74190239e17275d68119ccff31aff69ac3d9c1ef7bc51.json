@@ -1,0 +1,360 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_tests_app_test_tsx",
+      "label": "App.test.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_app_test_persistedroot",
+      "label": "persistedRoot()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L41"
+    },
+    {
+      "id": "tests_app_test_seedmules",
+      "label": "seedMules()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L57"
+    },
+    {
+      "id": "tests_app_test_resettestenvironment",
+      "label": "resetTestEnvironment()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L61"
+    },
+    {
+      "id": "tests_app_test_mockgetboundingclientrect",
+      "label": "mockGetBoundingClientRect()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L71"
+    },
+    {
+      "id": "tests_app_test_simulatepointerdrag",
+      "label": "simulatePointerDrag()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L98"
+    },
+    {
+      "id": "tests_app_test_mulesstatvalue",
+      "label": "mulesStatValue()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L284"
+    },
+    {
+      "id": "tests_app_test_testlensdriver",
+      "label": "TestLensDriver()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L308"
+    },
+    {
+      "id": "tests_app_test_enterbulk",
+      "label": "enterBulk()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L440"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_app_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_app_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_test_test_utils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_app_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_dashboard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_app_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_app_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_context_worldprovider",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_app_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_data_worlds",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_app_test_tsx",
+      "target": "tests_app_test_persistedroot",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_app_test_tsx",
+      "target": "tests_app_test_seedmules",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_app_test_tsx",
+      "target": "tests_app_test_resettestenvironment",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_app_test_tsx",
+      "target": "tests_app_test_mockgetboundingclientrect",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_app_test_tsx",
+      "target": "tests_app_test_simulatepointerdrag",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L98",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_app_test_tsx",
+      "target": "tests_app_test_mulesstatvalue",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L284",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_app_test_tsx",
+      "target": "tests_app_test_testlensdriver",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L308",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_app_test_tsx",
+      "target": "tests_app_test_enterbulk",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L440",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_app_test_seedmules",
+      "target": "tests_app_test_persistedroot",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L58",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "tests_app_test_seedmules",
+      "callee": "setItem",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "tests_app_test_seedmules",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "tests_app_test_resettestenvironment",
+      "callee": "clear",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "tests_app_test_resettestenvironment",
+      "callee": "remove",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "tests_app_test_resettestenvironment",
+      "callee": "setItem",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "tests_app_test_mockgetboundingclientrect",
+      "callee": "getAttribute",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "tests_app_test_mockgetboundingclientrect",
+      "callee": "findIndex",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "tests_app_test_simulatepointerdrag",
+      "callee": "pointerDown",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "tests_app_test_simulatepointerdrag",
+      "callee": "mouseDown",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "tests_app_test_simulatepointerdrag",
+      "callee": "pointerMove",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "tests_app_test_simulatepointerdrag",
+      "callee": "mouseMove",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "tests_app_test_simulatepointerdrag",
+      "callee": "pointerMove",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "tests_app_test_simulatepointerdrag",
+      "callee": "mouseMove",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L134"
+    },
+    {
+      "caller_nid": "tests_app_test_simulatepointerdrag",
+      "callee": "pointerUp",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "tests_app_test_simulatepointerdrag",
+      "callee": "mouseUp",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L143"
+    },
+    {
+      "caller_nid": "tests_app_test_mulesstatvalue",
+      "callee": "getByTestId",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L285"
+    },
+    {
+      "caller_nid": "tests_app_test_mulesstatvalue",
+      "callee": "getByText",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L286"
+    },
+    {
+      "caller_nid": "tests_app_test_mulesstatvalue",
+      "callee": "within",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L286"
+    },
+    {
+      "caller_nid": "tests_app_test_mulesstatvalue",
+      "callee": "querySelectorAll",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L287"
+    },
+    {
+      "caller_nid": "tests_app_test_testlensdriver",
+      "callee": "useWorld",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L309"
+    },
+    {
+      "caller_nid": "tests_app_test_enterbulk",
+      "callee": "getByRole",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L441"
+    },
+    {
+      "caller_nid": "tests_app_test_enterbulk",
+      "callee": "click",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/App.test.tsx",
+      "source_location": "L442"
+    }
+  ]
+}

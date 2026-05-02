@@ -1,0 +1,336 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "label": "bulkDragPaint.test.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_bulkdragpaint_test_persistedroot",
+      "label": "persistedRoot()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L75"
+    },
+    {
+      "id": "tests_bulkdragpaint_test_seedmules",
+      "label": "seedMules()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L79"
+    },
+    {
+      "id": "tests_bulkdragpaint_test_resettestenvironment",
+      "label": "resetTestEnvironment()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L83"
+    },
+    {
+      "id": "tests_bulkdragpaint_test_mockelementfrompoint",
+      "label": "mockElementFromPoint()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L97"
+    },
+    {
+      "id": "tests_bulkdragpaint_test_enterbulk",
+      "label": "enterBulk()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L117"
+    },
+    {
+      "id": "tests_bulkdragpaint_test_getcardwrapper",
+      "label": "getCardWrapper()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L121"
+    },
+    {
+      "id": "tests_bulkdragpaint_test_iscardselected",
+      "label": "isCardSelected()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L125"
+    },
+    {
+      "id": "tests_bulkdragpaint_test_centerxfor",
+      "label": "centerXFor()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L130"
+    },
+    {
+      "id": "tests_bulkdragpaint_test_pointerdown",
+      "label": "pointerDown()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L136"
+    },
+    {
+      "id": "tests_bulkdragpaint_test_pointermove",
+      "label": "pointerMove()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L148"
+    },
+    {
+      "id": "tests_bulkdragpaint_test_pointerup",
+      "label": "pointerUp()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L164"
+    },
+    {
+      "id": "tests_bulkdragpaint_test_pointercancel",
+      "label": "pointerCancel()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L180"
+    },
+    {
+      "id": "tests_bulkdragpaint_test_dispatchtouchmove",
+      "label": "dispatchTouchMove()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L617"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_test_test_utils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "target": "tests_bulkdragpaint_test_persistedroot",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "target": "tests_bulkdragpaint_test_seedmules",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L79",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "target": "tests_bulkdragpaint_test_resettestenvironment",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "target": "tests_bulkdragpaint_test_mockelementfrompoint",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L97",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "target": "tests_bulkdragpaint_test_enterbulk",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L117",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "target": "tests_bulkdragpaint_test_getcardwrapper",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L121",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "target": "tests_bulkdragpaint_test_iscardselected",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L125",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "target": "tests_bulkdragpaint_test_centerxfor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L130",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "target": "tests_bulkdragpaint_test_pointerdown",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L136",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "target": "tests_bulkdragpaint_test_pointermove",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L148",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "target": "tests_bulkdragpaint_test_pointerup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L164",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "target": "tests_bulkdragpaint_test_pointercancel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L180",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_bulkdragpaint_test_tsx",
+      "target": "tests_bulkdragpaint_test_dispatchtouchmove",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L617",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_bulkdragpaint_test_seedmules",
+      "target": "tests_bulkdragpaint_test_persistedroot",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L80",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "tests_bulkdragpaint_test_seedmules",
+      "callee": "setItem",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "tests_bulkdragpaint_test_seedmules",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "tests_bulkdragpaint_test_resettestenvironment",
+      "callee": "clear",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "tests_bulkdragpaint_test_resettestenvironment",
+      "callee": "remove",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "tests_bulkdragpaint_test_resettestenvironment",
+      "callee": "setItem",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "tests_bulkdragpaint_test_enterbulk",
+      "callee": "click",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "tests_bulkdragpaint_test_enterbulk",
+      "callee": "getByRole",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "tests_bulkdragpaint_test_getcardwrapper",
+      "callee": "querySelector",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "tests_bulkdragpaint_test_iscardselected",
+      "callee": "querySelector",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "tests_bulkdragpaint_test_iscardselected",
+      "callee": "getAttribute",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "tests_bulkdragpaint_test_dispatchtouchmove",
+      "callee": "dispatchEvent",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/bulkDragPaint.test.tsx",
+      "source_location": "L619"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "nodes": [
+    {
+      "id": "usemules_hook",
+      "label": "useMules",
+      "file_type": "code",
+      "source_file": "src/hooks/useMules.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "usemules_module_store",
+      "label": "module-scope mule store",
+      "file_type": "code",
+      "source_file": "src/hooks/useMules.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

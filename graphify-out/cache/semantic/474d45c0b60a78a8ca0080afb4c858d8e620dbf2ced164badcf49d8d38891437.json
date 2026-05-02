@@ -1,0 +1,17 @@
+{
+  "nodes": [
+    {
+      "id": "mulename_test_suite",
+      "label": "muleName tests",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/__tests__/muleName.test.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

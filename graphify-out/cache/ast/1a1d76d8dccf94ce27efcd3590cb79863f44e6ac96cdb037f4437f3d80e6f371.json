@@ -1,0 +1,32 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_worker_src_tests_worldidmap_test_ts",
+      "label": "worldIdMap.test.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worldIdMap.test.ts",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_tests_worldidmap_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worldIdMap.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_tests_worldidmap_test_ts",
+      "target": "home_jondwoo_dev_yabi_worker_src_worldidmap",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/worldIdMap.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

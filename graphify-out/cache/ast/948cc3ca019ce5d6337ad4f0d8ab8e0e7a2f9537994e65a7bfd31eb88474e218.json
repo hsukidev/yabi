@@ -1,0 +1,123 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_context_densityprovider_tsx",
+      "label": "DensityProvider.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/DensityProvider.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "context_densityprovider_getinitialdensity",
+      "label": "getInitialDensity()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/DensityProvider.tsx",
+      "source_location": "L13"
+    },
+    {
+      "id": "context_densityprovider_applydensity",
+      "label": "applyDensity()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/DensityProvider.tsx",
+      "source_location": "L23"
+    },
+    {
+      "id": "context_densityprovider_densityprovider",
+      "label": "DensityProvider()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/DensityProvider.tsx",
+      "source_location": "L31"
+    },
+    {
+      "id": "context_densityprovider_usedensity",
+      "label": "useDensity()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/DensityProvider.tsx",
+      "source_location": "L53"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_context_densityprovider_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/DensityProvider.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_context_densityprovider_tsx",
+      "target": "context_densityprovider_getinitialdensity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/DensityProvider.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_context_densityprovider_tsx",
+      "target": "context_densityprovider_applydensity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/DensityProvider.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_context_densityprovider_tsx",
+      "target": "context_densityprovider_densityprovider",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/DensityProvider.tsx",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_context_densityprovider_tsx",
+      "target": "context_densityprovider_usedensity",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/DensityProvider.tsx",
+      "source_location": "L53",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "context_densityprovider_getinitialdensity",
+      "callee": "getItem",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/context/DensityProvider.tsx",
+      "source_location": "L15"
+    },
+    {
+      "caller_nid": "context_densityprovider_applydensity",
+      "callee": "setAttribute",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/context/DensityProvider.tsx",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "context_densityprovider_densityprovider",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/context/DensityProvider.tsx",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "context_densityprovider_densityprovider",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/context/DensityProvider.tsx",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "context_densityprovider_usedensity",
+      "callee": "useContext",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/context/DensityProvider.tsx",
+      "source_location": "L54"
+    }
+  ]
+}

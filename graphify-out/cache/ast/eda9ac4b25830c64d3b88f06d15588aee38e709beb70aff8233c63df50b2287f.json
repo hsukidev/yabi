@@ -1,0 +1,77 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_usepartysizes_ts",
+      "label": "usePartySizes.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/usePartySizes.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "hooks_usepartysizes_usepartysizes",
+      "label": "usePartySizes()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/usePartySizes.ts",
+      "source_location": "L14"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_usepartysizes_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/usePartySizes.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_usepartysizes_ts",
+      "target": "home_jondwoo_dev_yabi_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/usePartySizes.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_muledetaildrawer_hooks_usepartysizes_ts",
+      "target": "hooks_usepartysizes_usepartysizes",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/usePartySizes.ts",
+      "source_location": "L14",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "hooks_usepartysizes_usepartysizes",
+      "callee": "useMemo",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/usePartySizes.ts",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "hooks_usepartysizes_usepartysizes",
+      "callee": "useRef",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/usePartySizes.ts",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "hooks_usepartysizes_usepartysizes",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/usePartySizes.ts",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "hooks_usepartysizes_usepartysizes",
+      "callee": "useCallback",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/MuleDetailDrawer/hooks/usePartySizes.ts",
+      "source_location": "L36"
+    }
+  ]
+}

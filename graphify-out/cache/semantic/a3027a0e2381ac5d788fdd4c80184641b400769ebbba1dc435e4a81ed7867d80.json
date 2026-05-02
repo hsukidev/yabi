@@ -1,0 +1,39 @@
+{
+  "nodes": [
+    {
+      "id": "worldprovider_worldprovider",
+      "label": "WorldProvider",
+      "file_type": "code",
+      "source_file": "src/context/WorldProvider.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worldprovider_useworld",
+      "label": "useWorld",
+      "file_type": "code",
+      "source_file": "src/context/WorldProvider.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worldprovider_readstoredworldid",
+      "label": "readStoredWorldId",
+      "file_type": "code",
+      "source_file": "src/context/WorldProvider.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

@@ -1,0 +1,83 @@
+{
+  "nodes": [
+    {
+      "id": "worker_nexonadapter_module",
+      "label": "nexonAdapter",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/nexonAdapter.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worker_nexonadapter_base_urls",
+      "label": "NEXON_RANKING_BASE_URLS",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/nexonAdapter.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worker_nexonadapter_nexonrankentry",
+      "label": "NexonRankEntry",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/nexonAdapter.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worker_nexonadapter_upstreamerror",
+      "label": "UpstreamError",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/nexonAdapter.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worker_nexonadapter_buildurl",
+      "label": "buildUrl",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/nexonAdapter.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worker_nexonadapter_user_agent",
+      "label": "USER_AGENT",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/nexonAdapter.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "worker_nexonadapter_fetchbyname",
+      "label": "fetchByName",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/nexonAdapter.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

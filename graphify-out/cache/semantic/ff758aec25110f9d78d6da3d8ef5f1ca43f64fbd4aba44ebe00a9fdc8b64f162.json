@@ -1,0 +1,28 @@
+{
+  "nodes": [
+    {
+      "id": "addcard_component",
+      "label": "AddCard",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/AddCard.tsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "addcard_component",
+      "target": "rostercardcontract_module",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/AddCard.tsx",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

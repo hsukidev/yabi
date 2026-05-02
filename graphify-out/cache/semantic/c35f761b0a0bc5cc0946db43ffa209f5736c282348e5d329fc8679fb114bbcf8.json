@@ -1,0 +1,151 @@
+{
+  "nodes": [
+    {
+      "id": "deployment_guide",
+      "label": "Deployment Guide (DO Droplet + Caddy)",
+      "file_type": "document",
+      "source_file": "Deployment-Guide.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "deployment_caddy_edge",
+      "label": "Caddy Edge (xcaddy custom build)",
+      "file_type": "document",
+      "source_file": "Deployment-Guide.md",
+      "source_location": "Part 5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "deployment_gha_cicd",
+      "label": "GitHub Actions CI/CD (.github/workflows/ci-cd.yaml)",
+      "file_type": "document",
+      "source_file": "Deployment-Guide.md",
+      "source_location": "Part 4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "deployment_two_envs",
+      "label": "Two-Env VPS Layout (~/app + ~/app-staging)",
+      "file_type": "document",
+      "source_file": "Deployment-Guide.md",
+      "source_location": "Part 5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "security_md",
+      "target": "deployment_guide",
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Deployment-Guide.md",
+      "source_location": "line 16",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_guide",
+      "target": "security_caddy_ratelimit",
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Deployment-Guide.md",
+      "source_location": "Part 5 Caddyfile section",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_guide",
+      "target": "security_cf_proxy_origin_lockdown",
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Deployment-Guide.md",
+      "source_location": "Part 1, Part 5",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_guide",
+      "target": "security_tailscale",
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Deployment-Guide.md",
+      "source_location": "Part 4 GHA CI/CD",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_guide",
+      "target": "security_worker_proxy_secret",
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Deployment-Guide.md",
+      "source_location": "Part 3 nginx template",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_guide",
+      "target": "security_csp_headers",
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Deployment-Guide.md",
+      "source_location": "Part 3 nginx.conf.template",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_caddy_edge",
+      "target": "security_caddy_ratelimit",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Deployment-Guide.md",
+      "source_location": "Part 5 caddy custom build",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_caddy_edge",
+      "target": "security_cf_proxy_origin_lockdown",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Deployment-Guide.md",
+      "source_location": "Part 5 trusted_proxies cloudflare",
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_gha_cicd",
+      "target": "security_tailscale",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Deployment-Guide.md",
+      "source_location": "Part 4 Tailscale step",
+      "weight": 1.0
+    },
+    {
+      "source": "seo_md",
+      "target": "deployment_guide",
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Deployment-Guide.md",
+      "source_location": "Part 3 prerender pass",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

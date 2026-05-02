@@ -1,0 +1,92 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_worker_src_tests_nexonadapter_test_ts",
+      "label": "nexonAdapter.test.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/nexonAdapter.test.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_nexonadapter_test_stubfetchonce",
+      "label": "stubFetchOnce()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/nexonAdapter.test.ts",
+      "source_location": "L22"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_tests_nexonadapter_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/nexonAdapter.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_tests_nexonadapter_test_ts",
+      "target": "home_jondwoo_dev_yabi_worker_src_nexonadapter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/nexonAdapter.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_tests_nexonadapter_test_ts",
+      "target": "home_jondwoo_dev_yabi_worker_src_tests_fixtures_found_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/nexonAdapter.test.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_tests_nexonadapter_test_ts",
+      "target": "home_jondwoo_dev_yabi_worker_src_tests_fixtures_not_found_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/nexonAdapter.test.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_tests_nexonadapter_test_ts",
+      "target": "home_jondwoo_dev_yabi_worker_src_tests_fixtures_multi_world_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/nexonAdapter.test.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_tests_nexonadapter_test_ts",
+      "target": "home_jondwoo_dev_yabi_worker_src_tests_fixtures_multi_world_interactive_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/nexonAdapter.test.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_tests_nexonadapter_test_ts",
+      "target": "tests_nexonadapter_test_stubfetchonce",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/nexonAdapter.test.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "tests_nexonadapter_test_stubfetchonce",
+      "callee": "fn",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/__tests__/nexonAdapter.test.ts",
+      "source_location": "L23"
+    }
+  ]
+}

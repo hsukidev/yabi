@@ -1,0 +1,116 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_context_worldprovider_tsx",
+      "label": "WorldProvider.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/WorldProvider.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "context_worldprovider_readstoredworldid",
+      "label": "readStoredWorldId()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/WorldProvider.tsx",
+      "source_location": "L13"
+    },
+    {
+      "id": "context_worldprovider_worldprovider",
+      "label": "WorldProvider()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/WorldProvider.tsx",
+      "source_location": "L33"
+    },
+    {
+      "id": "context_worldprovider_useworld",
+      "label": "useWorld()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/WorldProvider.tsx",
+      "source_location": "L61"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_context_worldprovider_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/WorldProvider.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_context_worldprovider_tsx",
+      "target": "home_jondwoo_dev_yabi_src_data_worlds",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/WorldProvider.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_context_worldprovider_tsx",
+      "target": "context_worldprovider_readstoredworldid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/WorldProvider.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_context_worldprovider_tsx",
+      "target": "context_worldprovider_worldprovider",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/WorldProvider.tsx",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_context_worldprovider_tsx",
+      "target": "context_worldprovider_useworld",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/context/WorldProvider.tsx",
+      "source_location": "L61",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "context_worldprovider_readstoredworldid",
+      "callee": "getItem",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/context/WorldProvider.tsx",
+      "source_location": "L15"
+    },
+    {
+      "caller_nid": "context_worldprovider_readstoredworldid",
+      "callee": "isWorldId",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/context/WorldProvider.tsx",
+      "source_location": "L16"
+    },
+    {
+      "caller_nid": "context_worldprovider_worldprovider",
+      "callee": "useState",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/context/WorldProvider.tsx",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "context_worldprovider_worldprovider",
+      "callee": "useEffect",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/context/WorldProvider.tsx",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "context_worldprovider_useworld",
+      "callee": "useContext",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/context/WorldProvider.tsx",
+      "source_location": "L62"
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_components_tests_mulecharactercard_test_tsx",
+      "label": "MuleCharacterCard.test.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_mulecharactercard_test_rendercard",
+      "label": "renderCard()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L36"
+    },
+    {
+      "id": "tests_mulecharactercard_test_mockcoarsepointer",
+      "label": "mockCoarsePointer()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L284"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_mulecharactercard_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_mulecharactercard_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_test_test_utils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_mulecharactercard_test_tsx",
+      "target": "core",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_mulecharactercard_test_tsx",
+      "target": "sortable",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_mulecharactercard_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_mulecharactercard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_mulecharactercard_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_mulecharactercard_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_data_bosses",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_mulecharactercard_test_tsx",
+      "target": "tests_mulecharactercard_test_rendercard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_mulecharactercard_test_tsx",
+      "target": "tests_mulecharactercard_test_mockcoarsepointer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L284",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "tests_mulecharactercard_test_rendercard",
+      "callee": "fn",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "tests_mulecharactercard_test_rendercard",
+      "callee": "fn",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "tests_mulecharactercard_test_rendercard",
+      "callee": "fn",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "tests_mulecharactercard_test_rendercard",
+      "callee": "render",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "tests_mulecharactercard_test_mockcoarsepointer",
+      "callee": "mockMatchMedia",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/MuleCharacterCard.test.tsx",
+      "source_location": "L284"
+    }
+  ]
+}

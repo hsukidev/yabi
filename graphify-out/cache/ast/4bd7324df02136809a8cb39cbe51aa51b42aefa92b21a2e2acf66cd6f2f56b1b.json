@@ -1,0 +1,138 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_components_incomepiechart_tsx",
+      "label": "IncomePieChart.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "components_incomepiechart_handlesliceenter",
+      "label": "handleSliceEnter()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": "L36"
+    },
+    {
+      "id": "components_incomepiechart_handlesliceleave",
+      "label": "handleSliceLeave()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": "L43"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_incomepiechart_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_incomepiechart_tsx",
+      "target": "recharts",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_incomepiechart_tsx",
+      "target": "home_jondwoo_dev_yabi_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_incomepiechart_tsx",
+      "target": "home_jondwoo_dev_yabi_src_modules_income",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_incomepiechart_tsx",
+      "target": "home_jondwoo_dev_yabi_src_utils_mulecolor",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_incomepiechart_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_ui_chart",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_incomepiechart_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_incomepiechart_utils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_incomepiechart_tsx",
+      "target": "components_incomepiechart_handlesliceenter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_incomepiechart_tsx",
+      "target": "components_incomepiechart_handlesliceleave",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": "L43",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "components_incomepiechart_handlesliceenter",
+      "callee": "clearTimeout",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "components_incomepiechart_handlesliceenter",
+      "callee": "setActiveIndex",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "components_incomepiechart_handlesliceleave",
+      "callee": "clearTimeout",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "components_incomepiechart_handlesliceleave",
+      "callee": "setTimeout",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/IncomePieChart.tsx",
+      "source_location": "L45"
+    }
+  ]
+}

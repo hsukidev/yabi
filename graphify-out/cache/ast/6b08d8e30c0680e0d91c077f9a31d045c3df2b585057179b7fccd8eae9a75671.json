@@ -1,0 +1,150 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_components_tests_kpicard_test_tsx",
+      "label": "KpiCard.test.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_kpicard_test_mocknarrowviewport",
+      "label": "mockNarrowViewport()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L14"
+    },
+    {
+      "id": "tests_kpicard_test_activestatvalue",
+      "label": "activeStatValue()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L33"
+    },
+    {
+      "id": "tests_kpicard_test_bignumtext",
+      "label": "bignumText()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L39"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_kpicard_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_kpicard_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_test_test_utils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_kpicard_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_components_kpicard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_kpicard_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_kpicard_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_data_bosses",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_kpicard_test_tsx",
+      "target": "tests_kpicard_test_mocknarrowviewport",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_kpicard_test_tsx",
+      "target": "tests_kpicard_test_activestatvalue",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_components_tests_kpicard_test_tsx",
+      "target": "tests_kpicard_test_bignumtext",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L39",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "tests_kpicard_test_mocknarrowviewport",
+      "callee": "mockMatchMedia",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L15"
+    },
+    {
+      "caller_nid": "tests_kpicard_test_activestatvalue",
+      "callee": "getByTestId",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "tests_kpicard_test_activestatvalue",
+      "callee": "getByText",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "tests_kpicard_test_activestatvalue",
+      "callee": "within",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "tests_kpicard_test_activestatvalue",
+      "callee": "querySelectorAll",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L36"
+    },
+    {
+      "caller_nid": "tests_kpicard_test_bignumtext",
+      "callee": "getByRole",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/components/__tests__/KpiCard.test.tsx",
+      "source_location": "L40"
+    }
+  ]
+}

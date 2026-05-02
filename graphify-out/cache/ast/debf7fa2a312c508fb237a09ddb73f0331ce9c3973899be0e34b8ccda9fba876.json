@@ -1,0 +1,32 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_utils_tests_mulecolor_test_ts",
+      "label": "muleColor.test.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/__tests__/muleColor.test.ts",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_utils_tests_mulecolor_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/__tests__/muleColor.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_utils_tests_mulecolor_test_ts",
+      "target": "home_jondwoo_dev_yabi_src_utils_mulecolor",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/utils/__tests__/muleColor.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

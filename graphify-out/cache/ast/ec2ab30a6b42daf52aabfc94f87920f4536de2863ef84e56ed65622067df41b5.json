@@ -1,0 +1,314 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_persistence_mulemigrate_ts",
+      "label": "muleMigrate.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "persistence_mulemigrate_islegacyid",
+      "label": "isLegacyId()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L39"
+    },
+    {
+      "id": "persistence_mulemigrate_readpartysizes",
+      "label": "readPartySizes()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L43"
+    },
+    {
+      "id": "persistence_mulemigrate_upgradev2key",
+      "label": "upgradeV2Key()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L58"
+    },
+    {
+      "id": "persistence_mulemigrate_validatemule",
+      "label": "validateMule()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L74"
+    },
+    {
+      "id": "persistence_mulemigrate_parsepayload",
+      "label": "parsePayload()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L142"
+    },
+    {
+      "id": "persistence_mulemigrate_mulemigrate",
+      "label": "muleMigrate()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L174"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_persistence_mulemigrate_ts",
+      "target": "home_jondwoo_dev_yabi_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_persistence_mulemigrate_ts",
+      "target": "home_jondwoo_dev_yabi_src_data_bosses",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_persistence_mulemigrate_ts",
+      "target": "home_jondwoo_dev_yabi_src_data_mulebossslate",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_persistence_mulemigrate_ts",
+      "target": "home_jondwoo_dev_yabi_src_data_worlds",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_persistence_mulemigrate_ts",
+      "target": "persistence_mulemigrate_islegacyid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_persistence_mulemigrate_ts",
+      "target": "persistence_mulemigrate_readpartysizes",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_persistence_mulemigrate_ts",
+      "target": "persistence_mulemigrate_upgradev2key",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_persistence_mulemigrate_ts",
+      "target": "persistence_mulemigrate_validatemule",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L74",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_persistence_mulemigrate_ts",
+      "target": "persistence_mulemigrate_parsepayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_persistence_mulemigrate_ts",
+      "target": "persistence_mulemigrate_mulemigrate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L174",
+      "weight": 1.0
+    },
+    {
+      "source": "persistence_mulemigrate_validatemule",
+      "target": "persistence_mulemigrate_upgradev2key",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "persistence_mulemigrate_validatemule",
+      "target": "persistence_mulemigrate_readpartysizes",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "persistence_mulemigrate_mulemigrate",
+      "target": "persistence_mulemigrate_parsepayload",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L176",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "persistence_mulemigrate_islegacyid",
+      "callee": "test",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_islegacyid",
+      "callee": "includes",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_readpartysizes",
+      "callee": "entries",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L46"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_readpartysizes",
+      "callee": "isFinite",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_upgradev2key",
+      "callee": "lastIndexOf",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_upgradev2key",
+      "callee": "slice",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_upgradev2key",
+      "callee": "slice",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_upgradev2key",
+      "callee": "getBossById",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_upgradev2key",
+      "callee": "find",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_validatemule",
+      "callee": "isArray",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_validatemule",
+      "callee": "some",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_validatemule",
+      "callee": "push",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_validatemule",
+      "callee": "from",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_validatemule",
+      "callee": "from",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_validatemule",
+      "callee": "isWorldId",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_parsepayload",
+      "callee": "parse",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L144"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_parsepayload",
+      "callee": "isArray",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L145"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_parsepayload",
+      "callee": "isArray",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_mulemigrate",
+      "callee": "map",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "persistence_mulemigrate_mulemigrate",
+      "callee": "filter",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/src/persistence/muleMigrate.ts",
+      "source_location": "L179"
+    }
+  ]
+}

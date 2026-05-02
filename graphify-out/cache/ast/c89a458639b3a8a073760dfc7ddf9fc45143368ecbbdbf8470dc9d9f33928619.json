@@ -1,0 +1,352 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_worker_src_worker_ts",
+      "label": "worker.ts",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_worker_jsonresponse",
+      "label": "jsonResponse()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L65"
+    },
+    {
+      "id": "src_worker_defaultcache",
+      "label": "defaultCache()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L72"
+    },
+    {
+      "id": "src_worker_handlelookup",
+      "label": "handleLookup()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L79"
+    },
+    {
+      "id": "src_worker_fetch",
+      "label": "fetch()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L187"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_worker_ts",
+      "target": "home_jondwoo_dev_yabi_src_utils_mulename",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_worker_ts",
+      "target": "home_jondwoo_dev_yabi_worker_src_nexonadapter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_worker_ts",
+      "target": "home_jondwoo_dev_yabi_worker_src_worldidmap",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_worker_ts",
+      "target": "src_worker_jsonresponse",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L65",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_worker_ts",
+      "target": "src_worker_defaultcache",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_worker_ts",
+      "target": "src_worker_handlelookup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L79",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_worker_src_worker_ts",
+      "target": "src_worker_fetch",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L187",
+      "weight": 1.0
+    },
+    {
+      "source": "src_worker_handlelookup",
+      "target": "src_worker_jsonresponse",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "src_worker_handlelookup",
+      "target": "src_worker_defaultcache",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "src_worker_fetch",
+      "target": "src_worker_jsonresponse",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L193",
+      "weight": 1.0
+    },
+    {
+      "source": "src_worker_fetch",
+      "target": "src_worker_handlelookup",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L196",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "src_worker_jsonresponse",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "get",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "match",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "normalize",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "decodeURIComponent",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "get",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "isSupportedWorldId",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "match",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "isValidMuleName",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "slice",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "put",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L134"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "clone",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L134"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "toUpstreamKey",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L139"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "adapter",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L140"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "find",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "put",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L149"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "clone",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L149"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "fromUpstreamKey",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L156"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "toISOString",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L169"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "put",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "clone",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "log",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L181"
+    },
+    {
+      "caller_nid": "src_worker_handlelookup",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L181"
+    },
+    {
+      "caller_nid": "src_worker_fetch",
+      "callee": "error",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L191"
+    },
+    {
+      "caller_nid": "src_worker_fetch",
+      "callee": "stringify",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L191"
+    },
+    {
+      "caller_nid": "src_worker_fetch",
+      "callee": "resolve",
+      "is_member_call": true,
+      "source_file": "/home/jondwoo/dev/yabi/worker/src/worker.ts",
+      "source_location": "L192"
+    }
+  ]
+}

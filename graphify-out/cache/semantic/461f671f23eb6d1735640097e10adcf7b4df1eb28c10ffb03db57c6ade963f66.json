@@ -1,0 +1,28 @@
+{
+  "nodes": [
+    {
+      "id": "useslateactions_hook",
+      "label": "useSlateActions",
+      "file_type": "code",
+      "source_file": "src/components/MuleDetailDrawer/hooks/useSlateActions.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "useslateactions_presetpillview",
+      "label": "PresetPillView",
+      "file_type": "code",
+      "source_file": "src/components/MuleDetailDrawer/hooks/useSlateActions.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [],
+  "hyperedges": []
+}

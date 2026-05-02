@@ -1,0 +1,56 @@
+{
+  "nodes": [
+    {
+      "id": "home_jondwoo_dev_yabi_src_tests_router_smoke_test_tsx",
+      "label": "router.smoke.test.tsx",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/router.smoke.test.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_router_smoke_test_findchangelognavlink",
+      "label": "findChangelogNavLink()",
+      "file_type": "code",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/router.smoke.test.tsx",
+      "source_location": "L6"
+    }
+  ],
+  "edges": [
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_router_smoke_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/router.smoke.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_router_smoke_test_tsx",
+      "target": "home_jondwoo_dev_yabi_src_test_test_utils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/router.smoke.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "home_jondwoo_dev_yabi_src_tests_router_smoke_test_tsx",
+      "target": "tests_router_smoke_test_findchangelognavlink",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/router.smoke.test.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "tests_router_smoke_test_findchangelognavlink",
+      "callee": "waitFor",
+      "is_member_call": false,
+      "source_file": "/home/jondwoo/dev/yabi/src/__tests__/router.smoke.test.tsx",
+      "source_location": "L7"
+    }
+  ]
+}
