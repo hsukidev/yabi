@@ -15,8 +15,7 @@ import { describe, expect, it } from 'vitest';
 import { DndContext } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { beforeEach } from 'vitest';
-import { render } from '../../test/test-utils';
-import App from '../../App';
+import { render, renderApp } from '../../test/test-utils';
 import { MuleCharacterCard } from '../MuleCharacterCard';
 import { AddCard } from '../AddCard';
 import type { Mule } from '../../types';
@@ -94,25 +93,25 @@ function rosterColsInBreakpoint(minWidth: number, scope: 'comfy' | 'compact'): n
 }
 
 describe('Roster layout contract — column staircase floor', () => {
-  it('comfy density root declaration sets --roster-cols to 2 (phone floor below 625px)', () => {
+  it('comfy density root declaration sets --roster-cols to 2 (phone floor below 625px)', async () => {
     expect(rosterColsAt('comfy')).toBe(2);
   });
 
-  it('compact density root declaration sets --roster-cols to 2 (phone floor below 625px)', () => {
+  it('compact density root declaration sets --roster-cols to 2 (phone floor below 625px)', async () => {
     expect(rosterColsAt('compact')).toBe(2);
   });
 
-  it('@media (min-width: 625px) bumps both densities to at least 3 cols', () => {
+  it('@media (min-width: 625px) bumps both densities to at least 3 cols', async () => {
     expect(rosterColsInBreakpoint(625, 'comfy')).toBeGreaterThanOrEqual(3);
     expect(rosterColsInBreakpoint(625, 'compact')).toBeGreaterThanOrEqual(3);
   });
 
-  it('@media (min-width: 850px) bumps both densities to at least 4 cols (3→4 transition)', () => {
+  it('@media (min-width: 850px) bumps both densities to at least 4 cols (3→4 transition)', async () => {
     expect(rosterColsInBreakpoint(850, 'comfy')).toBeGreaterThanOrEqual(4);
     expect(rosterColsInBreakpoint(850, 'compact')).toBeGreaterThanOrEqual(4);
   });
 
-  it('no breakpoint between 625px and 849px declares 4 cols (3→4 transition only happens at 850)', () => {
+  it('no breakpoint between 625px and 849px declares 4 cols (3→4 transition only happens at 850)', async () => {
     // Sweep all min-width media-query blocks; any block with min-width strictly
     // less than 850px must NOT declare --roster-cols: 4 (or higher) — that
     // would short-circuit the 850 transition.
@@ -128,7 +127,7 @@ describe('Roster layout contract — column staircase floor', () => {
     }
   });
 
-  it('no --roster-cols declaration drops below 2 (phones still get at least 2 cards/row)', () => {
+  it('no --roster-cols declaration drops below 2 (phones still get at least 2 cards/row)', async () => {
     const allDecls = [...indexCssRaw.matchAll(/--roster-cols:\s*(\d+)/g)].map((m) =>
       parseInt(m[1], 10),
     );
@@ -140,7 +139,7 @@ describe('Roster layout contract — column staircase floor', () => {
 });
 
 describe('Roster layout contract — card aspect ratio', () => {
-  it('MuleCharacterCard panel declares aspect-ratio 3/4 (portrait card identity)', () => {
+  it('MuleCharacterCard panel declares aspect-ratio 3/4 (portrait card identity)', async () => {
     const { container } = renderMuleCard();
     const panel = container.querySelector('[data-mule-card] .panel') as HTMLElement;
     expect(panel).toBeTruthy();
@@ -152,7 +151,7 @@ describe('Roster layout contract — card aspect ratio', () => {
 });
 
 describe('Roster layout contract — card min-height floor', () => {
-  it('MuleCharacterCard panel sets a 120px min-height floor (tappability guarantee at narrow widths)', () => {
+  it('MuleCharacterCard panel sets a 120px min-height floor (tappability guarantee at narrow widths)', async () => {
     const { container } = renderMuleCard();
     const panel = container.querySelector('[data-mule-card] .panel') as HTMLElement;
     expect(panel).toBeTruthy();
@@ -161,7 +160,7 @@ describe('Roster layout contract — card min-height floor', () => {
 });
 
 describe('Roster layout contract — AddCard parity', () => {
-  it('AddCard declares aspect-ratio 3/4 (matches MuleCharacterCard)', () => {
+  it('AddCard declares aspect-ratio 3/4 (matches MuleCharacterCard)', async () => {
     const { container } = render(<AddCard onClick={() => {}} />);
     const addCard = container.querySelector('[data-add-card]') as HTMLElement;
     expect(addCard).toBeTruthy();
@@ -169,7 +168,7 @@ describe('Roster layout contract — AddCard parity', () => {
     expect(aspect).toBe('3/4');
   });
 
-  it('AddCard min-height matches MuleCharacterCard min-height exactly (height parity, no drift)', () => {
+  it('AddCard min-height matches MuleCharacterCard min-height exactly (height parity, no drift)', async () => {
     const { container: muleContainer } = renderMuleCard();
     const { container: addContainer } = render(<AddCard onClick={() => {}} />);
     const panel = muleContainer.querySelector('[data-mule-card] .panel') as HTMLElement;
@@ -181,12 +180,12 @@ describe('Roster layout contract — AddCard parity', () => {
 });
 
 describe('Roster layout contract — INCOME label always visible', () => {
-  it('renders the INCOME label as part of the card content (visible at every viewport)', () => {
+  it('renders the INCOME label as part of the card content (visible at every viewport)', async () => {
     const { container } = renderMuleCard();
     expect(container.textContent).toMatch(/INCOME/);
   });
 
-  it('index.css does NOT hide the INCOME label at any viewport', () => {
+  it('index.css does NOT hide the INCOME label at any viewport', async () => {
     // Belt-and-suspenders: scan the full CSS and assert no `display: none` rule
     // targets either the legacy data-income-label hook or any selector that
     // would scope to the INCOME row (no rule should be removing it anywhere).
@@ -195,7 +194,7 @@ describe('Roster layout contract — INCOME label always visible', () => {
 });
 
 describe('Roster layout contract — phone-mode grid gap override', () => {
-  it('roster grid gap reads --roster-gap (so phone-mode CSS can override it)', () => {
+  it('roster grid gap reads --roster-gap (so phone-mode CSS can override it)', async () => {
     seedMules([
       {
         id: 'm1',
@@ -207,7 +206,7 @@ describe('Roster layout contract — phone-mode grid gap override', () => {
         worldId: 'heroic-kronos',
       },
     ]);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     const grid = container.querySelector('[data-drag-boundary] .grid') as HTMLElement;
     expect(grid).toBeTruthy();
     // The grid's `gap` must reference the --roster-gap variable so the
@@ -216,7 +215,7 @@ describe('Roster layout contract — phone-mode grid gap override', () => {
     expect(grid.style.gap).toContain('var(--roster-gap');
   });
 
-  it('--roster-gap default (root) is 16px and phone-mode (<480px) overrides it to 8px', () => {
+  it('--roster-gap default (root) is 16px and phone-mode (<480px) overrides it to 8px', async () => {
     // Root default — at any density scope or :root.
     const rootRe =
       /(?::root|html|body|\[data-density=['"](?:comfy|compact)['"]\])\s*\{[^}]*--roster-gap:\s*(\d+)px/;
@@ -231,7 +230,7 @@ describe('Roster layout contract — phone-mode grid gap override', () => {
 });
 
 describe('Roster layout contract — phone-mode card padding override', () => {
-  it('index.css overrides --card-pad to 8px inside a <480px (max-width: 479px) media block', () => {
+  it('index.css overrides --card-pad to 8px inside a <480px (max-width: 479px) media block', async () => {
     // The override must be inside a max-width: 479(.98)px @media block. We
     // tolerate the override sitting on either density selectors or a wider
     // scope, so we don't pin it to a specific selector — only that 8px
@@ -241,7 +240,7 @@ describe('Roster layout contract — phone-mode card padding override', () => {
     expect(indexCssRaw).toMatch(phoneModeRe);
   });
 
-  it('the density-default --card-pad values are still 16px (comfy) / 12px (compact) in their root scopes', () => {
+  it('the density-default --card-pad values are still 16px (comfy) / 12px (compact) in their root scopes', async () => {
     // The phone-mode override must not have replaced the desktop defaults —
     // they still apply at >=480px.
     const comfyRoot = indexCssRaw.match(
@@ -258,7 +257,7 @@ describe('Roster layout contract — phone-mode card padding override', () => {
 });
 
 describe('Roster layout contract — grid no longer pins height floor', () => {
-  it('roster grid gridAutoRows is auto (height contract moved to the card itself)', () => {
+  it('roster grid gridAutoRows is auto (height contract moved to the card itself)', async () => {
     seedMules([
       {
         id: 'm1',
@@ -270,7 +269,7 @@ describe('Roster layout contract — grid no longer pins height floor', () => {
         worldId: 'heroic-kronos',
       },
     ]);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     const grid = container.querySelector('[data-drag-boundary] .grid') as HTMLElement;
     expect(grid).toBeTruthy();
     // The previous contract used minmax(var(--roster-card-min-height), auto)

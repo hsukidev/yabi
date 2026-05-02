@@ -1,6 +1,28 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, within, waitFor } from '@/test/test-utils';
 import { Header } from '../Header';
+
+// `<Header />` is mounted in isolation here, so the TanStack Router
+// `<Link>` it wraps the logo with has no router context. Stub `Link` to a
+// plain anchor — full routing is exercised in the app-level smoke tests.
+vi.mock('@tanstack/react-router', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@tanstack/react-router')>();
+  return {
+    ...actual,
+    Link: ({
+      to,
+      children,
+      ...rest
+    }: {
+      to: string;
+      children: React.ReactNode;
+    } & React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+      <a href={to} {...rest}>
+        {children}
+      </a>
+    ),
+  };
+});
 
 describe('Header (shadcn/ThemeProvider)', () => {
   beforeEach(() => {

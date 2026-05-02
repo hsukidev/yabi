@@ -16,22 +16,17 @@ import {
 import { restrictToParentElement } from '@dnd-kit/modifiers';
 import { useState, useCallback, useDeferredValue, useEffect, useMemo, useRef } from 'react';
 
-import { ThemeProvider } from './context/ThemeProvider';
-import { DensityProvider } from './context/DensityProvider';
-import { WorldProvider, useWorld } from './context/WorldProvider';
-import { lensMules } from './data/worlds';
-import { IncomeProvider } from './modules/income';
-import { useMuleActions } from './hooks/useMuleActions';
-import { Toaster } from './components/ui/sonner';
-import { useBulkDragPaint } from './hooks/useBulkDragPaint';
-import { MuleCharacterCard } from './components/MuleCharacterCard';
-import { MuleDetailDrawer } from './components/MuleDetailDrawer';
-import { AddCard } from './components/AddCard';
-import { Header } from './components/Header';
-import { KpiCard } from './components/KpiCard';
-import { PieChartCard } from './components/PieChartCard';
-import { RosterHeader } from './components/RosterHeader';
-import { WorldMissingBanner } from './components/WorldMissingBanner';
+import { useWorld } from '../context/WorldProvider';
+import { lensMules } from '../data/worlds';
+import { useMuleActions } from '../hooks/useMuleActions';
+import { useBulkDragPaint } from '../hooks/useBulkDragPaint';
+import { MuleCharacterCard } from './MuleCharacterCard';
+import { MuleDetailDrawer } from './MuleDetailDrawer';
+import { AddCard } from './AddCard';
+import { KpiCard } from './KpiCard';
+import { PieChartCard } from './PieChartCard';
+import { RosterHeader } from './RosterHeader';
+import { WorldMissingBanner } from './WorldMissingBanner';
 
 const dragBoundaryBaseStyle: React.CSSProperties = {
   borderRadius: '1rem',
@@ -47,7 +42,7 @@ const dragBoundaryActiveStyle: React.CSSProperties = {
   borderColor: 'color-mix(in hsl, var(--accent-primary) 45%, transparent)',
 };
 
-export function AppContent() {
+export function Dashboard() {
   const { mules, addMule, updateMule, deleteMule, deleteMules, reorderMules } = useMuleActions();
   const { world } = useWorld();
   // Unfiltered `mules` is intentionally kept for drag-reorder index math and
@@ -179,8 +174,7 @@ export function AppContent() {
   }, [toDelete, deleteMules, exitBulk]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Header />
+    <>
       <main className="container mx-auto max-w-352 px-4 sm:px-6 py-8">
         <section className="grid grid-cols-1 min-[1100px]:grid-cols-12 gap-6 mb-10">
           <div className="min-[1100px]:col-span-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
@@ -256,23 +250,6 @@ export function AppContent() {
         onUpdate={updateMule}
         onDelete={deleteMule}
       />
-    </div>
+    </>
   );
 }
-
-function App() {
-  return (
-    <ThemeProvider defaultTheme="dark">
-      <DensityProvider>
-        <WorldProvider>
-          <IncomeProvider>
-            <AppContent />
-          </IncomeProvider>
-        </WorldProvider>
-      </DensityProvider>
-      <Toaster />
-    </ThemeProvider>
-  );
-}
-
-export default App;

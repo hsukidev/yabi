@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, within, act } from '@/test/test-utils';
-import App, { AppContent } from '../App';
+import { render, renderApp, screen, fireEvent, waitFor, within, act } from '@/test/test-utils';
+import { Dashboard as AppContent } from '../components/Dashboard';
 import type { Mule } from '../types';
 import { useWorld } from '../context/WorldProvider';
 import type { WorldId } from '../data/worlds';
@@ -148,26 +148,26 @@ describe('App', () => {
     resetTestEnvironment();
   });
 
-  it('renders Add Card in the grid with "Add Mule" text', () => {
-    render(<App />);
+  it('renders Add Card in the grid with "Add Mule" text', async () => {
+    await renderApp();
     expect(screen.getByRole('button', { name: /add mule/i })).toBeTruthy();
   });
 
-  it('renders weekly income section', () => {
-    render(<App />);
+  it('renders weekly income section', async () => {
+    await renderApp();
     expect(screen.getByText(/WEEKLY INCOME/i)).toBeTruthy();
   });
 
-  it('renders mule card grid', () => {
+  it('renders mule card grid', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     const cards = container.querySelectorAll('[data-mule-card]');
     expect(cards.length).toBe(3);
   });
 
-  it('Add Card appears as the last item in the grid', () => {
+  it('Add Card appears as the last item in the grid', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     const grid = container.querySelector('[data-drag-boundary] .grid') as HTMLElement;
     const lastChild = grid.lastElementChild as HTMLElement;
     expect(lastChild.hasAttribute('data-add-card')).toBe(true);
@@ -175,7 +175,7 @@ describe('App', () => {
 
   it('clicking Add Card creates a new mule and opens the detail drawer', async () => {
     localStorage.setItem('world', 'heroic-kronos');
-    render(<App />);
+    await renderApp();
     fireEvent.click(screen.getByRole('button', { name: /add mule/i }));
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Unnamed Mule' })).toBeTruthy();
@@ -189,8 +189,8 @@ describe('App', () => {
       localStorage.removeItem('world');
     });
 
-    it('shows the WorldMissingBanner and creates no mule when no world is selected', () => {
-      const { container } = render(<App />);
+    it('shows the WorldMissingBanner and creates no mule when no world is selected', async () => {
+      const { container } = await renderApp();
       expect(container.querySelector('[data-world-missing-banner]')).toBeNull();
 
       fireEvent.click(screen.getByRole('button', { name: /add mule/i }));
@@ -203,7 +203,7 @@ describe('App', () => {
 
     it('stamps the currently-selected worldId onto the new mule', async () => {
       localStorage.setItem('world', 'heroic-hyperion');
-      const { unmount } = render(<App />);
+      const { unmount } = await renderApp();
       fireEvent.click(screen.getByRole('button', { name: /add mule/i }));
       await waitFor(() => {
         expect(screen.getByRole('heading', { name: 'Unnamed Mule' })).toBeTruthy();
@@ -216,7 +216,7 @@ describe('App', () => {
     });
 
     it('unmounts the banner when the user picks a world', async () => {
-      const { container } = render(<App />);
+      const { container } = await renderApp();
       fireEvent.click(screen.getByRole('button', { name: /add mule/i }));
       expect(container.querySelector('[data-world-missing-banner]')).toBeTruthy();
 
@@ -287,10 +287,10 @@ describe('App', () => {
       return label.parentElement!.querySelectorAll('div')[1]!.textContent ?? '';
     }
 
-    it('renders only Kronos cards and Kronos counts when Kronos is the lens', () => {
+    it('renders only Kronos cards and Kronos counts when Kronos is the lens', async () => {
       localStorage.setItem('world', 'heroic-kronos');
       seedMules(crossWorldMules);
-      const { container } = render(<App />);
+      const { container } = await renderApp();
 
       const ids = Array.from(container.querySelectorAll('[data-mule-card]')).map((c) =>
         c.getAttribute('data-mule-card'),
@@ -347,8 +347,8 @@ describe('App', () => {
     });
   });
 
-  it('toggles income display format on click', () => {
-    render(<App />);
+  it('toggles income display format on click', async () => {
+    await renderApp();
     const clickable = screen.getByRole('button', { name: /toggle abbreviated meso format/i });
     expect(clickable).toBeTruthy();
     fireEvent.click(clickable);
@@ -368,7 +368,7 @@ describe('App', () => {
         },
       ];
       localStorage.setItem('maplestory-mule-tracker', JSON.stringify(persistedRoot(mules)));
-      render(<App />);
+      await renderApp();
 
       fireEvent.click(screen.getByText('DeleteMe'));
       expect(screen.getByRole('heading', { name: 'DeleteMe' })).toBeTruthy();
@@ -403,7 +403,7 @@ describe('App', () => {
         },
       ];
       localStorage.setItem('maplestory-mule-tracker', JSON.stringify(persistedRoot(mules)));
-      render(<App />);
+      await renderApp();
 
       fireEvent.click(screen.getByText('KeepMe'));
       expect(screen.getByRole('heading', { name: 'KeepMe' })).toBeTruthy();
@@ -442,23 +442,23 @@ describe('Bulk Delete Mode', () => {
     fireEvent.click(btn);
   }
 
-  it('renders the Bulk Trash Icon in the roster header', () => {
+  it('renders the Bulk Trash Icon in the roster header', async () => {
     seedMules(testMules);
-    render(<App />);
+    await renderApp();
     expect(screen.getByRole('button', { name: /bulk.*delete|bulk.*trash/i })).toBeTruthy();
   });
 
-  it('clicking the Bulk Trash Icon swaps the header to the Bulk Action Bar', () => {
+  it('clicking the Bulk Trash Icon swaps the header to the Bulk Action Bar', async () => {
     seedMules(testMules);
-    render(<App />);
+    await renderApp();
     enterBulk();
     expect(screen.getByText(/select or drag to delete/i)).toBeTruthy();
     expect(screen.getByText(/0\s*SELECTED/i)).toBeTruthy();
   });
 
-  it('hides the Add Card in bulk mode', () => {
+  it('hides the Add Card in bulk mode', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     expect(container.querySelector('[data-add-card]')).toBeTruthy();
     enterBulk();
     expect(container.querySelector('[data-add-card]')).toBeNull();
@@ -466,7 +466,7 @@ describe('Bulk Delete Mode', () => {
 
   it('clicking a Character Card toggles selection (does NOT open the drawer)', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
 
     const panelA = container.querySelector('[data-mule-card="mule-a"] .panel') as HTMLElement;
@@ -477,9 +477,9 @@ describe('Bulk Delete Mode', () => {
     expect(screen.queryByRole('heading', { name: 'Alpha' })).toBeNull();
   });
 
-  it('surfaces the selected count in the pill and enables Delete when N > 0', () => {
+  it('surfaces the selected count in the pill and enables Delete when N > 0', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
 
     // Initially disabled at 0
@@ -500,7 +500,7 @@ describe('Bulk Delete Mode', () => {
 
   it('Bulk Confirm removes marked mules from the Roster and exits bulk mode', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
 
     fireEvent.click(container.querySelector('[data-mule-card="mule-a"] .panel') as HTMLElement);
@@ -519,7 +519,7 @@ describe('Bulk Delete Mode', () => {
 
   it('persists bulk deletion to localStorage', async () => {
     seedMules(testMules);
-    const { container, unmount } = render(<App />);
+    const { container, unmount } = await renderApp();
     enterBulk();
 
     fireEvent.click(container.querySelector('[data-mule-card="mule-a"] .panel') as HTMLElement);
@@ -542,7 +542,7 @@ describe('Bulk Delete Mode', () => {
 
   it('Bulk Cancel exits without removing any mule', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
 
     fireEvent.click(container.querySelector('[data-mule-card="mule-a"] .panel') as HTMLElement);
@@ -558,18 +558,18 @@ describe('Bulk Delete Mode', () => {
     expect(container.querySelectorAll('[data-mule-card]')).toHaveLength(3);
   });
 
-  it('hides the level badge on every card while in bulk mode', () => {
+  it('hides the level badge on every card while in bulk mode', async () => {
     seedMules(testMules);
-    render(<App />);
+    await renderApp();
     expect(screen.getAllByText(/Lv\./).length).toBeGreaterThan(0);
 
     enterBulk();
     expect(screen.queryByText(/Lv\./)).toBeNull();
   });
 
-  it('hides the hover-trash popover on every card while in bulk mode', () => {
+  it('hides the hover-trash popover on every card while in bulk mode', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     expect(container.querySelectorAll('button[aria-label="Delete mule"]').length).toBeGreaterThan(
       0,
     );
@@ -581,7 +581,7 @@ describe('Bulk Delete Mode', () => {
     seedMules(testMules);
     const restoreRect = mockGetBoundingClientRect();
     try {
-      const { container } = render(<App />);
+      const { container } = await renderApp();
       enterBulk();
 
       const cardA = container.querySelector('[data-mule-card="mule-a"]') as HTMLElement;
@@ -596,9 +596,9 @@ describe('Bulk Delete Mode', () => {
     }
   });
 
-  it('Drag Boundary exposes data-bulk-mode reflecting Bulk Delete Mode state', () => {
+  it('Drag Boundary exposes data-bulk-mode reflecting Bulk Delete Mode state', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     const boundary = container.querySelector('[data-drag-boundary]') as HTMLElement;
     expect(boundary.getAttribute('data-bulk-mode')).toBe('false');
 
@@ -611,15 +611,15 @@ describe('Bulk Delete Mode', () => {
 });
 
 describe('section entrance animations', () => {
-  it('Header renders with sticky positioning', () => {
-    render(<App />);
+  it('Header renders with sticky positioning', async () => {
+    await renderApp();
     const header = screen.getByRole('banner');
     expect(header.className).toContain('sticky');
     expect(header.className).toContain('top-0');
   });
 
-  it('income card has slide-up fade-in animation classes', () => {
-    const { container } = render(<App />);
+  it('income card has slide-up fade-in animation classes', async () => {
+    const { container } = await renderApp();
     const incomeCard = container.querySelector('[data-testid="income-card"]');
     expect(incomeCard).toBeTruthy();
     const wrapper = incomeCard!.parentElement!;
@@ -630,8 +630,8 @@ describe('section entrance animations', () => {
     expect(wrapper.className).toContain('fill-mode-both');
   });
 
-  it('income chart has slide-up fade-in animation classes', () => {
-    const { container } = render(<App />);
+  it('income chart has slide-up fade-in animation classes', async () => {
+    const { container } = await renderApp();
     const incomeChart = container.querySelector('[data-testid="income-chart"]');
     expect(incomeChart).toBeTruthy();
     const wrapper = incomeChart!.parentElement!;
@@ -642,8 +642,8 @@ describe('section entrance animations', () => {
     expect(wrapper.className).toContain('fill-mode-both');
   });
 
-  it('roster section has slide-up fade-in animation classes', () => {
-    const { container } = render(<App />);
+  it('roster section has slide-up fade-in animation classes', async () => {
+    const { container } = await renderApp();
     const rosterSection = container.querySelector('[data-testid="roster-section"]');
     expect(rosterSection).toBeTruthy();
     expect(rosterSection!.className).toContain('animate-in');
@@ -667,8 +667,8 @@ describe('App DnD interactions', () => {
     restoreRect();
   });
 
-  it('renders mule cards in grid order', () => {
-    const { container } = render(<App />);
+  it('renders mule cards in grid order', async () => {
+    const { container } = await renderApp();
     const cards = container.querySelectorAll('[data-mule-card]');
     expect(cards).toHaveLength(3);
     expect(cards[0].getAttribute('data-mule-card')).toBe('mule-a');
@@ -677,7 +677,7 @@ describe('App DnD interactions', () => {
   });
 
   it('calls reorderMules with correct indices on drag end', async () => {
-    const { container } = render(<App />);
+    const { container } = await renderApp();
 
     const cardA = container.querySelector('[data-mule-card="mule-a"]') as HTMLElement;
     expect(cardA).toBeTruthy();
@@ -692,7 +692,7 @@ describe('App DnD interactions', () => {
   });
 
   it('non-dragged cards retain transform transition during active drag', async () => {
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     const cardA = container.querySelector('[data-mule-card="mule-a"]') as HTMLElement;
     const cardB = container.querySelector('[data-mule-card="mule-b"]') as HTMLElement;
 
@@ -717,7 +717,7 @@ describe('App DnD interactions', () => {
   });
 
   it('dragged card has no transform transition during active drag', async () => {
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     const cardA = container.querySelector('[data-mule-card="mule-a"]') as HTMLElement;
 
     fireEvent.mouseDown(cardA, { clientX: 100, clientY: 150, button: 0, bubbles: true });
@@ -742,7 +742,7 @@ describe('App DnD interactions', () => {
     // With the DragOverlay removed, the pressed card IS the drag visual — it
     // must stay opacity:1 and sit above its siblings via z-index so it renders
     // over other cards it's being dragged across.
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     const cardA = container.querySelector('[data-mule-card="mule-a"]') as HTMLElement;
 
     fireEvent.mouseEnter(cardA);
@@ -766,7 +766,7 @@ describe('App DnD interactions', () => {
   });
 
   it('resets isDragging state on drag cancel, removing dotted border', async () => {
-    const { container } = render(<App />);
+    const { container } = await renderApp();
 
     const cardA = container.querySelector('[data-mule-card="mule-a"]') as HTMLElement;
     expect(cardA).toBeTruthy();
@@ -786,20 +786,20 @@ describe('App DnD interactions', () => {
     });
   });
 
-  it('grid wrapper has rounded corners before any drag (no sharp-to-rounded transition)', () => {
-    const { container } = render(<App />);
+  it('grid wrapper has rounded corners before any drag (no sharp-to-rounded transition)', async () => {
+    const { container } = await renderApp();
     const boundary = container.querySelector('[data-drag-boundary]') as HTMLElement;
     expect(boundary.style.borderRadius).toBe('1rem');
   });
 
-  it('grid wrapper has dashed border-style before any drag (no solid-to-dashed flicker)', () => {
-    const { container } = render(<App />);
+  it('grid wrapper has dashed border-style before any drag (no solid-to-dashed flicker)', async () => {
+    const { container } = await renderApp();
     const boundary = container.querySelector('[data-drag-boundary]') as HTMLElement;
     expect(boundary.style.borderStyle).toBe('dashed');
   });
 
-  it('grid wrapper transition does not include border-radius (radius is always 1rem)', () => {
-    const { container } = render(<App />);
+  it('grid wrapper transition does not include border-radius (radius is always 1rem)', async () => {
+    const { container } = await renderApp();
     const boundary = container.querySelector('[data-drag-boundary]') as HTMLElement;
     const parts = boundary.className.split(/\s+/);
     const transitionClass = parts.find((p: string) => p.startsWith('transition-['));
@@ -808,8 +808,8 @@ describe('App DnD interactions', () => {
     expect(props).not.toContain('border-radius');
   });
 
-  it('grid wrapper transition does not include border-style (style is always dashed)', () => {
-    const { container } = render(<App />);
+  it('grid wrapper transition does not include border-style (style is always dashed)', async () => {
+    const { container } = await renderApp();
     const boundary = container.querySelector('[data-drag-boundary]') as HTMLElement;
     const parts = boundary.className.split(/\s+/);
     const transitionClass = parts.find((p: string) => p.startsWith('transition-['));
@@ -819,7 +819,7 @@ describe('App DnD interactions', () => {
   });
 
   it('grid wrapper transition does not include padding or all', async () => {
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     const boundary = container.querySelector('[data-drag-boundary]') as HTMLElement;
 
     expect(boundary.className).not.toContain('transition-all');
@@ -833,7 +833,7 @@ describe('App DnD interactions', () => {
   });
 
   it('grid wrapper padding is stable across the drag cycle (no drop jitter)', async () => {
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     const boundary = container.querySelector('[data-drag-boundary]') as HTMLElement;
     const beforePadding = boundary.style.padding;
     expect(beforePadding).toBeTruthy();
@@ -854,8 +854,8 @@ describe('App DnD interactions', () => {
     });
   });
 
-  it('Add Card is not included in DnD sortable items', () => {
-    const { container } = render(<App />);
+  it('Add Card is not included in DnD sortable items', async () => {
+    const { container } = await renderApp();
     const addCard = container.querySelector('[data-add-card]') as HTMLElement;
     expect(addCard).toBeTruthy();
     // Add Card should not have dnd-kit sortable attributes
@@ -863,7 +863,7 @@ describe('App DnD interactions', () => {
   });
 
   it('dragging cards does not change Add Card position (stays last)', async () => {
-    const { container } = render(<App />);
+    const { container } = await renderApp();
 
     const cardA = container.querySelector('[data-mule-card="mule-a"]') as HTMLElement;
     simulatePointerDrag(cardA, 100, 150, 320, 150);

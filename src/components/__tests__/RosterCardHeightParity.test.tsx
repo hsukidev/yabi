@@ -14,8 +14,7 @@
  *   3. An empty roster still renders AddCard with the contract intact.
  */
 import { describe, expect, it, beforeEach } from 'vitest';
-import { render } from '../../test/test-utils';
-import App from '../../App';
+import { renderApp } from '../../test/test-utils';
 import type { Mule } from '../../types';
 
 const STORAGE_KEY = 'maplestory-mule-tracker';
@@ -50,21 +49,21 @@ beforeEach(() => {
 });
 
 describe('Roster card height parity (integration)', () => {
-  it('AddCard carries aspect-ratio: 3/4 and min-height: 120px when wrapping alone in comfy', () => {
+  it('AddCard carries aspect-ratio: 3/4 and min-height: 120px when wrapping alone in comfy', async () => {
     // 3 cols at every viewport (comfy default) → 3 mules + AddCard means
     // AddCard wraps to a new row alone. The card-level contract is what now
     // guarantees the wrapping row's height, since gridAutoRows no longer pins
     // a floor.
     const mules = Array.from({ length: 3 }, (_, i) => makeMule({ id: `mule-${i}`, name: `M${i}` }));
     seedMules(mules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     const addCard = container.querySelector('[data-add-card]') as HTMLElement;
     expect(addCard).toBeTruthy();
     expect(addCard.style.minHeight).toBe('120px');
     expect(addCard.style.aspectRatio.replace(/\s+/g, '')).toBe('3/4');
   });
 
-  it('AddCard contract holds at the compact-density boundary (4 cols, AddCard wraps alone)', () => {
+  it('AddCard contract holds at the compact-density boundary (4 cols, AddCard wraps alone)', async () => {
     document.documentElement.setAttribute('data-density', 'compact');
     // jsdom defaults to a 1024px viewport — that puts compact at 5 cols.
     // Seed enough mules to ensure AddCard wraps alone regardless of which
@@ -72,13 +71,13 @@ describe('Roster card height parity (integration)', () => {
     // every compact column count.
     const mules = Array.from({ length: 8 }, (_, i) => makeMule({ id: `mule-${i}`, name: `M${i}` }));
     seedMules(mules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     const addCard = container.querySelector('[data-add-card]') as HTMLElement;
     expect(addCard.style.minHeight).toBe('120px');
     expect(addCard.style.aspectRatio.replace(/\s+/g, '')).toBe('3/4');
   });
 
-  it('roster grid does not override align-items (in-row stretch carries non-uniform-content parity)', () => {
+  it('roster grid does not override align-items (in-row stretch carries non-uniform-content parity)', async () => {
     // Within a row, CSS grid's default stretch alignment pulls every cell
     // (including AddCard) to the tallest in-row card. We rely on that
     // default — opting out of stretch would break in-row parity when one
@@ -88,15 +87,15 @@ describe('Roster card height parity (integration)', () => {
       makeMule({ id: 'long', name: 'A'.repeat(80), muleClass: '' }),
     ];
     seedMules(mules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     const grid = container.querySelector('[data-drag-boundary] .grid') as HTMLElement;
     expect(grid.style.alignItems === '' || grid.style.alignItems === 'stretch').toBe(true);
   });
 
-  it('empty roster still renders AddCard with the full contract (aspect-ratio + min-height)', () => {
+  it('empty roster still renders AddCard with the full contract (aspect-ratio + min-height)', async () => {
     // No seeded mules → roster contains only the AddCard. The contract must
     // come from AddCard itself, not from the surrounding grid.
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     const addCard = container.querySelector('[data-add-card]') as HTMLElement;
     expect(addCard).toBeTruthy();
     expect(addCard.style.minHeight).toBe('120px');

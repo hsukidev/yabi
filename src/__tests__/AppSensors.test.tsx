@@ -1,6 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render } from '@/test/test-utils';
-import App from '../App';
+import { renderApp } from '@/test/test-utils';
 
 // Spy on `useSensor` to assert the sensor array shape App registers with
 // DndContext. Split mouse/touch/keyboard replaces the single PointerSensor
@@ -32,7 +31,7 @@ describe('App sensor configuration', () => {
     const sortable = await import('@dnd-kit/sortable');
     const useSensor = dndKit.useSensor as unknown as ReturnType<typeof vi.fn>;
 
-    render(<App />);
+    await renderApp();
 
     const calls = useSensor.mock.calls;
     const byName = new Map<string, unknown>();

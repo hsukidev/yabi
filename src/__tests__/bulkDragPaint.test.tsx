@@ -1,6 +1,5 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, fireEvent, act } from '@/test/test-utils';
-import App from '../App';
+import { renderApp, screen, fireEvent, act } from '@/test/test-utils';
 import type { Mule } from '../types';
 
 const STORAGE_KEY = 'maplestory-mule-tracker';
@@ -208,9 +207,9 @@ describe('useBulkDragPaint (drag-to-select gesture)', () => {
     }
   });
 
-  it('zero-move single-click preserved: pointerdown → pointerup on a card toggles selection', () => {
+  it('zero-move single-click preserved: pointerdown → pointerup on a card toggles selection', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -228,9 +227,9 @@ describe('useBulkDragPaint (drag-to-select gesture)', () => {
     expect(screen.getByText(/1\s*SELECTED/i)).toBeTruthy();
   });
 
-  it('forward paint (add): drag from unmarked S across two later cards marks all three', () => {
+  it('forward paint (add): drag from unmarked S across two later cards marks all three', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -247,9 +246,9 @@ describe('useBulkDragPaint (drag-to-select gesture)', () => {
     expect(isCardSelected(container, 'mule-e')).toBe(false);
   });
 
-  it('forward paint (remove): drag from marked S across two later marked cards unmarks all three', () => {
+  it('forward paint (remove): drag from marked S across two later marked cards unmarks all three', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -272,9 +271,9 @@ describe('useBulkDragPaint (drag-to-select gesture)', () => {
     expect(isCardSelected(container, 'mule-c')).toBe(false);
   });
 
-  it('revert on backtrack: forward across E,F,G then back to S leaves only S marked', () => {
+  it('revert on backtrack: forward across E,F,G then back to S leaves only S marked', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -294,13 +293,13 @@ describe('useBulkDragPaint (drag-to-select gesture)', () => {
     expect(isCardSelected(container, 'mule-d')).toBe(false);
   });
 
-  it('cross the start: start=D, forward to F, back past D to B → B,C,D marked; E,F reverted (5-card range [B..D])', () => {
+  it('cross the start: start=D, forward to F, back past D to B → B,C,D marked; E,F reverted (5-card range [B..D])', async () => {
     // PRD walkthrough: roster A,B,C,D,E,F,G. Start S=D (index 3). Drag right
     // to F (index 5): range [D..F] brushes E, F. Drag left past D to B (index
     // 1): new range [B..D] brushes B, C; E, F revert to Original Snapshot
     // (unmarked). Final marked set = {B, C, D}; D is still marked as start.
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -322,12 +321,12 @@ describe('useBulkDragPaint (drag-to-select gesture)', () => {
     expect(isCardSelected(container, 'mule-g')).toBe(false);
   });
 
-  it('preserve pre-existing selection on revert: pre-marked X entering then leaving range restores to marked', () => {
+  it('preserve pre-existing selection on revert: pre-marked X entering then leaving range restores to marked', async () => {
     // Pre-mark mule-c. Drag from unmarked mule-a forward to mule-d, then back to mule-a.
     // At pointerup, the final range is [0, 0] = just A. But mule-c was pre-marked,
     // so reverting it should leave it marked (not unmarked).
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -350,9 +349,9 @@ describe('useBulkDragPaint (drag-to-select gesture)', () => {
     expect(isCardSelected(container, 'mule-d')).toBe(false);
   });
 
-  it('synthetic click suppression: after an engaged drag, the trailing click on Start Card does not double-toggle', () => {
+  it('synthetic click suppression: after an engaged drag, the trailing click on Start Card does not double-toggle', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -373,9 +372,9 @@ describe('useBulkDragPaint (drag-to-select gesture)', () => {
     expect(isCardSelected(container, 'mule-a')).toBe(true);
   });
 
-  it('pointerdown outside any card is a no-op; subsequent pointermove/pointerup leave state unchanged', () => {
+  it('pointerdown outside any card is a no-op; subsequent pointermove/pointerup leave state unchanged', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -391,9 +390,9 @@ describe('useBulkDragPaint (drag-to-select gesture)', () => {
     expect(isCardSelected(container, 'mule-c')).toBe(false);
   });
 
-  it('pointercancel mid-drag reverts every Mule to its Original Snapshot', () => {
+  it('pointercancel mid-drag reverts every Mule to its Original Snapshot', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -433,9 +432,9 @@ describe('useBulkDragPaint (touch long-press gate)', () => {
     }
   });
 
-  it('touch: pointerup before 250ms does NOT engage the paint (scroll-preserving tap)', () => {
+  it('touch: pointerup before 250ms does NOT engage the paint (scroll-preserving tap)', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -453,9 +452,9 @@ describe('useBulkDragPaint (touch long-press gate)', () => {
     expect(isCardSelected(container, 'mule-b')).toBe(false);
   });
 
-  it('touch: holding past 250ms engages the paint on the start card', () => {
+  it('touch: holding past 250ms engages the paint on the start card', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -473,9 +472,9 @@ describe('useBulkDragPaint (touch long-press gate)', () => {
     pointerUp(document, centerXFor(0), 150, 'touch');
   });
 
-  it('touch: pre-engagement pointermove > 5px cancels the long-press timer', () => {
+  it('touch: pre-engagement pointermove > 5px cancels the long-press timer', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -498,9 +497,9 @@ describe('useBulkDragPaint (touch long-press gate)', () => {
     pointerUp(document, startX, 170, 'touch');
   });
 
-  it('mouse: engages immediately on pointerdown (no 250ms gate on desktop)', () => {
+  it('mouse: engages immediately on pointerdown (no 250ms gate on desktop)', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -515,9 +514,9 @@ describe('useBulkDragPaint (touch long-press gate)', () => {
     pointerUp(document, centerXFor(1), 150, 'mouse');
   });
 
-  it('touch: engaged paint flips data-paint-engaged on the drag boundary', () => {
+  it('touch: engaged paint flips data-paint-engaged on the drag boundary', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -545,9 +544,9 @@ describe('useBulkDragPaint (touch long-press gate)', () => {
     expect(boundary.getAttribute('data-paint-engaged')).not.toBe('true');
   });
 
-  it('touch: pointercancel clears data-paint-engaged after engagement', () => {
+  it('touch: pointercancel clears data-paint-engaged after engagement', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -564,14 +563,14 @@ describe('useBulkDragPaint (touch long-press gate)', () => {
     expect(boundary.getAttribute('data-paint-engaged')).not.toBe('true');
   });
 
-  it('touch: start card scale(1.04) is released the moment paint engages', () => {
+  it('touch: start card scale(1.04) is released the moment paint engages', async () => {
     // Pre-engagement: touchstart scales the anchor card up to 1.04 as haptic
     // feedback. Once the 250ms long-press engages the paint, the scale must
     // snap back to the resting transform — the paint gesture continues, but
     // the "holding" visual shouldn't stick for the whole drag (the finger
     // doesn't lift, so onTouchEnd can't clear it on its own).
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -621,13 +620,13 @@ describe('useBulkDragPaint (scroll preventer)', () => {
     return ev;
   }
 
-  it('touch post-engagement: a dispatched touchmove on document has its default prevented', () => {
+  it('touch post-engagement: a dispatched touchmove on document has its default prevented', async () => {
     // This is the load-bearing scroll-takeover fix: once the 250ms long-press
     // has engaged the paint, native browser scroll must be cancelled per-event
     // via preventDefault on touchmove — the only mid-gesture escape hatch iOS
     // honors after the touch-action scroll latch.
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -644,13 +643,13 @@ describe('useBulkDragPaint (scroll preventer)', () => {
     pointerUp(document, centerXFor(0), 150, 'touch');
   });
 
-  it('touch pre-engagement: a dispatched touchmove on document is NOT default-prevented', () => {
+  it('touch pre-engagement: a dispatched touchmove on document is NOT default-prevented', async () => {
     // Pre-Engagement must preserve native scroll so the user can scroll through
     // a long Roster in Bulk Delete Mode by tapping a card and dragging past the
     // 5px Tolerance Cancel threshold. If the Scroll Preventer blocked scroll
     // during the long-press window, that interaction would be lost.
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -670,9 +669,9 @@ describe('useBulkDragPaint (scroll preventer)', () => {
     pointerUp(document, centerXFor(0), 150, 'touch');
   });
 
-  it('touch: after pointerup, dispatched touchmove is no longer default-prevented (listener detached)', () => {
+  it('touch: after pointerup, dispatched touchmove is no longer default-prevented (listener detached)', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -688,9 +687,9 @@ describe('useBulkDragPaint (scroll preventer)', () => {
     expect(ev.defaultPrevented).toBe(false);
   });
 
-  it('touch: after pointercancel, dispatched touchmove is no longer default-prevented', () => {
+  it('touch: after pointercancel, dispatched touchmove is no longer default-prevented', async () => {
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 
@@ -706,12 +705,12 @@ describe('useBulkDragPaint (scroll preventer)', () => {
     expect(ev.defaultPrevented).toBe(false);
   });
 
-  it('mouse: pointerdown does not attach a touchmove preventer (desktop unchanged)', () => {
+  it('mouse: pointerdown does not attach a touchmove preventer (desktop unchanged)', async () => {
     // Mouse and pen paths must not register the Scroll Preventer — there's no
     // Scroll Latch to fight on desktop, and attaching the listener would block
     // unrelated touchmove events on hybrid devices mid-mouse-drag.
     seedMules(testMules);
-    const { container } = render(<App />);
+    const { container } = await renderApp();
     enterBulk();
     restoreHitTest = mockElementFromPoint(container, testMules);
 

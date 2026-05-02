@@ -1,10 +1,12 @@
 import { type ReactElement } from 'react';
 import { render as rtlRender, type RenderOptions } from '@testing-library/react';
 import { vi } from 'vitest';
+import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/react-router';
 import { ThemeProvider } from '@/context/ThemeProvider';
 import { DensityProvider } from '@/context/DensityProvider';
 import { WorldProvider } from '@/context/WorldProvider';
 import { IncomeProvider } from '@/modules/income';
+import { routeTree } from '@/routeTree.gen';
 import type { WorldId } from '@/data/worlds';
 
 interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
@@ -35,6 +37,20 @@ export function render(
   }
 
   return rtlRender(ui, { wrapper: Wrapper, ...options });
+}
+
+// Full-app render: mounts the real route tree (which carries its own provider
+// shell via `__root.tsx`) at `initialPath`. The router is preloaded
+// (`router.load()`) before mount so the matched route renders synchronously
+// — without that, `<RouterProvider>` paints an empty pending state and tests
+// that query the DOM right after render see nothing.
+export async function renderApp({ initialPath = '/' }: { initialPath?: string } = {}) {
+  const router = createRouter({
+    routeTree,
+    history: createMemoryHistory({ initialEntries: [initialPath] }),
+  });
+  await router.load();
+  return rtlRender(<RouterProvider router={router} />);
 }
 
 export { screen, fireEvent, waitFor, within, act } from '@testing-library/react';

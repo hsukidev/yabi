@@ -1,4 +1,5 @@
 import { Sun, Moon } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 import { useTheme } from '../context/ThemeProvider';
 import { WorldSelect } from './WorldSelect';
 import { BuyMeCoffeeButton } from './BuyMeCoffeeButton';
@@ -17,7 +18,10 @@ export function Header() {
     >
       <div className="container mx-auto max-w-352 px-4 sm:px-6">
         <div className="flex h-14 items-center justify-between">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Link
+            to="/"
+            style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}
+          >
             <img
               src={logoUrl}
               alt="YABI logo"
@@ -35,7 +39,7 @@ export function Header() {
             >
               YABI
             </span>
-          </div>
+          </Link>
           <div className="flex items-center gap-5 max-[479.99px]:gap-2">
             <WorldSelect />
             <button
