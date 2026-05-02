@@ -5,11 +5,30 @@ import { describeArc, formatCompact, formatCenterPercent } from '../IncomePieCha
 import type { Mule } from '../../types';
 import { bosses } from '../../data/bosses';
 import { MULE_PALETTE } from '../../utils/muleColor';
+import { formatMeso } from '../../utils/meso';
+import { WORLD_WEEKLY_CRYSTAL_CAP } from '../../modules/worldIncome';
 
 const HILLA = bosses.find((b) => b.family === 'hilla')!.id;
 // Normal Hilla is a daily tier (slice 2, per the PRD daily classification).
 const NORMAL_HILLA = `${HILLA}:normal:daily`;
 const BLACK_MAGE = bosses.find((b) => b.family === 'black-mage')!.id;
+
+/**
+ * Highest-Heroic-`crystalValue` weekly slate keys, ordered desc. Mirrors the
+ * `KpiCard` over-cap test fixture so the cap-cut math is consistent across
+ * cap-aware component tests.
+ */
+function topWeeklyKeys(n: number): { slateKey: string; value: number }[] {
+  const all: { slateKey: string; value: number }[] = [];
+  for (const b of bosses) {
+    const weeklies = b.difficulty.filter((d) => d.cadence === 'weekly');
+    if (weeklies.length === 0) continue;
+    const top = weeklies.reduce((a, c) => (c.crystalValue.Heroic > a.crystalValue.Heroic ? c : a));
+    all.push({ slateKey: `${b.id}:${top.tier}:weekly`, value: top.crystalValue.Heroic });
+  }
+  all.sort((a, b) => b.value - a.value);
+  return all.slice(0, n);
+}
 // Black Mage Hard is monthly cadence; monthly selections don't contribute to
 // totalCrystalValue (weekly-basis), so a mule holding only this key renders
 // as an empty slice in the pie — mind that when asserting visibility.
@@ -184,6 +203,134 @@ describe('IncomePieChart', () => {
       fireEvent.click(paths[0]);
       expect(onSliceClick).toHaveBeenCalledWith('mule-1');
     }
+  });
+
+  describe('cap-aware slice basis (issue #237)', () => {
+    // Build an over-cap roster for cap-aware tests. The hilla mule's 7 daily
+    // 4M slots sit below every weekly slot in the pool, so the World Cap Cut
+    // attributes are deterministic.
+    function buildOverCapRoster(hillaSelected = [NORMAL_HILLA]): Mule[] {
+      const top14 = topWeeklyKeys(14).map((k) => k.slateKey);
+      const out: Mule[] = [];
+      for (let i = 0; i < 13; i++) {
+        out.push({
+          id: `m${i}`,
+          name: `M${i}`,
+          level: 200,
+          muleClass: 'Hero',
+          selectedBosses: top14,
+          active: true,
+        });
+      }
+      out.push({
+        id: 'mhilla',
+        name: 'HillaMule',
+        level: 200,
+        muleClass: 'Hero',
+        selectedBosses: hillaSelected,
+        active: true,
+      });
+      return out;
+    }
+
+    it('filters out a fully-dropped mule (renders no slice for it)', () => {
+      // 13 mules × 14 top weeklies = 182 weekly slots, plus a hilla mule with
+      // 7 daily 4M slots = 189 total. Top 180 are all weekly slots; every
+      // hilla daily slot drops, so the hilla mule's contributedMeso === 0.
+      const mules = buildOverCapRoster();
+      const { container } = render(<IncomePieChart mules={mules} />);
+      const colors = readMuleColors(container);
+      expect(colors.mhilla).toBeUndefined();
+      // The fully-dropped mule renders no slice; the 13 over-cap mules do.
+      expect(Object.keys(colors)).toHaveLength(13);
+    });
+
+    it("sizes a partially-dropped mule's slice on contributedMeso, not uncapped potential", () => {
+      // 12 mules × 14 weeklies (168) + 1 mule × 10 weeklies (10) = 178 weekly
+      // slots, plus 7 hilla daily 4M slots = 185 total. Top 180 keep all 178
+      // weeklies + 2 of 7 hilla. Hilla mule: potential 28M, contributed 8M.
+      const top14 = topWeeklyKeys(14).map((k) => k.slateKey);
+      const mules: Mule[] = [];
+      for (let i = 0; i < 12; i++) {
+        mules.push({
+          id: `m${i}`,
+          name: `M${i}`,
+          level: 200,
+          muleClass: 'Hero',
+          selectedBosses: top14,
+          active: true,
+        });
+      }
+      mules.push({
+        id: 'm12',
+        name: 'M12',
+        level: 200,
+        muleClass: 'Hero',
+        selectedBosses: top14.slice(0, 10),
+        active: true,
+      });
+      mules.push({
+        id: 'mhilla',
+        name: 'HillaMule',
+        level: 200,
+        muleClass: 'Hero',
+        selectedBosses: [NORMAL_HILLA],
+        active: true,
+      });
+
+      const { container } = render(<IncomePieChart mules={mules} />, {
+        defaultAbbreviated: false,
+      });
+
+      // Hilla mule is the last visible slice (input order). Hover it to
+      // surface its formatted value in the center label.
+      const sectors = container.querySelectorAll('.recharts-pie-sector');
+      expect(sectors.length).toBe(14);
+      fireEvent.mouseEnter(sectors[sectors.length - 1]);
+
+      // Center shows the hilla mule's post-cap value (2 × 4M = 8M), not its
+      // uncapped potential (7 × 4M = 28M).
+      expect(screen.getByText('HillaMule')).toBeTruthy();
+      expect(screen.getByText(formatMeso(8_000_000, false))).toBeTruthy();
+      expect(screen.queryByText(formatMeso(28_000_000, false))).toBeNull();
+    });
+
+    it("center 'Total' reconciles with the post-cap world total (matches the KPI bignum basis)", () => {
+      // Same over-cap fixture as the fully-dropped test. Total contributed =
+      // sum of the top 180 weekly slot values from the 13×14 pool. Compute
+      // it from the same source the aggregator does so the assertion tracks
+      // the cap-cut, not a literal.
+      const top14Values = topWeeklyKeys(14).map((k) => k.value);
+      const allWeeklyValues = top14Values.flatMap((v) => Array(13).fill(v));
+      allWeeklyValues.sort((a, b) => b - a);
+      const expectedPostCap = allWeeklyValues
+        .slice(0, WORLD_WEEKLY_CRYSTAL_CAP)
+        .reduce((s, v) => s + v, 0);
+
+      const mules = buildOverCapRoster();
+      render(<IncomePieChart mules={mules} />, { defaultAbbreviated: false });
+
+      // No slice hovered → center shows the "Total" sum of all visible slice
+      // values, which equals the post-cap world total after Slice 3.
+      expect(screen.getByText('Total')).toBeTruthy();
+      expect(screen.getByText(formatMeso(expectedPostCap, false))).toBeTruthy();
+    });
+
+    it('under-cap rosters see no behavior change (slice value equals potential)', () => {
+      // Single mule, 1 weekly Lucid → 1 slot, well under cap. Slice value
+      // equals the mule's full potential (504M Heroic) — same as before.
+      const HARD_LUCID = `${bosses.find((b) => b.family === 'lucid')!.id}:hard:weekly`;
+      const m: Mule = {
+        id: 'solo',
+        name: 'Solo',
+        level: 200,
+        muleClass: 'Hero',
+        selectedBosses: [HARD_LUCID],
+        active: true,
+      };
+      render(<IncomePieChart mules={[m]} />, { defaultAbbreviated: false });
+      expect(screen.getByText(formatMeso(504_000_000, false))).toBeTruthy();
+    });
   });
 
   describe('balanced slice colors', () => {

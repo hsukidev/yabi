@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { PieChart, Pie, Cell } from 'recharts';
 import type { Mule } from '../types';
-import { Income, useIncome } from '../modules/income';
+import { useWorldIncome } from '../modules/worldIncome';
+import { formatMeso } from '../utils/meso';
 import { colorForMulePosition } from '../utils/muleColor';
 import { ChartContainer, type ChartConfig } from './ui/chart';
 import { describeArc, formatCenterPercent, formatCompact } from './IncomePieChart.utils';
@@ -20,7 +21,7 @@ interface IncomePieChartProps {
 }
 
 export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
-  const { abbreviated } = useIncome();
+  const { abbreviated, perMule } = useWorldIncome(mules);
   const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
 
   // Crossing the paddingAngle gap between sectors fires a mouseLeave then a
@@ -51,21 +52,23 @@ export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
   // Slice color cycles through the palette by position in the visible set so
   // no color clusters. Reorders and insertions can shift which slice holds
   // which color, which is the tradeoff for a balanced distribution.
+  //
+  // Slice value is the mule's **Contributed Meso** (post-cap) from the
+  // **World Cap Cut** so the pie agrees with the KPI bignum it sits next to.
+  // A mule whose entire slate is dropped to the cap (`contributedMeso === 0`)
+  // is filtered out and renders no slice — same behavior as `active === false`
+  // and "no bosses selected".
   const data: ChartDataItem[] = mules
     .filter((m) => m.active !== false && m.selectedBosses.length > 0)
-    .map((m, i) => {
-      // Per-slice math uses format-independent numbers; the hover label
-      // takes a format-aware string derived from the same Income.
-      const raw = Income.of(m, false).raw;
-      const formatted = Income.of(m, abbreviated).formatted;
-      return {
-        name: m.name || 'Unnamed Mule',
-        value: raw,
-        formatted,
-        muleId: m.id,
-        fill: colorForMulePosition(i),
-      };
-    });
+    .map((m) => ({ mule: m, contributed: perMule.get(m.id)?.contributedMeso ?? 0 }))
+    .filter(({ contributed }) => contributed > 0)
+    .map(({ mule, contributed }, i) => ({
+      name: mule.name || 'Unnamed Mule',
+      value: contributed,
+      formatted: formatMeso(contributed, abbreviated),
+      muleId: mule.id,
+      fill: colorForMulePosition(i),
+    }));
 
   if (data.length === 0) {
     return (
