@@ -850,3 +850,67 @@ describe('type exports', () => {
     expect(row?.selected).toBe(true);
   });
 });
+
+describe('MuleBossSlate.slots — Crystal Slot expansion', () => {
+  it('is empty for EMPTY', () => {
+    expect(MuleBossSlate.EMPTY.slots()).toEqual([]);
+  });
+
+  it('emits 1 weekly slot at crystalValue (party 1) per Weekly Cadence Slate Key', () => {
+    const k = key(LUCID, 'hard');
+    const slots = MuleBossSlate.from([k]).slots();
+    expect(slots).toEqual([{ value: 504_000_000, cadence: 'weekly', slateKey: k }]);
+  });
+
+  it('divides Weekly Cadence Slot Value by Party Size', () => {
+    const k = key(LUCID, 'hard');
+    const slots = MuleBossSlate.from([k]).slots({ lucid: 2 });
+    expect(slots).toEqual([{ value: 252_000_000, cadence: 'weekly', slateKey: k }]);
+  });
+
+  it('emits 7 daily slots at crystalValue each (Party Size ignored)', () => {
+    // Normal Hilla is daily @ 4M.
+    const k = key(idForFamily('hilla'), 'normal');
+    const slots = MuleBossSlate.from([k]).slots({ hilla: 3 });
+    expect(slots).toHaveLength(7);
+    for (const s of slots) {
+      expect(s).toEqual({ value: 4_000_000, cadence: 'daily', slateKey: k });
+    }
+  });
+
+  it('emits 0 slots for Monthly Cadence Slate Keys', () => {
+    const k = `${BLACK_MAGE}:extreme:monthly`;
+    expect(MuleBossSlate.from([k]).slots()).toEqual([]);
+  });
+
+  it('mixes weekly + daily slots in a single slate', () => {
+    const weeklyK = key(LUCID, 'hard');
+    const dailyK = key(idForFamily('hilla'), 'normal');
+    const slots = MuleBossSlate.from([weeklyK, dailyK]).slots();
+    // 1 weekly + 7 daily = 8 slots; weekly comes first (matches selectedBosses order).
+    expect(slots).toHaveLength(8);
+    expect(slots[0]).toEqual({ value: 504_000_000, cadence: 'weekly', slateKey: weeklyK });
+    for (let i = 1; i < 8; i++) {
+      expect(slots[i]).toEqual({ value: 4_000_000, cadence: 'daily', slateKey: dailyK });
+    }
+  });
+
+  it('uses Interactive crystal values when bound to the Interactive World Group', () => {
+    // Hard Lucid Interactive = 100.8M.
+    const k = key(LUCID, 'hard');
+    const slots = MuleBossSlate.from([k], 'Interactive').slots();
+    expect(slots).toEqual([{ value: 100_800_000, cadence: 'weekly', slateKey: k }]);
+  });
+
+  it('slot Value sum equals totalCrystalValue for the same partySizes', () => {
+    // Sanity check that the slot expansion is the ground truth `totalCrystalValue` runs on.
+    const slate = MuleBossSlate.from([
+      key(LUCID, 'hard'),
+      key(idForFamily('hilla'), 'normal'),
+      key(VELLUM, 'normal'),
+    ]);
+    const partySizes = { lucid: 2 };
+    const slotSum = slate.slots(partySizes).reduce((s, slot) => s + slot.value, 0);
+    expect(slotSum).toBe(slate.totalCrystalValue(partySizes));
+  });
+});

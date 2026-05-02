@@ -360,6 +360,21 @@ export interface SlateFamily {
   rows: SlateRow[];
 }
 
+/**
+ * A single **Crystal Slot** — one unit of the **World Slot Pool** that the
+ * **World Cap Cut** consumes. Daily Cadence keys expand into 7 slots (one per
+ * day) at full **Crystal Value**; Weekly Cadence keys expand into 1 slot at
+ * `crystalValue / partySize`; Monthly Cadence keys contribute zero slots.
+ */
+export interface SlateSlot {
+  /** Per-slot meso value (Computed Value at the slot grain). */
+  value: number;
+  /** `'weekly'` or `'daily'` — Monthly Cadence keys do not appear here. */
+  cadence: Exclude<BossCadence, 'monthly'>;
+  /** The originating **Slate Key** so callers can attribute slots back to keys. */
+  slateKey: SlateKey;
+}
+
 export class MuleBossSlate {
   /**
    * Reference-stable empty slate cache, keyed by **World Group**. At most
@@ -549,5 +564,41 @@ export class MuleBossSlate {
       }
     }
     return dailyTotal + weeklyTotal;
+  }
+
+  /**
+   * Expand this slate into its **Crystal Slot** list — the per-slot pool the
+   * **World Cap Cut** sorts and trims. Slot expansion follows the same rules
+   * as `totalCrystalValue`:
+   *
+   * - Weekly Cadence → 1 slot at `crystalValue / partySize` (Party Size
+   *   defaults to 1).
+   * - Daily Cadence → 7 slots at `crystalValue` each (Party Size ignored).
+   * - Monthly Cadence → 0 slots.
+   *
+   * Slots are emitted in this slate's `keys` order (which preserves the
+   * caller's `selectedBosses[]` order post-validation), with daily keys
+   * expanded as 7 contiguous entries. The `WorldIncome` aggregator relies on
+   * this ordering for the **Cap Tiebreak**'s within-mule axis.
+   */
+  slots(partySizes: Record<string, number> = {}): SlateSlot[] {
+    const out: SlateSlot[] = [];
+    for (const key of this.keys) {
+      const parsed = parseKey(key);
+      if (!parsed) continue;
+      if (parsed.cadence === 'monthly') continue;
+      const boss = getBossById(parsed.bossId)!;
+      const diff = boss.difficulty.find((d) => d.tier === parsed.tier)!;
+      const price = priceFor(diff, this.worldGroup);
+      if (parsed.cadence === 'daily') {
+        for (let i = 0; i < 7; i++) {
+          out.push({ value: price, cadence: 'daily', slateKey: key });
+        }
+      } else {
+        const party = partySizes[boss.family] ?? 1;
+        out.push({ value: price / party, cadence: 'weekly', slateKey: key });
+      }
+    }
+    return out;
   }
 }

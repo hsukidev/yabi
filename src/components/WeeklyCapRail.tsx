@@ -5,12 +5,14 @@ interface WeeklyCapRailProps {
   cap: number;
 }
 
-// Bar width AND displayed percent both clamp at 100%; only the raw count reveals
-// overflow (e.g. "185 / 180 · 100%" with bar full). The fill width and percent
-// text are driven from the same useCountUp source so they stay in lockstep —
-// including the one-time mount entrance from 0%.
+// Numerator, fill, AND percent all clamp at the cap (`180/180 · 100%` once
+// the **World Cap Cut** caps the pool). The pre-cap-aware overflow display
+// (e.g. "185 / 180 · 100%") is retired — `crystalTotal` is bounded by the cap
+// upstream by definition (see `WorldIncome.slotsTotalContributed`); clamping
+// here is a defensive guard for callers that pass a raw count.
 export function WeeklyCapRail({ crystalTotal, cap }: WeeklyCapRailProps) {
-  const rawPct = cap > 0 ? (crystalTotal / cap) * 100 : 0;
+  const clampedTotal = Math.min(crystalTotal, cap);
+  const rawPct = cap > 0 ? (clampedTotal / cap) * 100 : 0;
   const clampedPct = Math.min(100, rawPct);
   const animatedPct = useCountUp(clampedPct, 600);
   const displayPct = Math.round(animatedPct);
@@ -30,7 +32,7 @@ export function WeeklyCapRail({ crystalTotal, cap }: WeeklyCapRailProps) {
           style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12 }}
         >
           <span style={{ color: 'var(--accent-raw, var(--accent))', fontWeight: 600 }}>
-            {crystalTotal}
+            {clampedTotal}
           </span>
           <span style={{ color: 'var(--muted-raw, var(--muted-foreground))' }}>
             {' / '}

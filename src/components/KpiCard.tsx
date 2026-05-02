@@ -1,15 +1,12 @@
 import { memo, useLayoutEffect, useRef, useState } from 'react';
-import { useIncome } from '../modules/income';
 import { useMatchMedia } from '../hooks/useMatchMedia';
 import { formatMeso } from '../utils/meso';
-import { MuleBossSlate } from '../data/muleBossSlate';
+import { useWorldIncome, WORLD_WEEKLY_CRYSTAL_CAP } from '../modules/worldIncome';
 import { ResetCountdown } from './ResetCountdown';
 import { WeeklyCapRail } from './WeeklyCapRail';
 import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
 import type { Mule } from '../types';
-
-const WORLD_WEEKLY_CRYSTAL_CAP = 180;
 
 interface KpiCardProps {
   mules: Mule[];
@@ -19,17 +16,15 @@ const NARROW_VIEWPORT_QUERY = '(max-width: 374.99px)';
 const STACK_VIEWPORT_QUERY = '(max-width: 479.99px)';
 
 export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
-  const { raw: totalRaw, abbreviated, toggle } = useIncome(mules);
-  const activeMules = mules.filter((m) => m.active);
-  const activeMuleCount = activeMules.length;
-  const weeklyTotal = activeMules.reduce(
-    (sum, m) => sum + MuleBossSlate.from(m.selectedBosses).weeklyCount,
-    0,
-  );
-  const dailyTotal = activeMules.reduce(
-    (sum, m) => sum + MuleBossSlate.from(m.selectedBosses).dailyCount,
-    0,
-  );
+  const {
+    totalContributedMeso: totalRaw,
+    weeklySlotsContributed,
+    dailySlotsContributed,
+    slotsTotalContributed,
+    abbreviated,
+    toggle,
+  } = useWorldIncome(mules);
+  const activeMuleCount = mules.reduce((n, m) => (m.active ? n + 1 : n), 0);
   const canToggleFormat = totalRaw > 0;
 
   // Below 375px the abbreviated value drops decimals (e.g. "504.32M" → "504M")
@@ -141,11 +136,19 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
       <div data-testid="kpi-stat-row" style={statRowStyle}>
         <KpiStat label="MULES" value={String(mules.length)} />
         <KpiStat label="ACTIVE" value={String(activeMuleCount)} accent />
-        <CrystalKpiStat icon={weeklyCrystalPng} label="WEEKLY" value={String(weeklyTotal)} />
-        <CrystalKpiStat icon={dailyCrystalPng} label="DAILY" value={String(dailyTotal)} />
+        <CrystalKpiStat
+          icon={weeklyCrystalPng}
+          label="WEEKLY"
+          value={String(weeklySlotsContributed)}
+        />
+        <CrystalKpiStat
+          icon={dailyCrystalPng}
+          label="DAILY"
+          value={String(dailySlotsContributed)}
+        />
       </div>
       <div style={{ marginTop: 'auto', paddingTop: 20 }}>
-        <WeeklyCapRail crystalTotal={weeklyTotal + dailyTotal} cap={WORLD_WEEKLY_CRYSTAL_CAP} />
+        <WeeklyCapRail crystalTotal={slotsTotalContributed} cap={WORLD_WEEKLY_CRYSTAL_CAP} />
       </div>
     </div>
   );
