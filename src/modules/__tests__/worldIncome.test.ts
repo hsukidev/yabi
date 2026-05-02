@@ -222,17 +222,13 @@ describe('WorldIncome.of — exactly-at-cap (no drops)', () => {
 
 describe('WorldIncome.of — over-cap drops', () => {
   it('drops the single lowest-value slot when pool is cap+1', () => {
-    // 13 mules with top 14 weekly keys + 1 mule with the 14th-ranked key only.
-    // Pool = 13*14 + 1 = 183 slots. Cap = 180. 3 slots dropped.
-    // Wait — let me size to exactly cap+1 for the "single drop" wording.
+    // Pool: 12 mules × 14 weeklies = 168, + 1 mule × 13 = 181. Cap = 180,
+    // so exactly 1 slot drops.
     const top14 = topWeeklyKeys(14).map((k) => k.slateKey);
     const mules: Mule[] = [];
-    // 12 mules × 14 = 168
     for (let i = 0; i < 12; i++) mules.push(makeMule(`m${i}`, top14));
-    // 1 more mule with 13 of the top 14 = 13 → 168+13 = 181
     mules.push(makeMule('m12', top14.slice(0, 13)));
     const w = WorldIncome.of(mules);
-    // Pool = 181, cap = 180, dropped = 1.
     expect(w.slotsTotalContributed).toBe(WORLD_WEEKLY_CRYSTAL_CAP);
     let totalDroppedSlots = 0;
     for (const c of w.perMule.values()) totalDroppedSlots += c.droppedSlots;
@@ -252,25 +248,20 @@ describe('WorldIncome.of — over-cap drops', () => {
   });
 
   it('drops the lowest-Slot-Value slots first (highest survive)', () => {
-    // Mule A: top weekly (highest value). Mule B: 14 lower-value weeklies.
-    // Total pool: 1 + 14 = 15 slots. Cap is 180 — no drops here, so build
-    // a real drop: load mules until pool > 180.
+    // 13 mules × top 14 weeklies = 182 slots. Cap = 180, so the lowest 2
+    // copies of the rank-14 slot drop.
     const top14 = topWeeklyKeys(14);
     const top14Keys = top14.map((k) => k.slateKey);
-    // 13 mules with top 14 each = 182 slots; lowest-value of top14 drops twice.
     const mules: Mule[] = [];
     for (let i = 0; i < 13; i++) mules.push(makeMule(`m${i}`, top14Keys));
     const w = WorldIncome.of(mules);
-    const lowestValue = top14[13].value; // value of the rank-14 slot
-    // Sum: 13 mules × 14 keys, with the lowest 2 of the 13 lowest-value
-    // slots dropped. Each mule contributes one of each top14 key, so
-    // 13 copies of the lowest value exist, of which 2 drop.
-    const allValues = top14.flatMap((k) => Array(13).fill(k.value)); // 14 * 13 = 182
+    const allValues = top14.flatMap((k) => Array(13).fill(k.value));
     allValues.sort((a, b) => b - a);
     const expectedTotal = allValues.slice(0, 180).reduce((s, v) => s + v, 0);
     expect(w.totalContributedMeso).toBe(expectedTotal);
-    // Sanity: the lowest-value slot definitely lost copies (not the highest).
-    expect(lowestValue).toBeLessThan(top14[0].value);
+    // Sanity: rank-14 is strictly below rank-1, so the drops did come from
+    // the bottom of the pool, not the top.
+    expect(top14[13].value).toBeLessThan(top14[0].value);
   });
 });
 
@@ -310,19 +301,15 @@ describe('WorldIncome.of — Cap Tiebreak determinism', () => {
     // Pool: 179 high-value weekly slots + 2 mules each carrying one copy of
     // the same low-value weekly = 181 slots, cap 180, 1 drop. The drop must
     // come from the higher-indexed mule.
-    const top13 = topWeeklyKeys(13).map((k) => k.slateKey); // 13 distinct weekly keys, all > LowKey
+    const top13 = topWeeklyKeys(13).map((k) => k.slateKey); // all > lowKey
     const lowKey = topWeeklyKeys(14)[13].slateKey;
     const mules: Mule[] = [];
-    // 12 mules × 13 = 156 high-value weeklies
-    for (let i = 0; i < 12; i++) mules.push(makeMule(`m${i}`, top13));
-    // 1 mule × 13 high + 10 random extras... easier path: 13 mules × 13 = 169 + 10 high = 179
-    // Actually: 13 mules × 13 = 169 weekly slots high-value. Add 10 more from a 14th mule.
-    mules.push(makeMule('m12', top13));
+    // 13 mules × 13 = 169 high-value weekly slots, + 10 from a 14th mule = 179.
+    for (let i = 0; i < 13; i++) mules.push(makeMule(`m${i}`, top13));
     mules.push(makeMule('m13', top13.slice(0, 10)));
-    // Two contestant mules tied on the low key.
+    // Two contestant mules tied on the low key. Pool = 179 + 2 = 181.
     mules.push(makeMule('contestantLow', [lowKey]));
     mules.push(makeMule('contestantHigh', [lowKey]));
-    // Pool: 169 + 10 + 1 + 1 = 181. Cap 180 → 1 drop.
     const w = WorldIncome.of(mules);
     expect(w.slotsTotalContributed).toBe(WORLD_WEEKLY_CRYSTAL_CAP);
     const low = w.perMule.get('contestantLow')!;
@@ -333,34 +320,26 @@ describe('WorldIncome.of — Cap Tiebreak determinism', () => {
   });
 
   it('drops the slot whose selectedBosses[] index is later first (within a single mule)', () => {
-    // Same low-value key copied across two distinct slate keys won't survive
-    // — `MuleBossSlate.from` dedupes them. Use two distinct weekly keys
-    // tied on Crystal Value: Princess-no normal, Zakum chaos, Pierre chaos
-    // are all 81M weekly per the existing slate test.
+    // `MuleBossSlate.from` dedupes by `(bossId, cadence)`, so a single mule
+    // can't carry two copies of the same key. Use two distinct weekly keys
+    // tied on Crystal Value (Princess-no normal and Zakum chaos are both
+    // 81M weekly per the slate test).
     const TIED_VALUE = 81_000_000;
     const PRINCESS_NO = bosses.find((b) => b.family === 'princess-no')!;
     const ZAKUM = bosses.find((b) => b.family === 'zakum')!;
-    const PIERRE = bosses.find((b) => b.family === 'pierre')!;
     const earlyKey = `${PRINCESS_NO.id}:normal:weekly`;
     const lateKey = `${ZAKUM.id}:chaos:weekly`;
     expect(PRINCESS_NO.difficulty.find((d) => d.tier === 'normal')!.crystalValue.Heroic).toBe(
       TIED_VALUE,
     );
     expect(ZAKUM.difficulty.find((d) => d.tier === 'chaos')!.crystalValue.Heroic).toBe(TIED_VALUE);
-    // Build a pool that puts the cut exactly between these two equal-value
-    // slots within the same mule.
-    //
     // Pool: 179 high-value weeklies + this mule's 2 tied slots = 181, cap 180.
-    // The mule's `selectedBosses` order is [earlyKey, lateKey] → lateKey
-    // drops, earlyKey survives.
+    // `selectedBosses` order is [earlyKey, lateKey] → lateKey drops.
     const top13 = topWeeklyKeys(13).map((k) => k.slateKey);
     const mules: Mule[] = [];
     for (let i = 0; i < 13; i++) mules.push(makeMule(`m${i}`, top13)); // 169 slots
     mules.push(makeMule('m13', top13.slice(0, 10))); // +10 = 179
     mules.push(makeMule('tiedMule', [earlyKey, lateKey])); // +2 = 181
-    // Sanity: lateKey is not Pierre (Pierre is also tied and lives in the
-    // same family-key role — keep test focused on Princess-no vs Zakum).
-    expect(PIERRE.id).toBeDefined();
     const w = WorldIncome.of(mules);
     expect(w.slotsTotalContributed).toBe(WORLD_WEEKLY_CRYSTAL_CAP);
     const tied = w.perMule.get('tiedMule')!;

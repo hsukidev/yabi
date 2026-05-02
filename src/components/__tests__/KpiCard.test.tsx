@@ -35,11 +35,10 @@ function topWeeklyKeys(n: number): { slateKey: string; value: number }[] {
   return all.slice(0, n);
 }
 
+// Read the value div paired with a stat-row label. Works for both KpiStat
+// and CrystalKpiStat — `getByText(label)` resolves to the eyebrow node
+// even when CrystalKpiStat tucks an icon next to the text.
 function tileValue(label: string): string {
-  // Same DOM walk as `activeStatValue` — the label is inside the eyebrow div
-  // (CrystalKpiStat tucks an icon next to the text, but `getByText` still
-  // resolves to the eyebrow node), and `parentElement.querySelectorAll('div')[1]`
-  // is the value div.
   const card = screen.getByTestId('income-card') as HTMLElement;
   const labelEl = within(card).getByText(label);
   return labelEl.parentElement!.querySelectorAll('div')[1]!.textContent ?? '';
@@ -55,9 +54,7 @@ const mule: Mule = {
 };
 
 function activeStatValue(): string {
-  const card = screen.getByTestId('income-card') as HTMLElement;
-  const label = within(card).getByText('ACTIVE');
-  return label.parentElement!.querySelectorAll('div')[1]!.textContent ?? '';
+  return tileValue('ACTIVE');
 }
 
 function bignumText(): string {

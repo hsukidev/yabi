@@ -6,15 +6,13 @@ interface WeeklyCapRailProps {
 }
 
 // Numerator, fill, AND percent all clamp at the cap (`180/180 · 100%` once
-// the **World Cap Cut** caps the pool). The pre-cap-aware overflow display
-// (e.g. "185 / 180 · 100%") is retired — `crystalTotal` is bounded by the cap
+// the **World Cap Cut** caps the pool). `crystalTotal` is bounded by the cap
 // upstream by definition (see `WorldIncome.slotsTotalContributed`); clamping
 // here is a defensive guard for callers that pass a raw count.
 export function WeeklyCapRail({ crystalTotal, cap }: WeeklyCapRailProps) {
   const clampedTotal = Math.min(crystalTotal, cap);
-  const rawPct = cap > 0 ? (clampedTotal / cap) * 100 : 0;
-  const clampedPct = Math.min(100, rawPct);
-  const animatedPct = useCountUp(clampedPct, 600);
+  const pct = cap > 0 ? (clampedTotal / cap) * 100 : 0;
+  const animatedPct = useCountUp(pct, 600);
   const displayPct = Math.round(animatedPct);
   return (
     <div>
@@ -45,7 +43,7 @@ export function WeeklyCapRail({ crystalTotal, cap }: WeeklyCapRailProps) {
       <div
         role="progressbar"
         aria-label="Weekly crystal cap"
-        aria-valuenow={Math.round(clampedPct)}
+        aria-valuenow={Math.round(pct)}
         aria-valuemin={0}
         aria-valuemax={100}
         style={{

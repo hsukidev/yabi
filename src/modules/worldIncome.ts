@@ -13,9 +13,9 @@ import { useIncome } from './income';
  * The `WorldIncome.of(mulesInWorld)` factory pools every active mule's
  * **Crystal Slots**, sorts them descending by **Slot Value**, takes the
  * top `WORLD_WEEKLY_CRYSTAL_CAP`, and attributes survivors back to their
- * owning mules — the **World Cap Cut**. Module is React-agnostic; the
- * `useWorldIncome` hook in `worldIncome.tsx` adds memoization + format
- * preference threading.
+ * owning mules — the **World Cap Cut**. The class is React-agnostic; the
+ * `useWorldIncome` hook below adds memoization + format-preference
+ * threading via `IncomeContext`.
  */
 
 /**
@@ -44,6 +44,14 @@ interface PoolSlot {
   /** Order within the mule's `slots()` output — preserves selectedBosses
    *  precedence for the **Cap Tiebreak**'s within-mule axis. */
   withinMuleIndex: number;
+}
+
+/** Mutable per-mule running totals, finalized into a `MuleContribution`. */
+interface MuleAccumulator {
+  potential: number;
+  contributed: number;
+  totalSlots: number;
+  survivedSlots: number;
 }
 
 interface WorldIncomeFields {
@@ -77,8 +85,7 @@ export class WorldIncome {
    */
   static of(mulesInWorld: readonly Mule[]): WorldIncome {
     const pool: PoolSlot[] = [];
-    const potentialByMule = new Map<string, number>();
-    const totalSlotsByMule = new Map<string, number>();
+    const accumulators = new Map<string, MuleAccumulator>();
 
     for (let muleIndex = 0; muleIndex < mulesInWorld.length; muleIndex++) {
       const mule = mulesInWorld[muleIndex];
@@ -100,8 +107,12 @@ export class WorldIncome {
         });
         potential += slot.value;
       }
-      potentialByMule.set(mule.id, potential);
-      totalSlotsByMule.set(mule.id, slots.length);
+      accumulators.set(mule.id, {
+        potential,
+        contributed: 0,
+        totalSlots: slots.length,
+        survivedSlots: 0,
+      });
     }
 
     // World Cap Cut: rank slots by Slot Value descending. Cap Tiebreak axes
@@ -118,26 +129,22 @@ export class WorldIncome {
     let totalContributedMeso = 0;
     let weeklySlotsContributed = 0;
     let dailySlotsContributed = 0;
-    const contributedByMule = new Map<string, number>();
-    const survivedSlotsByMule = new Map<string, number>();
     for (const s of survivors) {
       totalContributedMeso += s.value;
       if (s.cadence === 'weekly') weeklySlotsContributed++;
       else dailySlotsContributed++;
-      contributedByMule.set(s.muleId, (contributedByMule.get(s.muleId) ?? 0) + s.value);
-      survivedSlotsByMule.set(s.muleId, (survivedSlotsByMule.get(s.muleId) ?? 0) + 1);
+      const acc = accumulators.get(s.muleId)!;
+      acc.contributed += s.value;
+      acc.survivedSlots += 1;
     }
 
     const perMule = new Map<string, MuleContribution>();
-    for (const [muleId, potential] of potentialByMule) {
-      const contributed = contributedByMule.get(muleId) ?? 0;
-      const totalSlots = totalSlotsByMule.get(muleId) ?? 0;
-      const survivedSlots = survivedSlotsByMule.get(muleId) ?? 0;
+    for (const [muleId, acc] of accumulators) {
       perMule.set(muleId, {
-        potentialMeso: potential,
-        contributedMeso: contributed,
-        droppedMeso: potential - contributed,
-        droppedSlots: totalSlots - survivedSlots,
+        potentialMeso: acc.potential,
+        contributedMeso: acc.contributed,
+        droppedMeso: acc.potential - acc.contributed,
+        droppedSlots: acc.totalSlots - acc.survivedSlots,
       });
     }
 
