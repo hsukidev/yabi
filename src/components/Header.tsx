@@ -3,6 +3,7 @@ import { Link, useMatchRoute } from '@tanstack/react-router';
 import { useTheme } from '../context/ThemeProvider';
 import { WorldSelect } from './WorldSelect';
 import { BuyMeCoffeeButton } from './BuyMeCoffeeButton';
+import { MobileNavDrawer } from './MobileNavDrawer';
 import { navItems, type NavItem } from '../constants/navItems';
 import logoUrl from '../assets/logo.svg';
 
@@ -19,7 +20,8 @@ export function Header() {
     >
       <div className="container mx-auto max-w-352 px-4 sm:px-6">
         <div className="flex h-14 items-center justify-between">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-6 max-[767.99px]:gap-3">
+            <MobileNavDrawer />
             <Link
               to="/"
               style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}
