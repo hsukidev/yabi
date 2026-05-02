@@ -42,6 +42,14 @@ function openDrawer() {
   fireEvent.click(screen.getByLabelText(/open navigation menu/i));
 }
 
+async function waitForOpenDrawer() {
+  return await waitFor(() => {
+    const el = queryDrawer();
+    if (!el) throw new Error('drawer not open yet');
+    return el;
+  });
+}
+
 describe('MobileNavDrawer', () => {
   it('does not render drawer content initially', () => {
     render(<MobileNavDrawer />);
@@ -51,20 +59,13 @@ describe('MobileNavDrawer', () => {
   it('opens the drawer when the hamburger button is clicked', async () => {
     render(<MobileNavDrawer />);
     openDrawer();
-    await waitFor(() => {
-      expect(queryDrawer()).toBeTruthy();
-    });
+    await waitForOpenDrawer();
   });
 
   it("drawer's nav items match the shared navItems constant", async () => {
     render(<MobileNavDrawer />);
     openDrawer();
-
-    const drawer = await waitFor(() => {
-      const el = queryDrawer();
-      if (!el) throw new Error('drawer not open yet');
-      return el;
-    });
+    const drawer = await waitForOpenDrawer();
 
     expect(navItems.length).toBeGreaterThan(0);
     const renderedLinks = Array.from(drawer.querySelectorAll('a'));
@@ -80,12 +81,7 @@ describe('MobileNavDrawer', () => {
   it('closes when an internal link is clicked', async () => {
     render(<MobileNavDrawer />);
     openDrawer();
-
-    const drawer = await waitFor(() => {
-      const el = queryDrawer();
-      if (!el) throw new Error('drawer not open yet');
-      return el;
-    });
+    const drawer = await waitForOpenDrawer();
 
     const link = drawer.querySelector(`a[href="${navItems[0].to}"]`) as HTMLAnchorElement;
     fireEvent.click(link);
@@ -98,10 +94,7 @@ describe('MobileNavDrawer', () => {
   it('closes when the overlay is clicked', async () => {
     render(<MobileNavDrawer />);
     openDrawer();
-
-    await waitFor(() => {
-      expect(queryDrawer()).toBeTruthy();
-    });
+    await waitForOpenDrawer();
 
     const overlay = document.querySelector('[data-slot="sheet-overlay"]') as HTMLElement;
     expect(overlay).toBeTruthy();
@@ -115,12 +108,7 @@ describe('MobileNavDrawer', () => {
   it('closes when Escape is pressed', async () => {
     render(<MobileNavDrawer />);
     openDrawer();
-
-    const drawer = await waitFor(() => {
-      const el = queryDrawer();
-      if (!el) throw new Error('drawer not open yet');
-      return el;
-    });
+    const drawer = await waitForOpenDrawer();
 
     fireEvent.keyDown(drawer, { key: 'Escape', code: 'Escape' });
 
