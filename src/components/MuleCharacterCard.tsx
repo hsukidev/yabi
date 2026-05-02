@@ -7,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import type { Mule } from '../types';
 import { useIncome } from '../modules/income';
 import { useMatchMedia } from '../hooks/useMatchMedia';
+import { formatMeso } from '../utils/meso';
 import { CharacterAvatar } from './CharacterAvatar';
 import { ROSTER_CARD_ASPECT, ROSTER_CARD_MIN_HEIGHT } from './rosterCardContract';
 
@@ -20,6 +21,10 @@ interface MuleCharacterCardProps {
   // Clears press-scale on engagement — the finger doesn't lift during a
   // paint drag, so `onTouchEnd` can't release `isPressed` on its own.
   isPaintEngaged?: boolean;
+  // Per-mule meso lost to the World Cap Cut, surfaced as the "−$X to cap"
+  // Cap Drop Badge when > 0. Threaded from `useWorldIncome(...).perMule` at
+  // the Dashboard level so the aggregator runs once per render.
+  droppedMeso?: number;
 }
 
 // `--destructive` is stored as `hsl(...)`, not a raw triplet — blend via
@@ -38,15 +43,17 @@ const destructiveAlpha = (pct: number) =>
 const MuleCardInner = memo(function MuleCardInner({
   mule,
   hideLevelBadge = false,
+  droppedMeso = 0,
 }: {
   mule: Mule;
   hideLevelBadge?: boolean;
+  droppedMeso?: number;
 }) {
   // Omit `active` so the Active-Flag Filter doesn't zero the card when its
   // roster toggle is off — the card shows potential income regardless of
   // active state. `partySizes` is threaded so the Computed Value matches
   // the drawer and KPI total for party-adjusted weeklies.
-  const { formatted: potentialIncome } = useIncome({
+  const { formatted: potentialIncome, abbreviated } = useIncome({
     selectedBosses: mule.selectedBosses,
     partySizes: mule.partySizes,
     worldId: mule.worldId,
@@ -156,6 +163,26 @@ const MuleCardInner = memo(function MuleCardInner({
           {potentialIncome}
         </span>
       </div>
+
+      {droppedMeso > 0 && (
+        <div
+          data-cap-drop-badge
+          className="kpi-meta"
+          style={{
+            color: 'var(--muted-raw, var(--muted-foreground))',
+            fontStyle: 'italic',
+            fontFamily: 'monospace',
+            fontSize: 11,
+            marginTop: 4,
+            textAlign: 'right',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          −${formatMeso(droppedMeso, abbreviated)} to cap
+        </div>
+      )}
     </>
   );
 });
@@ -168,6 +195,7 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
   selected = false,
   onToggleSelect,
   isPaintEngaged = false,
+  droppedMeso,
 }: MuleCharacterCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: mule.id,
@@ -268,7 +296,7 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
         aria-pressed={bulkMode ? selected : undefined}
         onKeyDown={handleKeyDown}
       >
-        <MuleCardInner mule={mule} hideLevelBadge={bulkMode} />
+        <MuleCardInner mule={mule} hideLevelBadge={bulkMode} droppedMeso={droppedMeso} />
 
         {bulkMode && (
           <div

@@ -350,6 +350,29 @@ describe('WorldIncome.of — Cap Tiebreak determinism', () => {
   });
 });
 
+describe('WorldIncome.of — full drop (entire mule cut)', () => {
+  it('attributes droppedMeso === potentialMeso and contributedMeso === 0 when every slot is cut', () => {
+    // 13 mules × top 13 weeklies = 169 high-value slots, + 1 mule with 11 of
+    // those = 180 total at the top. A 15th mule carries only the rank-14 key
+    // (strictly lower Slot Value than every key in the top-180), so its
+    // single slot drops in its entirety.
+    const top13 = topWeeklyKeys(13).map((k) => k.slateKey);
+    const lowKey = topWeeklyKeys(14)[13].slateKey;
+    const lowValue = topWeeklyKeys(14)[13].value;
+    const mules: Mule[] = [];
+    for (let i = 0; i < 13; i++) mules.push(makeMule(`m${i}`, top13)); // 169
+    mules.push(makeMule('m13', top13.slice(0, 11))); // +11 = 180 at top
+    mules.push(makeMule('fullyDropped', [lowKey])); // +1 below the cut
+    const w = WorldIncome.of(mules);
+    expect(w.slotsTotalContributed).toBe(WORLD_WEEKLY_CRYSTAL_CAP);
+    const dropped = w.perMule.get('fullyDropped')!;
+    expect(dropped.potentialMeso).toBe(lowValue);
+    expect(dropped.contributedMeso).toBe(0);
+    expect(dropped.droppedMeso).toBe(lowValue);
+    expect(dropped.droppedSlots).toBe(1);
+  });
+});
+
 describe('WorldIncome.of — per-mule contribution invariant', () => {
   it('potentialMeso − contributedMeso === droppedMeso for every contributing mule', () => {
     // Over-cap fixture spanning multiple mules and cadences.

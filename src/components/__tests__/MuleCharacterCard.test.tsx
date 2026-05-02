@@ -31,6 +31,7 @@ interface RenderCardOptions {
   bulkMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
+  droppedMeso?: number;
 }
 
 function renderCard(overrides: Partial<Mule> = {}, options?: RenderCardOptions) {
@@ -49,6 +50,7 @@ function renderCard(overrides: Partial<Mule> = {}, options?: RenderCardOptions) 
             bulkMode={options?.bulkMode ?? false}
             selected={options?.selected ?? false}
             onToggleSelect={onToggleSelect}
+            droppedMeso={options?.droppedMeso}
           />
         </SortableContext>
       </DndContext>,
@@ -423,6 +425,37 @@ describe('MuleCharacterCard', () => {
       const borderColor = panel.style.borderColor + panel.style.boxShadow;
       expect(borderColor.toLowerCase()).not.toContain('#e05040');
       expect(borderColor).toMatch(/destructive/);
+    });
+  });
+
+  describe('Cap Drop Badge', () => {
+    it('does not render when droppedMeso is undefined (under cap)', () => {
+      renderCard();
+      expect(screen.queryByText(/to cap/i)).toBeNull();
+    });
+
+    it('does not render when droppedMeso is 0', () => {
+      renderCard({}, { droppedMeso: 0 });
+      expect(screen.queryByText(/to cap/i)).toBeNull();
+    });
+
+    it('renders the formatted dropped meso (abbreviated by default)', () => {
+      renderCard({}, { droppedMeso: 504_000_000 });
+      expect(screen.getByText('−$504M to cap')).toBeTruthy();
+    });
+
+    it('renders fully-formatted dropped meso when abbreviated is off', () => {
+      renderCard({}, { droppedMeso: 504_000_000, defaultAbbreviated: false });
+      expect(screen.getByText('−$504,000,000 to cap')).toBeTruthy();
+    });
+
+    it('uses the kpi-meta muted style', () => {
+      renderCard({}, { droppedMeso: 504_000_000 });
+      const badge = screen.getByText('−$504M to cap');
+      expect(badge.className).toContain('kpi-meta');
+      expect(badge.style.color).toContain('muted');
+      expect(badge.style.fontStyle).toBe('italic');
+      expect(badge.style.fontFamily).toContain('monospace');
     });
   });
 });

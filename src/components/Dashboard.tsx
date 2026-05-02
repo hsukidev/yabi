@@ -20,6 +20,7 @@ import { useWorld } from '../context/WorldProvider';
 import { lensMules } from '../data/worlds';
 import { useMuleActions } from '../hooks/useMuleActions';
 import { useBulkDragPaint } from '../hooks/useBulkDragPaint';
+import { useWorldIncome } from '../modules/worldIncome';
 import { MuleCharacterCard } from './MuleCharacterCard';
 import { MuleDetailDrawer } from './MuleDetailDrawer';
 import { AddCard } from './AddCard';
@@ -64,6 +65,11 @@ export function Dashboard() {
   // reorder, so a single memo keyed on the filtered list keeps items stable
   // through drawer edits (which don't touch ids).
   const muleIds = useMemo(() => mulesInWorld.map((m) => m.id), [mulesInWorld]);
+
+  // World Cap Cut applied at the live (non-deferred) `mulesInWorld` so per-mule
+  // **Cap Drop Badges** track interaction in real time. KPI/Pie consume the
+  // deferred list separately to absorb boss-matrix burst updates.
+  const { perMule: capPerMule } = useWorldIncome(mulesInWorld);
 
   // Split sensors so mouse stays instant (distance: 0) while touch gates
   // behind a 250ms long-press — a unified PointerSensor would delay desktop
@@ -233,6 +239,7 @@ export function Dashboard() {
                       selected={toDelete.has(mule.id)}
                       onToggleSelect={toggleDelete}
                       isPaintEngaged={isPaintEngaged}
+                      droppedMeso={capPerMule.get(mule.id)?.droppedMeso}
                     />
                   ))}
                   {!bulkMode && <AddCard onClick={handleAddMule} />}
