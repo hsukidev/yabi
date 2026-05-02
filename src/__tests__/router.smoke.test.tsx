@@ -1,6 +1,18 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import { fireEvent, renderApp, screen, waitFor } from '@/test/test-utils';
 
+// The header may render multiple "changelog"-named links in the future
+// (e.g. footer link), so match on the href to pick the nav link specifically.
+async function findChangelogNavLink() {
+  return await waitFor(() => {
+    const link = screen
+      .getAllByRole('link', { name: /changelog/i })
+      .find((el) => el.getAttribute('href') === '/changelog');
+    if (!link) throw new Error('Changelog nav link not found');
+    return link;
+  });
+}
+
 describe('Router smoke', () => {
   beforeEach(() => {
     localStorage.clear();
@@ -35,14 +47,7 @@ describe('Router smoke', () => {
 
   it('navigates from "/" to "/changelog" when the Header Changelog link is clicked', async () => {
     await renderApp({ initialPath: '/' });
-    const navLink = await waitFor(() => {
-      const link = screen
-        .getAllByRole('link', { name: /changelog/i })
-        .find((el) => el.getAttribute('href') === '/changelog');
-      expect(link).toBeTruthy();
-      return link!;
-    });
-    fireEvent.click(navLink);
+    fireEvent.click(await findChangelogNavLink());
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 1, name: /changelog/i })).toBeTruthy();
     });
@@ -60,25 +65,11 @@ describe('Router smoke', () => {
 
   it('marks the Header Changelog link as active when on "/changelog"', async () => {
     await renderApp({ initialPath: '/changelog' });
-    const navLink = await waitFor(() => {
-      const link = screen
-        .getAllByRole('link', { name: /changelog/i })
-        .find((el) => el.getAttribute('href') === '/changelog');
-      expect(link).toBeTruthy();
-      return link!;
-    });
-    expect(navLink.getAttribute('data-active')).toBe('true');
+    expect((await findChangelogNavLink()).getAttribute('data-active')).toBe('true');
   });
 
   it('does not mark the Header Changelog link as active when on "/"', async () => {
     await renderApp({ initialPath: '/' });
-    const navLink = await waitFor(() => {
-      const link = screen
-        .getAllByRole('link', { name: /changelog/i })
-        .find((el) => el.getAttribute('href') === '/changelog');
-      expect(link).toBeTruthy();
-      return link!;
-    });
-    expect(navLink.getAttribute('data-active')).toBe('false');
+    expect((await findChangelogNavLink()).getAttribute('data-active')).toBe('false');
   });
 });
