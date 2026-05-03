@@ -927,14 +927,14 @@ describe('formatDroppedSlot — per-key cap-drop label', () => {
     expect(formatDroppedSlot(key(LUCID, 'hard'), 1)).toBe('Hard Lucid dropped');
   });
 
-  it('formats a daily drop as "<count>× <Boss Name> daily dropped"', () => {
+  it('formats a daily drop as "<count>× daily <Boss Name> dropped"', () => {
     const HILLA = idForFamily('hilla');
-    expect(formatDroppedSlot(key(HILLA, 'normal'), 3)).toBe('3× Normal Hilla daily dropped');
+    expect(formatDroppedSlot(key(HILLA, 'normal'), 3)).toBe('3× daily Normal Hilla dropped');
   });
 
-  it('counts a single daily slot as "1× <Boss Name> daily dropped"', () => {
+  it('counts a single daily slot as "1× daily <Boss Name> dropped"', () => {
     const HILLA = idForFamily('hilla');
-    expect(formatDroppedSlot(key(HILLA, 'normal'), 1)).toBe('1× Normal Hilla daily dropped');
+    expect(formatDroppedSlot(key(HILLA, 'normal'), 1)).toBe('1× daily Normal Hilla dropped');
   });
 
   it('uses the bare display name for tier-less families (no tier prefix)', () => {
@@ -942,7 +942,7 @@ describe('formatDroppedSlot — per-key cap-drop label', () => {
     expect(formatDroppedSlot(key(AKECHI, 'normal'), 1)).toBe('Akechi dropped');
     // OMNI-CLN is a tier-less daily family — bare name + count + cadence suffix.
     const OMNI_CLN = idForFamily('omni-cln');
-    expect(formatDroppedSlot(key(OMNI_CLN, 'normal'), 4)).toBe('4× OMNI-CLN daily dropped');
+    expect(formatDroppedSlot(key(OMNI_CLN, 'normal'), 4)).toBe('4× daily OMNI-CLN dropped');
   });
 
   it('returns an empty string for an unresolvable slate key', () => {
@@ -970,7 +970,7 @@ describe('formatDroppedSlots — full-tooltip render', () => {
     ]);
     const lines = formatDroppedSlots(m);
     expect(lines[0]).toBe('Hard Lucid dropped');
-    expect(lines[1]).toBe('2× Normal Hilla daily dropped');
+    expect(lines[1]).toBe('2× daily Normal Hilla dropped');
   });
 
   it('keeps daily and weekly lines for the same family as separate entries', () => {
@@ -982,6 +982,6 @@ describe('formatDroppedSlots — full-tooltip render', () => {
     const lines = formatDroppedSlots(m);
     expect(lines).toHaveLength(2);
     expect(lines).toContain('Chaos Vellum dropped');
-    expect(lines).toContain('4× Normal Vellum daily dropped');
+    expect(lines).toContain('4× daily Normal Vellum dropped');
   });
 });

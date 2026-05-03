@@ -469,7 +469,7 @@ describe('MuleCharacterCard', () => {
       renderCard({}, { droppedKeys: new Map([[NORMAL_HILLA, 3]]) });
       const icon = screen.getByRole('button', { name: ICON_NAME });
       fireEvent.focus(icon);
-      expect(await screen.findByText('3× Normal Hilla daily dropped')).toBeTruthy();
+      expect(await screen.findByText('3× daily Normal Hilla dropped')).toBeTruthy();
     });
 
     it('stacks tooltip lines vertically in Boss Matrix display order', async () => {
@@ -483,7 +483,7 @@ describe('MuleCharacterCard', () => {
       const icon = screen.getByRole('button', { name: ICON_NAME });
       fireEvent.focus(icon);
       const lucid = await screen.findByText('Hard Lucid dropped');
-      const hilla = await screen.findByText('2× Normal Hilla daily dropped');
+      const hilla = await screen.findByText('2× daily Normal Hilla dropped');
       // Both lines live in the same tooltip popup; their DOM order matches
       // the rendered visual order.
       const tooltipBody = lucid.parentElement!;

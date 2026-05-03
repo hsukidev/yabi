@@ -381,7 +381,7 @@ export interface SlateSlot {
  *
  * - Weekly Cadence → `<Boss Name> dropped` (count omitted; weekly keys always
  *   contribute exactly one slot, so a count would be redundant).
- * - Daily Cadence → `<count>× <Boss Name> daily dropped` (count is always
+ * - Daily Cadence → `<count>× daily <Boss Name> dropped` (count is always
  *   shown, including `1×`, so partial-drop counts like `3×` aren't confusable
  *   with the all-7 case).
  * - Monthly Cadence / unresolvable keys → empty string. Monthly keys never
