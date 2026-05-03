@@ -17,7 +17,7 @@ import type { StoragePort } from './muleStore';
  * JSON at all.
  */
 
-const STORAGE_KEY = 'maplestory-mule-tracker';
+export const STORAGE_KEY = 'maplestory-mule-tracker';
 const FALLBACK_KEY = 'maplestory-mule-tracker-fallback';
 
 export const defaultStoragePort: StoragePort = {

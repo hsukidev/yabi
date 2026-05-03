@@ -4,6 +4,8 @@ import { Dashboard } from '../components/Dashboard';
 import type { Mule } from '../types';
 import { useWorld } from '../context/WorldProvider';
 import type { WorldId } from '../data/worlds';
+import { releases } from '../data/changelog';
+import { SEEN_KEY } from '../hooks/useChangelogNotification';
 
 const STORAGE_KEY = 'maplestory-mule-tracker';
 
@@ -66,6 +68,10 @@ function resetTestEnvironment() {
   // that care about the no-world state override by calling
   // localStorage.removeItem('world') before render.
   localStorage.setItem('world', 'heroic-kronos');
+  // Suppress the Changelog Notification Banner by default — its TanStack
+  // Link breaks plain `render(<Dashboard />)` calls (no RouterProvider).
+  // Tests that exercise the banner explicitly should clear this key.
+  if (releases[0]) localStorage.setItem(SEEN_KEY, releases[0].version);
 }
 
 function mockGetBoundingClientRect() {

@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { Calendar } from 'lucide-react';
 import { useEffect } from 'react';
 import { releases, type Release } from '../data/changelog';
+import { useChangelogNotification } from '../hooks/useChangelogNotification';
 
 export const Route = createFileRoute('/changelog')({
   component: ChangelogPage,
@@ -17,9 +18,11 @@ function formatReleaseDate(iso: string): string {
 }
 
 function ChangelogPage() {
+  const { markSeen } = useChangelogNotification();
   useEffect(() => {
     document.title = 'Changelog — YABI';
-  }, []);
+    markSeen();
+  }, [markSeen]);
 
   return (
     <main className="container mx-auto max-w-3xl px-4 sm:px-6 py-10">

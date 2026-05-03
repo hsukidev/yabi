@@ -28,6 +28,7 @@ import { KpiCard } from './KpiCard';
 import { PieChartCard } from './PieChartCard';
 import { RosterHeader } from './RosterHeader';
 import { WorldMissingBanner } from './WorldMissingBanner';
+import { ChangelogNotificationBanner } from './ChangelogNotificationBanner';
 
 const dragBoundaryBaseStyle: React.CSSProperties = {
   borderRadius: '1rem',
@@ -182,6 +183,7 @@ export function Dashboard() {
   return (
     <>
       <main className="container mx-auto max-w-352 px-4 sm:px-6 py-8">
+        <ChangelogNotificationBanner />
         <section className="grid grid-cols-1 min-[1100px]:grid-cols-12 gap-6 mb-10">
           <div className="min-[1100px]:col-span-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
             <KpiCard mules={deferredMulesInWorld} />
