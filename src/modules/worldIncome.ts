@@ -146,23 +146,26 @@ export class WorldIncome {
       return a.withinMuleIndex - b.withinMuleIndex;
     });
 
+    const cutIndex = Math.min(pool.length, WORLD_WEEKLY_CRYSTAL_CAP);
+
     let totalContributedMeso = 0;
     let weeklySlotsContributed = 0;
     let dailySlotsContributed = 0;
-    for (let i = 0; i < pool.length; i++) {
+    for (let i = 0; i < cutIndex; i++) {
+      const s = pool[i];
+      totalContributedMeso += s.value;
+      if (s.cadence === 'weekly') weeklySlotsContributed++;
+      else dailySlotsContributed++;
+      const acc = accumulators.get(s.muleId)!;
+      acc.contributed += s.value;
+      acc.survivedSlots += 1;
+    }
+    for (let i = cutIndex; i < pool.length; i++) {
       const s = pool[i];
       const acc = accumulators.get(s.muleId)!;
-      if (i < WORLD_WEEKLY_CRYSTAL_CAP) {
-        totalContributedMeso += s.value;
-        if (s.cadence === 'weekly') weeklySlotsContributed++;
-        else dailySlotsContributed++;
-        acc.contributed += s.value;
-        acc.survivedSlots += 1;
-      } else {
-        const map = acc.droppedKeys ?? new Map<SlateKey, number>();
-        map.set(s.slateKey, (map.get(s.slateKey) ?? 0) + 1);
-        acc.droppedKeys = map;
-      }
+      const map = acc.droppedKeys ?? new Map<SlateKey, number>();
+      map.set(s.slateKey, (map.get(s.slateKey) ?? 0) + 1);
+      acc.droppedKeys = map;
     }
 
     const perMule = new Map<string, MuleContribution>();

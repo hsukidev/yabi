@@ -66,8 +66,8 @@ const MuleCardInner = memo(function MuleCardInner({
     mule.active && hasBosses
       ? 'var(--accent-raw, var(--accent))'
       : 'var(--dim, var(--surface-dim))';
-  const hasDrops = droppedKeys !== undefined && droppedKeys.size > 0;
-  const droppedLines = hasDrops ? formatDroppedSlots(droppedKeys) : [];
+  const droppedLines =
+    !hideLevelBadge && droppedKeys && droppedKeys.size > 0 ? formatDroppedSlots(droppedKeys) : [];
 
   const stopBubble = (e: React.SyntheticEvent) => e.stopPropagation();
 
@@ -171,7 +171,7 @@ const MuleCardInner = memo(function MuleCardInner({
           >
             {potentialIncome}
           </span>
-          {hasDrops && !hideLevelBadge && (
+          {droppedLines.length > 0 && (
             <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
               <TooltipTrigger
                 aria-label="Show bosses dropped to cap"
@@ -183,13 +183,7 @@ const MuleCardInner = memo(function MuleCardInner({
                 }}
                 onPointerDown={stopBubble}
                 onTouchStart={stopBubble}
-                className="inline-flex items-center justify-center cursor-pointer text-muted-foreground/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                style={{
-                  flexShrink: 0,
-                  padding: 0,
-                  background: 'transparent',
-                  border: 'none',
-                }}
+                className="inline-flex shrink-0 items-center justify-center bg-transparent p-0 border-0 cursor-pointer text-muted-foreground/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 <Info className="size-3" aria-hidden />
               </TooltipTrigger>
