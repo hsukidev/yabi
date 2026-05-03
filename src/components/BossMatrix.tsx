@@ -236,8 +236,9 @@ export const BossMatrix = memo(function BossMatrix({
   const cornerClass = fusedTop ? 'rounded-t-none rounded-b-[10px] border-t-0' : 'rounded-[10px]';
 
   return (
+    // overflow-clip (not hidden) — keeps sticky header attached to drawer scroll; narrow drawer trades sticky for horizontal scroll
     <div
-      className={`${cornerClass} overflow-x-auto overflow-y-hidden border border-(--border) bg-(--surface)`}
+      className={`${cornerClass} overflow-clip @max-[500px]/drawer:overflow-x-auto @max-[500px]/drawer:overflow-y-hidden border border-(--border) bg-(--surface)`}
     >
       <div
         role="table"

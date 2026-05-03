@@ -396,7 +396,7 @@ export function formatDroppedSlot(slateKey: SlateKey, count: number): string {
   const { boss, diff } = resolved;
   const name = rowLabel(boss.family, diff.tier, boss.name);
   if (diff.cadence === 'weekly') return `${name} dropped`;
-  if (diff.cadence === 'daily') return `${count}× ${name} daily dropped`;
+  if (diff.cadence === 'daily') return `${count}× daily ${name} dropped`;
   return '';
 }
 
