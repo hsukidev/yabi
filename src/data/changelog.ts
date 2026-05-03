@@ -10,8 +10,8 @@ export const releases: Release[] = [
     date: '2026-05-03',
     version: '1.1.0',
     changes: [
-      'Enforce weekly crystal cap to calculate top 180 crystal prices',
-      'Info icon with tooltip next to mule income if over 180 crystals. Drops lowest value bosses to retain 180 cap',
+      'Enforce weekly crystal cap to calculate top 180 crystal prices only',
+      'Drop lowest value bosses to retain 180 cap. Shown in info icon tooltip next to mule income',
       'Restore sticky boss-difficulty header on the matrix at normal drawer widths',
     ],
   },
