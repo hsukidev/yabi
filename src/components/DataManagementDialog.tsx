@@ -127,7 +127,7 @@ function ChooserRow({ icon, label, description, onClick }: ChooserRowProps) {
     <button
       type="button"
       onClick={onClick}
-      className="flex items-start gap-3 rounded-md border border-border p-3 text-left transition-colors cursor-pointer hover:bg-muted"
+      className="flex items-start gap-3 rounded-md border border-border p-3 text-left transition-colors cursor-pointer hover:bg-(--accent-soft)"
     >
       <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
         {icon}

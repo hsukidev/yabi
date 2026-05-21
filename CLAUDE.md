@@ -1,5 +1,19 @@
 The role of this file is to describe common mistakes and confusion points that agents might encounter as they work in this project. If you ever encounter something in the project that surprises you, please alert the developer working with you and indicate that this is the case in this CLAUDE.md file to help prevent future agents from having the same issue.
 
+## Agent skills
+
+### Issue tracker
+
+Issues and PRDs live in GitHub Issues for `hsukidev/yabi`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Skills should map canonical triage roles onto this repo's existing GitHub labels. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+This is a single-context repo with domain language in `docs/CONTEXT.md` and ADRs in `docs/adr/`. See `docs/agents/domain.md`.
+
 ## Worktrees live under `.claude/worktrees/agent-*`
 
 When an agent is launched with its own worktree, the cwd is

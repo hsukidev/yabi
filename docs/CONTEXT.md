@@ -201,10 +201,10 @@ The one-monthly-per-family rule — selecting a **Monthly Cadence** key on a fam
 Count of **Weekly Cadence** **Slate Keys** on a **Mule** — surfaced as the `X/14` numerator in the **Crystal Tally**.
 
 **Daily Count**:
-Count of **Daily Cadence** **Slate Keys** on a **Mule** — bare `X` (no cap).
+Weekly-basis count of crystals from **Daily Cadence** **Slate Keys** on a **Mule** — `daily key count × 7`, surfaced as bare `X` (no cap) in the **Crystal Tally** and **List View**.
 
 **Monthly Count**:
-Count of **Monthly Cadence** **Slate Keys** on a **Mule** — `X/1`, always in `{0, 1}` by the **Monthly Radio Mutex**.
+Count of **Monthly Cadence** **Slate Keys** on a **Mule** — surfaced as bare `X` (no denominator), always in `{0, 1}` by the **Monthly Radio Mutex**.
 
 ### Boss presets
 
@@ -320,7 +320,10 @@ _Avoid_: Lost meso
 The roster-wide count of **Crystal Slots** that survived the **World Cap Cut** in the **Selected World** — the **Weekly Cap Rail's** numerator, bounded ≤180.
 
 **Monthly Income Regression**:
-The accepted-by-design behaviour where selecting a **Monthly Cadence** **Slate Key** drops the weekly-mesos pill (since monthly weights `× 0` in **Total Crystal Value**) — not a bug; a dedicated monthly readout is deferred.
+The accepted-by-design behaviour where selecting a **Monthly Cadence** **Slate Key** leaves **Total Weekly Income** and weekly-mesos readouts unchanged (since monthly weights `× 0` in **Total Crystal Value**) — not a bug; Black Mage monthly meso belongs to a dedicated source-specific monthly readout.
+
+**Black Mage Monthly**:
+The standalone monthly meso amount from selected Black Mage **Monthly Cadence** **Slate Keys**, divided by the **Mule's** Black Mage **Party Size**. It is source-specific monthly income, not a monthly rollup of **Total Weekly Income**.
 
 ### UI surfaces
 
@@ -404,7 +407,7 @@ _Avoid_: World dropdown, world picker
 The pill in the **Drawer's** identity section that flips a **Mule's** **Active Flag**.
 
 **Crystal Tally**:
-The horizontal three-cell readout in the **Drawer** showing **Weekly Count** (`X/14`), **Daily Count** (`X`), and **Monthly Count** (`X/1`).
+The horizontal three-cell readout in the **Drawer** showing **Weekly Count** (`X/14`), **Daily Count** (`X`), and **Monthly Count** (`X`).
 
 **Notes Field**:
 The textarea in the **Drawer** body that edits **Mule Notes**.
@@ -430,7 +433,7 @@ _Avoid_: Character fetch, name search
 - A **Mule** selects at most one **Boss Difficulty** per **Boss Family** per **Boss Cadence** — the **Selection Invariant**.
 - The **Weekly Crystal Cap** (`14`) bounds **Weekly Cadence** **Slate Keys** per **Mule**; the **Monthly Crystal Cap** (`1`) bounds **Monthly Cadence** keys; both are **Hard Caps**.
 - A **Daily Cadence** **Slate Key** contributes 7 **Crystal Slots** to the **World Slot Pool** but counts as 0 against the per-**Mule** **Weekly Crystal Cap**.
-- A **Monthly Cadence** **Slate Key** contributes 0 **Crystal Slots** and 0 meso to **Total Weekly Income** (see **Monthly Income Regression**).
+- A **Monthly Cadence** **Slate Key** contributes 0 **Crystal Slots** and 0 meso to **Total Weekly Income** (see **Monthly Income Regression**), while contributing to **Black Mage Monthly** when it is a Black Mage key.
 - A **Mule's** **Potential Income** equals its **Total Crystal Value** under its **World Group** — `Income.of` resolves each **Mule** individually, so a **Roster** mixing **Heroic** and **Interactive** **Mules** prices each one against its own **Crystal Value** component.
 - A **Mule** is an **Active Mule** iff its **Active Flag** is `true` — independent of whether it has any bosses selected.
 - **Total Weekly Income** = sum of **Active Mules'** **Contributed Meso** in the **Selected World** — diverges from the sum of **Potential Meso** whenever the **World Cap Cut** drops at least one slot.

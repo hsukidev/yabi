@@ -5,10 +5,12 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { MuleListRow } from '../MuleListRow';
 import { bosses } from '../../data/bosses';
 import type { Mule } from '../../types';
-import type { RosterRowMetrics } from '../rosterRowMetrics';
+import { rosterRowMetrics, type RosterRowMetrics } from '../rosterRowMetrics';
 
 const LUCID = bosses.find((b) => b.family === 'lucid')!.id;
+const HILLA = bosses.find((b) => b.family === 'hilla')!.id;
 const HARD_LUCID = `${LUCID}:hard:weekly`;
+const NORMAL_HILLA_DAILY = `${HILLA}:normal:daily`;
 
 const baseMule: Mule = {
   id: 'row-mule-1',
@@ -95,6 +97,15 @@ describe('MuleListRow — comfy spec', () => {
     expect(row.textContent).toMatch(/3/);
     // A `3/7`-style daily fraction would imply a denominator we don't want.
     expect(row.textContent).not.toMatch(/3\s*\/\s*7/);
+  });
+
+  it('renders the slate weekly-basis Daily count used by the drawer header', () => {
+    const mule: Mule = { ...baseMule, selectedBosses: [NORMAL_HILLA_DAILY] };
+    const metrics = rosterRowMetrics(mule, undefined, 0);
+    renderRow({ mule, metrics });
+    expect(screen.getByLabelText(/daily count/i).textContent).toMatch(/7/);
+    const row = screen.getByTestId('mule-row-row-mule-1');
+    expect(row.textContent).not.toMatch(/7\s*\/\s*7/);
   });
 
   it('renders the post-cap income figure (abbreviated by default)', () => {

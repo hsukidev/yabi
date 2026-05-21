@@ -3,6 +3,23 @@ import { rosterRowMetrics } from '../rosterRowMetrics';
 import type { Mule } from '../../types';
 import type { MuleContribution } from '../../modules/worldIncome';
 import type { SlateKey } from '../../data/muleBossSlate';
+import { bosses } from '../../data/bosses';
+
+const LUCID = bosses.find((b) => b.family === 'lucid')!.id;
+const HILLA = bosses.find((b) => b.family === 'hilla')!.id;
+const VELLUM = bosses.find((b) => b.family === 'vellum')!.id;
+const HARD_LUCID_WEEKLY = `${LUCID}:hard:weekly`;
+const NORMAL_HILLA_DAILY = `${HILLA}:normal:daily`;
+const NORMAL_VELLUM_DAILY = `${VELLUM}:normal:daily`;
+
+function weeklyKeys(count: number): SlateKey[] {
+  return bosses
+    .flatMap((boss) => {
+      const weekly = boss.difficulty.find((difficulty) => difficulty.cadence === 'weekly');
+      return weekly ? ([`${boss.id}:${weekly.tier}:weekly` as SlateKey] as const) : [];
+    })
+    .slice(0, count);
+}
 
 const baseMule = (overrides: Partial<Mule> = {}): Mule => ({
   id: 'm1',
@@ -24,20 +41,28 @@ const contribution = (overrides: Partial<MuleContribution> = {}): MuleContributi
 });
 
 describe('rosterRowMetrics', () => {
-  it('counts weekly slate keys (those ending in :weekly)', () => {
+  it('counts weekly slate keys', () => {
     const mule = baseMule({
-      selectedBosses: ['boss-a:hard:weekly', 'boss-b:chaos:weekly', 'boss-c:normal:daily'],
+      selectedBosses: [HARD_LUCID_WEEKLY, NORMAL_HILLA_DAILY],
     });
     const m = rosterRowMetrics(mule, contribution(), 0);
-    expect(m.weeklyCount).toBe(2);
+    expect(m.weeklyCount).toBe(1);
   });
 
-  it('counts daily slate keys (those ending in :daily)', () => {
+  it('counts daily cadence selections as weekly-basis crystals', () => {
     const mule = baseMule({
-      selectedBosses: ['boss-a:hard:weekly', 'boss-b:normal:daily', 'boss-c:normal:daily'],
+      selectedBosses: [HARD_LUCID_WEEKLY, NORMAL_HILLA_DAILY],
     });
     const m = rosterRowMetrics(mule, contribution(), 0);
-    expect(m.dailyCount).toBe(2);
+    expect(m.dailyCount).toBe(7);
+  });
+
+  it('adds 7 daily crystals for each selected daily cadence boss', () => {
+    const mule = baseMule({
+      selectedBosses: [NORMAL_HILLA_DAILY, NORMAL_VELLUM_DAILY],
+    });
+    const m = rosterRowMetrics(mule, contribution(), 0);
+    expect(m.dailyCount).toBe(14);
   });
 
   it('returns zero for empty selectedBosses', () => {
@@ -51,8 +76,7 @@ describe('rosterRowMetrics', () => {
   });
 
   it('handles full 14 weeklies', () => {
-    const keys = Array.from({ length: 14 }, (_, i) => `boss-${i}:hard:weekly`);
-    const mule = baseMule({ selectedBosses: keys });
+    const mule = baseMule({ selectedBosses: weeklyKeys(14) });
     const m = rosterRowMetrics(mule, contribution(), 0);
     expect(m.weeklyCount).toBe(14);
   });
@@ -80,7 +104,7 @@ describe('rosterRowMetrics', () => {
   });
 
   it('treats missing contribution as 0 (covers inactive mules absent from perMule)', () => {
-    const mule = baseMule({ active: false, selectedBosses: ['boss-a:hard:weekly'] });
+    const mule = baseMule({ active: false, selectedBosses: [HARD_LUCID_WEEKLY] });
     const m = rosterRowMetrics(mule, undefined, 4_000_000_000);
     expect(m.postCapMeso).toBe(0);
     expect(m.sharePct).toBe(0);
@@ -90,16 +114,16 @@ describe('rosterRowMetrics', () => {
   });
 
   it('passes through droppedKeys from the contribution', () => {
-    const dk = new Map<SlateKey, number>([['boss-a:hard:weekly', 1]]);
-    const mule = baseMule({ selectedBosses: ['boss-a:hard:weekly'] });
+    const dk = new Map<SlateKey, number>([[HARD_LUCID_WEEKLY, 1]]);
+    const mule = baseMule({ selectedBosses: [HARD_LUCID_WEEKLY] });
     const m = rosterRowMetrics(mule, contribution({ droppedKeys: dk }), 1);
     expect(m.droppedKeys).toBe(dk);
   });
 
   it('only-daily mule renders zero weeklies', () => {
-    const mule = baseMule({ selectedBosses: ['boss-a:normal:daily', 'boss-b:hard:daily'] });
+    const mule = baseMule({ selectedBosses: [NORMAL_HILLA_DAILY, NORMAL_VELLUM_DAILY] });
     const m = rosterRowMetrics(mule, contribution(), 0);
     expect(m.weeklyCount).toBe(0);
-    expect(m.dailyCount).toBe(2);
+    expect(m.dailyCount).toBe(14);
   });
 });
