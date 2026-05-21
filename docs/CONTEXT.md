@@ -305,7 +305,7 @@ _Avoid_: Cap drop, top-180 cut
 The deterministic ordering when **Crystal Slots** share **Slot Value** at the **World Cap Cut** boundary — higher **Roster** index drops first; within one **Mule**, later-inserted **Slate Key** drops first.
 
 **Potential Meso**:
-The per-**Mule** uncapped weekly meso — synonymous with **Total Crystal Value** at per-mule scale; the **Character Card's** Weekly Income number.
+The per-**Mule** uncapped weekly meso — synonymous with **Total Crystal Value** at per-mule scale; the **Character Card's** Income number.
 _Avoid_: Raw potential, max meso
 
 **Contributed Meso**:
@@ -323,7 +323,7 @@ The roster-wide count of **Crystal Slots** that survived the **World Cap Cut** i
 The accepted-by-design behaviour where selecting a **Monthly Cadence** **Slate Key** leaves **Total Weekly Income** and weekly-mesos readouts unchanged (since monthly weights `× 0` in **Total Crystal Value**) — not a bug; **Expected Black Mage Income** belongs to a dedicated source-specific monthly readout.
 
 **Expected Black Mage Income**:
-The standalone monthly meso amount from selected Black Mage **Monthly Cadence** **Slate Keys**, divided by the **Mule's** Black Mage **Party Size**. It is source-specific monthly income, not a monthly rollup of **Total Weekly Income**, and appears per-**Mule** as BM Income on **Character Cards**.
+The standalone monthly meso amount from selected Black Mage **Monthly Cadence** **Slate Keys**, divided by the **Mule's** Black Mage **Party Size**. It is source-specific monthly income, not a monthly rollup of **Total Weekly Income**, and appears per-**Mule** as BM Income on **Character Cards** when space allows.
 _Avoid_: Black Mage Monthly
 
 ### UI surfaces
@@ -380,7 +380,7 @@ The right-side panel that slides in for editing a selected **Mule's** full detai
 _Avoid_: Side drawer, detail panel, modal
 
 **KPI Card**:
-The hero card showing **Total Weekly Income**, mule and active counts, the **Weekly Cap Rail**, and the **Reset Countdown**.
+The hero card showing **Total Weekly Income**, **Expected Black Mage Income**, mule and active counts, weekly/daily/monthly crystal-count tiles, the **Weekly Cap Rail**, and the **Reset Countdown**.
 _Avoid_: Hero card, summary card
 
 **PieChart Card**:
@@ -489,7 +489,7 @@ _Avoid_: Character fetch, name search
 
 ## Flagged ambiguities
 
-- "Income" was used for both per-mule and roster-wide totals. Canonical: **Potential Income** (per **Mule**) vs **Total Weekly Income** (roster-wide, post-cut).
+- "Income" was used for both per-mule and roster-wide totals. Canonical in prose: **Potential Income** (per **Mule**) vs **Total Weekly Income** (roster-wide, post-cut). The **Character Card** user-facing label `INCOME` means **Potential Meso** only.
 - "Boss" was overloaded with the **Crystal** it drops. Canonical separation: **Boss** = the encounter, **Crystal** = the sellable item, **Crystal Value** = the mesos received.
 - "Card" is overloaded — **Character Card**, **KPI Card**, **PieChart Card**, **Add Card** all coexist. Always use the full compound name; never write "the card" unqualified.
 - "Mule Card" (from the design handoff) is the same concept as **Character Card**. Canonical: **Character Card** in prose; the component file is named `MuleCharacterCard.tsx` for historical reasons only.

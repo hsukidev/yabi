@@ -67,12 +67,14 @@ export function MuleDetailDrawer({
   );
   const potentialIncome = formatMeso(potentialIncomeRaw, true);
   const fullPotentialIncome = formatMeso(potentialIncomeRaw, false);
+  const showPotentialIncomeTooltip = potentialIncomeRaw > 0;
   const monthlyIncomeRaw = useMemo(
     () => slate.monthlyCrystalValue(mule?.partySizes),
     [slate, mule?.partySizes],
   );
   const monthlyIncome = formatMeso(monthlyIncomeRaw, true);
   const fullMonthlyIncome = formatMeso(monthlyIncomeRaw, false);
+  const showMonthlyIncomeTooltip = monthlyIncomeRaw > 0;
 
   const matrixFilter = useMatrixFilter({ muleId, slate });
   const partySizes = usePartySizes({
@@ -187,37 +189,74 @@ export function MuleDetailDrawer({
                     </span>
                   </div>
                   <div className="mt-3 flex flex-col items-center gap-2.5 min-[425px]:items-start">
-                    <MetricTooltip
-                      ariaLabel={`Potential weekly meso ${fullPotentialIncome}`}
-                      tooltip={fullPotentialIncome}
-                      className={HEADER_INCOME_CHIP_CLASS}
-                      style={HEADER_INCOME_CHIP_STYLE}
-                    >
-                      <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
-                        Weekly
-                      </span>
-                      <span className="font-mono-nums text-base text-(--accent-numeric)">
-                        {potentialIncome}
-                      </span>
-                      <span className="font-display italic text-xs text-muted-foreground">
-                        mesos
-                      </span>
-                    </MetricTooltip>
-                    <div
-                      aria-label={`Potential Black Mage monthly meso ${fullMonthlyIncome}`}
-                      className={HEADER_INCOME_CHIP_CLASS}
-                      style={HEADER_INCOME_CHIP_STYLE}
-                    >
-                      <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
-                        BM Monthly
-                      </span>
-                      <span className="font-mono-nums text-base text-(--accent-numeric)">
-                        {monthlyIncome}
-                      </span>
-                      <span className="font-display italic text-xs text-muted-foreground">
-                        mesos
-                      </span>
-                    </div>
+                    {showPotentialIncomeTooltip ? (
+                      <MetricTooltip
+                        ariaLabel={`Potential weekly meso ${fullPotentialIncome}`}
+                        tooltip={fullPotentialIncome}
+                        className={HEADER_INCOME_CHIP_CLASS}
+                        style={HEADER_INCOME_CHIP_STYLE}
+                      >
+                        <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
+                          Weekly
+                        </span>
+                        <span className="font-mono-nums text-base text-(--accent-numeric)">
+                          {potentialIncome}
+                        </span>
+                        <span className="font-display italic text-xs text-muted-foreground">
+                          mesos
+                        </span>
+                      </MetricTooltip>
+                    ) : (
+                      <div
+                        aria-label={`Potential weekly meso ${fullPotentialIncome}`}
+                        className={HEADER_INCOME_CHIP_CLASS}
+                        style={HEADER_INCOME_CHIP_STYLE}
+                      >
+                        <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
+                          Weekly
+                        </span>
+                        <span className="font-mono-nums text-base text-(--accent-numeric)">
+                          {potentialIncome}
+                        </span>
+                        <span className="font-display italic text-xs text-muted-foreground">
+                          mesos
+                        </span>
+                      </div>
+                    )}
+                    {showMonthlyIncomeTooltip ? (
+                      <MetricTooltip
+                        ariaLabel={`Potential Black Mage monthly meso ${fullMonthlyIncome}`}
+                        tooltip={fullMonthlyIncome}
+                        className={HEADER_INCOME_CHIP_CLASS}
+                        style={HEADER_INCOME_CHIP_STYLE}
+                      >
+                        <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
+                          BM
+                        </span>
+                        <span className="font-mono-nums text-base text-(--accent-numeric)">
+                          {monthlyIncome}
+                        </span>
+                        <span className="font-display italic text-xs text-muted-foreground">
+                          mesos
+                        </span>
+                      </MetricTooltip>
+                    ) : (
+                      <div
+                        aria-label={`Potential Black Mage monthly meso ${fullMonthlyIncome}`}
+                        className={HEADER_INCOME_CHIP_CLASS}
+                        style={HEADER_INCOME_CHIP_STYLE}
+                      >
+                        <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
+                          BM
+                        </span>
+                        <span className="font-mono-nums text-base text-(--accent-numeric)">
+                          {monthlyIncome}
+                        </span>
+                        <span className="font-display italic text-xs text-muted-foreground">
+                          mesos
+                        </span>
+                      </div>
+                    )}
                     <div className="inline-flex items-center">
                       <button
                         type="button"

@@ -150,6 +150,27 @@ describe('MuleDetailDrawer (smoke)', () => {
     expect(within(chip).queryByText('504M')).toBeNull();
   });
 
+  it('wraps the Weekly chip in a tooltip when the value is nonzero', () => {
+    renderDrawer({
+      mule: {
+        ...baseMule,
+        selectedBosses: [HARD_LUCID],
+      },
+    });
+    const chip = screen.getByLabelText(/potential weekly meso/i);
+    expect(within(chip).getByText('Weekly')).toBeTruthy();
+    expect(within(chip).getByText('504M')).toBeTruthy();
+    expect(chip.tagName).toBe('BUTTON');
+  });
+
+  it('does not wrap the Weekly chip in a tooltip when the value is zero', () => {
+    renderDrawer();
+    const chip = screen.getByLabelText(/potential weekly meso/i);
+    expect(within(chip).getByText('Weekly')).toBeTruthy();
+    expect(within(chip).getByText('0')).toBeTruthy();
+    expect(chip.tagName).not.toBe('BUTTON');
+  });
+
   it('prices the Weekly chip against the mule’s World Group (Heroic)', () => {
     renderDrawer({
       mule: {
@@ -163,7 +184,7 @@ describe('MuleDetailDrawer (smoke)', () => {
     expect(within(chip).queryByText('100.8M')).toBeNull();
   });
 
-  it('renders a separate non-tooltip BM Monthly chip for selected Black Mage monthly value', () => {
+  it('renders a separate tooltip BM chip for selected Black Mage monthly value', () => {
     renderDrawer({
       mule: {
         ...baseMule,
@@ -171,12 +192,21 @@ describe('MuleDetailDrawer (smoke)', () => {
       },
     });
     const chip = screen.getByLabelText(/potential black mage monthly meso/i);
-    expect(within(chip).getByText('BM Monthly')).toBeTruthy();
+    expect(within(chip).getByText('BM')).toBeTruthy();
+    expect(within(chip).queryByText('BM Monthly')).toBeNull();
     expect(within(chip).getByText('18B')).toBeTruthy();
+    expect(chip.tagName).toBe('BUTTON');
+  });
+
+  it('does not wrap the BM chip in a tooltip when the value is zero', () => {
+    renderDrawer();
+    const chip = screen.getByLabelText(/potential black mage monthly meso/i);
+    expect(within(chip).getByText('BM')).toBeTruthy();
+    expect(within(chip).getByText('0')).toBeTruthy();
     expect(chip.tagName).not.toBe('BUTTON');
   });
 
-  it('shows BM Monthly potential value for inactive mules', () => {
+  it('shows BM chip potential value for inactive mules', () => {
     renderDrawer({
       mule: {
         ...baseMule,
@@ -188,7 +218,7 @@ describe('MuleDetailDrawer (smoke)', () => {
     expect(within(chip).getByText('18B')).toBeTruthy();
   });
 
-  it('divides BM Monthly value by the mule’s Black Mage Party Size', () => {
+  it('divides BM chip value by the mule’s Black Mage Party Size', () => {
     renderDrawer({
       mule: {
         ...baseMule,
@@ -201,7 +231,7 @@ describe('MuleDetailDrawer (smoke)', () => {
     expect(within(chip).queryByText('18B')).toBeNull();
   });
 
-  it('prices BM Monthly against the mule’s World Group', () => {
+  it('prices BM chip against the mule’s World Group', () => {
     renderDrawer({
       mule: {
         ...baseMule,

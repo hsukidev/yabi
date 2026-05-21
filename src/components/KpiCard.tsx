@@ -3,11 +3,14 @@ import { useMatchMedia } from '../hooks/useMatchMedia';
 import { formatMeso } from '../utils/meso';
 import { useWorldIncome, WORLD_WEEKLY_CRYSTAL_CAP } from '../modules/worldIncome';
 import { expectedBlackMageIncomeForRoster } from '../modules/monthlyIncome';
+import { MuleBossSlate } from '../data/muleBossSlate';
+import { resolveWorldGroup } from '../data/worlds';
 import { useFormatPreference } from '../context/FormatPreferenceProvider';
 import { ResetCountdown } from './ResetCountdown';
 import { WeeklyCapRail } from './WeeklyCapRail';
 import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
+import monthlyCrystalPng from '../assets/monthly-crystal.png';
 import type { Mule } from '../types';
 
 interface KpiCardProps {
@@ -16,6 +19,7 @@ interface KpiCardProps {
 
 const NARROW_VIEWPORT_QUERY = '(max-width: 374.99px)';
 const STACK_VIEWPORT_QUERY = '(max-width: 479.99px)';
+const INCOME_STACK_VIEWPORT_QUERY = '(max-width: 599.99px)';
 
 export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
   const {
@@ -26,6 +30,12 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
   } = useWorldIncome(mules);
   const { abbreviated, toggle } = useFormatPreference();
   const activeMuleCount = mules.reduce((n, m) => (m.active ? n + 1 : n), 0);
+  const monthlySlotsContributed = mules.reduce((total, mule) => {
+    if (mule.active === false) return total;
+    return (
+      total + MuleBossSlate.from(mule.selectedBosses, resolveWorldGroup(mule.worldId)).monthlyCount
+    );
+  }, 0);
   const expectedBlackMageIncomeRaw = expectedBlackMageIncomeForRoster(mules);
   const canToggleFormat = totalRaw > 0;
 
@@ -33,6 +43,7 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
   // to free up horizontal space for the "mesos" caption.
   const isNarrowViewport = useMatchMedia(NARROW_VIEWPORT_QUERY);
   const isStackedLayout = useMatchMedia(STACK_VIEWPORT_QUERY);
+  const isIncomeStackedLayout = useMatchMedia(INCOME_STACK_VIEWPORT_QUERY);
 
   const statRowStyle: React.CSSProperties = isStackedLayout
     ? { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px 28px', marginTop: 28 }
@@ -48,6 +59,18 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
   const rowRef = useRef<HTMLDivElement>(null);
   const probeRef = useRef<HTMLDivElement>(null);
   const [unabbreviatedOverflows, setUnabbreviatedOverflows] = useState(false);
+  const expectedBlackMageIncomeAbbrFormatted = formatMeso(
+    expectedBlackMageIncomeRaw,
+    true,
+    isNarrowViewport,
+  );
+  const expectedBlackMageIncomeFullFormatted = formatMeso(expectedBlackMageIncomeRaw, false);
+  const expectedBlackMageIncomeRowRef = useRef<HTMLDivElement>(null);
+  const expectedBlackMageIncomeProbeRef = useRef<HTMLDivElement>(null);
+  const [
+    expectedBlackMageIncomeUnabbreviatedOverflows,
+    setExpectedBlackMageIncomeUnabbreviatedOverflows,
+  ] = useState(false);
 
   useLayoutEffect(() => {
     const row = rowRef.current;
@@ -62,14 +85,25 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
     return () => ro.disconnect();
   }, [fullFormatted]);
 
+  useLayoutEffect(() => {
+    const row = expectedBlackMageIncomeRowRef.current;
+    const probe = expectedBlackMageIncomeProbeRef.current;
+    if (!row || !probe) return;
+    const measure = () => {
+      setExpectedBlackMageIncomeUnabbreviatedOverflows(probe.offsetWidth > row.clientWidth);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(row);
+    return () => ro.disconnect();
+  }, [expectedBlackMageIncomeFullFormatted]);
+
   const displayValue = !abbreviated && !unabbreviatedOverflows ? fullFormatted : abbrFormatted;
-  const expectedBlackMageIncomeDisplayValue = formatMeso(
-    expectedBlackMageIncomeRaw,
-    abbreviated,
-    isNarrowViewport,
-  );
-  const expectedBlackMageIncomeFullValue = formatMeso(expectedBlackMageIncomeRaw, false);
-  const incomeGridStyle: React.CSSProperties = isStackedLayout
+  const expectedBlackMageIncomeDisplayValue =
+    !abbreviated && !expectedBlackMageIncomeUnabbreviatedOverflows
+      ? expectedBlackMageIncomeFullFormatted
+      : expectedBlackMageIncomeAbbrFormatted;
+  const incomeGridStyle: React.CSSProperties = isIncomeStackedLayout
     ? { display: 'grid', gridTemplateColumns: '1fr', gap: 18, marginTop: 22 }
     : {
         display: 'grid',
@@ -88,14 +122,14 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
         data-testid="kpi-eyebrow-row"
         style={{
           display: 'flex',
-          justifyContent: isStackedLayout ? 'center' : 'flex-end',
+          justifyContent: 'flex-start',
           alignItems: 'center',
           gap: 12,
         }}
       >
-        <ResetCountdown align={isStackedLayout ? 'left' : 'right'} />
+        <ResetCountdown />
       </div>
-      <div style={incomeGridStyle}>
+      <div data-testid="kpi-income-grid" style={incomeGridStyle}>
         <div
           ref={rowRef}
           style={{
@@ -144,7 +178,12 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
             </div>
           </div>
         </div>
-        <div style={{ minWidth: 0 }}>
+        <div
+          ref={expectedBlackMageIncomeRowRef}
+          style={{
+            minWidth: 0,
+          }}
+        >
           <KpiIncomeTitle>EXPECTED BLACK MAGE INCOME</KpiIncomeTitle>
           <div
             style={{
@@ -152,18 +191,39 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
               alignItems: 'baseline',
               gap: 10,
               marginTop: 12,
+              position: 'relative',
             }}
           >
             <button
               type="button"
               onClick={expectedBlackMageIncomeRaw > 0 ? toggle : undefined}
               className="bignum"
-              aria-label={`Toggle expected Black Mage income meso format, full value ${expectedBlackMageIncomeFullValue}`}
+              aria-label="Toggle expected Black Mage income meso format"
               style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
             >
               {expectedBlackMageIncomeDisplayValue}
             </button>
             <KpiMesoSuffix />
+            <div
+              ref={expectedBlackMageIncomeProbeRef}
+              aria-hidden
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: 'max-content',
+                visibility: 'hidden',
+                pointerEvents: 'none',
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: 10,
+              }}
+            >
+              <span className="bignum">{expectedBlackMageIncomeFullFormatted}</span>
+              <span style={{ fontStyle: 'italic', fontFamily: 'Geist Mono, monospace' }}>
+                mesos
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -179,6 +239,11 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
           icon={dailyCrystalPng}
           label="DAILY"
           value={String(dailySlotsContributed)}
+        />
+        <CrystalKpiStat
+          icon={monthlyCrystalPng}
+          label="MONTHLY"
+          value={String(monthlySlotsContributed)}
         />
       </div>
       <div style={{ marginTop: 'auto', paddingTop: 20 }}>

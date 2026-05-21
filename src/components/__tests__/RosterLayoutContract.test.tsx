@@ -184,14 +184,21 @@ describe('Roster layout contract — AddCard parity', () => {
   });
 });
 
-describe('Roster layout contract — income labels always visible', () => {
-  it('renders income labels as part of the card content (visible at every viewport)', async () => {
+describe('Roster layout contract — income labels', () => {
+  it('renders income labels as part of the card content in comfy density', async () => {
     const { container } = renderMuleCard();
-    expect(container.textContent).toMatch(/WEEKLY INCOME/);
+    expect(container.textContent).toMatch(/INCOME/);
     expect(container.textContent).toMatch(/BM INCOME/);
   });
 
-  it('index.css does NOT hide income labels at any viewport', async () => {
+  it('hides BM INCOME in compact density', async () => {
+    localStorage.setItem('density', 'compact');
+    const { container } = renderMuleCard();
+    expect(container.textContent).toMatch(/INCOME/);
+    expect(container.textContent).not.toMatch(/BM INCOME/);
+  });
+
+  it('index.css does NOT hide the base INCOME label at any viewport', async () => {
     // Belt-and-suspenders: scan the full CSS and assert no `display: none` rule
     // targets either the legacy data-income-label hook or any selector that
     // would scope to the INCOME row (no rule should be removing it anywhere).

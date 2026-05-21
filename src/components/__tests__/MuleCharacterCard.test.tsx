@@ -39,6 +39,7 @@ interface RenderCardOptions {
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
   droppedKeys?: ReadonlyMap<SlateKey, number>;
+  density?: 'comfy' | 'compact';
   /**
    * Per-mule cadence counts. Defaults to counts derived from
    * `mule.selectedBosses` (via the canonical `rosterRowMetrics`) so existing
@@ -53,6 +54,7 @@ function renderCard(overrides: Partial<Mule> = {}, options?: RenderCardOptions) 
   const onDelete = options?.onDelete ?? vi.fn();
   const onToggleSelect = options?.onToggleSelect ?? vi.fn();
   const mule = { ...baseMule, ...overrides };
+  localStorage.setItem('density', options?.density ?? 'comfy');
   const metrics = options?.metrics ?? rosterRowMetrics(mule, undefined, 0);
   return {
     ...render(
@@ -127,16 +129,16 @@ describe('MuleCharacterCard', () => {
     expect(onClick).toHaveBeenCalled();
   });
 
-  it('renders weekly and Black Mage income text', () => {
+  it('renders income and Black Mage income text in comfy density', () => {
     renderCard();
-    expect(screen.getByText('WEEKLY INCOME')).toBeTruthy();
+    expect(screen.getByText('INCOME')).toBeTruthy();
     expect(screen.getByText('BM INCOME')).toBeTruthy();
     expect(screen.getAllByText('0')).toHaveLength(2);
   });
 
-  it('renders WEEKLY INCOME label and meso value inline on a single row', () => {
+  it('renders INCOME label and meso value inline on a single row', () => {
     renderCard();
-    const labelEl = screen.getByText('WEEKLY INCOME');
+    const labelEl = screen.getByText('INCOME');
     const row = labelEl.parentElement!;
     expect(row.className).toContain('flex-row');
     expect(row.className).not.toContain('flex-col');
@@ -155,13 +157,13 @@ describe('MuleCharacterCard', () => {
   // Regression: the card used to call useIncome without `worldId`, so
   // `Income.of` fell back to Heroic pricing for every mule — Interactive
   // mules on the roster displayed Heroic crystal values.
-  it('prices WEEKLY INCOME against the mule’s World Group (Interactive)', () => {
+  it('prices INCOME against the mule’s World Group (Interactive)', () => {
     renderCard({ selectedBosses: [HARD_LUCID], worldId: 'interactive-scania' });
     expect(screen.getByText('100.8M')).toBeTruthy();
     expect(screen.queryByText('504M')).toBeNull();
   });
 
-  it('prices WEEKLY INCOME against the mule’s World Group (Heroic)', () => {
+  it('prices INCOME against the mule’s World Group (Heroic)', () => {
     renderCard({ selectedBosses: [HARD_LUCID], worldId: 'heroic-kronos' });
     expect(screen.getByText('504M')).toBeTruthy();
     expect(screen.queryByText('100.8M')).toBeNull();
@@ -176,6 +178,13 @@ describe('MuleCharacterCard', () => {
     renderCard({ selectedBosses: [HARD_BLACK_MAGE_MONTHLY] });
     expect(screen.getByText('BM INCOME')).toBeTruthy();
     expect(screen.getByText('4.5B')).toBeTruthy();
+  });
+
+  it('hides BM Income in compact density', () => {
+    renderCard({ selectedBosses: [HARD_BLACK_MAGE_MONTHLY] }, { density: 'compact' });
+    expect(screen.getByText('INCOME')).toBeTruthy();
+    expect(screen.queryByText('BM INCOME')).toBeNull();
+    expect(screen.queryByText('4.5B')).toBeNull();
   });
 
   it('divides BM Income by the mule’s Black Mage Party Size', () => {

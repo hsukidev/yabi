@@ -5,6 +5,7 @@ import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { Mule } from '../types';
+import { useDensity } from '../context/DensityProvider';
 import { useFormattedIncome } from '../hooks/useFormattedIncome';
 import { useMatchMedia } from '../hooks/useMatchMedia';
 import { MuleBossSlate, type SlateKey } from '../data/muleBossSlate';
@@ -66,6 +67,7 @@ const MuleCardInner = memo(function MuleCardInner({
   droppedKeys?: ReadonlyMap<SlateKey, number>;
   metrics: ContributingMuleMetrics;
 }) {
+  const { density } = useDensity();
   const weeklyIncomeRaw = Income.of({
     selectedBosses: mule.selectedBosses,
     partySizes: mule.partySizes,
@@ -167,10 +169,12 @@ const MuleCardInner = memo(function MuleCardInner({
       </div>
 
       <div style={{ marginTop: 6, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
-        <IncomeLine label="WEEKLY INCOME" value={weeklyIncome} color={incomeColor}>
+        <IncomeLine label="INCOME" value={weeklyIncome} color={incomeColor}>
           <CapDropTooltipTrigger droppedKeys={dropped} />
         </IncomeLine>
-        <IncomeLine label="BM INCOME" value={bmIncome} color={bmIncomeColor} />
+        {density !== 'compact' && (
+          <IncomeLine label="BM INCOME" value={bmIncome} color={bmIncomeColor} />
+        )}
       </div>
     </>
   );

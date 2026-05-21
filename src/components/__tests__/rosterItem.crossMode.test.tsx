@@ -36,11 +36,11 @@ const emptyMetrics: RosterRowMetrics = {
 };
 
 function cardIncomeColor(container: HTMLElement): string {
-  // The card weekly income row contains: WEEKLY INCOME label (direct span
-  // child) + a sibling div whose first span is the value.
+  // The card income row contains: INCOME label (direct span child) + a
+  // sibling div whose first span is the value.
   const labels = Array.from(container.querySelectorAll('span'));
-  const incomeLabel = labels.find((s) => s.textContent === 'WEEKLY INCOME');
-  if (!incomeLabel) throw new Error('card WEEKLY INCOME label not found');
+  const incomeLabel = labels.find((s) => s.textContent === 'INCOME');
+  if (!incomeLabel) throw new Error('card INCOME label not found');
   const row = incomeLabel.parentElement!;
   const valueSpan = row.querySelector(':scope > div > span') as HTMLElement | null;
   if (!valueSpan) throw new Error('card income value span not found');

@@ -160,7 +160,7 @@ The app uses three responsive mechanisms, each suited to a different concern:
 | `ResetCountdown`        | `sm`                                     | `Live` format (`0D 14:32:07`) at `sm+`, `Smart` format (`14H 32M`) below                                  |
 | `ResetCountdown`        | `useMatchMedia(max-width: 319.99px)`     | Label drops; countdown becomes a tooltip-trigger button                                                   |
 | `KpiCard`               | `useMatchMedia(max-width: 374.99px)`     | `bignum` drops decimals (`504.32M → 504M`) so "mesos" caption fits                                        |
-| `KpiCard`               | `useMatchMedia(max-width: 479.99px)`     | Eyebrow row stacks (countdown drops below title); stat row reflows from 4-across flex to a 2×2 grid       |
+| `KpiCard`               | `useMatchMedia(max-width: 479.99px)`     | Expected income grid stacks; stat row reflows from 5-across flex to a 2-column grid                       |
 | `MuleCharacterCard`     | `md`                                     | Weekly income value: abbreviated (`<md`) ↔ full (`md+`) via paired `md:hidden` / `hidden md:inline` spans |
 | `MuleDetailDrawer`      | `sm`                                     | Sheet width: full viewport (`<sm`) ↔ 640px (`sm+`); **Drawer Close Pill** rendered only `<sm`             |
 | Drawer Identity Section | `@container/drawer` `600px`              | Layout: column stack (`<600px`) ↔ avatar + meta two-column (`≥600px`)                                     |
@@ -187,18 +187,18 @@ Both KpiCard breakpoints (`374.99px` and `479.99px`) change _structural_ JS — 
 
 ### [Header](src/components/Header.tsx)
 
-Sticky, translucent, blurred (`backdrop-blur 12px`, `sticky top-0 z-50`). 56px-tall row inside a `max-w-352` container. Left: 26×26 amber rounded-square "M" badge (mono weight 800) + wordmark "**Mules**" (Geist 15/600). Right cluster (`gap-5`, tightening to `gap-2` below 480px): **WorldSelect** + theme toggle (`Sun`/`Moon` lucide). The **Reset Countdown** used to live here — it now lives on the KpiCard top-right.
+Sticky, translucent, blurred (`backdrop-blur 12px`, `sticky top-0 z-50`). 56px-tall row inside a `max-w-352` container. Left: 26×26 amber rounded-square "M" badge (mono weight 800) + wordmark "**Mules**" (Geist 15/600). Right cluster (`gap-5`, tightening to `gap-2` below 480px): **WorldSelect** + theme toggle (`Sun`/`Moon` lucide). The **Reset Countdown** used to live here — it now lives in the KpiCard countdown row.
 
 ### [KpiCard](src/components/KpiCard.tsx) — hero
 
 `panel panel-glow` with 24px padding. **V9 Hybrid layout** (current):
 
-1. **Countdown row** — **ResetCountdown** (`align="right"`) pinned to the top-right.
+1. **Countdown row** — **ResetCountdown** pinned to the top-left.
 2. **Expected income grid** — `EXPECTED WEEKLY INCOME` and `EXPECTED BLACK MAGE INCOME` sit side by side, each with the accent-dot eyebrow, click-to-toggle `bignum`, and italic "mesos" suffix. Below 375px the abbreviated weekly value drops decimals (`504.32M` → `504M`) so "mesos" still fits. An off-screen probe at `width: max-content` measures whether the weekly unabbreviated value would overflow; if it would, the local display falls back to abbreviated even when the user's **Format Preference** is full.
-3. **Stat row** — 4 cells side by side: `MULES` / `ACTIVE` (accent) / `WEEKLY` (purple crystal png) / `DAILY` (blue crystal png). Each uses `eyebrow-plain` label + Geist Mono 22px value.
+3. **Stat row** — 5 cells side by side: `MULES` / `ACTIVE` (accent) / `WEEKLY` (purple crystal png) / `DAILY` (blue crystal png) / `MONTHLY` (monthly crystal png). Each uses `eyebrow-plain` label + Geist Mono 22px value.
 4. **WeeklyCapRail** — bottom block, see below.
 
-Below 480px the expected income grid stacks and the stat row reflows to a 2×2 grid. Both breakpoints driven by `useMatchMedia`.
+Below 480px the expected income grid stacks and the stat row reflows to a 2-column grid. Both breakpoints driven by `useMatchMedia`.
 
 ### [SplitCard](src/components/SplitCard.tsx) + [IncomePieChart](src/components/IncomePieChart.tsx)
 
@@ -214,8 +214,8 @@ Plain `panel` wrapping a 260px Recharts donut. Inner radius 66, outer 100, 2° p
 - **Name** — 14px / 600 (13px in compact). Falls back to italic muted "Unnamed".
 - **Class** — 10px mono, uppercase, muted.
 - **Inactive Mule dim state** — when `mule.active === false` the card body opacity drops and the weekly value renders in `--dim` instead of `--accent`. The card stays visible and editable; it just stops contributing to **Total Weekly Income**.
-- **Weekly income row** — top-bordered; "WEEKLY INCOME" eyebrow + mono uncapped per-mule potential value. Color: accent if weekly/daily bosses are tallied on an active mule, `--dim` otherwise.
-- **BM income row** — below Weekly Income; "BM INCOME" eyebrow + mono per-mule Expected Black Mage Income value.
+- **Income row** — top-bordered; "INCOME" eyebrow + mono uncapped per-mule potential value. Color: accent if weekly/daily bosses are tallied on an active mule, `--dim` otherwise.
+- **BM income row** — below Income; "BM INCOME" eyebrow + mono per-mule Expected Black Mage Income value. Hidden in **Compact** density.
 
 **Bulk Delete Mode states** — when the **Roster** is in **Bulk Delete Mode**:
 
@@ -262,7 +262,7 @@ The progressbar has `role="progressbar"` + `aria-valuenow={Math.round(clampedPct
 
 ### [ResetCountdown](src/components/ResetCountdown.tsx)
 
-Widget on the **KpiCard's** top-right (moved from the page **Header** on 2026-04-23). Ticks once per second from a single `setInterval`. Targets the next **Reset Anchor** — Thursday 00:00 UTC (GMS Reboot convention). Three responsive tiers:
+Widget in the **KpiCard's** countdown row (moved from the page **Header** on 2026-04-23). Ticks once per second from a single `setInterval`. Targets the next **Reset Anchor** — Thursday 00:00 UTC (GMS Reboot convention). Three responsive tiers:
 
 - **`≥sm`**: `RESET IN 0D 14:32:07` — full-precision **Live Countdown Format**.
 - **`<sm` / `≥320px`**: `RESET IN 14H 32M` — threshold-based **Smart Countdown Format** (`≥24h → 2D 14H`, `≥1h → 4H 12M`, `<1h → 37M`, `<1m → <1M`).

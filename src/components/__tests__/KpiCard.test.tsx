@@ -65,6 +65,10 @@ function bignumText(): string {
   return screen.getByRole('button', { name: /toggle abbreviated meso format/i }).textContent ?? '';
 }
 
+function expectedBlackMageIncomeButton(): HTMLElement {
+  return screen.getByRole('button', { name: /toggle expected black mage income meso format/i });
+}
+
 describe('KpiCard', () => {
   it('uses a fixed padding independent of density', () => {
     render(<KpiCard mules={[mule]} />);
@@ -131,12 +135,45 @@ describe('KpiCard', () => {
     expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('3.6B');
   });
 
+  it('lets Expected Black Mage Income toggle to full meso format when it fits', () => {
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+      configurable: true,
+      value: 1000,
+    });
+    try {
+      render(<KpiCard mules={[{ ...mule, selectedBosses: [BLACK_MAGE_EXTREME] }]} />);
+      expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('18B');
+      fireEvent.click(expectedBlackMageIncomeButton());
+      expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe(formatMeso(18_000_000_000, false));
+    } finally {
+      delete (HTMLElement.prototype as { clientWidth?: number }).clientWidth;
+    }
+  });
+
+  it('does not toggle format from Expected Black Mage Income when its raw value is zero', () => {
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+      configurable: true,
+      value: 1000,
+    });
+    try {
+      render(<KpiCard mules={[{ ...mule, selectedBosses: [HARD_LUCID] }]} />);
+      expect(bignumText()).toBe('504M');
+      expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('0');
+      fireEvent.click(expectedBlackMageIncomeButton());
+      expect(bignumText()).toBe('504M');
+      expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('0');
+    } finally {
+      delete (HTMLElement.prototype as { clientWidth?: number }).clientWidth;
+    }
+  });
+
   it('does not add Expected Black Mage Income to weekly KPI readouts', () => {
     render(<KpiCard mules={[{ ...mule, selectedBosses: [HARD_LUCID, BLACK_MAGE_EXTREME] }]} />);
 
     expect(bignumText()).toBe('504M');
     expect(tileValue('WEEKLY')).toBe('1');
     expect(tileValue('DAILY')).toBe('0');
+    expect(tileValue('MONTHLY')).toBe('1');
     expect(
       screen
         .getByRole('progressbar', { name: /weekly crystal cap/i })
@@ -177,17 +214,20 @@ describe('KpiCard', () => {
   it('does not count mules with active: false even if they have bosses selected', () => {
     const mules: Mule[] = [
       { ...mule, id: 'a', active: true, selectedBosses: [] },
-      { ...mule, id: 'b', active: false, selectedBosses: ['x:hard:weekly'] },
+      { ...mule, id: 'b', active: false, selectedBosses: ['x:hard:weekly', BLACK_MAGE_EXTREME] },
     ];
     render(<KpiCard mules={mules} />);
     expect(activeStatValue()).toBe('1');
+    expect(tileValue('MONTHLY')).toBe('0');
   });
 
   describe('hybrid layout', () => {
-    it('renders the Reset Countdown inside the income card (top-right)', () => {
+    it('renders the Reset Countdown inside the income card (top-left)', () => {
       render(<KpiCard mules={[mule]} />);
       const card = screen.getByTestId('income-card');
+      const eyebrowRow = within(card).getByTestId('kpi-eyebrow-row');
       expect(within(card).getByText(/RESET IN/i)).toBeTruthy();
+      expect(eyebrowRow.style.justifyContent).toBe('flex-start');
     });
 
     it('renders the WEEKLY CAP rail at the bottom with a progressbar role', () => {
@@ -197,7 +237,7 @@ describe('KpiCard', () => {
       expect(within(card).getByText('WEEKLY CAP')).toBeTruthy();
     });
 
-    describe('narrow viewport (<480px)', () => {
+    describe('narrow viewport (<600px)', () => {
       afterEach(() => {
         restoreMatchMedia();
       });
@@ -210,13 +250,25 @@ describe('KpiCard', () => {
         expect(statRow.style.display).toBe('grid');
       });
 
-      it('stacks the expected income sections and shows the reset countdown', () => {
-        mockNarrowViewport(400);
+      it('stacks the expected income sections below 600px', () => {
+        mockNarrowViewport(599);
         render(<KpiCard mules={[mule]} />);
         const card = screen.getByTestId('income-card');
+        const incomeGrid = within(card).getByTestId('kpi-income-grid');
+        const statRow = within(card).getByTestId('kpi-stat-row');
         expect(within(card).getByText(/expected weekly income/i)).toBeTruthy();
         expect(within(card).getByText(/expected black mage income/i)).toBeTruthy();
         expect(within(card).getByText(/reset in/i)).toBeTruthy();
+        expect(incomeGrid.style.gridTemplateColumns).toBe('1fr');
+        expect(statRow.style.display).toBe('flex');
+      });
+
+      it('keeps the expected income sections side by side at 600px', () => {
+        mockNarrowViewport(600);
+        render(<KpiCard mules={[mule]} />);
+        const card = screen.getByTestId('income-card');
+        const incomeGrid = within(card).getByTestId('kpi-income-grid');
+        expect(incomeGrid.style.gridTemplateColumns).toBe('minmax(0, 1fr) minmax(0, 1fr)');
       });
 
       it('keeps the desktop flex layout when matchMedia is unavailable', () => {
@@ -265,6 +317,7 @@ describe('KpiCard', () => {
       // Pool is 182 weekly slots; clamps to 180 weekly slots contributed.
       expect(tileValue('WEEKLY')).toBe(String(WORLD_WEEKLY_CRYSTAL_CAP));
       expect(tileValue('DAILY')).toBe('0');
+      expect(tileValue('MONTHLY')).toBe('0');
     });
 
     it('DAILY tile shows the post-cap daily slot count (partial daily drop preserves slot granularity)', () => {
@@ -282,6 +335,7 @@ describe('KpiCard', () => {
       render(<KpiCard mules={mules} />);
       expect(tileValue('WEEKLY')).toBe('178');
       expect(tileValue('DAILY')).toBe('2');
+      expect(tileValue('MONTHLY')).toBe('0');
     });
 
     it('WEEKLY/DAILY tiles equal selection counts when the roster is under-cap (no behavior change)', () => {
@@ -290,6 +344,7 @@ describe('KpiCard', () => {
       render(<KpiCard mules={[m]} />);
       expect(tileValue('WEEKLY')).toBe('1');
       expect(tileValue('DAILY')).toBe('0');
+      expect(tileValue('MONTHLY')).toBe('0');
     });
   });
 });
