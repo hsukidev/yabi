@@ -8,9 +8,11 @@ import { bosses } from '../../data/bosses';
 const LUCID = bosses.find((b) => b.family === 'lucid')!.id;
 const HILLA = bosses.find((b) => b.family === 'hilla')!.id;
 const VELLUM = bosses.find((b) => b.family === 'vellum')!.id;
+const BLACK_MAGE = bosses.find((b) => b.family === 'black-mage')!.id;
 const HARD_LUCID_WEEKLY = `${LUCID}:hard:weekly`;
 const NORMAL_HILLA_DAILY = `${HILLA}:normal:daily`;
 const NORMAL_VELLUM_DAILY = `${VELLUM}:normal:daily`;
+const HARD_BLACK_MAGE_MONTHLY = `${BLACK_MAGE}:hard:monthly`;
 
 function weeklyKeys(count: number): SlateKey[] {
   return bosses
@@ -57,6 +59,14 @@ describe('rosterRowMetrics', () => {
     expect(m.dailyCount).toBe(7);
   });
 
+  it('counts monthly cadence selections from the mule Boss Slate', () => {
+    const mule = baseMule({
+      selectedBosses: [HARD_LUCID_WEEKLY, NORMAL_HILLA_DAILY, HARD_BLACK_MAGE_MONTHLY],
+    });
+    const m = rosterRowMetrics(mule, contribution(), 0);
+    expect(m.monthlyCount).toBe(1);
+  });
+
   it('adds 7 daily crystals for each selected daily cadence boss', () => {
     const mule = baseMule({
       selectedBosses: [NORMAL_HILLA_DAILY, NORMAL_VELLUM_DAILY],
@@ -70,6 +80,7 @@ describe('rosterRowMetrics', () => {
     const m = rosterRowMetrics(mule, contribution(), 0);
     expect(m.weeklyCount).toBe(0);
     expect(m.dailyCount).toBe(0);
+    expect(m.monthlyCount).toBe(0);
     expect(m.postCapMeso).toBe(0);
     expect(m.sharePct).toBe(0);
     expect(m.droppedKeys.size).toBe(0);

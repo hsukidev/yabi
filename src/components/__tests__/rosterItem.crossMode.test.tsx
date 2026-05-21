@@ -29,6 +29,7 @@ const baseMule: Mule = {
 const emptyMetrics: RosterRowMetrics = {
   weeklyCount: 0,
   dailyCount: 0,
+  monthlyCount: 0,
   postCapMeso: 0,
   sharePct: 0,
   droppedKeys: new Map(),
@@ -146,7 +147,11 @@ describe('Roster item — cross-mode income color invariant', () => {
       selectedBosses: [HARD_BLACK_MAGE_MONTHLY],
       worldId: 'heroic-kronos',
     };
-    const { cardColor, rowColor } = bothColors(mule, emptyMetrics, 0);
+    const metrics: RosterRowMetrics = {
+      ...emptyMetrics,
+      monthlyCount: 1,
+    };
+    const { cardColor, rowColor } = bothColors(mule, metrics, 0);
     expect(cardColor).toContain('dim');
     expect(rowColor).toContain('dim');
     expect(cardColor).toBe(rowColor);

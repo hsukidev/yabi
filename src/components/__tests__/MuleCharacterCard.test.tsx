@@ -19,8 +19,10 @@ import type { ContributingMuleMetrics } from '../RosterItem/contributingMule';
 
 const LUCID = bosses.find((b) => b.family === 'lucid')!.id;
 const HILLA = bosses.find((b) => b.family === 'hilla')!.id;
+const BLACK_MAGE = bosses.find((b) => b.family === 'black-mage')!.id;
 const HARD_LUCID = `${LUCID}:hard:weekly`;
 const NORMAL_HILLA = `${HILLA}:normal:daily`;
+const HARD_BLACK_MAGE_MONTHLY = `${BLACK_MAGE}:hard:monthly`;
 
 const baseMule: Mule = {
   id: 'test-mule-1',
@@ -252,6 +254,18 @@ describe('MuleCharacterCard', () => {
     for (const s of incomeSpans) {
       expect(s.style.color).not.toContain('accent');
     }
+  });
+
+  it('does not render Weekly, Daily, or Monthly crystal tallies in Card View', () => {
+    const { container } = renderCard({
+      selectedBosses: [HARD_LUCID, NORMAL_HILLA, HARD_BLACK_MAGE_MONTHLY],
+    });
+    expect(screen.queryByLabelText(/weekly count/i)).toBeNull();
+    expect(screen.queryByLabelText(/daily count/i)).toBeNull();
+    expect(screen.queryByLabelText(/monthly count/i)).toBeNull();
+    expect(container.querySelector('img[src$="weekly-crystal.png"]')).toBeNull();
+    expect(container.querySelector('img[src$="daily-crystal.png"]')).toBeNull();
+    expect(container.querySelector('img[src$="monthly-crystal.png"]')).toBeNull();
   });
 
   describe('trash icon and delete popover', () => {

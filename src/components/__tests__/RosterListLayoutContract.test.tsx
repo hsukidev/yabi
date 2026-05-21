@@ -36,6 +36,7 @@ const baseMule: Mule = {
 const baseMetrics: RosterRowMetrics = {
   weeklyCount: 0,
   dailyCount: 0,
+  monthlyCount: 0,
   postCapMeso: 0,
   sharePct: 0,
   droppedKeys: new Map(),

@@ -10,6 +10,8 @@ export interface RosterRowMetrics {
   weeklyCount: number;
   /** Weekly-basis count of daily crystals on the mule. Renders as a bare `N`. */
   dailyCount: number;
+  /** Count of `:monthly` slate keys on the mule. Renders as a bare `N`. */
+  monthlyCount: number;
   /** Post-cap meso the mule contributed to the world total. */
   postCapMeso: number;
   /** `postCapMeso / worldTotalContributedMeso`, zero-safe. Renders as `9.5% SHARE`. */
@@ -20,8 +22,9 @@ export interface RosterRowMetrics {
 
 /**
  * Pure derivation for one Roster List row. Cadence counts come from the same
- * Boss Slate contract as the drawer's Crystal Tally: weeklies count selected
- * weekly keys, while dailies expand to weekly-basis crystals (`daily keys * 7`).
+ * Boss Slate contract as the drawer's Crystal Tally: weeklies and monthlies
+ * count selected keys, while dailies expand to weekly-basis crystals
+ * (`daily keys * 7`).
  * Pulling `contributedMeso` + `droppedKeys` from the per-mule contribution
  * keeps the row consistent with the KPI/pie totals that share the same
  * `useWorldIncome` source. `contribution` is optional because inactive mules
@@ -40,6 +43,7 @@ export function rosterRowMetrics(
   return {
     weeklyCount: slate.weeklyCount,
     dailyCount: slate.dailyCount,
+    monthlyCount: slate.monthlyCount,
     postCapMeso,
     sharePct,
     droppedKeys: contribution?.droppedKeys ?? EMPTY_DROPPED_KEYS,
