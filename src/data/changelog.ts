@@ -25,6 +25,17 @@ export const ORDERED_CATEGORIES: ChangeCategory[] = (
 
 export const releases: Release[] = [
   {
+    date: '2026-05-21',
+    version: '1.4.0',
+    changes: [
+      { category: 'feature', text: 'Added Black Mage support' },
+      {
+        category: 'fix',
+        text: 'Fix List View daily crystal counts to match the character drawer.',
+      },
+    ],
+  },
+  {
     date: '2026-05-08',
     version: '1.3.0',
     changes: [
