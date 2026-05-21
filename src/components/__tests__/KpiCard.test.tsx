@@ -22,6 +22,7 @@ function mockNarrowViewport(maxPx: number) {
 }
 
 const HARD_LUCID = `${bosses.find((b) => b.family === 'lucid')!.id}:hard:weekly`;
+const BLACK_MAGE_EXTREME = `${bosses.find((b) => b.family === 'black-mage')!.id}:extreme:monthly`;
 
 function topWeeklyKeys(n: number): { slateKey: string; value: number }[] {
   const all: { slateKey: string; value: number }[] = [];
@@ -75,6 +76,71 @@ describe('KpiCard', () => {
     ];
     render(<KpiCard mules={mules} />);
     expect(activeStatValue()).toBe('2');
+  });
+
+  it('renders Black Mage Monthly as compact meso with the full value in a tooltip', async () => {
+    render(<KpiCard mules={[{ ...mule, selectedBosses: [BLACK_MAGE_EXTREME] }]} />);
+    const card = screen.getByTestId('income-card');
+    expect(within(card).getByText('BLACK MAGE MONTHLY')).toBeTruthy();
+    expect(tileValue('BLACK MAGE MONTHLY')).toBe('18B');
+
+    fireEvent.focus(
+      within(card).getByRole('button', { name: /black mage monthly meso 18,000,000,000/i }),
+    );
+    expect(await screen.findByText('18,000,000,000')).toBeTruthy();
+  });
+
+  it('excludes inactive mules from Black Mage Monthly', () => {
+    render(
+      <KpiCard
+        mules={[
+          { ...mule, id: 'active', selectedBosses: [BLACK_MAGE_EXTREME] },
+          { ...mule, id: 'inactive', active: false, selectedBosses: [BLACK_MAGE_EXTREME] },
+        ]}
+      />,
+    );
+    expect(tileValue('BLACK MAGE MONTHLY')).toBe('18B');
+  });
+
+  it('divides each Black Mage Monthly value by that mule’s Black Mage Party Size', () => {
+    render(
+      <KpiCard
+        mules={[
+          {
+            ...mule,
+            selectedBosses: [BLACK_MAGE_EXTREME],
+            partySizes: { 'black-mage': 6 },
+          },
+        ]}
+      />,
+    );
+    expect(tileValue('BLACK MAGE MONTHLY')).toBe('3B');
+  });
+
+  it('prices each Black Mage Monthly value against that mule’s World Group', () => {
+    render(
+      <KpiCard
+        mules={[
+          {
+            ...mule,
+            selectedBosses: [BLACK_MAGE_EXTREME],
+            worldId: 'interactive-scania',
+          },
+        ]}
+      />,
+    );
+    expect(tileValue('BLACK MAGE MONTHLY')).toBe('3.6B');
+  });
+
+  it('does not add Black Mage Monthly to weekly KPI readouts', () => {
+    render(<KpiCard mules={[{ ...mule, selectedBosses: [HARD_LUCID, BLACK_MAGE_EXTREME] }]} />);
+
+    expect(bignumText()).toBe('504M');
+    expect(tileValue('WEEKLY')).toBe('1');
+    expect(tileValue('DAILY')).toBe('0');
+    expect(
+      screen.getByRole('progressbar', { name: /weekly crystal cap/i }).getAttribute('aria-valuenow'),
+    ).toBe('1');
   });
 
   it('does not toggle format when total income is zero', () => {

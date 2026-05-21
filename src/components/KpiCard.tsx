@@ -2,9 +2,11 @@ import { memo, useLayoutEffect, useRef, useState } from 'react';
 import { useMatchMedia } from '../hooks/useMatchMedia';
 import { formatMeso } from '../utils/meso';
 import { useWorldIncome, WORLD_WEEKLY_CRYSTAL_CAP } from '../modules/worldIncome';
+import { blackMageMonthlyMesoForRoster } from '../modules/monthlyIncome';
 import { useFormatPreference } from '../context/FormatPreferenceProvider';
 import { ResetCountdown } from './ResetCountdown';
 import { WeeklyCapRail } from './WeeklyCapRail';
+import { MetricTooltip } from './MetricTooltip';
 import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
 import type { Mule } from '../types';
@@ -25,6 +27,7 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
   } = useWorldIncome(mules);
   const { abbreviated, toggle } = useFormatPreference();
   const activeMuleCount = mules.reduce((n, m) => (m.active ? n + 1 : n), 0);
+  const blackMageMonthlyRaw = blackMageMonthlyMesoForRoster(mules);
   const canToggleFormat = totalRaw > 0;
 
   // Below 375px the abbreviated value drops decimals (e.g. "504.32M" → "504M")
@@ -146,6 +149,7 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
           label="DAILY"
           value={String(dailySlotsContributed)}
         />
+        <MesoKpiStat label="BLACK MAGE MONTHLY" value={blackMageMonthlyRaw} />
       </div>
       <div style={{ marginTop: 'auto', paddingTop: 20 }}>
         <WeeklyCapRail crystalTotal={slotsTotalContributed} cap={WORLD_WEEKLY_CRYSTAL_CAP} />
@@ -193,6 +197,32 @@ function CrystalKpiStat({ icon, label, value }: { icon: string; label: string; v
         }}
       >
         {value}
+      </div>
+    </div>
+  );
+}
+
+function MesoKpiStat({ label, value }: { label: string; value: number }) {
+  const compactValue = formatMeso(value, true);
+  const fullValue = formatMeso(value, false);
+  return (
+    <div>
+      <div className="eyebrow-plain">{label}</div>
+      <div
+        style={{
+          color: 'var(--text, var(--foreground))',
+          fontFamily: 'Geist Mono, monospace',
+          fontSize: 31,
+          marginTop: 6,
+        }}
+      >
+        <MetricTooltip
+          ariaLabel={`${label} meso ${fullValue}`}
+          tooltip={fullValue}
+          style={{ color: 'inherit', font: 'inherit', lineHeight: 1 }}
+        >
+          {compactValue}
+        </MetricTooltip>
       </div>
     </div>
   );
