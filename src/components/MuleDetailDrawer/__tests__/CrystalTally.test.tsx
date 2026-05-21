@@ -17,15 +17,18 @@ describe('CrystalTally', () => {
     expect(daily.querySelector('.crystal-tally__cap')).toBeNull();
   });
 
-  it('does not render a monthly readout', () => {
+  it('renders the monthly readout as a bare count (no cap segment)', () => {
     render(<CrystalTally weeklyCount={0} dailyCount={0} monthlyCount={1} />);
-    expect(screen.queryByLabelText(/monthly boss selections/i)).toBeNull();
+    const monthly = screen.getByLabelText(/monthly boss selections/i);
+    expect(monthly.textContent).toBe('1');
+    expect(monthly.querySelector('.crystal-tally__cap')).toBeNull();
   });
 
-  it('shows "0/14" and "0" when all counts are zero', () => {
+  it('shows "0/14", "0", and "0" when all counts are zero', () => {
     render(<CrystalTally weeklyCount={0} dailyCount={0} monthlyCount={0} />);
     expect(screen.getByLabelText(/weekly boss selections/i).textContent).toBe('0/14');
     expect(screen.getByLabelText(/daily boss selections/i).textContent).toBe('0');
+    expect(screen.getByLabelText(/monthly boss selections/i).textContent).toBe('0');
   });
 
   it('does not clamp values greater than the weekly cap', () => {
@@ -42,23 +45,24 @@ describe('CrystalTally', () => {
     expect(dailyCell?.classList.contains('is-empty')).toBe(true);
   });
 
-  it('renders weekly and daily crystal PNGs (no monthly)', () => {
+  it('renders weekly, daily, and monthly crystal PNGs', () => {
     const { container } = render(<CrystalTally weeklyCount={1} dailyCount={1} monthlyCount={1} />);
     expect(container.querySelector('.crystal-tally__crystal.is-weekly')).toBeTruthy();
     expect(container.querySelector('.crystal-tally__crystal.is-daily')).toBeTruthy();
-    expect(container.querySelector('.crystal-tally__crystal.is-monthly')).toBeNull();
+    const monthly = container.querySelector('.crystal-tally__crystal.is-monthly');
+    expect(monthly).toBeTruthy();
+    expect(monthly?.getAttribute('src')).toContain('monthly-crystal.png');
   });
 
-  it('orders the cells Weekly, Daily top-to-bottom', () => {
+  it('orders the cells Weekly, Daily, Monthly top-to-bottom', () => {
     const { container } = render(<CrystalTally weeklyCount={1} dailyCount={1} monthlyCount={1} />);
     const cells = Array.from(container.querySelectorAll('[data-kind]'));
-    expect(cells.map((c) => c.getAttribute('data-kind'))).toEqual(['weekly', 'daily']);
+    expect(cells.map((c) => c.getAttribute('data-kind'))).toEqual(['weekly', 'daily', 'monthly']);
   });
 
-  it('places a horizontal divider between the two cells', () => {
+  it('places a horizontal divider between cells', () => {
     const { container } = render(<CrystalTally weeklyCount={1} dailyCount={1} monthlyCount={1} />);
-    // Two cells → one divider.
-    expect(container.querySelectorAll('.crystal-tally__divider')).toHaveLength(1);
+    expect(container.querySelectorAll('.crystal-tally__divider')).toHaveLength(2);
   });
 
   it('exposes a labelled group wrapper so screen readers announce the tally together', () => {
@@ -73,6 +77,9 @@ describe('CrystalTally', () => {
     ).toBe(true);
     expect(
       screen.getByLabelText(/daily boss selections/i).classList.contains('font-mono-nums'),
+    ).toBe(true);
+    expect(
+      screen.getByLabelText(/monthly boss selections/i).classList.contains('font-mono-nums'),
     ).toBe(true);
   });
 });

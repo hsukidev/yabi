@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { Info, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
@@ -32,6 +33,15 @@ interface MuleDetailDrawerProps {
   onDelete: (id: string) => void;
 }
 
+const HEADER_INCOME_CHIP_CLASS =
+  'inline-flex items-baseline gap-2 rounded-lg border border-border/60 px-3 py-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring';
+
+const HEADER_INCOME_CHIP_STYLE = {
+  background: 'color-mix(in srgb, var(--surface-2) 92%, transparent)',
+  boxShadow:
+    'inset 0 1px 0 color-mix(in srgb, white 6%, transparent), 0 1px 2px color-mix(in srgb, black 8%, transparent)',
+} satisfies CSSProperties;
+
 export function MuleDetailDrawer({
   mule,
   open,
@@ -57,6 +67,12 @@ export function MuleDetailDrawer({
   );
   const potentialIncome = formatMeso(potentialIncomeRaw, true);
   const fullPotentialIncome = formatMeso(potentialIncomeRaw, false);
+  const monthlyIncomeRaw = useMemo(
+    () => slate.monthlyCrystalValue(mule?.partySizes),
+    [slate, mule?.partySizes],
+  );
+  const monthlyIncome = formatMeso(monthlyIncomeRaw, true);
+  const fullMonthlyIncome = formatMeso(monthlyIncomeRaw, false);
 
   const matrixFilter = useMatrixFilter({ muleId, slate });
   const partySizes = usePartySizes({
@@ -174,18 +190,30 @@ export function MuleDetailDrawer({
                     <MetricTooltip
                       ariaLabel={`Potential weekly meso ${fullPotentialIncome}`}
                       tooltip={fullPotentialIncome}
-                      className="inline-flex items-baseline gap-2 rounded-lg border border-border/60 px-3 py-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                      style={{
-                        background: 'color-mix(in srgb, var(--surface-2) 92%, transparent)',
-                        boxShadow:
-                          'inset 0 1px 0 color-mix(in srgb, white 6%, transparent), 0 1px 2px color-mix(in srgb, black 8%, transparent)',
-                      }}
+                      className={HEADER_INCOME_CHIP_CLASS}
+                      style={HEADER_INCOME_CHIP_STYLE}
                     >
                       <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
                         Weekly
                       </span>
                       <span className="font-mono-nums text-base text-(--accent-numeric)">
                         {potentialIncome}
+                      </span>
+                      <span className="font-display italic text-xs text-muted-foreground">
+                        mesos
+                      </span>
+                    </MetricTooltip>
+                    <MetricTooltip
+                      ariaLabel={`Potential Black Mage monthly meso ${fullMonthlyIncome}`}
+                      tooltip={fullMonthlyIncome}
+                      className={HEADER_INCOME_CHIP_CLASS}
+                      style={HEADER_INCOME_CHIP_STYLE}
+                    >
+                      <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
+                        BM Monthly
+                      </span>
+                      <span className="font-mono-nums text-base text-(--accent-numeric)">
+                        {monthlyIncome}
                       </span>
                       <span className="font-display italic text-xs text-muted-foreground">
                         mesos

@@ -818,6 +818,25 @@ export class MuleBossSlate {
   }
 
   /**
+   * Monthly-basis meso total for Monthly Cadence selections. Scoped today to
+   * Black Mage, priced against this slate's **World Group**, and divided by
+   * the family's configured Party Size with the same default-1 rule as
+   * weekly selections.
+   */
+  monthlyCrystalValue(partySizes: Record<string, number> = {}): number {
+    let total = 0;
+    for (const key of this.keys) {
+      const parsed = parseKey(key);
+      if (!parsed || parsed.cadence !== 'monthly') continue;
+      const boss = getBossById(parsed.bossId)!;
+      const diff = boss.difficulty.find((d) => d.tier === parsed.tier)!;
+      const party = partySizes[boss.family] ?? 1;
+      total += priceFor(diff, this.worldGroup) / party;
+    }
+    return total;
+  }
+
+  /**
    * Expand this slate into its **Crystal Slot** list — the per-slot pool the
    * **World Cap Cut** sorts and trims. Slot expansion follows the same rules
    * as `totalCrystalValue`:

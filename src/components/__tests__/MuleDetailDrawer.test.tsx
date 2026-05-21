@@ -7,6 +7,8 @@ import { bosses } from '../../data/bosses';
 
 const LUCID_BOSS = bosses.find((b) => b.family === 'lucid')!;
 const HARD_LUCID = `${LUCID_BOSS.id}:hard:weekly`;
+const BLACK_MAGE_BOSS = bosses.find((b) => b.family === 'black-mage')!;
+const EXTREME_BLACK_MAGE = `${BLACK_MAGE_BOSS.id}:extreme:monthly`;
 
 const baseMule: Mule = {
   id: 'test-mule-1',
@@ -143,7 +145,7 @@ describe('MuleDetailDrawer (smoke)', () => {
         worldId: 'interactive-scania',
       },
     });
-    const chip = screen.getByText('mesos').parentElement!;
+    const chip = screen.getByLabelText(/potential weekly meso/i);
     expect(within(chip).getByText('100.8M')).toBeTruthy();
     expect(within(chip).queryByText('504M')).toBeNull();
   });
@@ -156,9 +158,71 @@ describe('MuleDetailDrawer (smoke)', () => {
         worldId: 'heroic-kronos',
       },
     });
-    const chip = screen.getByText('mesos').parentElement!;
+    const chip = screen.getByLabelText(/potential weekly meso/i);
     expect(within(chip).getByText('504M')).toBeTruthy();
     expect(within(chip).queryByText('100.8M')).toBeNull();
+  });
+
+  it('renders a separate BM Monthly chip for selected Black Mage monthly value', () => {
+    renderDrawer({
+      mule: {
+        ...baseMule,
+        selectedBosses: [EXTREME_BLACK_MAGE],
+      },
+    });
+    const chip = screen.getByLabelText(/potential black mage monthly meso/i);
+    expect(within(chip).getByText('BM Monthly')).toBeTruthy();
+    expect(within(chip).getByText('18B')).toBeTruthy();
+  });
+
+  it('shows BM Monthly potential value for inactive mules', () => {
+    renderDrawer({
+      mule: {
+        ...baseMule,
+        active: false,
+        selectedBosses: [EXTREME_BLACK_MAGE],
+      },
+    });
+    const chip = screen.getByLabelText(/potential black mage monthly meso/i);
+    expect(within(chip).getByText('18B')).toBeTruthy();
+  });
+
+  it('divides BM Monthly value by the mule’s Black Mage Party Size', () => {
+    renderDrawer({
+      mule: {
+        ...baseMule,
+        selectedBosses: [EXTREME_BLACK_MAGE],
+        partySizes: { 'black-mage': 6 },
+      },
+    });
+    const chip = screen.getByLabelText(/potential black mage monthly meso/i);
+    expect(within(chip).getByText('3B')).toBeTruthy();
+    expect(within(chip).queryByText('18B')).toBeNull();
+  });
+
+  it('prices BM Monthly against the mule’s World Group', () => {
+    renderDrawer({
+      mule: {
+        ...baseMule,
+        selectedBosses: [EXTREME_BLACK_MAGE],
+        worldId: 'interactive-scania',
+      },
+    });
+    const chip = screen.getByLabelText(/potential black mage monthly meso/i);
+    expect(within(chip).getByText('3.6B')).toBeTruthy();
+    expect(within(chip).queryByText('18B')).toBeNull();
+  });
+
+  it('keeps the Weekly chip weekly-only when Black Mage monthly is selected', () => {
+    renderDrawer({
+      mule: {
+        ...baseMule,
+        selectedBosses: [HARD_LUCID, EXTREME_BLACK_MAGE],
+      },
+    });
+    const weeklyChip = screen.getByLabelText(/potential weekly meso/i);
+    expect(within(weeklyChip).getByText('504M')).toBeTruthy();
+    expect(within(weeklyChip).queryByText('18.5B')).toBeNull();
   });
 
   it('renders mule.avatarUrl in the drawer header when present', () => {

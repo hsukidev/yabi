@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import weeklyCrystalPng from '../../assets/weekly-crystal.png';
 import dailyCrystalPng from '../../assets/daily-crystal.png';
+import monthlyCrystalPng from '../../assets/monthly-crystal.png';
 import { WEEKLY_CRYSTAL_CAP } from '../../data/muleBossSlate';
 
 interface CrystalTallyProps {
@@ -10,10 +11,12 @@ interface CrystalTallyProps {
 }
 
 /**
- * Two crystal plates stacked vertically in the drawer header:
+ * Three crystal plates stacked vertically in the drawer header:
  *   Weekly ({n}/14)
  *   ──────────────
  *   Daily  ({n})
+ *   ──────────────
+ *   Monthly ({n})
  *
  * Each plate pairs an icon on a radial halo with a two-line readout — a
  * micro-tracked eyebrow label above a mono-numeric count. Empty plates
@@ -26,6 +29,7 @@ interface CrystalTallyProps {
 export const CrystalTally = memo(function CrystalTally({
   weeklyCount,
   dailyCount,
+  monthlyCount,
 }: CrystalTallyProps) {
   return (
     <div className="crystal-tally" role="group" aria-label="Crystal tally">
@@ -44,6 +48,14 @@ export const CrystalTally = memo(function CrystalTally({
         label="Daily"
         count={dailyCount}
         ariaLabel="Daily boss selections"
+      />
+      <div className="crystal-tally__divider" aria-hidden />
+      <CrystalCell
+        kind="monthly"
+        icon={monthlyCrystalPng}
+        label="Monthly"
+        count={monthlyCount}
+        ariaLabel="Monthly boss selections"
       />
     </div>
   );
