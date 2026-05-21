@@ -160,7 +160,8 @@ The app uses three responsive mechanisms, each suited to a different concern:
 | `ResetCountdown`        | `sm`                                     | `Live` format (`0D 14:32:07`) at `sm+`, `Smart` format (`14H 32M`) below                                  |
 | `ResetCountdown`        | `useMatchMedia(max-width: 319.99px)`     | Label drops; countdown becomes a tooltip-trigger button                                                   |
 | `KpiCard`               | `useMatchMedia(max-width: 374.99px)`     | `bignum` drops decimals (`504.32M → 504M`) so "mesos" caption fits                                        |
-| `KpiCard`               | `useMatchMedia(max-width: 479.99px)`     | Expected income grid stacks; stat row reflows from 5-across flex to a 2-column grid                       |
+| `KpiCard`               | `useMatchMedia(max-width: 479.99px)`     | Stat row reflows from 5-across flex to a 2-column grid                                                    |
+| `KpiCard`               | `useMatchMedia(max-width: 599.99px)`     | Expected income grid stacks, with Expected Black Mage Income below Expected Weekly Income                 |
 | `MuleCharacterCard`     | `md`                                     | Weekly income value: abbreviated (`<md`) ↔ full (`md+`) via paired `md:hidden` / `hidden md:inline` spans |
 | `MuleDetailDrawer`      | `sm`                                     | Sheet width: full viewport (`<sm`) ↔ 640px (`sm+`); **Drawer Close Pill** rendered only `<sm`             |
 | Drawer Identity Section | `@container/drawer` `600px`              | Layout: column stack (`<600px`) ↔ avatar + meta two-column (`≥600px`)                                     |
@@ -179,7 +180,7 @@ The app uses three responsive mechanisms, each suited to a different concern:
 
 ### Why `useMatchMedia` and not Tailwind for the KpiCard reflows?
 
-Both KpiCard breakpoints (`374.99px` and `479.99px`) change _structural_ JS — the eyebrow row's `flexDirection`, the stat row's `display: flex` vs `display: grid`, the bignum's `formatMeso(_, _, isNarrowViewport)` argument. Tailwind utility flips can hide/show elements but can't choose between two distinct style objects or pass a runtime boolean to a formatter, so JS-side matchMedia is the right tool here.
+The KpiCard breakpoints (`374.99px`, `479.99px`, and `599.99px`) change _structural_ JS — the expected income grid's column count, the stat row's `display: flex` vs `display: grid`, and the bignum's `formatMeso(_, _, isNarrowViewport)` argument. Tailwind utility flips can hide/show elements but can't choose between two distinct style objects or pass a runtime boolean to a formatter, so JS-side matchMedia is the right tool here.
 
 ---
 
@@ -194,11 +195,11 @@ Sticky, translucent, blurred (`backdrop-blur 12px`, `sticky top-0 z-50`). 56px-t
 `panel panel-glow` with 24px padding. **V9 Hybrid layout** (current):
 
 1. **Countdown row** — **ResetCountdown** pinned to the top-left.
-2. **Expected income grid** — `EXPECTED WEEKLY INCOME` and `EXPECTED BLACK MAGE INCOME` sit side by side, each with the accent-dot eyebrow, click-to-toggle `bignum`, and italic "mesos" suffix. Below 375px the abbreviated weekly value drops decimals (`504.32M` → `504M`) so "mesos" still fits. An off-screen probe at `width: max-content` measures whether the weekly unabbreviated value would overflow; if it would, the local display falls back to abbreviated even when the user's **Format Preference** is full.
+2. **Expected income grid** — `EXPECTED WEEKLY INCOME` and `EXPECTED BLACK MAGE INCOME` sit side by side at 600px and above; below 600px, Black Mage stacks underneath Weekly. Each section has the accent-dot eyebrow, click-to-toggle `bignum`, and italic "mesos" suffix. Below 375px the abbreviated values drop decimals (`504.32M` → `504M`) so "mesos" still fits. Each row has an off-screen probe at `width: max-content`; if the unabbreviated value would overflow, the local display falls back to abbreviated even when the user's **Format Preference** is full.
 3. **Stat row** — 5 cells side by side: `MULES` / `ACTIVE` (accent) / `WEEKLY` (purple crystal png) / `DAILY` (blue crystal png) / `MONTHLY` (monthly crystal png). Each uses `eyebrow-plain` label + Geist Mono 22px value.
 4. **WeeklyCapRail** — bottom block, see below.
 
-Below 480px the expected income grid stacks and the stat row reflows to a 2-column grid. Both breakpoints driven by `useMatchMedia`.
+Below 600px the expected income grid stacks. Below 480px the stat row reflows to a 2-column grid. Both breakpoints are driven by `useMatchMedia`.
 
 ### [SplitCard](src/components/SplitCard.tsx) + [IncomePieChart](src/components/IncomePieChart.tsx)
 

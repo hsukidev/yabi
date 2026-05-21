@@ -361,7 +361,7 @@ The header control that flips **Density** between **Comfy** and **Compact**. Hid
 _Avoid_: Density picker, density switcher
 
 **Format Preference**:
-The global meso-display toggle — exactly one of `abbreviated` (`5.31B`) or `full` (`5,310,000,000`). Persisted per user; threaded to every meso readout (**KPI Card** bignum, **Character Card** headline, **Drawer** chip, **Cap Drop Badge**). Lives in its own seam, not bundled with **Potential Income** or **Total Weekly Income** values.
+The global meso-display toggle — exactly one of `abbreviated` (`5.31B`) or `full` (`5,310,000,000`). Persisted per user; threaded to every meso readout (**KPI Card** bignum, **Expected Black Mage Income**, **Character Card** headline, **Drawer** chip, **Cap Drop Badge**). Lives in its own seam, not bundled with **Potential Income** or **Total Weekly Income** values.
 _Avoid_: Abbreviated flag, number format
 
 **Auto-Fullformat-On-Zero Rule**:
