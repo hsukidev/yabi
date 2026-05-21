@@ -217,6 +217,22 @@ describe('useUserPresets', () => {
       expect(result.current.userPresets[0].partySizes).toEqual({ 'pink-bean': 1 });
     });
 
+    it('captures Black Mage party size for monthly Black Mage keys', () => {
+      const blackMage = bosses.find((b) => b.family === 'black-mage')!;
+      const slateKeys = [`${blackMage.id}:extreme:monthly`];
+      const { result } = renderHook(() => useUserPresets());
+      act(() => {
+        result.current.createUserPreset('Monthly BM', slateKeys, {
+          'black-mage': 6,
+          lucid: 2,
+        });
+      });
+      expect(result.current.userPresets[0]).toMatchObject({
+        slateKeys,
+        partySizes: { 'black-mage': 6 },
+      });
+    });
+
     it('defaults to empty partySizes when no partySizes argument is provided (legacy callsite)', () => {
       const { result } = renderHook(() => useUserPresets());
       act(() => {

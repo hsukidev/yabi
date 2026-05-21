@@ -32,6 +32,7 @@ describe('MatrixToolbar', () => {
     expect(screen.getByRole('button', { name: /^all$/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /^weekly$/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /^daily$/i })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /^monthly$/i })).toBeNull();
   });
 
   it('wraps the cadence buttons in a .d-c-toggle container', () => {

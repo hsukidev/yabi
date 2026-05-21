@@ -25,9 +25,9 @@ function filterFamiliesByCadence(families: SlateFamily[], filter: CadenceFilter)
  * Boss Matrix view.
  *
  * - `search` / `setSearch` and `filter` / `setFilter` are local state.
- * - `visibleBosses` is the cadence filter composed onto `slate.view(search)`,
- *   with the **Black Mage** family excluded (it's monthly-only and hidden
- *   from the Matrix UI).
+ * - `visibleBosses` is the cadence filter composed onto `slate.view(search)`.
+ *   Monthly-only families remain visible under `All`, and stay hidden under
+ *   the weekly/daily filters because they have no matching cadence rows.
  * - `search` and `filter` auto-reset on **Mule Switch** via the React-supported
  *   render-time "store info from previous renders" pattern, so opening the
  *   drawer on a new mule starts with a fresh filter state.
@@ -57,8 +57,7 @@ export function useMatrixFilter({
   }
 
   const visibleBosses = useMemo(
-    () =>
-      filterFamiliesByCadence(slate.view(search), filter).filter((f) => f.family !== 'black-mage'),
+    () => filterFamiliesByCadence(slate.view(search), filter),
     [slate, search, filter],
   );
 

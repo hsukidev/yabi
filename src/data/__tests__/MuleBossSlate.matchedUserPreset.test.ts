@@ -34,6 +34,9 @@ const NORMAL_LUCID = buildKey(LUCID_BOSS.id, 'normal', 'weekly');
 const HORNTAIL_BOSS = getBossByFamily('horntail')!;
 const HORNTAIL_DAILY = buildKey(HORNTAIL_BOSS.id, 'chaos', 'daily');
 
+const BLACK_MAGE_BOSS = getBossByFamily('black-mage')!;
+const BLACK_MAGE_EXTREME = buildKey(BLACK_MAGE_BOSS.id, 'extreme', 'monthly');
+
 const CRA_KEYS = PRESET_FAMILIES.CRA.map((entry) => presetEntryKey(entry)!);
 
 describe('MuleBossSlate.matchedUserPreset', () => {
@@ -127,5 +130,19 @@ describe('MuleBossSlate.matchedUserPreset', () => {
     const slate = MuleBossSlate.from(CRA_KEYS);
     const a = preset('a', 'A', CRA_KEYS);
     expect(slate.matchedUserPreset([a], {})).toBe(a);
+  });
+
+  it('matches a monthly Black Mage snapshot including Black Mage party size', () => {
+    const slate = MuleBossSlate.from([HARD_LUCID, BLACK_MAGE_EXTREME]);
+    const a = preset('a', 'Monthly BM', [BLACK_MAGE_EXTREME, HARD_LUCID], {
+      'black-mage': 6,
+    });
+    expect(slate.matchedUserPreset([a], { 'black-mage': 6 })).toBe(a);
+  });
+
+  it('returns null when monthly Black Mage keys match but Black Mage party size differs', () => {
+    const slate = MuleBossSlate.from([BLACK_MAGE_EXTREME]);
+    const a = preset('a', 'Monthly BM', [BLACK_MAGE_EXTREME], { 'black-mage': 6 });
+    expect(slate.matchedUserPreset([a], { 'black-mage': 5 })).toBeNull();
   });
 });

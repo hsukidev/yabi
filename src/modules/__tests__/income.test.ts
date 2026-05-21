@@ -5,8 +5,10 @@ import { bosses } from '../../data/bosses';
 
 const LUCID = bosses.find((b) => b.family === 'lucid')!.id;
 const WILL = bosses.find((b) => b.family === 'will')!.id;
+const BLACK_MAGE = bosses.find((b) => b.family === 'black-mage')!.id;
 const HARD_LUCID = `${LUCID}:hard:weekly`;
 const HARD_WILL = `${WILL}:hard:weekly`;
+const BLACK_MAGE_EXTREME = `${BLACK_MAGE}:extreme:monthly`;
 
 describe('Income.of', () => {
   it('delegates per-mule arithmetic to MuleBossSlate.totalCrystalValue', () => {
@@ -43,6 +45,10 @@ describe('Income.of', () => {
 
   it('returns raw 0 for an empty roster', () => {
     expect(Income.of([]).raw).toBe(0);
+  });
+
+  it('returns raw 0 for monthly Black Mage selections', () => {
+    expect(Income.of({ selectedBosses: [BLACK_MAGE_EXTREME] }).raw).toBe(0);
   });
 
   it('rejects calling the constructor directly (compile-time only)', () => {

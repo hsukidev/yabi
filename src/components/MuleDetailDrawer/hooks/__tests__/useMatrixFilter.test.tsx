@@ -18,12 +18,12 @@ function makeSlate(keys: readonly string[] = []): MuleBossSlate {
 
 describe('useMatrixFilter', () => {
   describe('visibleBosses (search + cadence filter)', () => {
-    it('returns every family except Black Mage when search is empty and filter is All', () => {
+    it('returns every family including Black Mage when search is empty and filter is All', () => {
       const { result } = renderHook(() =>
         useMatrixFilter({ muleId: 'mule-1', slate: makeSlate() }),
       );
-      expect(result.current.visibleBosses.length).toBe(bosses.length - 1);
-      expect(result.current.visibleBosses.map((f) => f.family)).not.toContain('black-mage');
+      expect(result.current.visibleBosses.length).toBe(bosses.length);
+      expect(result.current.visibleBosses.map((f) => f.family)).toContain('black-mage');
     });
 
     it('responds to search (narrows to families matching substring)', () => {
@@ -108,11 +108,14 @@ describe('useMatrixFilter', () => {
       ).toBe(true);
     });
 
-    it('Black Mage is excluded even when filter is All', () => {
+    it('Black Mage remains searchable when filter is All', () => {
       const { result } = renderHook(() =>
         useMatrixFilter({ muleId: 'mule-1', slate: makeSlate() }),
       );
-      expect(result.current.visibleBosses.map((f) => f.family)).not.toContain('black-mage');
+      act(() => {
+        result.current.setSearch('black mage');
+      });
+      expect(result.current.visibleBosses.map((f) => f.family)).toEqual(['black-mage']);
     });
   });
 

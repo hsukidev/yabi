@@ -23,6 +23,9 @@ const NORMAL_LUCID = `${LUCID_BOSS.id}:normal:weekly`;
 const HORNTAIL_BOSS = bosses.find((b) => b.family === 'horntail')!;
 const HORNTAIL_DAILY = `${HORNTAIL_BOSS.id}:chaos:daily`;
 
+const BLACK_MAGE_BOSS = bosses.find((b) => b.family === 'black-mage')!;
+const BLACK_MAGE_EXTREME = `${BLACK_MAGE_BOSS.id}:extreme:monthly`;
+
 const BALDRIX_BOSS = bosses.find((b) => b.family === 'baldrix')!;
 
 const CRA_KEYS = PRESET_FAMILIES.CRA.map((entry) => presetEntryKey(entry)!);
@@ -493,6 +496,35 @@ describe('useSlateActions', () => {
         partySizes: Record<string, number>;
       };
       expect(update.partySizes).toEqual({ lucid: 4 });
+    });
+
+    it('applies monthly Black Mage keys and Black Mage party size from the snapshot', () => {
+      const onUpdate = vi.fn();
+      const userPresets = [
+        preset('p1', 'Monthly BM', [HARD_LUCID, BLACK_MAGE_EXTREME], {
+          lucid: 2,
+          'black-mage': 6,
+        }),
+      ];
+      const { result } = renderHook(() =>
+        useSlateActions({
+          muleId: 'mule-1',
+          partySizes: {},
+          slate: makeSlate([]),
+          userPresets,
+          onUpdate,
+        }),
+      );
+
+      act(() => {
+        result.current.applyUserPreset('p1');
+      });
+      const update = onUpdate.mock.calls[0][1] as {
+        selectedBosses: string[];
+        partySizes: Record<string, number>;
+      };
+      expect(new Set(update.selectedBosses)).toEqual(new Set([HARD_LUCID, BLACK_MAGE_EXTREME]));
+      expect(update.partySizes).toEqual({ lucid: 2, 'black-mage': 6 });
     });
 
     it('short-circuits (zero onUpdate) when the snapshot already matches the current state', () => {
