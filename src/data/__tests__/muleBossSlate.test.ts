@@ -272,6 +272,7 @@ describe('MuleBossSlate.view', () => {
     const view = MuleBossSlate.EMPTY.view();
     const families = view.map((f) => f.family);
     const expected = [
+      'black-mage',
       'kaling',
       'first-adversary',
       'kalos-the-guardian',
@@ -303,15 +304,14 @@ describe('MuleBossSlate.view', () => {
       'von-leon',
       'horntail',
       'omni-cln',
-      'black-mage',
     ];
     expect(families).toEqual(expected);
   });
 
-  it('places Black Mage last so it does not participate in the meso ranking', () => {
+  it('places Black Mage first for monthly selection visibility', () => {
     const view = MuleBossSlate.EMPTY.view();
     const families = view.map((f) => f.family);
-    expect(families[families.length - 1]).toBe('black-mage');
+    expect(families[0]).toBe('black-mage');
   });
 
   it('orders all weekly-eligible families before any daily-only family (Black Mage excluded)', () => {

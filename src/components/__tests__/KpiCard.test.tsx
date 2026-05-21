@@ -42,7 +42,10 @@ function topWeeklyKeys(n: number): { slateKey: string; value: number }[] {
 function tileValue(label: string): string {
   const card = screen.getByTestId('income-card') as HTMLElement;
   const labelEl = within(card).getByText(label);
-  return labelEl.parentElement!.querySelectorAll('div')[1]!.textContent ?? '';
+  const section = labelEl.parentElement!;
+  const button = within(section).queryByRole('button');
+  if (button) return button.textContent ?? '';
+  return section.querySelectorAll('div')[1]!.textContent ?? '';
 }
 
 const mule: Mule = {
@@ -78,19 +81,15 @@ describe('KpiCard', () => {
     expect(activeStatValue()).toBe('2');
   });
 
-  it('renders Black Mage Monthly as compact meso with the full value in a tooltip', async () => {
+  it('renders Expected Black Mage Income as compact meso next to weekly income', () => {
     render(<KpiCard mules={[{ ...mule, selectedBosses: [BLACK_MAGE_EXTREME] }]} />);
     const card = screen.getByTestId('income-card');
-    expect(within(card).getByText('BLACK MAGE MONTHLY')).toBeTruthy();
-    expect(tileValue('BLACK MAGE MONTHLY')).toBe('18B');
-
-    fireEvent.focus(
-      within(card).getByRole('button', { name: /black mage monthly meso 18,000,000,000/i }),
-    );
-    expect(await screen.findByText('18,000,000,000')).toBeTruthy();
+    expect(within(card).getByText('EXPECTED WEEKLY INCOME')).toBeTruthy();
+    expect(within(card).getByText('EXPECTED BLACK MAGE INCOME')).toBeTruthy();
+    expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('18B');
   });
 
-  it('excludes inactive mules from Black Mage Monthly', () => {
+  it('excludes inactive mules from Expected Black Mage Income', () => {
     render(
       <KpiCard
         mules={[
@@ -99,10 +98,10 @@ describe('KpiCard', () => {
         ]}
       />,
     );
-    expect(tileValue('BLACK MAGE MONTHLY')).toBe('18B');
+    expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('18B');
   });
 
-  it('divides each Black Mage Monthly value by that mule’s Black Mage Party Size', () => {
+  it('divides each Expected Black Mage Income value by that mule’s Black Mage Party Size', () => {
     render(
       <KpiCard
         mules={[
@@ -114,10 +113,10 @@ describe('KpiCard', () => {
         ]}
       />,
     );
-    expect(tileValue('BLACK MAGE MONTHLY')).toBe('3B');
+    expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('3B');
   });
 
-  it('prices each Black Mage Monthly value against that mule’s World Group', () => {
+  it('prices each Expected Black Mage Income value against that mule’s World Group', () => {
     render(
       <KpiCard
         mules={[
@@ -129,17 +128,19 @@ describe('KpiCard', () => {
         ]}
       />,
     );
-    expect(tileValue('BLACK MAGE MONTHLY')).toBe('3.6B');
+    expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('3.6B');
   });
 
-  it('does not add Black Mage Monthly to weekly KPI readouts', () => {
+  it('does not add Expected Black Mage Income to weekly KPI readouts', () => {
     render(<KpiCard mules={[{ ...mule, selectedBosses: [HARD_LUCID, BLACK_MAGE_EXTREME] }]} />);
 
     expect(bignumText()).toBe('504M');
     expect(tileValue('WEEKLY')).toBe('1');
     expect(tileValue('DAILY')).toBe('0');
     expect(
-      screen.getByRole('progressbar', { name: /weekly crystal cap/i }).getAttribute('aria-valuenow'),
+      screen
+        .getByRole('progressbar', { name: /weekly crystal cap/i })
+        .getAttribute('aria-valuenow'),
     ).toBe('1');
   });
 
@@ -209,11 +210,12 @@ describe('KpiCard', () => {
         expect(statRow.style.display).toBe('grid');
       });
 
-      it('hides the EXPECTED WEEKLY INCOME eyebrow and shows only the reset countdown', () => {
+      it('stacks the expected income sections and shows the reset countdown', () => {
         mockNarrowViewport(400);
         render(<KpiCard mules={[mule]} />);
         const card = screen.getByTestId('income-card');
-        expect(within(card).queryByText(/expected weekly income/i)).toBeNull();
+        expect(within(card).getByText(/expected weekly income/i)).toBeTruthy();
+        expect(within(card).getByText(/expected black mage income/i)).toBeTruthy();
         expect(within(card).getByText(/reset in/i)).toBeTruthy();
       });
 

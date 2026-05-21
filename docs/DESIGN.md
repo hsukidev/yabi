@@ -193,12 +193,12 @@ Sticky, translucent, blurred (`backdrop-blur 12px`, `sticky top-0 z-50`). 56px-t
 
 `panel panel-glow` with 24px padding. **V9 Hybrid layout** (current):
 
-1. **Eyebrow row** — `EXPECTED WEEKLY INCOME` (with accent dot) on the left, **ResetCountdown** (`align="right"`) on the right.
-2. **Bignum row** — click-to-toggle `bignum` + italic "mesos" suffix. Below 375px the abbreviated value drops decimals (`504.32M` → `504M`) so "mesos" still fits. An off-screen probe at `width: max-content` measures whether the unabbreviated value would overflow; if it would, the local display falls back to abbreviated even when the user's **Format Preference** is full.
+1. **Countdown row** — **ResetCountdown** (`align="right"`) pinned to the top-right.
+2. **Expected income grid** — `EXPECTED WEEKLY INCOME` and `EXPECTED BLACK MAGE INCOME` sit side by side, each with the accent-dot eyebrow, click-to-toggle `bignum`, and italic "mesos" suffix. Below 375px the abbreviated weekly value drops decimals (`504.32M` → `504M`) so "mesos" still fits. An off-screen probe at `width: max-content` measures whether the weekly unabbreviated value would overflow; if it would, the local display falls back to abbreviated even when the user's **Format Preference** is full.
 3. **Stat row** — 4 cells side by side: `MULES` / `ACTIVE` (accent) / `WEEKLY` (purple crystal png) / `DAILY` (blue crystal png). Each uses `eyebrow-plain` label + Geist Mono 22px value.
 4. **WeeklyCapRail** — bottom block, see below.
 
-Below 480px the eyebrow row stacks (countdown drops under the title) and the stat row reflows to a 2×2 grid. Both breakpoints driven by `useMatchMedia`.
+Below 480px the expected income grid stacks and the stat row reflows to a 2×2 grid. Both breakpoints driven by `useMatchMedia`.
 
 ### [SplitCard](src/components/SplitCard.tsx) + [IncomePieChart](src/components/IncomePieChart.tsx)
 
@@ -214,7 +214,8 @@ Plain `panel` wrapping a 260px Recharts donut. Inner radius 66, outer 100, 2° p
 - **Name** — 14px / 600 (13px in compact). Falls back to italic muted "Unnamed".
 - **Class** — 10px mono, uppercase, muted.
 - **Inactive Mule dim state** — when `mule.active === false` the card body opacity drops and the weekly value renders in `--dim` instead of `--accent`. The card stays visible and editable; it just stops contributing to **Total Weekly Income**.
-- **Weekly income row** — top-bordered; "WEEKLY" eyebrow + mono value. **Abbreviated below `md`, full at `md+`** via `md:hidden` / `hidden md:inline` paired spans. Color: accent if bosses tallied, `--dim` if zero.
+- **Weekly income row** — top-bordered; "WEEKLY INCOME" eyebrow + mono uncapped per-mule potential value. Color: accent if weekly/daily bosses are tallied on an active mule, `--dim` otherwise.
+- **BM income row** — below Weekly Income; "BM INCOME" eyebrow + mono per-mule Expected Black Mage Income value.
 
 **Bulk Delete Mode states** — when the **Roster** is in **Bulk Delete Mode**:
 

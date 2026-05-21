@@ -219,17 +219,17 @@ function toggleBoss(keys: string[], bossId: string, tier: BossTier): string[] {
  * `bosses`.
  *
  * Ranking rule:
- *  1. Weekly-eligible families (any difficulty has cadence `weekly`) come
+ *  1. Black Mage is pinned first so the monthly-only selection is immediately
+ *     visible in the Boss Matrix.
+ *  2. Weekly-eligible families (any difficulty has cadence `weekly`) come
  *     first, sorted by their highest-tier Heroic crystalValue descending.
  *     Ties are broken by stable insertion order.
- *  2. Daily-only families (every difficulty is daily) follow, sorted by
+ *  3. Daily-only families (every difficulty is daily) follow, sorted by
  *     their highest-tier Heroic crystalValue descending — equivalent to
  *     weekly-normalized (× 7) since the multiplier is uniform.
- *  3. Black Mage sits at the end. It's monthly-only and is excluded from
- *     the meso ranking; the matrix renderer also filters it out at
- *     `useMatrixFilter` so its position here is purely a data-layer pin.
  */
 const DISPLAY_ORDER: readonly string[] = [
+  'black-mage',
   'kaling',
   'first-adversary',
   'kalos-the-guardian',
@@ -261,7 +261,6 @@ const DISPLAY_ORDER: readonly string[] = [
   'von-leon',
   'horntail',
   'omni-cln',
-  'black-mage',
 ];
 
 const bossesByDisplayOrder: readonly Boss[] = DISPLAY_ORDER.map((family) => {

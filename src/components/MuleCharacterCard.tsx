@@ -7,7 +7,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import type { Mule } from '../types';
 import { useFormattedIncome } from '../hooks/useFormattedIncome';
 import { useMatchMedia } from '../hooks/useMatchMedia';
-import { type SlateKey } from '../data/muleBossSlate';
+import { MuleBossSlate, type SlateKey } from '../data/muleBossSlate';
+import { resolveWorldGroup } from '../data/worlds';
+import { Income } from '../modules/income';
 import { CharacterAvatar } from './CharacterAvatar';
 import { ROSTER_CARD_ASPECT, ROSTER_CARD_MIN_HEIGHT } from './rosterCardContract';
 import { NotesTooltipTrigger } from './RosterItem/NotesTooltipTrigger';
@@ -30,11 +32,6 @@ interface MuleCharacterCardProps {
   // `useWorldIncome(...).perMule` at the Dashboard level. The Cap Drop Info
   // Icon renders only when this map has at least one entry.
   droppedKeys?: ReadonlyMap<SlateKey, number>;
-  // Post-cap meso for this mule, sourced from
-  // `useWorldIncome(...).perMule.get(id)?.contributedMeso ?? 0` at the
-  // Dashboard level so the card, the row, the pie chart, and the KPI all
-  // read the same number. Defaults to 0 (no income) when omitted.
-  postCapIncomeMeso?: number;
   // Per-mule cadence counts threaded from the Dashboard the same way
   // MuleListRow already receives them. Drives the **Contributing Mule**
   // predicate behind the income-line accent tint, so Card and Row stay in
@@ -62,19 +59,31 @@ const MuleCardInner = memo(function MuleCardInner({
   mule,
   hideLevelBadge = false,
   droppedKeys,
-  postCapIncomeMeso,
   metrics,
 }: {
   mule: Mule;
   hideLevelBadge?: boolean;
   droppedKeys?: ReadonlyMap<SlateKey, number>;
-  postCapIncomeMeso: number;
   metrics: ContributingMuleMetrics;
 }) {
-  const { abbreviated: potentialIncome } = useFormattedIncome(postCapIncomeMeso);
+  const weeklyIncomeRaw = Income.of({
+    selectedBosses: mule.selectedBosses,
+    partySizes: mule.partySizes,
+    worldId: mule.worldId,
+  }).raw;
+  const bmIncomeRaw = MuleBossSlate.from(
+    mule.selectedBosses,
+    resolveWorldGroup(mule.worldId),
+  ).monthlyCrystalValue(mule.partySizes);
+  const { abbreviated: weeklyIncome } = useFormattedIncome(weeklyIncomeRaw);
+  const { abbreviated: bmIncome } = useFormattedIncome(bmIncomeRaw);
   const incomeColor = isContributingMule(mule, metrics)
     ? 'var(--accent-raw, var(--accent))'
     : 'var(--dim, var(--surface-dim))';
+  const bmIncomeColor =
+    mule.active !== false && bmIncomeRaw > 0
+      ? 'var(--accent-raw, var(--accent))'
+      : 'var(--dim, var(--surface-dim))';
   const notes = hideLevelBadge ? '' : (mule.notes ?? '');
   const dropped: ReadonlyMap<SlateKey, number> = hideLevelBadge
     ? EMPTY_DROPPED
@@ -157,42 +166,64 @@ const MuleCardInner = memo(function MuleCardInner({
         </div>
       </div>
 
-      <div
-        className="flex flex-row items-center justify-between gap-2"
-        style={{ marginTop: 6, paddingTop: 8, borderTop: '1px solid var(--border)' }}
-      >
-        <span
-          style={{
-            color: 'var(--muted-raw, var(--muted-foreground))',
-            fontFamily: 'Geist Mono, monospace',
-            fontSize: 11,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-          }}
-        >
-          INCOME
-        </span>
-        <div className="flex flex-row items-center gap-1.5 min-w-0">
-          <span
-            style={{
-              color: incomeColor,
-              fontFamily: 'Geist Mono, monospace',
-              fontSize: 13,
-              fontWeight: 600,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              minWidth: 0,
-            }}
-          >
-            {potentialIncome}
-          </span>
+      <div style={{ marginTop: 6, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
+        <IncomeLine label="WEEKLY INCOME" value={weeklyIncome} color={incomeColor}>
           <CapDropTooltipTrigger droppedKeys={dropped} />
-        </div>
+        </IncomeLine>
+        <IncomeLine label="BM INCOME" value={bmIncome} color={bmIncomeColor} />
       </div>
     </>
   );
 });
+
+function IncomeLine({
+  label,
+  value,
+  color,
+  children,
+}: {
+  label: string;
+  value: string;
+  color: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-row items-center justify-between gap-2 min-w-0">
+      <span
+        style={{
+          color: 'var(--muted-raw, var(--muted-foreground))',
+          fontFamily: 'Geist Mono, monospace',
+          fontSize: 11,
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          minWidth: 0,
+        }}
+      >
+        {label}
+      </span>
+      <div className="flex flex-row items-center gap-1.5 min-w-0">
+        <span
+          style={{
+            color,
+            fontFamily: 'Geist Mono, monospace',
+            fontSize: 13,
+            fontWeight: 600,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            minWidth: 0,
+          }}
+        >
+          {value}
+        </span>
+        {children}
+      </div>
+    </div>
+  );
+}
 
 export const MuleCharacterCard = memo(function MuleCharacterCard({
   mule,
@@ -203,7 +234,6 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
   onToggleSelect,
   isPaintEngaged = false,
   droppedKeys,
-  postCapIncomeMeso = 0,
   metrics,
 }: MuleCharacterCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -311,7 +341,6 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
           mule={mule}
           hideLevelBadge={bulkMode}
           droppedKeys={droppedKeys}
-          postCapIncomeMeso={postCapIncomeMeso}
           metrics={metrics}
         />
 

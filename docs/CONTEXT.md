@@ -305,7 +305,7 @@ _Avoid_: Cap drop, top-180 cut
 The deterministic ordering when **Crystal Slots** share **Slot Value** at the **World Cap Cut** boundary — higher **Roster** index drops first; within one **Mule**, later-inserted **Slate Key** drops first.
 
 **Potential Meso**:
-The per-**Mule** uncapped weekly meso — synonymous with **Total Crystal Value** at per-mule scale; the **Character Card** headline number.
+The per-**Mule** uncapped weekly meso — synonymous with **Total Crystal Value** at per-mule scale; the **Character Card's** Weekly Income number.
 _Avoid_: Raw potential, max meso
 
 **Contributed Meso**:
@@ -320,10 +320,11 @@ _Avoid_: Lost meso
 The roster-wide count of **Crystal Slots** that survived the **World Cap Cut** in the **Selected World** — the **Weekly Cap Rail's** numerator, bounded ≤180.
 
 **Monthly Income Regression**:
-The accepted-by-design behaviour where selecting a **Monthly Cadence** **Slate Key** leaves **Total Weekly Income** and weekly-mesos readouts unchanged (since monthly weights `× 0` in **Total Crystal Value**) — not a bug; Black Mage monthly meso belongs to a dedicated source-specific monthly readout.
+The accepted-by-design behaviour where selecting a **Monthly Cadence** **Slate Key** leaves **Total Weekly Income** and weekly-mesos readouts unchanged (since monthly weights `× 0` in **Total Crystal Value**) — not a bug; **Expected Black Mage Income** belongs to a dedicated source-specific monthly readout.
 
-**Black Mage Monthly**:
-The standalone monthly meso amount from selected Black Mage **Monthly Cadence** **Slate Keys**, divided by the **Mule's** Black Mage **Party Size**. It is source-specific monthly income, not a monthly rollup of **Total Weekly Income**.
+**Expected Black Mage Income**:
+The standalone monthly meso amount from selected Black Mage **Monthly Cadence** **Slate Keys**, divided by the **Mule's** Black Mage **Party Size**. It is source-specific monthly income, not a monthly rollup of **Total Weekly Income**, and appears per-**Mule** as BM Income on **Character Cards**.
+_Avoid_: Black Mage Monthly
 
 ### UI surfaces
 
@@ -433,7 +434,7 @@ _Avoid_: Character fetch, name search
 - A **Mule** selects at most one **Boss Difficulty** per **Boss Family** per **Boss Cadence** — the **Selection Invariant**.
 - The **Weekly Crystal Cap** (`14`) bounds **Weekly Cadence** **Slate Keys** per **Mule**; the **Monthly Crystal Cap** (`1`) bounds **Monthly Cadence** keys; both are **Hard Caps**.
 - A **Daily Cadence** **Slate Key** contributes 7 **Crystal Slots** to the **World Slot Pool** but counts as 0 against the per-**Mule** **Weekly Crystal Cap**.
-- A **Monthly Cadence** **Slate Key** contributes 0 **Crystal Slots** and 0 meso to **Total Weekly Income** (see **Monthly Income Regression**), while contributing to **Black Mage Monthly** when it is a Black Mage key.
+- A **Monthly Cadence** **Slate Key** contributes 0 **Crystal Slots** and 0 meso to **Total Weekly Income** (see **Monthly Income Regression**), while contributing to **Expected Black Mage Income** when it is a Black Mage key.
 - A **Mule's** **Potential Income** equals its **Total Crystal Value** under its **World Group** — `Income.of` resolves each **Mule** individually, so a **Roster** mixing **Heroic** and **Interactive** **Mules** prices each one against its own **Crystal Value** component.
 - A **Mule** is an **Active Mule** iff its **Active Flag** is `true` — independent of whether it has any bosses selected.
 - **Total Weekly Income** = sum of **Active Mules'** **Contributed Meso** in the **Selected World** — diverges from the sum of **Potential Meso** whenever the **World Cap Cut** drops at least one slot.

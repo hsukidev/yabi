@@ -163,7 +163,7 @@ describe('MuleDetailDrawer (smoke)', () => {
     expect(within(chip).queryByText('100.8M')).toBeNull();
   });
 
-  it('renders a separate BM Monthly chip for selected Black Mage monthly value', () => {
+  it('renders a separate non-tooltip BM Monthly chip for selected Black Mage monthly value', () => {
     renderDrawer({
       mule: {
         ...baseMule,
@@ -173,6 +173,7 @@ describe('MuleDetailDrawer (smoke)', () => {
     const chip = screen.getByLabelText(/potential black mage monthly meso/i);
     expect(within(chip).getByText('BM Monthly')).toBeTruthy();
     expect(within(chip).getByText('18B')).toBeTruthy();
+    expect(chip.tagName).not.toBe('BUTTON');
   });
 
   it('shows BM Monthly potential value for inactive mules', () => {

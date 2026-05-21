@@ -13,7 +13,6 @@ import { MuleCharacterCard } from '../MuleCharacterCard';
 import type { Mule } from '../../types';
 import { bosses } from '../../data/bosses';
 import type { SlateKey } from '../../data/muleBossSlate';
-import { Income } from '../../modules/income';
 import { rosterRowMetrics } from '../rosterRowMetrics';
 import type { ContributingMuleMetrics } from '../RosterItem/contributingMule';
 
@@ -41,13 +40,6 @@ interface RenderCardOptions {
   onToggleSelect?: (id: string) => void;
   droppedKeys?: ReadonlyMap<SlateKey, number>;
   /**
-   * Post-cap meso for the card. Defaults to the **Potential Income** of the
-   * mule's selectedBosses (computed via Income.of) so existing tests that
-   * assert "504M" for a single HARD_LUCID weekly continue to pass unchanged
-   * — under-cap mules have post-cap === potential.
-   */
-  postCapIncomeMeso?: number;
-  /**
    * Per-mule cadence counts. Defaults to counts derived from
    * `mule.selectedBosses` (via the canonical `rosterRowMetrics`) so existing
    * tests that assert accent color on a weekly-boss-selected mule continue
@@ -61,15 +53,6 @@ function renderCard(overrides: Partial<Mule> = {}, options?: RenderCardOptions) 
   const onDelete = options?.onDelete ?? vi.fn();
   const onToggleSelect = options?.onToggleSelect ?? vi.fn();
   const mule = { ...baseMule, ...overrides };
-  // Default post-cap to the mule's potential income (under-cap parity) so
-  // existing assertions that pre-date the post-cap migration still hold.
-  const postCapIncomeMeso =
-    options?.postCapIncomeMeso ??
-    Income.of({
-      selectedBosses: mule.selectedBosses,
-      partySizes: mule.partySizes,
-      worldId: mule.worldId,
-    }).raw;
   const metrics = options?.metrics ?? rosterRowMetrics(mule, undefined, 0);
   return {
     ...render(
@@ -83,7 +66,6 @@ function renderCard(overrides: Partial<Mule> = {}, options?: RenderCardOptions) 
             selected={options?.selected ?? false}
             onToggleSelect={onToggleSelect}
             droppedKeys={options?.droppedKeys}
-            postCapIncomeMeso={postCapIncomeMeso}
             metrics={metrics}
           />
         </SortableContext>
@@ -145,15 +127,16 @@ describe('MuleCharacterCard', () => {
     expect(onClick).toHaveBeenCalled();
   });
 
-  it('renders income text', () => {
+  it('renders weekly and Black Mage income text', () => {
     renderCard();
-    expect(screen.getByText(/income/i)).toBeTruthy();
-    expect(screen.getByText('0')).toBeTruthy();
+    expect(screen.getByText('WEEKLY INCOME')).toBeTruthy();
+    expect(screen.getByText('BM INCOME')).toBeTruthy();
+    expect(screen.getAllByText('0')).toHaveLength(2);
   });
 
-  it('renders INCOME label and meso value inline on a single row', () => {
+  it('renders WEEKLY INCOME label and meso value inline on a single row', () => {
     renderCard();
-    const labelEl = screen.getByText(/income/i);
+    const labelEl = screen.getByText('WEEKLY INCOME');
     const row = labelEl.parentElement!;
     expect(row.className).toContain('flex-row');
     expect(row.className).not.toContain('flex-col');
@@ -172,24 +155,39 @@ describe('MuleCharacterCard', () => {
   // Regression: the card used to call useIncome without `worldId`, so
   // `Income.of` fell back to Heroic pricing for every mule — Interactive
   // mules on the roster displayed Heroic crystal values.
-  it('prices INCOME against the mule’s World Group (Interactive)', () => {
+  it('prices WEEKLY INCOME against the mule’s World Group (Interactive)', () => {
     renderCard({ selectedBosses: [HARD_LUCID], worldId: 'interactive-scania' });
     expect(screen.getByText('100.8M')).toBeTruthy();
     expect(screen.queryByText('504M')).toBeNull();
   });
 
-  it('prices INCOME against the mule’s World Group (Heroic)', () => {
+  it('prices WEEKLY INCOME against the mule’s World Group (Heroic)', () => {
     renderCard({ selectedBosses: [HARD_LUCID], worldId: 'heroic-kronos' });
     expect(screen.getByText('504M')).toBeTruthy();
     expect(screen.queryByText('100.8M')).toBeNull();
   });
 
-  it('renders the post-cap meso value (not raw potential) when supplied', () => {
-    // Mule has 504M potential, but cap dropped half of it.
-    renderCard({ selectedBosses: [HARD_LUCID] }, { postCapIncomeMeso: 252_000_000 });
-    expect(screen.getByText('252M')).toBeTruthy();
-    // Raw potential should NOT appear.
-    expect(screen.queryByText('504M')).toBeNull();
+  it('renders Card weekly income as potential meso', () => {
+    renderCard({ selectedBosses: [HARD_LUCID] });
+    expect(screen.getByText('504M')).toBeTruthy();
+  });
+
+  it('renders BM Income from selected Black Mage monthly value', () => {
+    renderCard({ selectedBosses: [HARD_BLACK_MAGE_MONTHLY] });
+    expect(screen.getByText('BM INCOME')).toBeTruthy();
+    expect(screen.getByText('4.5B')).toBeTruthy();
+  });
+
+  it('divides BM Income by the mule’s Black Mage Party Size', () => {
+    renderCard({ selectedBosses: [HARD_BLACK_MAGE_MONTHLY], partySizes: { 'black-mage': 6 } });
+    expect(screen.getByText('750M')).toBeTruthy();
+    expect(screen.queryByText('4.5B')).toBeNull();
+  });
+
+  it('prices BM Income against the mule’s World Group', () => {
+    renderCard({ selectedBosses: [HARD_BLACK_MAGE_MONTHLY], worldId: 'interactive-scania' });
+    expect(screen.getByText('900M')).toBeTruthy();
+    expect(screen.queryByText('4.5B')).toBeNull();
   });
 
   it('keeps an active mule card at opacity 1 when not dragging', () => {
@@ -245,7 +243,7 @@ describe('MuleCharacterCard', () => {
     const HARD_BLACK_MAGE_MONTHLY = `${bosses.find((b) => b.family === 'black-mage')!.id}:hard:monthly`;
     renderCard(
       { active: true, selectedBosses: [HARD_BLACK_MAGE_MONTHLY] },
-      { metrics: { weeklyCount: 0, dailyCount: 0 }, postCapIncomeMeso: 0 },
+      { metrics: { weeklyCount: 0, dailyCount: 0 } },
     );
     const incomeSpans = screen.getAllByText('0');
     const colored = incomeSpans.find((s) => s.style.color.includes('dim'));

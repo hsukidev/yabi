@@ -15,6 +15,18 @@ predecessor-slice changes that aren't yet in main.
 
 `git worktree list` will show the full path for the current agent's worktree.
 
+## Vitest in main checkout must exclude `.Codex/**`
+
+When running tests from the main checkout at `/home/.../yabi`, Vitest can
+discover test files inside `.Codex/worktrees/agent-*`. Those worktrees may have
+their own `node_modules`, so the run can execute duplicate stale tests with
+multiple React instances and fail with "Invalid hook call" noise unrelated to
+the current checkout.
+
+Use `pnpm exec vitest run --exclude '.Codex/**' ...` for focused runs from the
+main checkout, or run tests from the agent worktree itself when you are inside
+one.
+
 ## MuleDetailDrawer — keystroke perf invariants
 
 The drawer renders `BossMatrix` (potentially hundreds of cells).

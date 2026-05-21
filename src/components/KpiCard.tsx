@@ -2,11 +2,10 @@ import { memo, useLayoutEffect, useRef, useState } from 'react';
 import { useMatchMedia } from '../hooks/useMatchMedia';
 import { formatMeso } from '../utils/meso';
 import { useWorldIncome, WORLD_WEEKLY_CRYSTAL_CAP } from '../modules/worldIncome';
-import { blackMageMonthlyMesoForRoster } from '../modules/monthlyIncome';
+import { expectedBlackMageIncomeForRoster } from '../modules/monthlyIncome';
 import { useFormatPreference } from '../context/FormatPreferenceProvider';
 import { ResetCountdown } from './ResetCountdown';
 import { WeeklyCapRail } from './WeeklyCapRail';
-import { MetricTooltip } from './MetricTooltip';
 import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
 import type { Mule } from '../types';
@@ -27,7 +26,7 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
   } = useWorldIncome(mules);
   const { abbreviated, toggle } = useFormatPreference();
   const activeMuleCount = mules.reduce((n, m) => (m.active ? n + 1 : n), 0);
-  const blackMageMonthlyRaw = blackMageMonthlyMesoForRoster(mules);
+  const expectedBlackMageIncomeRaw = expectedBlackMageIncomeForRoster(mules);
   const canToggleFormat = totalRaw > 0;
 
   // Below 375px the abbreviated value drops decimals (e.g. "504.32M" → "504M")
@@ -64,6 +63,20 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
   }, [fullFormatted]);
 
   const displayValue = !abbreviated && !unabbreviatedOverflows ? fullFormatted : abbrFormatted;
+  const expectedBlackMageIncomeDisplayValue = formatMeso(
+    expectedBlackMageIncomeRaw,
+    abbreviated,
+    isNarrowViewport,
+  );
+  const expectedBlackMageIncomeFullValue = formatMeso(expectedBlackMageIncomeRaw, false);
+  const incomeGridStyle: React.CSSProperties = isStackedLayout
+    ? { display: 'grid', gridTemplateColumns: '1fr', gap: 18, marginTop: 22 }
+    : {
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
+        gap: 28,
+        marginTop: 22,
+      };
 
   return (
     <div
@@ -75,65 +88,83 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
         data-testid="kpi-eyebrow-row"
         style={{
           display: 'flex',
-          justifyContent: isStackedLayout ? 'center' : 'space-between',
+          justifyContent: isStackedLayout ? 'center' : 'flex-end',
           alignItems: 'center',
           gap: 12,
         }}
       >
-        {!isStackedLayout && (
-          <div className="eyebrow">
-            <span className="dot" aria-hidden />
-            EXPECTED WEEKLY INCOME
-          </div>
-        )}
         <ResetCountdown align={isStackedLayout ? 'left' : 'right'} />
       </div>
-      <div
-        ref={rowRef}
-        style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          gap: 10,
-          marginTop: 22,
-          position: 'relative',
-        }}
-      >
-        <button
-          type="button"
-          onClick={canToggleFormat ? toggle : undefined}
-          className="bignum"
-          aria-label="Toggle abbreviated meso format"
-          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
-        >
-          {displayValue}
-        </button>
-        <span
-          className="kpi-meta"
-          style={{
-            color: 'var(--muted-raw, var(--muted-foreground))',
-            fontStyle: 'italic',
-            fontFamily: 'Geist Mono, monospace',
-          }}
-        >
-          mesos
-        </span>
+      <div style={incomeGridStyle}>
         <div
-          ref={probeRef}
-          aria-hidden
+          ref={rowRef}
           style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: 'max-content',
-            visibility: 'hidden',
-            pointerEvents: 'none',
-            display: 'flex',
-            alignItems: 'baseline',
-            gap: 10,
+            minWidth: 0,
           }}
         >
-          <span className="bignum">{fullFormatted}</span>
-          <span style={{ fontStyle: 'italic', fontFamily: 'Geist Mono, monospace' }}>mesos</span>
+          <KpiIncomeTitle>EXPECTED WEEKLY INCOME</KpiIncomeTitle>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'baseline',
+              gap: 10,
+              marginTop: 12,
+              position: 'relative',
+            }}
+          >
+            <button
+              type="button"
+              onClick={canToggleFormat ? toggle : undefined}
+              className="bignum"
+              aria-label="Toggle abbreviated meso format"
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+            >
+              {displayValue}
+            </button>
+            <KpiMesoSuffix />
+            <div
+              ref={probeRef}
+              aria-hidden
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: 'max-content',
+                visibility: 'hidden',
+                pointerEvents: 'none',
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: 10,
+              }}
+            >
+              <span className="bignum">{fullFormatted}</span>
+              <span style={{ fontStyle: 'italic', fontFamily: 'Geist Mono, monospace' }}>
+                mesos
+              </span>
+            </div>
+          </div>
+        </div>
+        <div style={{ minWidth: 0 }}>
+          <KpiIncomeTitle>EXPECTED BLACK MAGE INCOME</KpiIncomeTitle>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'baseline',
+              gap: 10,
+              marginTop: 12,
+            }}
+          >
+            <button
+              type="button"
+              onClick={expectedBlackMageIncomeRaw > 0 ? toggle : undefined}
+              className="bignum"
+              aria-label={`Toggle expected Black Mage income meso format, full value ${expectedBlackMageIncomeFullValue}`}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+            >
+              {expectedBlackMageIncomeDisplayValue}
+            </button>
+            <KpiMesoSuffix />
+          </div>
         </div>
       </div>
       <div data-testid="kpi-stat-row" style={statRowStyle}>
@@ -149,7 +180,6 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
           label="DAILY"
           value={String(dailySlotsContributed)}
         />
-        <MesoKpiStat label="BLACK MAGE MONTHLY" value={blackMageMonthlyRaw} />
       </div>
       <div style={{ marginTop: 'auto', paddingTop: 20 }}>
         <WeeklyCapRail crystalTotal={slotsTotalContributed} cap={WORLD_WEEKLY_CRYSTAL_CAP} />
@@ -176,6 +206,30 @@ function KpiStat({ label, value, accent }: { label: string; value: string; accen
   );
 }
 
+function KpiIncomeTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="eyebrow">
+      <span className="dot" aria-hidden />
+      {children}
+    </div>
+  );
+}
+
+function KpiMesoSuffix() {
+  return (
+    <span
+      className="kpi-meta"
+      style={{
+        color: 'var(--muted-raw, var(--muted-foreground))',
+        fontStyle: 'italic',
+        fontFamily: 'Geist Mono, monospace',
+      }}
+    >
+      mesos
+    </span>
+  );
+}
+
 function CrystalKpiStat({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
     <div>
@@ -197,32 +251,6 @@ function CrystalKpiStat({ icon, label, value }: { icon: string; label: string; v
         }}
       >
         {value}
-      </div>
-    </div>
-  );
-}
-
-function MesoKpiStat({ label, value }: { label: string; value: number }) {
-  const compactValue = formatMeso(value, true);
-  const fullValue = formatMeso(value, false);
-  return (
-    <div>
-      <div className="eyebrow-plain">{label}</div>
-      <div
-        style={{
-          color: 'var(--text, var(--foreground))',
-          fontFamily: 'Geist Mono, monospace',
-          fontSize: 31,
-          marginTop: 6,
-        }}
-      >
-        <MetricTooltip
-          ariaLabel={`${label} meso ${fullValue}`}
-          tooltip={fullValue}
-          style={{ color: 'inherit', font: 'inherit', lineHeight: 1 }}
-        >
-          {compactValue}
-        </MetricTooltip>
       </div>
     </div>
   );

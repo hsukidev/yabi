@@ -203,9 +203,8 @@ export function MuleDetailDrawer({
                         mesos
                       </span>
                     </MetricTooltip>
-                    <MetricTooltip
-                      ariaLabel={`Potential Black Mage monthly meso ${fullMonthlyIncome}`}
-                      tooltip={fullMonthlyIncome}
+                    <div
+                      aria-label={`Potential Black Mage monthly meso ${fullMonthlyIncome}`}
                       className={HEADER_INCOME_CHIP_CLASS}
                       style={HEADER_INCOME_CHIP_STYLE}
                     >
@@ -218,7 +217,7 @@ export function MuleDetailDrawer({
                       <span className="font-display italic text-xs text-muted-foreground">
                         mesos
                       </span>
-                    </MetricTooltip>
+                    </div>
                     <div className="inline-flex items-center">
                       <button
                         type="button"

@@ -284,7 +284,6 @@ export function Dashboard() {
                           onToggleSelect={toggleDelete}
                           isPaintEngaged={isPaintEngaged}
                           droppedKeys={metrics.droppedKeys}
-                          postCapIncomeMeso={metrics.postCapMeso}
                           metrics={metrics}
                         />
                       );

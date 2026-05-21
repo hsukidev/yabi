@@ -31,7 +31,10 @@ function makeMule(overrides: Partial<Mule> = {}): Mule {
 function tileValue(label: string): string {
   const card = screen.getByTestId('income-card') as HTMLElement;
   const labelEl = within(card).getByText(label);
-  return labelEl.parentElement!.querySelectorAll('div')[1]!.textContent ?? '';
+  const section = labelEl.parentElement!;
+  const button = within(section).queryByRole('button');
+  if (button) return button.textContent ?? '';
+  return section.querySelectorAll('div')[1]!.textContent ?? '';
 }
 
 beforeEach(() => {
@@ -39,7 +42,7 @@ beforeEach(() => {
 });
 
 describe('Dashboard KPI Card', () => {
-  it('scopes Black Mage Monthly to active mules in the selected world', async () => {
+  it('scopes Expected Black Mage Income to active mules in the selected world', async () => {
     seedMules([
       makeMule({
         id: 'selected-active',
@@ -62,6 +65,6 @@ describe('Dashboard KPI Card', () => {
 
     await renderApp();
 
-    expect(tileValue('BLACK MAGE MONTHLY')).toBe('18B');
+    expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('18B');
   });
 });
