@@ -14,6 +14,7 @@ import { SelectionIndicator } from './RosterItem/SelectionIndicator';
 import { isContributingMule } from './RosterItem/contributingMule';
 import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
+import monthlyCrystalPng from '../assets/monthly-crystal.png';
 
 interface MuleListRowProps {
   mule: Mule;
@@ -278,6 +279,19 @@ export const MuleListRow = memo(function MuleListRow({
             />
             <span style={{ ...METRIC_VALUE_STYLE, color: 'var(--accent-raw, var(--accent))' }}>
               {metrics.dailyCount}
+            </span>
+          </span>
+
+          <span aria-label="Monthly count" style={{ display: 'inline-flex', alignItems: 'center' }}>
+            <img
+              src={monthlyCrystalPng}
+              alt=""
+              draggable={false}
+              data-row-eyebrow
+              style={METRIC_ICON_STYLE}
+            />
+            <span style={{ ...METRIC_VALUE_STYLE, color: 'var(--accent-raw, var(--accent))' }}>
+              {metrics.monthlyCount}
             </span>
           </span>
         </div>

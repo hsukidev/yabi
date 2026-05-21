@@ -24,6 +24,7 @@ const baseMule: Mule = {
 const baseMetrics: RosterRowMetrics = {
   weeklyCount: 8,
   dailyCount: 3,
+  monthlyCount: 1,
   postCapMeso: 1_500_000_000,
   sharePct: 0.095,
   droppedKeys: new Map(),
@@ -97,6 +98,14 @@ describe('MuleListRow — comfy spec', () => {
     expect(row.textContent).toMatch(/3/);
     // A `3/7`-style daily fraction would imply a denominator we don't want.
     expect(row.textContent).not.toMatch(/3\s*\/\s*7/);
+  });
+
+  it('renders the Monthly metric block labeled "Monthly count" with a bare N (no denominator)', () => {
+    renderRow();
+    const monthly = screen.getByLabelText(/monthly count/i);
+    expect(monthly.querySelector('img[src$="monthly-crystal.png"]')).toBeTruthy();
+    expect(monthly.textContent).toBe('1');
+    expect(monthly.textContent).not.toMatch(/1\s*\/\s*1/);
   });
 
   it('renders the slate weekly-basis Daily count used by the drawer header', () => {
