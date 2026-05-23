@@ -87,14 +87,13 @@ function ReleaseCard({ release }: { release: Release }) {
   return (
     <article className="panel p-6">
       <div
-        className="flex flex-wrap items-center justify-between gap-2 text-sm"
+        className="flex items-center gap-2 text-sm"
         style={{ color: 'var(--muted-raw, var(--muted-foreground))' }}
       >
         <div className="flex items-center gap-2">
           <Calendar size={16} aria-hidden="true" />
           <time dateTime={release.date}>{formatReleaseDate(release.date)}</time>
         </div>
-        <code className="rounded-full px-2 py-0.5 text-xs font-mono">v{release.version}</code>
       </div>
 
       {ORDERED_CATEGORIES.map((category) => {

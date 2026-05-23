@@ -35,7 +35,7 @@ describe('Changelog page', () => {
 
     for (const release of releases) {
       expect(screen.getByText(longDate(release.date))).toBeTruthy();
-      expect(screen.getByText(`v${release.version}`)).toBeTruthy();
+      expect(screen.queryByText(`v${release.version}`)).toBeNull();
       for (const change of release.changes) {
         expect(
           screen.getByText(
