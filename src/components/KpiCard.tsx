@@ -19,6 +19,7 @@ interface KpiCardProps {
 
 const NARROW_VIEWPORT_QUERY = '(max-width: 374.99px)';
 const STACK_VIEWPORT_QUERY = '(max-width: 639.99px)';
+const BLACK_MAGE_LABEL_ABBR_VIEWPORT_QUERY = '(max-width: 644.99px)';
 const INCOME_STACK_VIEWPORT_QUERY = '(max-width: 599.99px)';
 
 const KPI_BLOCK_CHROME = {
@@ -49,6 +50,7 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
   // to free up horizontal space in the readout.
   const isNarrowViewport = useMatchMedia(NARROW_VIEWPORT_QUERY);
   const isStackedLayout = useMatchMedia(STACK_VIEWPORT_QUERY);
+  const isBlackMageLabelAbbreviated = useMatchMedia(BLACK_MAGE_LABEL_ABBR_VIEWPORT_QUERY);
   const isIncomeStackedLayout = useMatchMedia(INCOME_STACK_VIEWPORT_QUERY);
 
   const statRowStyle: React.CSSProperties = isStackedLayout
@@ -110,7 +112,9 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
           </div>
         </KpiIncomeBlock>
         <KpiIncomeBlock>
-          <KpiIncomeTitle>EXPECTED BLACK MAGE INCOME</KpiIncomeTitle>
+          <KpiIncomeTitle>
+            {isBlackMageLabelAbbreviated ? 'EXPECTED BM INCOME' : 'EXPECTED BLACK MAGE INCOME'}
+          </KpiIncomeTitle>
           <div
             style={{
               display: 'flex',

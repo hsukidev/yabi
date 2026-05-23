@@ -232,6 +232,22 @@ describe('KpiCard', () => {
         expect(statRow.style.gridTemplateColumns).toBe('repeat(5, minmax(0, 1fr))');
       });
 
+      it('abbreviates Black Mage to BM at 644px to avoid title wrapping', () => {
+        mockNarrowViewport(644);
+        render(<KpiCard mules={[mule]} />);
+        const card = screen.getByTestId('income-card');
+        expect(within(card).getByText('EXPECTED BM INCOME')).toBeTruthy();
+        expect(within(card).queryByText('EXPECTED BLACK MAGE INCOME')).toBeNull();
+      });
+
+      it('keeps the full Black Mage title at 645px', () => {
+        mockNarrowViewport(645);
+        render(<KpiCard mules={[mule]} />);
+        const card = screen.getByTestId('income-card');
+        expect(within(card).getByText('EXPECTED BLACK MAGE INCOME')).toBeTruthy();
+        expect(within(card).queryByText('EXPECTED BM INCOME')).toBeNull();
+      });
+
       it('stacks the expected income sections below 600px', () => {
         mockNarrowViewport(599);
         render(<KpiCard mules={[mule]} />);
@@ -239,7 +255,7 @@ describe('KpiCard', () => {
         const incomeGrid = within(card).getByTestId('kpi-income-grid');
         const statRow = within(card).getByTestId('kpi-stat-row');
         expect(within(card).getByText(/expected weekly income/i)).toBeTruthy();
-        expect(within(card).getByText(/expected black mage income/i)).toBeTruthy();
+        expect(within(card).getByText(/expected bm income/i)).toBeTruthy();
         expect(within(card).getByText(/reset in/i)).toBeTruthy();
         expect(incomeGrid.style.gridTemplateColumns).toBe('1fr');
         expect(statRow.style.display).toBe('grid');

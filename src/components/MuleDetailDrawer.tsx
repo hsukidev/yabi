@@ -162,7 +162,10 @@ export function MuleDetailDrawer({
 
         {mule && (
           <div className="relative @container/drawer">
-            <div className="relative p-8 flex flex-col gap-5 @min-[600px]/drawer:flex-row @min-[600px]/drawer:items-center">
+            <div
+              data-testid="drawer-header-layout"
+              className="relative p-8 flex flex-col gap-5 @min-[605px]/drawer:flex-row @min-[605px]/drawer:items-center"
+            >
               <div className="flex flex-col items-center gap-3 min-[425px]:flex-row min-[425px]:items-end min-[425px]:gap-5 flex-1 min-w-0">
                 <CharacterAvatar
                   key={mule.id}
@@ -223,7 +226,7 @@ export function MuleDetailDrawer({
                         style={HEADER_INCOME_CHIP_STYLE}
                       >
                         <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
-                          BM
+                          BM MONTHLY
                         </span>
                         <span className="font-mono-nums text-base text-(--accent-numeric)">
                           {monthlyIncome}
@@ -236,7 +239,7 @@ export function MuleDetailDrawer({
                         style={HEADER_INCOME_CHIP_STYLE}
                       >
                         <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
-                          BM
+                          BM MONTHLY
                         </span>
                         <span className="font-mono-nums text-base text-(--accent-numeric)">
                           {monthlyIncome}
@@ -295,7 +298,10 @@ export function MuleDetailDrawer({
                 </div>
               </div>
 
-              <div className="shrink-0 self-stretch @min-[600px]/drawer:self-end @min-[600px]/drawer:mr-6">
+              <div
+                data-testid="drawer-crystal-tally-slot"
+                className="shrink-0 self-stretch @min-[605px]/drawer:self-end @min-[605px]/drawer:mr-6"
+              >
                 <CrystalTally
                   weeklyCount={slate.weeklyCount}
                   dailyCount={slate.dailyCount}

@@ -195,8 +195,7 @@ describe('MuleDetailDrawer (smoke)', () => {
       },
     });
     const chip = screen.getByLabelText(/potential black mage monthly meso/i);
-    expect(within(chip).getByText('BM')).toBeTruthy();
-    expect(within(chip).queryByText('BM Monthly')).toBeNull();
+    expect(within(chip).getByText('BM MONTHLY')).toBeTruthy();
     expect(within(chip).getByText('18B')).toBeTruthy();
     expect(within(chip).queryByText('mesos')).toBeNull();
     expect(chip.className).toContain('cursor-default');
@@ -207,7 +206,7 @@ describe('MuleDetailDrawer (smoke)', () => {
   it('does not wrap the BM chip in a tooltip when the value is zero', () => {
     renderDrawer();
     const chip = screen.getByLabelText(/potential black mage monthly meso/i);
-    expect(within(chip).getByText('BM')).toBeTruthy();
+    expect(within(chip).getByText('BM MONTHLY')).toBeTruthy();
     expect(within(chip).getByText('0')).toBeTruthy();
     expect(chip.tagName).not.toBe('BUTTON');
   });
@@ -274,6 +273,17 @@ describe('MuleDetailDrawer (smoke)', () => {
     renderDrawer();
     const img = screen.getByTestId('drawer-avatar') as HTMLImageElement;
     expect(img.src).toMatch(/blank-character/);
+  });
+
+  it('flips CrystalTally horizontal at the drawer header stack handoff', () => {
+    renderDrawer();
+    const header = screen.getByTestId('drawer-header-layout');
+    const tallySlot = screen.getByTestId('drawer-crystal-tally-slot');
+    const tally = screen.getByRole('group', { name: /crystal tally/i });
+
+    expect(header.className).toContain('@min-[605px]/drawer:flex-row');
+    expect(tallySlot.className).toContain('@min-[605px]/drawer:self-end');
+    expect(tally.className).toContain('@max-[604.99px]/drawer:flex-row');
   });
 
   describe('Preset click auto-switches Cadence Filter from Daily to All', () => {
