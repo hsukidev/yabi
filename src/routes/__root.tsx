@@ -3,7 +3,6 @@ import { ThemeProvider } from '../context/ThemeProvider';
 import { DensityProvider } from '../context/DensityProvider';
 import { DisplayProvider } from '../context/DisplayProvider';
 import { WorldProvider } from '../context/WorldProvider';
-import { FormatPreferenceProvider } from '../context/FormatPreferenceProvider';
 import { Header } from '../components/Header';
 import { Toaster } from '../components/ui/sonner';
 import { TooltipProvider } from '../components/ui/tooltip';
@@ -19,12 +18,10 @@ function RootLayout() {
         <DensityProvider>
           <DisplayProvider>
             <WorldProvider>
-              <FormatPreferenceProvider>
-                <div className="min-h-screen bg-background text-foreground">
-                  <Header />
-                  <Outlet />
-                </div>
-              </FormatPreferenceProvider>
+              <div className="min-h-screen bg-background text-foreground">
+                <Header />
+                <Outlet />
+              </div>
             </WorldProvider>
           </DisplayProvider>
         </DensityProvider>

@@ -276,9 +276,7 @@ describe('IncomePieChart', () => {
         },
       ];
 
-      const { container } = render(<IncomePieChart mules={mules} />, {
-        defaultAbbreviated: false,
-      });
+      const { container } = render(<IncomePieChart mules={mules} />);
 
       // Hilla mule is the last visible slice (input order). Hover it to
       // surface its formatted value in the center label.
@@ -289,8 +287,8 @@ describe('IncomePieChart', () => {
       // Center shows the hilla mule's post-cap value (2 × 4M = 8M), not its
       // uncapped potential (7 × 4M = 28M).
       expect(screen.getByText('HillaMule')).toBeTruthy();
-      expect(screen.getByText(formatMeso(8_000_000, false))).toBeTruthy();
-      expect(screen.queryByText(formatMeso(28_000_000, false))).toBeNull();
+      expect(screen.getByText(formatMeso(8_000_000, true))).toBeTruthy();
+      expect(screen.queryByText(formatMeso(28_000_000, true))).toBeNull();
     });
 
     it("center 'Total' reconciles with the post-cap world total (matches the KPI bignum basis)", () => {
@@ -306,12 +304,12 @@ describe('IncomePieChart', () => {
         .reduce((s, v) => s + v, 0);
 
       const mules = buildOverCapRoster();
-      render(<IncomePieChart mules={mules} />, { defaultAbbreviated: false });
+      render(<IncomePieChart mules={mules} />);
 
       // No slice hovered → center shows the "Total" sum of all visible slice
       // values, which equals the post-cap world total after Slice 3.
       expect(screen.getByText('Total')).toBeTruthy();
-      expect(screen.getByText(formatMeso(expectedPostCap, false))).toBeTruthy();
+      expect(screen.getByText(formatCompact(expectedPostCap))).toBeTruthy();
     });
 
     it('under-cap rosters see no behavior change (slice value equals potential)', () => {
@@ -326,8 +324,8 @@ describe('IncomePieChart', () => {
         selectedBosses: [HARD_LUCID],
         active: true,
       };
-      render(<IncomePieChart mules={[m]} />, { defaultAbbreviated: false });
-      expect(screen.getByText(formatMeso(504_000_000, false))).toBeTruthy();
+      render(<IncomePieChart mules={[m]} />);
+      expect(screen.getByText(formatCompact(504_000_000))).toBeTruthy();
     });
   });
 

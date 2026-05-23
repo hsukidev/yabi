@@ -34,7 +34,7 @@ interface MuleDetailDrawerProps {
 }
 
 const HEADER_INCOME_CHIP_CLASS =
-  'inline-flex items-baseline gap-2 rounded-lg border border-border/60 px-3 py-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring';
+  'inline-flex items-baseline gap-2 rounded-lg border border-border/60 px-3 py-1.5 cursor-default focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring';
 
 const HEADER_INCOME_CHIP_STYLE = {
   background: 'color-mix(in srgb, var(--surface-2) 92%, transparent)',
@@ -57,10 +57,8 @@ export function MuleDetailDrawer({
     [selectedBosses, worldGroup],
   );
 
-  // Header chip is always abbreviated regardless of the global Format
-  // Preference, so the readout stays compact. Compute raw straight off the
-  // slate — bypassing `Income.of` keeps the drawer un-subscribed from format
-  // preference changes and skips the (unused) `formatted` getter.
+  // Header chip is always abbreviated, so the readout stays compact. Compute
+  // raw straight off the slate and leave formatting at the render edge.
   const potentialIncomeRaw = useMemo(
     () => slate.totalCrystalValue(mule?.partySizes),
     [slate, mule?.partySizes],
@@ -202,9 +200,6 @@ export function MuleDetailDrawer({
                         <span className="font-mono-nums text-base text-(--accent-numeric)">
                           {potentialIncome}
                         </span>
-                        <span className="font-display italic text-xs text-muted-foreground">
-                          mesos
-                        </span>
                       </MetricTooltip>
                     ) : (
                       <div
@@ -217,9 +212,6 @@ export function MuleDetailDrawer({
                         </span>
                         <span className="font-mono-nums text-base text-(--accent-numeric)">
                           {potentialIncome}
-                        </span>
-                        <span className="font-display italic text-xs text-muted-foreground">
-                          mesos
                         </span>
                       </div>
                     )}
@@ -236,9 +228,6 @@ export function MuleDetailDrawer({
                         <span className="font-mono-nums text-base text-(--accent-numeric)">
                           {monthlyIncome}
                         </span>
-                        <span className="font-display italic text-xs text-muted-foreground">
-                          mesos
-                        </span>
                       </MetricTooltip>
                     ) : (
                       <div
@@ -251,9 +240,6 @@ export function MuleDetailDrawer({
                         </span>
                         <span className="font-mono-nums text-base text-(--accent-numeric)">
                           {monthlyIncome}
-                        </span>
-                        <span className="font-display italic text-xs text-muted-foreground">
-                          mesos
                         </span>
                       </div>
                     )}

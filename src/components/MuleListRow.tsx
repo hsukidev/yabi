@@ -25,11 +25,6 @@ interface MuleListRowProps {
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
   isPaintEngaged?: boolean;
-  /** When true, override the global **Format Preference** and force the
-   * abbreviated meso format (threaded through `useFormattedIncome`'s
-   * `opts.force`). Lifted to RosterListView so a single matchMedia
-   * subscription decides for the whole roster. */
-  forceAbbreviated?: boolean;
 }
 
 export const MONO = 'Geist Mono, monospace';
@@ -81,7 +76,6 @@ export const MuleListRow = memo(function MuleListRow({
   selected = false,
   onToggleSelect,
   isPaintEngaged = false,
-  forceAbbreviated = false,
 }: MuleListRowProps) {
   const [isPressed, setIsPressed] = useState(false);
   const handlePressStart = () => setIsPressed(true);
@@ -99,9 +93,7 @@ export const MuleListRow = memo(function MuleListRow({
     id: mule.id,
     disabled: bulkMode,
   });
-  const { abbreviated: displayedIncome, full: fullIncome } = useFormattedIncome(postCapIncomeMeso, {
-    force: forceAbbreviated,
-  });
+  const { abbreviated: displayedIncome, full: fullIncome } = useFormattedIncome(postCapIncomeMeso);
 
   function handleActivate() {
     if (bulkMode) onToggleSelect?.(mule.id);
@@ -299,8 +291,9 @@ export const MuleListRow = memo(function MuleListRow({
 
       <div style={{ textAlign: 'right', minWidth: 0 }}>
         <div className="flex flex-row items-center justify-end gap-1.5" style={{ minWidth: 0 }}>
-          <MetricTooltip ariaLabel={`Potential meso ${fullIncome}`} tooltip={fullIncome}>
+          {postCapIncomeMeso === 0 ? (
             <span
+              data-row-income-value
               style={{
                 fontFamily: MONO,
                 fontSize: 'var(--row-income-size, 22px)',
@@ -312,7 +305,23 @@ export const MuleListRow = memo(function MuleListRow({
             >
               {displayedIncome}
             </span>
-          </MetricTooltip>
+          ) : (
+            <MetricTooltip ariaLabel={`Potential meso ${fullIncome}`} tooltip={fullIncome}>
+              <span
+                data-row-income-value
+                style={{
+                  fontFamily: MONO,
+                  fontSize: 'var(--row-income-size, 22px)',
+                  fontWeight: 600,
+                  color: incomeColor,
+                  lineHeight: 1.1,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {displayedIncome}
+              </span>
+            </MetricTooltip>
+          )}
           <CapDropTooltipTrigger droppedKeys={droppedKeys} />
         </div>
         <div

@@ -36,23 +36,13 @@ const emptyMetrics: RosterRowMetrics = {
 };
 
 function cardIncomeColor(container: HTMLElement): string {
-  // The card income row contains: INCOME label (direct span child) + a
-  // sibling div whose first span is the value.
-  const labels = Array.from(container.querySelectorAll('span'));
-  const incomeLabel = labels.find((s) => s.textContent === 'INCOME');
-  if (!incomeLabel) throw new Error('card INCOME label not found');
-  const row = incomeLabel.parentElement!;
-  const valueSpan = row.querySelector(':scope > div > span') as HTMLElement | null;
+  const valueSpan = container.querySelector('[data-card-income-value]') as HTMLElement | null;
   if (!valueSpan) throw new Error('card income value span not found');
   return valueSpan.style.color;
 }
 
 function rowIncomeColor(container: HTMLElement): string {
-  // The row income line is wrapped in MetricTooltip whose trigger carries
-  // `aria-label="Potential meso ..."`; the value span is its child span.
-  const trigger = container.querySelector('[aria-label^="Potential meso"]') as HTMLElement | null;
-  if (!trigger) throw new Error('row Potential meso trigger not found');
-  const valueSpan = trigger.querySelector('span') as HTMLElement | null;
+  const valueSpan = container.querySelector('[data-row-income-value]') as HTMLElement | null;
   if (!valueSpan) throw new Error('row income value span not found');
   return valueSpan.style.color;
 }

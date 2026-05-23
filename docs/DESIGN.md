@@ -152,31 +152,31 @@ The app uses three responsive mechanisms, each suited to a different concern:
 
 ### Breakpoint catalog
 
-| Component               | Breakpoint                               | What changes                                                                                              |
-| ----------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `Header`                | `max-[479.99px]:gap-2`                   | Right-cluster gap tightens from 5 to 2                                                                    |
-| `Header`                | `sm` (640px)                             | Container padding `px-4 → sm:px-6`                                                                        |
-| `WorldSelect`           | `sm`                                     | Trigger swaps: globe-only icon (`<sm`) ↔ labeled chip + chevron (`sm+`)                                   |
-| `ResetCountdown`        | `sm`                                     | `Live` format (`0D 14:32:07`) at `sm+`, `Smart` format (`14H 32M`) below                                  |
-| `ResetCountdown`        | `useMatchMedia(max-width: 319.99px)`     | Label drops; countdown becomes a tooltip-trigger button                                                   |
-| `KpiCard`               | `useMatchMedia(max-width: 374.99px)`     | `bignum` drops decimals (`504.32M → 504M`) so "mesos" caption fits                                        |
-| `KpiCard`               | `useMatchMedia(max-width: 479.99px)`     | Stat row reflows from 5-across flex to a 2-column grid                                                    |
-| `KpiCard`               | `useMatchMedia(max-width: 599.99px)`     | Expected income grid stacks, with Expected Black Mage Income below Expected Weekly Income                 |
-| `MuleCharacterCard`     | `md`                                     | Weekly income value: abbreviated (`<md`) ↔ full (`md+`) via paired `md:hidden` / `hidden md:inline` spans |
-| `MuleDetailDrawer`      | `sm`                                     | Sheet width: full viewport (`<sm`) ↔ 640px (`sm+`); **Drawer Close Pill** rendered only `<sm`             |
-| Drawer Identity Section | `@container/drawer` `600px`              | Layout: column stack (`<600px`) ↔ avatar + meta two-column (`≥600px`)                                     |
-| `CrystalTally`          | `@container drawer max-width: 599.99px`  | Layout: vertical stack (desktop) ↔ horizontal three-column strip (narrow drawer)                          |
-| Drawer trash button     | `@container drawer max-width: 599.99px`  | Bumps from `size-7` (28px) to `size-9` (36px), `[&_svg]:size-5`, paired with the **CrystalTally** flip    |
-| `RosterHeader`          | `useMatchMedia('(pointer: coarse)')`     | Touch only: **Bulk Confirm** removed from the bar and re-rendered as the floating **Bulk Delete Pill**    |
-| `MatrixToolbar`         | `@container/drawer` `545px`              | **Cadence Filter** wraps full-width; divider hides                                                        |
-| `MatrixToolbar`         | `max-[339.99px]`                         | **Matrix Reset** becomes a bordered full-width button                                                     |
-| `MatrixToolbar`         | `max-[292.99px]`                         | Info tooltip icon hides                                                                                   |
-| `BossMatrix`            | `@container/drawer` `600px`              | Tier label text hidden in tier-pip header (`<600px`); pip stays visible                                   |
-| `BossMatrix`            | `@container/drawer` `500px`              | Matrix sets `min-width: 500px` so very narrow drawers get horizontal scroll instead of column collapse    |
-| `RosterHeader`          | `sm`                                     | "drag to reorder" hint hidden below `sm`                                                                  |
-| `RosterHeader`          | `max-[524.99px]`                         | Bulk-action-bar copy "Select or drag to delete" hidden                                                    |
-| Roster grid             | CSS media queries (`index.css:246–288`)  | `--roster-cols` steps `1 → 2 → 3 → 4 → 5 → 6` at 480, 768, 1024, 1100, 1280px                             |
-| `DensityToggle`         | CSS media query (3-col threshold, 768px) | Hidden below 3-col grid (no point in choosing density on a 1-column phone layout)                         |
+| Component               | Breakpoint                               | What changes                                                                                           |
+| ----------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `Header`                | `max-[479.99px]:gap-2`                   | Right-cluster gap tightens from 5 to 2                                                                 |
+| `Header`                | `sm` (640px)                             | Container padding `px-4 → sm:px-6`                                                                     |
+| `WorldSelect`           | `sm`                                     | Trigger swaps: globe-only icon (`<sm`) ↔ labeled chip + chevron (`sm+`)                                |
+| `ResetCountdown`        | `sm`                                     | `Live` format (`0D 14:32:07`) at `sm+`, `Smart` format (`14H 32M`) below                               |
+| `ResetCountdown`        | `useMatchMedia(max-width: 319.99px)`     | Label drops; countdown becomes a tooltip-trigger button                                                |
+| `KpiCard`               | `useMatchMedia(max-width: 374.99px)`     | `bignum` drops decimals (`504.32M → 504M`) so "mesos" caption fits                                     |
+| `KpiCard`               | `useMatchMedia(max-width: 479.99px)`     | Stat row reflows from 5-across flex to a 2-column grid                                                 |
+| `KpiCard`               | `useMatchMedia(max-width: 599.99px)`     | Expected income grid stacks, with Expected Black Mage Income below Expected Weekly Income              |
+| `MuleCharacterCard`     | `md`                                     | Weekly income value stays abbreviated; full precision is available from the non-zero meso tooltip      |
+| `MuleDetailDrawer`      | `sm`                                     | Sheet width: full viewport (`<sm`) ↔ 640px (`sm+`); **Drawer Close Pill** rendered only `<sm`          |
+| Drawer Identity Section | `@container/drawer` `600px`              | Layout: column stack (`<600px`) ↔ avatar + meta two-column (`≥600px`)                                  |
+| `CrystalTally`          | `@container drawer max-width: 599.99px`  | Layout: vertical stack (desktop) ↔ horizontal three-column strip (narrow drawer)                       |
+| Drawer trash button     | `@container drawer max-width: 599.99px`  | Bumps from `size-7` (28px) to `size-9` (36px), `[&_svg]:size-5`, paired with the **CrystalTally** flip |
+| `RosterHeader`          | `useMatchMedia('(pointer: coarse)')`     | Touch only: **Bulk Confirm** removed from the bar and re-rendered as the floating **Bulk Delete Pill** |
+| `MatrixToolbar`         | `@container/drawer` `545px`              | **Cadence Filter** wraps full-width; divider hides                                                     |
+| `MatrixToolbar`         | `max-[339.99px]`                         | **Matrix Reset** becomes a bordered full-width button                                                  |
+| `MatrixToolbar`         | `max-[292.99px]`                         | Info tooltip icon hides                                                                                |
+| `BossMatrix`            | `@container/drawer` `600px`              | Tier label text hidden in tier-pip header (`<600px`); pip stays visible                                |
+| `BossMatrix`            | `@container/drawer` `500px`              | Matrix sets `min-width: 500px` so very narrow drawers get horizontal scroll instead of column collapse |
+| `RosterHeader`          | `sm`                                     | "drag to reorder" hint hidden below `sm`                                                               |
+| `RosterHeader`          | `max-[524.99px]`                         | Bulk-action-bar copy "Select or drag to delete" hidden                                                 |
+| Roster grid             | CSS media queries (`index.css:246–288`)  | `--roster-cols` steps `1 → 2 → 3 → 4 → 5 → 6` at 480, 768, 1024, 1100, 1280px                          |
+| `DensityToggle`         | CSS media query (3-col threshold, 768px) | Hidden below 3-col grid (no point in choosing density on a 1-column phone layout)                      |
 
 ### Why `useMatchMedia` and not Tailwind for the KpiCard reflows?
 
@@ -195,7 +195,7 @@ Sticky, translucent, blurred (`backdrop-blur 12px`, `sticky top-0 z-50`). 56px-t
 `panel panel-glow` with 24px padding. **V9 Hybrid layout** (current):
 
 1. **Countdown row** — **ResetCountdown** pinned to the top-left.
-2. **Expected income grid** — `EXPECTED WEEKLY INCOME` and `EXPECTED BLACK MAGE INCOME` sit side by side at 600px and above; below 600px, Black Mage stacks underneath Weekly. Each section has the accent-dot eyebrow, click-to-toggle `bignum`, and italic "mesos" suffix. Below 375px the abbreviated values drop decimals (`504.32M` → `504M`) so "mesos" still fits. Each row has an off-screen probe at `width: max-content`; if the unabbreviated value would overflow, the local display falls back to abbreviated even when the user's **Format Preference** is full.
+2. **Expected income grid** — `EXPECTED WEEKLY INCOME` and `EXPECTED BLACK MAGE INCOME` sit side by side at 600px and above; below 600px, Black Mage stacks underneath Weekly. Each section has the accent-dot eyebrow and abbreviated `bignum`; non-zero values expose full precision in a tooltip. Below 375px the abbreviated values drop decimals (`504.32M` → `504M`) so "mesos" still fits.
 3. **Stat row** — 5 cells side by side: `MULES` / `ACTIVE` (accent) / `WEEKLY` (purple crystal png) / `DAILY` (blue crystal png) / `MONTHLY` (monthly crystal png). Each uses `eyebrow-plain` label + Geist Mono 22px value.
 4. **WeeklyCapRail** — bottom block, see below.
 

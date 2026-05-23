@@ -160,6 +160,9 @@ describe('MuleDetailDrawer (smoke)', () => {
     const chip = screen.getByLabelText(/potential weekly meso/i);
     expect(within(chip).getByText('Weekly')).toBeTruthy();
     expect(within(chip).getByText('504M')).toBeTruthy();
+    expect(within(chip).queryByText('mesos')).toBeNull();
+    expect(chip.className).toContain('cursor-default');
+    expect(chip.className).not.toContain('cursor-pointer');
     expect(chip.tagName).toBe('BUTTON');
   });
 
@@ -195,6 +198,9 @@ describe('MuleDetailDrawer (smoke)', () => {
     expect(within(chip).getByText('BM')).toBeTruthy();
     expect(within(chip).queryByText('BM Monthly')).toBeNull();
     expect(within(chip).getByText('18B')).toBeTruthy();
+    expect(within(chip).queryByText('mesos')).toBeNull();
+    expect(chip.className).toContain('cursor-default');
+    expect(chip.className).not.toContain('cursor-pointer');
     expect(chip.tagName).toBe('BUTTON');
   });
 

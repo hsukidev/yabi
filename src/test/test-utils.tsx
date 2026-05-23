@@ -6,26 +6,18 @@ import { ThemeProvider } from '@/context/ThemeProvider';
 import { DensityProvider } from '@/context/DensityProvider';
 import { DisplayProvider } from '@/context/DisplayProvider';
 import { WorldProvider } from '@/context/WorldProvider';
-import { FormatPreferenceProvider } from '@/context/FormatPreferenceProvider';
 import { routeTree } from '@/routeTree.gen';
 import type { WorldId } from '@/data/worlds';
 
 interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
   defaultTheme?: 'dark' | 'light';
-  defaultAbbreviated?: boolean;
   defaultWorld?: WorldId | null;
   defaultDisplay?: 'cards' | 'list';
 }
 
 export function render(
   ui: ReactElement,
-  {
-    defaultTheme = 'dark',
-    defaultAbbreviated = true,
-    defaultWorld,
-    defaultDisplay,
-    ...options
-  }: CustomRenderOptions = {},
+  { defaultTheme = 'dark', defaultWorld, defaultDisplay, ...options }: CustomRenderOptions = {},
 ) {
   // The DisplayProvider reads `localStorage['display']` at mount time, so the
   // simplest way to honor `defaultDisplay` from a test is to seed the storage
@@ -38,24 +30,12 @@ export function render(
       // ignore; matches the provider's defensive try/catch around storage
     }
   }
-  // Same pattern for FormatPreferenceProvider, which now persists `abbreviated`
-  // to localStorage. Without seeding, prior tests in the same file (which
-  // toggled or wrote to storage) leak in and override `defaultAbbreviated`.
-  try {
-    localStorage.setItem('abbreviated', String(defaultAbbreviated));
-  } catch {
-    // ignore; matches the provider's defensive try/catch around storage
-  }
   function Wrapper({ children }: { children: React.ReactNode }) {
     return (
       <ThemeProvider defaultTheme={defaultTheme}>
         <DensityProvider>
           <DisplayProvider>
-            <WorldProvider defaultWorld={defaultWorld}>
-              <FormatPreferenceProvider defaultAbbreviated={defaultAbbreviated}>
-                {children}
-              </FormatPreferenceProvider>
-            </WorldProvider>
+            <WorldProvider defaultWorld={defaultWorld}>{children}</WorldProvider>
           </DisplayProvider>
         </DensityProvider>
       </ThemeProvider>

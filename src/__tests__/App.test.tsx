@@ -353,11 +353,9 @@ describe('App', () => {
     });
   });
 
-  it('toggles income display format on click', async () => {
+  it('renders expected weekly income in abbreviated format', async () => {
     await renderApp();
-    const clickable = screen.getByRole('button', { name: /toggle abbreviated meso format/i });
-    expect(clickable).toBeTruthy();
-    fireEvent.click(clickable);
+    expect(screen.getByText('EXPECTED WEEKLY INCOME')).toBeTruthy();
   });
 
   describe('selectedMuleId self-healing', () => {

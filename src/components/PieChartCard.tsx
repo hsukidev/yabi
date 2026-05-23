@@ -9,7 +9,11 @@ interface PieChartCardProps {
 
 export const PieChartCard = memo(function PieChartCard({ mules, onSliceClick }: PieChartCardProps) {
   return (
-    <div data-testid="income-chart" className="panel panel-glow" style={{ padding: '16px' }}>
+    <div
+      data-testid="income-chart"
+      className="panel panel-glow h-full"
+      style={{ padding: '16px', display: 'flex', flexDirection: 'column' }}
+    >
       <div
         style={{
           display: 'flex',

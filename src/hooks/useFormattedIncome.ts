@@ -1,30 +1,15 @@
-import { useFormatPreference } from '../context/FormatPreferenceProvider';
 import { formatMeso } from '../utils/meso';
 
-interface UseFormattedIncomeOptions {
-  /** When true, force the abbreviated meso format regardless of the global
-   * **Format Preference**. Single owner of the override rule (today: the
-   * `MuleListRow` narrow-viewport breakpoint). */
-  force?: boolean;
-}
-
 interface FormattedIncome {
-  /** The post-cap meso formatted per the **Format Preference** (or forced
-   * abbreviated when `opts.force === true`). */
+  /** The meso amount in the app's standard abbreviated display format. */
   abbreviated: string;
-  /** Always full-precision (`abbreviated=false`) — used by full-precision
-   * tooltips like `MetricTooltip` regardless of the user's preference. */
+  /** Full-precision meso, used only in non-zero tooltip text. */
   full: string;
 }
 
-export function useFormattedIncome(
-  postCapMeso: number,
-  opts?: UseFormattedIncomeOptions,
-): FormattedIncome {
-  const { abbreviated } = useFormatPreference();
-  const force = opts?.force ?? false;
+export function useFormattedIncome(postCapMeso: number): FormattedIncome {
   return {
-    abbreviated: formatMeso(postCapMeso, abbreviated || force),
+    abbreviated: formatMeso(postCapMeso, true),
     full: formatMeso(postCapMeso, false),
   };
 }

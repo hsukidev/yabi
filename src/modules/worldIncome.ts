@@ -23,9 +23,7 @@ const EMPTY_DROPPED_KEYS: ReadonlyMap<SlateKey, number> = new Map<SlateKey, numb
  * top `WORLD_WEEKLY_CRYSTAL_CAP`, and attributes survivors back to their
  * owning mules — the **World Cap Cut**. The class is React-agnostic; the
  * `useWorldIncome` hook below memoizes the aggregator output keyed on
- * the input mule list. **Format Preference** lives in
- * `FormatPreferenceProvider`; callers read it directly at the render
- * boundary.
+ * the input mule list. Meso formatting stays at the render boundary.
  */
 
 /**
@@ -193,7 +191,7 @@ export class WorldIncome {
 /**
  * React adapter for `WorldIncome.of`. Memoizes the aggregator output keyed on
  * the mule list identity (Dashboard already feeds the deferred reference).
- * Format Preference is read at the call site via `useFormatPreference()`.
+ * Meso display formatting is applied at the call site.
  */
 export function useWorldIncome(mulesInWorld: readonly Mule[]): WorldIncome {
   return useMemo(() => WorldIncome.of(mulesInWorld), [mulesInWorld]);

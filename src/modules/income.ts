@@ -23,9 +23,8 @@ export interface IncomeSource {
 
 /**
  * Immutable **Potential Income** value — per-mule or across a roster. Construct
- * only via `Income.of`; the constructor is private on purpose. Format Preference
- * lives in `FormatPreferenceProvider`; callers thread `abbreviated` through
- * `formatMeso(income.raw, abbreviated)` at the render boundary.
+ * only via `Income.of`; the constructor is private on purpose. Meso display
+ * formatting stays at the render boundary.
  */
 export class Income {
   readonly raw: number;

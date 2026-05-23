@@ -360,12 +360,9 @@ _Avoid_: Dense, small, tight
 The header control that flips **Density** between **Comfy** and **Compact**. Hidden below 768px because the toggle's value is too small to matter at that scale.
 _Avoid_: Density picker, density switcher
 
-**Format Preference**:
-The global meso-display toggle — exactly one of `abbreviated` (`5.31B`) or `full` (`5,310,000,000`). Persisted per user; threaded to every meso readout (**KPI Card** bignum, **Expected Black Mage Income**, **Character Card** headline, **Drawer** chip, **Cap Drop Badge**). Lives in its own seam, not bundled with **Potential Income** or **Total Weekly Income** values.
-_Avoid_: Abbreviated flag, number format
-
-**Auto-Fullformat-On-Zero Rule**:
-The one-shot side effect that flips **Format Preference** from `abbreviated` to `full` when **Total Weekly Income** is `0` — so a dead roster renders as `0` instead of `0B`. Idempotent across re-renders of the same zero+abbreviated state; resets when income becomes non-zero.
+**Meso Display**:
+The user-facing rendering of meso amounts. Meso values always render abbreviated in-line (`5.31B`), with the full value (`5,310,000,000`) exposed by a hover/focus tooltip only when the value is non-zero. A zero meso value renders as plain `0` with no tooltip.
+_Avoid_: Format preference, abbreviated/full toggle, number format toggle
 
 **Drag Handle**:
 The leftmost column of a **List View** row — a full-row-height grab strip (24px wide regardless of **Density**) holding a vertical-grip glyph. The sole drag-activator for reorder in **List View**: pointer drag engages from the handle only, the rest of the row is click-to-open. **Card View** has no **Drag Handle** — its full card is the drag surface. Replaced by the **Selection Indicator** in **Bulk Delete Mode** (drag is suspended). Subject to **Mouse Sensor**, **Touch Sensor**, and **Keyboard Sensor** identically to the **Character Card**.

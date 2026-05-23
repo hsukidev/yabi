@@ -1,12 +1,5 @@
 import { describe, expect, it, afterEach } from 'vitest';
-import {
-  render,
-  screen,
-  within,
-  fireEvent,
-  mockMatchMedia,
-  restoreMatchMedia,
-} from '@/test/test-utils';
+import { render, screen, within, mockMatchMedia, restoreMatchMedia } from '@/test/test-utils';
 import { KpiCard } from '../KpiCard';
 import { WORLD_WEEKLY_CRYSTAL_CAP } from '../../modules/worldIncome';
 import { formatMeso } from '../../utils/meso';
@@ -62,11 +55,7 @@ function activeStatValue(): string {
 }
 
 function bignumText(): string {
-  return screen.getByRole('button', { name: /toggle abbreviated meso format/i }).textContent ?? '';
-}
-
-function expectedBlackMageIncomeButton(): HTMLElement {
-  return screen.getByRole('button', { name: /toggle expected black mage income meso format/i });
+  return tileValue('EXPECTED WEEKLY INCOME');
 }
 
 describe('KpiCard', () => {
@@ -135,36 +124,17 @@ describe('KpiCard', () => {
     expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('3.6B');
   });
 
-  it('lets Expected Black Mage Income toggle to full meso format when it fits', () => {
-    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
-      configurable: true,
-      value: 1000,
-    });
-    try {
-      render(<KpiCard mules={[{ ...mule, selectedBosses: [BLACK_MAGE_EXTREME] }]} />);
-      expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('18B');
-      fireEvent.click(expectedBlackMageIncomeButton());
-      expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe(formatMeso(18_000_000_000, false));
-    } finally {
-      delete (HTMLElement.prototype as { clientWidth?: number }).clientWidth;
-    }
+  it('always renders Expected Black Mage Income in abbreviated meso format', () => {
+    render(<KpiCard mules={[{ ...mule, selectedBosses: [BLACK_MAGE_EXTREME] }]} />);
+    expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('18B');
+    expect(screen.queryByText(formatMeso(18_000_000_000, false))).toBeNull();
   });
 
-  it('does not toggle format from Expected Black Mage Income when its raw value is zero', () => {
-    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
-      configurable: true,
-      value: 1000,
-    });
-    try {
-      render(<KpiCard mules={[{ ...mule, selectedBosses: [HARD_LUCID] }]} />);
-      expect(bignumText()).toBe('504M');
-      expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('0');
-      fireEvent.click(expectedBlackMageIncomeButton());
-      expect(bignumText()).toBe('504M');
-      expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('0');
-    } finally {
-      delete (HTMLElement.prototype as { clientWidth?: number }).clientWidth;
-    }
+  it('does not render a tooltip trigger when Expected Black Mage Income is zero', () => {
+    render(<KpiCard mules={[{ ...mule, selectedBosses: [HARD_LUCID] }]} />);
+    expect(bignumText()).toBe('504M');
+    expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('0');
+    expect(screen.queryByLabelText(/expected black mage income 0/i)).toBeNull();
   });
 
   it('does not add Expected Black Mage Income to weekly KPI readouts', () => {
@@ -181,16 +151,11 @@ describe('KpiCard', () => {
     ).toBe('1');
   });
 
-  it('does not toggle format when total income is zero', () => {
+  it('keeps total income abbreviated across zero transitions', () => {
     const nonzeroMule: Mule = { ...mule, selectedBosses: [HARD_LUCID] };
     const { rerender } = render(<KpiCard mules={[nonzeroMule]} />);
-    // Abbreviated by default → "504M"
     expect(bignumText()).toBe('504M');
     rerender(<KpiCard mules={[{ ...mule, selectedBosses: [] }]} />);
-    // formatMeso(0, true) renders as "0"; format preference unchanged.
-    expect(bignumText()).toBe('0');
-    fireEvent.click(screen.getByRole('button', { name: /toggle abbreviated meso format/i }));
-    // Still "0" — the onClick guard stops the toggle when raw===0.
     expect(bignumText()).toBe('0');
   });
 
@@ -248,6 +213,23 @@ describe('KpiCard', () => {
         const card = screen.getByTestId('income-card');
         const statRow = within(card).getByTestId('kpi-stat-row');
         expect(statRow.style.display).toBe('grid');
+        expect(statRow.style.gridTemplateColumns).toBe('1fr 1fr');
+      });
+
+      it('stacks the metric row below 640px before crystal labels overflow', () => {
+        mockNarrowViewport(639);
+        render(<KpiCard mules={[mule]} />);
+        const card = screen.getByTestId('income-card');
+        const statRow = within(card).getByTestId('kpi-stat-row');
+        expect(statRow.style.gridTemplateColumns).toBe('1fr 1fr');
+      });
+
+      it('keeps the metric row in five columns at 640px', () => {
+        mockNarrowViewport(640);
+        render(<KpiCard mules={[mule]} />);
+        const card = screen.getByTestId('income-card');
+        const statRow = within(card).getByTestId('kpi-stat-row');
+        expect(statRow.style.gridTemplateColumns).toBe('repeat(5, minmax(0, 1fr))');
       });
 
       it('stacks the expected income sections below 600px', () => {
@@ -260,7 +242,7 @@ describe('KpiCard', () => {
         expect(within(card).getByText(/expected black mage income/i)).toBeTruthy();
         expect(within(card).getByText(/reset in/i)).toBeTruthy();
         expect(incomeGrid.style.gridTemplateColumns).toBe('1fr');
-        expect(statRow.style.display).toBe('flex');
+        expect(statRow.style.display).toBe('grid');
       });
 
       it('keeps the expected income sections side by side at 600px', () => {
@@ -271,11 +253,11 @@ describe('KpiCard', () => {
         expect(incomeGrid.style.gridTemplateColumns).toBe('minmax(0, 1fr) minmax(0, 1fr)');
       });
 
-      it('keeps the desktop flex layout when matchMedia is unavailable', () => {
+      it('keeps the desktop metric grid when matchMedia is unavailable', () => {
         render(<KpiCard mules={[mule]} />);
         const card = screen.getByTestId('income-card');
         const statRow = within(card).getByTestId('kpi-stat-row');
-        expect(statRow.style.display).toBe('flex');
+        expect(statRow.style.display).toBe('grid');
       });
     });
   });

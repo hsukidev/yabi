@@ -33,7 +33,6 @@ const baseMule: Mule = {
 };
 
 interface RenderCardOptions {
-  defaultAbbreviated?: boolean;
   onDelete?: (id: string) => void;
   bulkMode?: boolean;
   selected?: boolean;
@@ -72,7 +71,6 @@ function renderCard(overrides: Partial<Mule> = {}, options?: RenderCardOptions) 
           />
         </SortableContext>
       </DndContext>,
-      options,
     ),
     onClick,
     onDelete,
@@ -149,9 +147,10 @@ describe('MuleCharacterCard', () => {
     expect(screen.getByText('504M')).toBeTruthy();
   });
 
-  it('renders full income when abbreviated is false', () => {
-    renderCard({ selectedBosses: [HARD_LUCID] }, { defaultAbbreviated: false });
-    expect(screen.getByText('504,000,000')).toBeTruthy();
+  it('does not render the full meso value inline', () => {
+    renderCard({ selectedBosses: [HARD_LUCID] });
+    expect(screen.getByText('504M')).toBeTruthy();
+    expect(screen.queryByText('504,000,000')).toBeNull();
   });
 
   // Regression: the card used to call useIncome without `worldId`, so

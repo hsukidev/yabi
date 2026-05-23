@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { PieChart, Pie, Cell } from 'recharts';
 import type { Mule } from '../types';
 import { useWorldIncome } from '../modules/worldIncome';
-import { useFormatPreference } from '../context/FormatPreferenceProvider';
 import { formatMeso } from '../utils/meso';
 import { colorForMulePosition } from '../utils/muleColor';
 import { ChartContainer, type ChartConfig } from './ui/chart';
@@ -23,7 +22,6 @@ interface IncomePieChartProps {
 
 export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
   const { perMule } = useWorldIncome(mules);
-  const { abbreviated } = useFormatPreference();
   const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
 
   // Crossing the paddingAngle gap between sectors fires a mouseLeave then a
@@ -68,7 +66,7 @@ export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
     data.push({
       name: mule.name || 'Unnamed Mule',
       value: contributed,
-      formatted: formatMeso(contributed, abbreviated),
+      formatted: formatMeso(contributed, true),
       muleId: mule.id,
       fill: colorForMulePosition(data.length),
     });
@@ -76,7 +74,7 @@ export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
 
   if (data.length === 0) {
     return (
-      <div className="h-[260px] flex items-center justify-center text-center px-4">
+      <div className="min-h-[260px] flex-1 flex items-center justify-center text-center px-4">
         <div className="max-w-[220px] flex flex-col items-center gap-2">
           <div
             aria-hidden
@@ -105,8 +103,8 @@ export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
   );
 
   return (
-    <div className="relative">
-      <ChartContainer config={chartConfig} className="h-[260px] w-full">
+    <div className="relative min-h-[260px] flex-1">
+      <ChartContainer config={chartConfig} className="size-full min-h-[260px]">
         <PieChart>
           <Pie
             data={data}
@@ -140,8 +138,7 @@ export function IncomePieChart({ mules, onSliceClick }: IncomePieChartProps) {
           {hoveredName ?? 'Total'}
         </span>
         <span className="font-mono-nums text-[15px] font-semibold text-(--accent-numeric) mt-1 leading-tight">
-          {hoveredValue ??
-            (abbreviated ? formatCompact(total) : Math.round(total).toLocaleString())}
+          {hoveredValue ?? formatCompact(total)}
         </span>
         <span className="font-mono-nums text-[13px] text-muted-foreground leading-tight">
           {centerPercentText}
