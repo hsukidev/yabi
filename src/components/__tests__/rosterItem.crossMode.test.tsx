@@ -31,6 +31,7 @@ const emptyMetrics: RosterRowMetrics = {
   dailyCount: 0,
   monthlyCount: 0,
   postCapMeso: 0,
+  displayedWeeklyMeso: { meso: 0, source: 'contributed', muted: true },
   sharePct: 0,
   droppedKeys: new Map(),
 };
@@ -62,14 +63,13 @@ function renderCard(mule: Mule, metrics: RosterRowMetrics) {
   );
 }
 
-function renderRow(mule: Mule, metrics: RosterRowMetrics, postCapIncomeMeso: number) {
+function renderRow(mule: Mule, metrics: RosterRowMetrics) {
   return render(
     <DndContext>
       <SortableContext items={[mule.id]} strategy={verticalListSortingStrategy}>
         <MuleListRow
           mule={mule}
           metrics={metrics}
-          postCapIncomeMeso={postCapIncomeMeso}
           onClick={() => {}}
         />
       </SortableContext>
@@ -77,11 +77,11 @@ function renderRow(mule: Mule, metrics: RosterRowMetrics, postCapIncomeMeso: num
   );
 }
 
-function bothColors(mule: Mule, metrics: RosterRowMetrics, postCapIncomeMeso: number) {
+function bothColors(mule: Mule, metrics: RosterRowMetrics) {
   const card = renderCard(mule, metrics);
   const cardColor = cardIncomeColor(card.container);
   card.unmount();
-  const row = renderRow(mule, metrics, postCapIncomeMeso);
+  const row = renderRow(mule, metrics);
   const rowColor = rowIncomeColor(row.container);
   row.unmount();
   return { cardColor, rowColor };
@@ -99,8 +99,9 @@ describe('Roster item — cross-mode income color invariant', () => {
       ...emptyMetrics,
       weeklyCount: 1,
       postCapMeso: 504_000_000,
+      displayedWeeklyMeso: { meso: 504_000_000, source: 'contributed', muted: false },
     };
-    const { cardColor, rowColor } = bothColors(mule, metrics, 504_000_000);
+    const { cardColor, rowColor } = bothColors(mule, metrics);
     expect(cardColor).toContain('accent');
     expect(rowColor).toContain('accent');
     expect(cardColor).toBe(rowColor);
@@ -117,8 +118,9 @@ describe('Roster item — cross-mode income color invariant', () => {
       ...emptyMetrics,
       weeklyCount: 1,
       postCapMeso: 0,
+      displayedWeeklyMeso: { meso: 504_000_000, source: 'potential', muted: true },
     };
-    const { cardColor, rowColor } = bothColors(mule, metrics, 0);
+    const { cardColor, rowColor } = bothColors(mule, metrics);
     expect(cardColor).toContain('dim');
     expect(rowColor).toContain('dim');
     expect(cardColor).toBe(rowColor);
@@ -139,7 +141,7 @@ describe('Roster item — cross-mode income color invariant', () => {
       ...emptyMetrics,
       monthlyCount: 1,
     };
-    const { cardColor, rowColor } = bothColors(mule, metrics, 0);
+    const { cardColor, rowColor } = bothColors(mule, metrics);
     expect(cardColor).toContain('dim');
     expect(rowColor).toContain('dim');
     expect(cardColor).toBe(rowColor);
@@ -152,7 +154,7 @@ describe('Roster item — cross-mode income color invariant', () => {
       selectedBosses: [],
       worldId: 'heroic-kronos',
     };
-    const { cardColor, rowColor } = bothColors(mule, emptyMetrics, 0);
+    const { cardColor, rowColor } = bothColors(mule, emptyMetrics);
     expect(cardColor).toContain('dim');
     expect(rowColor).toContain('dim');
     expect(cardColor).toBe(rowColor);

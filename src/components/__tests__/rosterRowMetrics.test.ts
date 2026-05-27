@@ -99,6 +99,34 @@ describe('rosterRowMetrics', () => {
     expect(m.postCapMeso).toBe(1_500_000_000);
   });
 
+  it('derives Displayed Weekly Meso as Contributed Meso for active mules', () => {
+    const mule = baseMule({ active: true, selectedBosses: [HARD_LUCID_WEEKLY] });
+    const c = contribution({ potentialMeso: 504_000_000, contributedMeso: 400_000_000 });
+    const m = rosterRowMetrics(mule, c, 2_000_000_000);
+    expect(m.displayedWeeklyMeso).toEqual({
+      meso: 400_000_000,
+      source: 'contributed',
+      muted: false,
+    });
+  });
+
+  it('derives Displayed Weekly Meso as muted 0 for a fully dropped active mule', () => {
+    const mule = baseMule({ active: true, selectedBosses: [HARD_LUCID_WEEKLY] });
+    const c = contribution({
+      potentialMeso: 504_000_000,
+      contributedMeso: 0,
+      droppedMeso: 504_000_000,
+      droppedSlots: 1,
+      droppedKeys: new Map<SlateKey, number>([[HARD_LUCID_WEEKLY, 1]]),
+    });
+    const m = rosterRowMetrics(mule, c, 2_000_000_000);
+    expect(m.displayedWeeklyMeso).toEqual({
+      meso: 0,
+      source: 'contributed',
+      muted: true,
+    });
+  });
+
   it('computes sharePct as contributedMeso / worldTotal', () => {
     const mule = baseMule();
     const c = contribution({ contributedMeso: 1_000_000_000 });
@@ -122,6 +150,20 @@ describe('rosterRowMetrics', () => {
     expect(m.droppedKeys.size).toBe(0);
     // Cadence counts still derive from selectedBosses, not from contribution.
     expect(m.weeklyCount).toBe(1);
+  });
+
+  it('derives Displayed Weekly Meso as muted Potential Meso for inactive mules', () => {
+    const mule = baseMule({
+      active: false,
+      selectedBosses: [HARD_LUCID_WEEKLY],
+      worldId: 'heroic-kronos',
+    });
+    const m = rosterRowMetrics(mule, undefined, 4_000_000_000);
+    expect(m.displayedWeeklyMeso).toEqual({
+      meso: 504_000_000,
+      source: 'potential',
+      muted: true,
+    });
   });
 
   it('passes through droppedKeys from the contribution', () => {
