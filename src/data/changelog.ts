@@ -25,6 +25,16 @@ export const ORDERED_CATEGORIES: ChangeCategory[] = (
 
 export const releases: Release[] = [
   {
+    date: '2026-05-28',
+    version: '1.4.1',
+    changes: [
+      {
+        category: 'fix',
+        text: 'Show accurate post-cap weekly income across roster cards, list rows, and drawer.',
+      },
+    ],
+  },
+  {
     date: '2026-05-21',
     version: '1.4.0',
     changes: [
