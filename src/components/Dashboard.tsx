@@ -79,10 +79,10 @@ export function Dashboard() {
   const capPerMule = worldIncome.perMule;
 
   // Per-mule metrics threaded into both Card and Row from a single source so
-  // the **Contributing Mule** predicate evaluates against the same numbers
-  // across modes. Memoized on mules + worldIncome so each item's metrics
-  // object identity is stable across drawer-edit / bulk-toggle re-renders,
-  // preserving the MuleCharacterCard / MuleListRow memo barriers.
+  // **Displayed Weekly Meso** amount and tone stay identical across modes.
+  // Memoized on mules + worldIncome so each item's metrics object identity is
+  // stable across drawer-edit / bulk-toggle re-renders, preserving the
+  // MuleCharacterCard / MuleListRow memo barriers.
   const metricsByMule = useMemo(() => {
     const m = new Map<string, RosterRowMetrics>();
     for (const mule of mulesInWorld) {

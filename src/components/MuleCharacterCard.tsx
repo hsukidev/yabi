@@ -10,14 +10,13 @@ import { useFormattedIncome } from '../hooks/useFormattedIncome';
 import { useMatchMedia } from '../hooks/useMatchMedia';
 import { MuleBossSlate, type SlateKey } from '../data/muleBossSlate';
 import { resolveWorldGroup } from '../data/worlds';
-import { Income } from '../modules/income';
 import { CharacterAvatar } from './CharacterAvatar';
 import { MetricTooltip } from './MetricTooltip';
 import { ROSTER_CARD_ASPECT, ROSTER_CARD_MIN_HEIGHT } from './rosterCardContract';
 import { NotesTooltipTrigger } from './RosterItem/NotesTooltipTrigger';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import { SelectionIndicator } from './RosterItem/SelectionIndicator';
-import { isContributingMule, type ContributingMuleMetrics } from './RosterItem/contributingMule';
+import type { RosterRowMetrics } from './rosterRowMetrics';
 
 interface MuleCharacterCardProps {
   mule: Mule;
@@ -34,12 +33,12 @@ interface MuleCharacterCardProps {
   // `useWorldIncome(...).perMule` at the Dashboard level. The Cap Drop Info
   // Icon renders only when this map has at least one entry.
   droppedKeys?: ReadonlyMap<SlateKey, number>;
-  // Per-mule cadence counts threaded from the Dashboard the same way
-  // MuleListRow already receives them. Drives the **Contributing Mule**
-  // predicate behind the income-line accent tint, so Card and Row stay in
-  // sync by construction. Object identity must be stable across renders
-  // (memoize at the Dashboard level) to preserve the outer memo barrier.
-  metrics: ContributingMuleMetrics;
+  // Full per-mule roster metrics threaded from the Dashboard the same way
+  // MuleListRow already receives them. Carries the shared **Displayed Weekly
+  // Meso** contract so Card and Row stay in sync by construction. Object
+  // identity must be stable across renders (memoize at the Dashboard level)
+  // to preserve the outer memo barrier.
+  metrics: RosterRowMetrics;
 }
 
 // `--destructive` is stored as `hsl(...)`, not a raw triplet — blend via
@@ -66,23 +65,20 @@ const MuleCardInner = memo(function MuleCardInner({
   mule: Mule;
   hideLevelBadge?: boolean;
   droppedKeys?: ReadonlyMap<SlateKey, number>;
-  metrics: ContributingMuleMetrics;
+  metrics: RosterRowMetrics;
 }) {
   const { density } = useDensity();
-  const weeklyIncomeRaw = Income.of({
-    selectedBosses: mule.selectedBosses,
-    partySizes: mule.partySizes,
-    worldId: mule.worldId,
-  }).raw;
+  const displayedWeeklyMeso = metrics.displayedWeeklyMeso;
+  const weeklyIncomeRaw = displayedWeeklyMeso.meso;
   const bmIncomeRaw = MuleBossSlate.from(
     mule.selectedBosses,
     resolveWorldGroup(mule.worldId),
   ).monthlyCrystalValue(mule.partySizes);
   const { abbreviated: weeklyIncome, full: weeklyIncomeFull } = useFormattedIncome(weeklyIncomeRaw);
   const { abbreviated: bmIncome, full: bmIncomeFull } = useFormattedIncome(bmIncomeRaw);
-  const incomeColor = isContributingMule(mule, metrics)
-    ? 'var(--accent-raw, var(--accent))'
-    : 'var(--dim, var(--surface-dim))';
+  const incomeColor = displayedWeeklyMeso.muted
+    ? 'var(--dim, var(--surface-dim))'
+    : 'var(--accent-raw, var(--accent))';
   const bmIncomeColor =
     mule.active !== false && bmIncomeRaw > 0
       ? 'var(--accent-raw, var(--accent))'
