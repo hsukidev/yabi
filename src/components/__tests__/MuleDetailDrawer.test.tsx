@@ -4,11 +4,34 @@ import { render, screen, fireEvent, within } from '@/test/test-utils';
 import { MuleDetailDrawer } from '../MuleDetailDrawer';
 import type { Mule } from '../../types';
 import { bosses } from '../../data/bosses';
+import { WorldIncome } from '../../modules/worldIncome';
+import { rosterRowMetrics, type RosterRowMetrics } from '../rosterRowMetrics';
+import { formatMeso } from '../../utils/meso';
+import { formatDroppedSlots, MuleBossSlate, type SlateKey } from '../../data/muleBossSlate';
+import { resolveWorldGroup } from '../../data/worlds';
 
 const LUCID_BOSS = bosses.find((b) => b.family === 'lucid')!;
 const HARD_LUCID = `${LUCID_BOSS.id}:hard:weekly`;
 const BLACK_MAGE_BOSS = bosses.find((b) => b.family === 'black-mage')!;
 const EXTREME_BLACK_MAGE = `${BLACK_MAGE_BOSS.id}:extreme:monthly`;
+
+function topWeeklyKeys(n: number): { slateKey: SlateKey; value: number }[] {
+  const all: { slateKey: SlateKey; value: number }[] = [];
+  for (const boss of bosses) {
+    const weeklies = boss.difficulty.filter((difficulty) => difficulty.cadence === 'weekly');
+    if (weeklies.length === 0) continue;
+    const top = weeklies.reduce((best, current) =>
+      current.crystalValue.Heroic > best.crystalValue.Heroic ? current : best,
+    );
+    all.push({
+      slateKey: `${boss.id}:${top.tier}:weekly`,
+      value: top.crystalValue.Heroic,
+    });
+  }
+  all.sort((a, b) => b.value - a.value);
+  if (all.length < n) throw new Error(`Only found ${all.length} weekly keys`);
+  return all.slice(0, n);
+}
 
 const baseMule: Mule = {
   id: 'test-mule-1',
@@ -19,18 +42,91 @@ const baseMule: Mule = {
   active: true,
 };
 
-function renderDrawer(overrides: Partial<Parameters<typeof MuleDetailDrawer>[0]> = {}) {
+function metricsFor(mule: Mule | null, worldMules: readonly Mule[]): RosterRowMetrics | null {
+  if (!mule) return null;
+  const worldIncome = WorldIncome.of(worldMules);
+  return rosterRowMetrics(mule, worldIncome.perMule.get(mule.id), worldIncome.totalContributedMeso);
+}
+
+type DrawerRenderOverrides = Partial<Parameters<typeof MuleDetailDrawer>[0]> & {
+  worldMules?: readonly Mule[];
+};
+
+function renderDrawer(overrides: DrawerRenderOverrides = {}) {
+  const { worldMules: providedWorldMules, ...propOverrides } = overrides;
+  const mule = propOverrides.mule === undefined ? baseMule : propOverrides.mule;
+  const worldMules = providedWorldMules ?? (mule ? [mule] : []);
   const props = {
-    mule: baseMule,
+    mule,
     open: true,
     onClose: vi.fn(),
     onUpdate: vi.fn(),
     onDelete: vi.fn(),
-    ...overrides,
+    metrics:
+      propOverrides.metrics === undefined ? metricsFor(mule, worldMules) : propOverrides.metrics,
+    ...propOverrides,
   };
   return {
     ...render(<MuleDetailDrawer {...props} />),
     props,
+  };
+}
+
+function blockersForCap(topKeys: readonly SlateKey[], tailCount: number): Mule[] {
+  return [
+    ...Array.from({ length: 13 }, (_, index) => ({
+      ...baseMule,
+      id: `blocker-${index}`,
+      selectedBosses: [...topKeys],
+    })),
+    {
+      ...baseMule,
+      id: 'blocker-tail',
+      selectedBosses: topKeys.slice(0, tailCount),
+    },
+  ];
+}
+
+function partialDropWorld() {
+  const top14 = topWeeklyKeys(14);
+  const selectedMule = {
+    ...baseMule,
+    selectedBosses: [top14[0].slateKey, top14[13].slateKey],
+  };
+  return {
+    selectedMule,
+    worldMules: [
+      ...blockersForCap(
+        top14.slice(0, 13).map((key) => key.slateKey),
+        10,
+      ),
+      selectedMule,
+    ],
+  };
+}
+
+function fullyDroppedWorld(
+  overrides: Partial<Mule> = {},
+  extraSelectedBosses: readonly string[] = [],
+) {
+  const top14 = topWeeklyKeys(14);
+  const droppedKey = top14[13].slateKey;
+  const selectedMule = {
+    ...baseMule,
+    id: 'fully-dropped',
+    ...overrides,
+    selectedBosses: [droppedKey, ...extraSelectedBosses],
+  };
+  return {
+    droppedKey,
+    selectedMule,
+    worldMules: [
+      ...blockersForCap(
+        top14.slice(0, 13).map((key) => key.slateKey),
+        11,
+      ),
+      selectedMule,
+    ],
   };
 }
 
@@ -145,7 +241,7 @@ describe('MuleDetailDrawer (smoke)', () => {
         worldId: 'interactive-scania',
       },
     });
-    const chip = screen.getByLabelText(/potential weekly meso/i);
+    const chip = screen.getByLabelText(/weekly meso/i);
     expect(within(chip).getByText('100.8M')).toBeTruthy();
     expect(within(chip).queryByText('504M')).toBeNull();
   });
@@ -157,7 +253,7 @@ describe('MuleDetailDrawer (smoke)', () => {
         selectedBosses: [HARD_LUCID],
       },
     });
-    const chip = screen.getByLabelText(/potential weekly meso/i);
+    const chip = screen.getByLabelText(/weekly meso/i);
     expect(within(chip).getByText('Weekly')).toBeTruthy();
     expect(within(chip).getByText('504M')).toBeTruthy();
     expect(within(chip).queryByText('mesos')).toBeNull();
@@ -168,7 +264,7 @@ describe('MuleDetailDrawer (smoke)', () => {
 
   it('does not wrap the Weekly chip in a tooltip when the value is zero', () => {
     renderDrawer();
-    const chip = screen.getByLabelText(/potential weekly meso/i);
+    const chip = screen.getByLabelText(/weekly meso/i);
     expect(within(chip).getByText('Weekly')).toBeTruthy();
     expect(within(chip).getByText('0')).toBeTruthy();
     expect(chip.tagName).not.toBe('BUTTON');
@@ -182,9 +278,91 @@ describe('MuleDetailDrawer (smoke)', () => {
         worldId: 'heroic-kronos',
       },
     });
-    const chip = screen.getByLabelText(/potential weekly meso/i);
+    const chip = screen.getByLabelText(/weekly meso/i);
     expect(within(chip).getByText('504M')).toBeTruthy();
     expect(within(chip).queryByText('100.8M')).toBeNull();
+  });
+
+  it('renders Contributed Meso in the Weekly chip for an active mule affected by the World Cap Cut', () => {
+    const { selectedMule, worldMules } = partialDropWorld();
+    const metrics = metricsFor(selectedMule, worldMules)!;
+    const potentialMeso = MuleBossSlate.from(
+      selectedMule.selectedBosses,
+      resolveWorldGroup(selectedMule.worldId),
+    ).totalCrystalValue(selectedMule.partySizes);
+
+    expect(metrics.displayedWeeklyMeso.meso).toBeLessThan(potentialMeso);
+    expect(metrics.displayedWeeklyMeso.meso).toBeGreaterThan(0);
+
+    renderDrawer({ mule: selectedMule, worldMules });
+    const chip = screen.getByLabelText(/weekly meso/i);
+
+    expect(within(chip).getByText(formatMeso(metrics.displayedWeeklyMeso.meso, true))).toBeTruthy();
+    expect(within(chip).queryByText(formatMeso(potentialMeso, true))).toBeNull();
+  });
+
+  it('renders a fully dropped active mule as a dim 0 in the Weekly chip with the cap-drop icon beside it', () => {
+    const { selectedMule, worldMules } = fullyDroppedWorld();
+
+    renderDrawer({ mule: selectedMule, worldMules });
+    const row = screen.getByTestId('drawer-weekly-income-row');
+    const chip = within(row).getByLabelText(/weekly meso/i);
+    const value = within(chip).getByTestId('drawer-weekly-income-value');
+
+    expect(value.textContent).toBe('0');
+    expect(value.style.color).toContain('dim');
+    expect(within(row).getByRole('button', { name: /show bosses dropped to cap/i })).toBeTruthy();
+  });
+
+  it('renders muted Potential Meso in the Weekly chip for an inactive mule', () => {
+    renderDrawer({
+      mule: {
+        ...baseMule,
+        active: false,
+        selectedBosses: [HARD_LUCID],
+        worldId: 'heroic-kronos',
+      },
+    });
+
+    const chip = screen.getByLabelText(/weekly meso/i);
+    const value = within(chip).getByTestId('drawer-weekly-income-value');
+
+    expect(value.textContent).toBe('504M');
+    expect(value.style.color).toContain('dim');
+  });
+
+  it('keeps the Weekly meso tooltip and cap-drop boss tooltip separate when dropped keys exist', async () => {
+    const { selectedMule, worldMules } = partialDropWorld();
+    const metrics = metricsFor(selectedMule, worldMules)!;
+    const fullWeeklyMeso = formatMeso(metrics.displayedWeeklyMeso.meso, false);
+    const [droppedLine] = formatDroppedSlots(metrics.droppedKeys);
+
+    renderDrawer({ mule: selectedMule, worldMules });
+    const row = screen.getByTestId('drawer-weekly-income-row');
+    const chip = within(row).getByLabelText(`Weekly meso ${fullWeeklyMeso}`);
+    const capDropIcon = within(row).getByRole('button', {
+      name: /show bosses dropped to cap/i,
+    });
+
+    fireEvent.click(chip);
+    expect(await screen.findByText(fullWeeklyMeso)).toBeTruthy();
+
+    fireEvent.focus(capDropIcon);
+    const bossOnlyLine = await screen.findByText(droppedLine);
+    expect(bossOnlyLine.parentElement?.textContent).not.toMatch(/meso|[0-9][\d,.]*\s*[MB]/i);
+  });
+
+  it('keeps BM Monthly separate when Displayed Weekly Meso is fully dropped', () => {
+    const { selectedMule, worldMules } = fullyDroppedWorld({ id: 'fully-dropped-with-bm' }, [
+      EXTREME_BLACK_MAGE,
+    ]);
+
+    renderDrawer({ mule: selectedMule, worldMules });
+    const weeklyChip = screen.getByLabelText(/weekly meso/i);
+    const bmChip = screen.getByLabelText(/potential black mage monthly meso/i);
+
+    expect(within(weeklyChip).getByTestId('drawer-weekly-income-value').textContent).toBe('0');
+    expect(within(bmChip).getByText('18B')).toBeTruthy();
   });
 
   it('renders a separate tooltip BM chip for selected Black Mage monthly value', () => {
@@ -256,7 +434,7 @@ describe('MuleDetailDrawer (smoke)', () => {
         selectedBosses: [HARD_LUCID, EXTREME_BLACK_MAGE],
       },
     });
-    const weeklyChip = screen.getByLabelText(/potential weekly meso/i);
+    const weeklyChip = screen.getByLabelText(/weekly meso/i);
     expect(within(weeklyChip).getByText('504M')).toBeTruthy();
     expect(within(weeklyChip).queryByText('18.5B')).toBeNull();
   });

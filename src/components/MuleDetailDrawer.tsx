@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { Mule } from '../types';
 import { formatMeso } from '../utils/meso';
-import { MuleBossSlate } from '../data/muleBossSlate';
+import { MuleBossSlate, type SlateKey } from '../data/muleBossSlate';
 import type { PresetKey } from './MatrixToolbar';
 import { resolveWorldGroup } from '../data/worlds';
 import { useUserPresets } from '../hooks/useUserPresets';
@@ -24,9 +24,12 @@ import { useSlateActions } from './MuleDetailDrawer/hooks/useSlateActions';
 import { CrystalTally } from './MuleDetailDrawer/CrystalTally';
 import { MuleIdentityFields } from './MuleDetailDrawer/MuleIdentityFields';
 import { MuleNotesField } from './MuleDetailDrawer/MuleNotesField';
+import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
+import type { RosterRowMetrics } from './rosterRowMetrics';
 
 interface MuleDetailDrawerProps {
   mule: Mule | null;
+  metrics?: RosterRowMetrics | null;
   open: boolean;
   onClose: () => void;
   onUpdate: (id: string, updates: Partial<Omit<Mule, 'id'>>) => void;
@@ -42,8 +45,11 @@ const HEADER_INCOME_CHIP_STYLE = {
     'inset 0 1px 0 color-mix(in srgb, white 6%, transparent), 0 1px 2px color-mix(in srgb, black 8%, transparent)',
 } satisfies CSSProperties;
 
+const EMPTY_DROPPED_KEYS: ReadonlyMap<SlateKey, number> = new Map();
+
 export function MuleDetailDrawer({
   mule,
+  metrics,
   open,
   onClose,
   onUpdate,
@@ -63,9 +69,14 @@ export function MuleDetailDrawer({
     () => slate.totalCrystalValue(mule?.partySizes),
     [slate, mule?.partySizes],
   );
-  const potentialIncome = formatMeso(potentialIncomeRaw, true);
-  const fullPotentialIncome = formatMeso(potentialIncomeRaw, false);
-  const showPotentialIncomeTooltip = potentialIncomeRaw > 0;
+  const weeklyIncomeRaw = metrics?.displayedWeeklyMeso.meso ?? potentialIncomeRaw;
+  const weeklyIncome = formatMeso(weeklyIncomeRaw, true);
+  const fullWeeklyIncome = formatMeso(weeklyIncomeRaw, false);
+  const showWeeklyIncomeTooltip = weeklyIncomeRaw > 0;
+  const weeklyIncomeColor = metrics?.displayedWeeklyMeso.muted
+    ? 'var(--dim, var(--surface-dim))'
+    : 'var(--accent-numeric)';
+  const droppedKeys = metrics?.droppedKeys ?? EMPTY_DROPPED_KEYS;
   const monthlyIncomeRaw = useMemo(
     () => slate.monthlyCrystalValue(mule?.partySizes),
     [slate, mule?.partySizes],
@@ -190,34 +201,48 @@ export function MuleDetailDrawer({
                     </span>
                   </div>
                   <div className="mt-3 flex flex-col items-center gap-2.5 min-[425px]:items-start">
-                    {showPotentialIncomeTooltip ? (
-                      <MetricTooltip
-                        ariaLabel={`Potential weekly meso ${fullPotentialIncome}`}
-                        tooltip={fullPotentialIncome}
-                        className={HEADER_INCOME_CHIP_CLASS}
-                        style={HEADER_INCOME_CHIP_STYLE}
-                      >
-                        <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
-                          Weekly
-                        </span>
-                        <span className="font-mono-nums text-base text-(--accent-numeric)">
-                          {potentialIncome}
-                        </span>
-                      </MetricTooltip>
-                    ) : (
-                      <div
-                        aria-label={`Potential weekly meso ${fullPotentialIncome}`}
-                        className={HEADER_INCOME_CHIP_CLASS}
-                        style={HEADER_INCOME_CHIP_STYLE}
-                      >
-                        <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
-                          Weekly
-                        </span>
-                        <span className="font-mono-nums text-base text-(--accent-numeric)">
-                          {potentialIncome}
-                        </span>
-                      </div>
-                    )}
+                    <div
+                      data-testid="drawer-weekly-income-row"
+                      className="inline-flex items-center gap-1.5"
+                    >
+                      {showWeeklyIncomeTooltip ? (
+                        <MetricTooltip
+                          ariaLabel={`Weekly meso ${fullWeeklyIncome}`}
+                          tooltip={fullWeeklyIncome}
+                          className={HEADER_INCOME_CHIP_CLASS}
+                          style={HEADER_INCOME_CHIP_STYLE}
+                        >
+                          <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
+                            Weekly
+                          </span>
+                          <span
+                            data-testid="drawer-weekly-income-value"
+                            className="font-mono-nums text-base"
+                            style={{ color: weeklyIncomeColor }}
+                          >
+                            {weeklyIncome}
+                          </span>
+                        </MetricTooltip>
+                      ) : (
+                        <div
+                          aria-label={`Weekly meso ${fullWeeklyIncome}`}
+                          className={HEADER_INCOME_CHIP_CLASS}
+                          style={HEADER_INCOME_CHIP_STYLE}
+                        >
+                          <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
+                            Weekly
+                          </span>
+                          <span
+                            data-testid="drawer-weekly-income-value"
+                            className="font-mono-nums text-base"
+                            style={{ color: weeklyIncomeColor }}
+                          >
+                            {weeklyIncome}
+                          </span>
+                        </div>
+                      )}
+                      <CapDropTooltipTrigger droppedKeys={droppedKeys} />
+                    </div>
                     {showMonthlyIncomeTooltip ? (
                       <MetricTooltip
                         ariaLabel={`Potential Black Mage monthly meso ${fullMonthlyIncome}`}
