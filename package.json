@@ -23,10 +23,7 @@
     "deploy:staging": "bash deploy.sh staging",
     "release": "tsx scripts/release.ts",
     "worktree:prune": "rm -rf .sandcastle/logs/ && rm -rf .sandcastle/worktrees/ && git worktree prune && git for-each-ref --format='%(refname:short)' refs/heads | grep -vE '^(main|master)$' | xargs -r git branch -D",
-    "prepare": "husky",
-    "sandcastle": "pnpm worktree:prune && pnpm exec tsx .sandcastle/main.ts",
-    "sandcastle:build-image": "pnpm exec sandcastle build-image",
-    "sandcastle:remove-image": "pnpm exec sandcastle remove-image"
+    "prepare": "husky"
   },
   "dependencies": {
     "@ai-hero/sandcastle": "^0.4.5",
