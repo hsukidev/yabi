@@ -93,6 +93,7 @@ export function Dashboard() {
     }
     return m;
   }, [mulesInWorld, capPerMule, worldIncome.totalContributedMeso]);
+  const selectedMuleMetrics = selectedMule ? (metricsByMule.get(selectedMule.id) ?? null) : null;
 
   // Split sensors so mouse stays instant (distance: 0) while touch gates
   // behind a 250ms long-press — a unified PointerSensor would delay desktop
@@ -299,6 +300,7 @@ export function Dashboard() {
 
       <MuleDetailDrawer
         mule={selectedMule}
+        metrics={selectedMuleMetrics}
         open={selectedMule !== null}
         onClose={handleCloseDrawer}
         onUpdate={updateMule}
