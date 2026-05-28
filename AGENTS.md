@@ -29,15 +29,17 @@ one.
 
 ## Roster income semantics are Potential vs Contributed vs Displayed
 
-This surprised us during #272: older docs said Character Card/List View showed
-**Potential Meso**, but List View had already been wired to post-**World Cap
-Cut** **Contributed Meso** for active mules.
+This surprised us during #272/#273: older docs said Character Card/List View
+showed **Potential Meso**, but both roster display modes now use
+post-**World Cap Cut** **Displayed Weekly Meso** for active mules.
 
 Use the precise term for the surface:
 
-- **Character Card** income is **Potential Meso** (stable planning number).
-- **List View** income is **Displayed Weekly Meso**: **Contributed Meso** for
-  Active Mules, muted **Potential Meso** for Inactive Mules.
+- **Character Card** and **List View** weekly income are **Displayed Weekly
+  Meso**: **Contributed Meso** for Active Mules, muted **Potential Meso** for
+  Inactive Mules.
+- **Expected Black Mage Income** is separate monthly income and is not folded
+  into **Displayed Weekly Meso**.
 - Share, **Total Weekly Income**, and **PieChart Card** slices stay based on
   **Contributed Meso**, never the inactive planning value.
 

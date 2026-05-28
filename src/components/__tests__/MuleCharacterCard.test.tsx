@@ -13,8 +13,8 @@ import { MuleCharacterCard } from '../MuleCharacterCard';
 import type { Mule } from '../../types';
 import { bosses } from '../../data/bosses';
 import type { SlateKey } from '../../data/muleBossSlate';
-import { rosterRowMetrics } from '../rosterRowMetrics';
-import type { ContributingMuleMetrics } from '../RosterItem/contributingMule';
+import { WorldIncome } from '../../modules/worldIncome';
+import { rosterRowMetrics, type RosterRowMetrics } from '../rosterRowMetrics';
 
 const LUCID = bosses.find((b) => b.family === 'lucid')!.id;
 const HILLA = bosses.find((b) => b.family === 'hilla')!.id;
@@ -22,6 +22,44 @@ const BLACK_MAGE = bosses.find((b) => b.family === 'black-mage')!.id;
 const HARD_LUCID = `${LUCID}:hard:weekly`;
 const NORMAL_HILLA = `${HILLA}:normal:daily`;
 const HARD_BLACK_MAGE_MONTHLY = `${BLACK_MAGE}:hard:monthly`;
+
+function topWeeklyKeys(n: number): { slateKey: SlateKey; value: number }[] {
+  const all: { slateKey: SlateKey; value: number }[] = [];
+  for (const boss of bosses) {
+    const weeklies = boss.difficulty.filter((difficulty) => difficulty.cadence === 'weekly');
+    if (weeklies.length === 0) continue;
+    const top = weeklies.reduce((best, current) =>
+      current.crystalValue.Heroic > best.crystalValue.Heroic ? current : best,
+    );
+    all.push({ slateKey: `${boss.id}:${top.tier}:weekly`, value: top.crystalValue.Heroic });
+  }
+  all.sort((a, b) => b.value - a.value);
+  if (all.length < n) throw new Error(`Only found ${all.length} weekly keys`);
+  return all.slice(0, n);
+}
+
+function makeMule(id: string, overrides: Partial<Mule> = {}): Mule {
+  return {
+    id,
+    name: id,
+    level: 200,
+    muleClass: 'Hero',
+    selectedBosses: [],
+    active: true,
+    ...overrides,
+  };
+}
+
+function metricsFor(mule: Mule, roster: Mule[] = [mule]): RosterRowMetrics {
+  const worldIncome = WorldIncome.of(roster);
+  return rosterRowMetrics(mule, worldIncome.perMule.get(mule.id), worldIncome.totalContributedMeso);
+}
+
+function cardIncomeValue(container: HTMLElement): HTMLElement {
+  const value = container.querySelector('[data-card-income-value]') as HTMLElement | null;
+  if (!value) throw new Error('card income value not found');
+  return value;
+}
 
 const baseMule: Mule = {
   id: 'test-mule-1',
@@ -40,12 +78,10 @@ interface RenderCardOptions {
   droppedKeys?: ReadonlyMap<SlateKey, number>;
   density?: 'comfy' | 'compact';
   /**
-   * Per-mule cadence counts. Defaults to counts derived from
-   * `mule.selectedBosses` (via the canonical `rosterRowMetrics`) so existing
-   * tests that assert accent color on a weekly-boss-selected mule continue
-   * to pass unchanged.
+   * Full per-mule roster metrics. Defaults to the same WorldIncome →
+   * rosterRowMetrics path Dashboard uses.
    */
-  metrics?: ContributingMuleMetrics;
+  metrics?: RosterRowMetrics;
 }
 
 function renderCard(overrides: Partial<Mule> = {}, options?: RenderCardOptions) {
@@ -54,7 +90,7 @@ function renderCard(overrides: Partial<Mule> = {}, options?: RenderCardOptions) 
   const onToggleSelect = options?.onToggleSelect ?? vi.fn();
   const mule = { ...baseMule, ...overrides };
   localStorage.setItem('density', options?.density ?? 'comfy');
-  const metrics = options?.metrics ?? rosterRowMetrics(mule, undefined, 0);
+  const metrics = options?.metrics ?? metricsFor(mule);
   return {
     ...render(
       <DndContext>
@@ -168,14 +204,59 @@ describe('MuleCharacterCard', () => {
     expect(screen.queryByText('100.8M')).toBeNull();
   });
 
-  it('renders Card weekly income as potential meso', () => {
+  it('renders under-cap active weekly income at its full contribution', () => {
     renderCard({ selectedBosses: [HARD_LUCID] });
     expect(screen.getByText('504M')).toBeTruthy();
+  });
+
+  it('renders post-cap Contributed Meso for an active partially dropped mule', () => {
+    const top14 = topWeeklyKeys(14).map((key) => key.slateKey);
+    const roster: Mule[] = [
+      ...Array.from({ length: 12 }, (_, i) => makeMule(`m${i}`, { selectedBosses: top14 })),
+      makeMule('m12', { selectedBosses: top14.slice(0, 10) }),
+      makeMule('hilla', { selectedBosses: [NORMAL_HILLA] }),
+    ];
+    const hilla = roster[roster.length - 1];
+
+    renderCard(hilla, { metrics: metricsFor(hilla, roster) });
+
+    expect(screen.getByText('8M')).toBeTruthy();
+    expect(screen.queryByText('28M')).toBeNull();
+  });
+
+  it('renders a fully dropped active mule as muted 0 and keeps the cap-drop info icon', () => {
+    const top13 = topWeeklyKeys(13).map((key) => key.slateKey);
+    const lowKey = topWeeklyKeys(14)[13].slateKey;
+    const roster: Mule[] = [];
+    for (let i = 0; i < 13; i++) roster.push(makeMule(`m${i}`, { selectedBosses: top13 }));
+    roster.push(makeMule('m13', { selectedBosses: top13.slice(0, 11) }));
+    roster.push(makeMule('fullyDropped', { selectedBosses: [lowKey] }));
+    const fullyDropped = roster[roster.length - 1];
+    const metrics = metricsFor(fullyDropped, roster);
+
+    const { container } = renderCard(fullyDropped, {
+      metrics,
+      droppedKeys: metrics.droppedKeys,
+    });
+    const income = cardIncomeValue(container);
+
+    expect(income.textContent).toBe('0');
+    expect(income.style.color).toContain('dim');
+    expect(screen.getByRole('button', { name: /show bosses dropped to cap/i })).toBeTruthy();
   });
 
   it('renders BM Income from selected Black Mage monthly value', () => {
     renderCard({ selectedBosses: [HARD_BLACK_MAGE_MONTHLY] });
     expect(screen.getByText('BM INCOME')).toBeTruthy();
+    expect(screen.getByText('4.5B')).toBeTruthy();
+  });
+
+  it('keeps BM Income separate from Displayed Weekly Meso', () => {
+    const { container } = renderCard({ selectedBosses: [HARD_BLACK_MAGE_MONTHLY] });
+    const income = cardIncomeValue(container);
+
+    expect(income.textContent).toBe('0');
+    expect(income.style.color).toContain('dim');
     expect(screen.getByText('4.5B')).toBeTruthy();
   });
 
@@ -226,13 +307,13 @@ describe('MuleCharacterCard', () => {
     expect(cardWrapper.style.opacity).toBe('0.55');
   });
 
-  it('renders inactive mule income line in the dim color even when bosses are selected', () => {
-    renderCard({ active: false, selectedBosses: [HARD_LUCID] });
-    const incomeSpans = screen.getAllByText('504M');
-    for (const span of incomeSpans) {
-      expect(span.style.color).not.toContain('accent');
-      expect(span.style.color).toContain('dim');
-    }
+  it('renders inactive selected bosses as muted Potential Meso', () => {
+    const { container } = renderCard({ active: false, selectedBosses: [HARD_LUCID] });
+    const income = cardIncomeValue(container);
+
+    expect(income.textContent).toBe('504M');
+    expect(income.style.color).not.toContain('accent');
+    expect(income.style.color).toContain('dim');
   });
 
   it('renders active mule income line in the accent color when bosses are selected', () => {
@@ -246,13 +327,10 @@ describe('MuleCharacterCard', () => {
   it('renders active monthly-only mule income line in dim (Card View bug fix — issue #265)', () => {
     // Black Mage Hard is monthly cadence and earns 0 meso this week per
     // **Monthly Income Regression**. Pre-fix Card painted accent because
-    // its predicate was `selectedBosses.length > 0`; now it shares the
-    // canonical `isContributingMule(mule, metrics)` predicate with Row.
+    // its predicate was `selectedBosses.length > 0`; now it follows the
+    // shared Displayed Weekly Meso muted flag.
     const HARD_BLACK_MAGE_MONTHLY = `${bosses.find((b) => b.family === 'black-mage')!.id}:hard:monthly`;
-    renderCard(
-      { active: true, selectedBosses: [HARD_BLACK_MAGE_MONTHLY] },
-      { metrics: { weeklyCount: 0, dailyCount: 0 } },
-    );
+    renderCard({ active: true, selectedBosses: [HARD_BLACK_MAGE_MONTHLY] });
     const incomeSpans = screen.getAllByText('0');
     const colored = incomeSpans.find((s) => s.style.color.includes('dim'));
     expect(colored).toBeTruthy();
@@ -485,7 +563,7 @@ describe('MuleCharacterCard', () => {
               bulkMode={false}
               selected={false}
               onToggleSelect={vi.fn()}
-              metrics={{ weeklyCount: 0, dailyCount: 0 }}
+              metrics={metricsFor(baseMule)}
             />
           </SortableContext>
         </DndContext>,

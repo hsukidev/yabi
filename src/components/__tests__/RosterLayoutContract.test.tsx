@@ -19,6 +19,7 @@ import { render, renderApp } from '../../test/test-utils';
 import { MuleCharacterCard } from '../MuleCharacterCard';
 import { AddCard } from '../AddCard';
 import type { Mule } from '../../types';
+import type { RosterRowMetrics } from '../rosterRowMetrics';
 
 const STORAGE_KEY = 'maplestory-mule-tracker';
 
@@ -37,6 +38,16 @@ beforeEach(() => {
 });
 
 const indexCssRaw = readFileSync(resolve(process.cwd(), 'src/index.css'), 'utf-8');
+
+const emptyMetrics: RosterRowMetrics = {
+  weeklyCount: 0,
+  dailyCount: 0,
+  monthlyCount: 0,
+  postCapMeso: 0,
+  displayedWeeklyMeso: { meso: 0, source: 'contributed', muted: true },
+  sharePct: 0,
+  droppedKeys: new Map(),
+};
 
 let muleCounter = 0;
 function makeMule(overrides: Partial<Mule> = {}): Mule {
@@ -61,7 +72,7 @@ function renderMuleCard(mule: Mule = makeMule()) {
           mule={mule}
           onClick={() => {}}
           onDelete={() => {}}
-          metrics={{ weeklyCount: 0, dailyCount: 0 }}
+          metrics={emptyMetrics}
         />
       </SortableContext>
     </DndContext>,
