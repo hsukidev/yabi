@@ -65,7 +65,7 @@ A **Mule** whose **Active Flag** is `false` — user-declared parked, excluded f
 _Avoid_: Parked mule, disabled mule
 
 **Contributing Mule**:
-An **Active Mule** whose **Weekly Count** + **Daily Count** is at least one — i.e. earns non-zero **Potential Meso** this week. The predicate behind the income-line accent tint on **Character Card** and **List View** rows. Distinct from **Active Mule** (intent flag, may earn zero via **Monthly Income Regression**) and from **Contributed Meso** (post-cut output). A monthly-only **Active Mule** is **not** a **Contributing Mule**.
+An **Active Mule** whose **Weekly Count** + **Daily Count** is at least one — i.e. earns non-zero **Potential Meso** this week. The predicate behind the **Character Card** income-line accent tint. **List View** rows use **Displayed Weekly Meso** tone instead, so a fully dropped **Active Mule** can render muted `0`. Distinct from **Active Mule** (intent flag, may earn zero via **Monthly Income Regression**) and from **Contributed Meso** (post-cut output). A monthly-only **Active Mule** is **not** a **Contributing Mule**.
 _Avoid_: Earning mule (overloaded with Active Flag wording)
 
 **Mule Notes**:
@@ -312,6 +312,10 @@ _Avoid_: Raw potential, max meso
 The per-**Mule** post-**World Cap Cut** meso that lands in **Total Weekly Income**.
 _Avoid_: Capped meso, net meso
 
+**Displayed Weekly Meso**:
+The per-**Mule** weekly number shown by roster readout surfaces. For an **Active Mule**, this is its **Contributed Meso** after the **World Cap Cut**. For an **Inactive Mule**, this is muted **Potential Meso** as a planning hint and still contributes zero to **Total Weekly Income** and share.
+_Avoid_: Row income, shown income
+
 **Dropped Meso**:
 `Potential Meso − Contributed Meso` — a **Mule's** loss to the **World Cap Cut**; surfaced as the **Cap Drop Badge** when non-zero.
 _Avoid_: Lost meso
@@ -341,7 +345,7 @@ The **Roster Display Mode** that renders each **Mule** as a **Character Card** i
 _Avoid_: Grid view, card grid
 
 **List View**:
-The **Roster Display Mode** that renders each **Mule** as one horizontal row — **Drag Handle**, avatar, identity (name, class, **Lv.X**, **Weekly Count**, **Daily Count** stacked under the name), **Potential Meso**, share. Subject to **Density**. Reorder is engaged only from the **Drag Handle**, never from the row body.
+The **Roster Display Mode** that renders each **Mule** as one horizontal row — **Drag Handle**, avatar, identity (name, class, **Lv.X**, **Weekly Count**, **Daily Count** stacked under the name), **Displayed Weekly Meso**, share. Subject to **Density**. Reorder is engaged only from the **Drag Handle**, never from the row body.
 _Avoid_: List, table view, row view
 
 **Density**:
@@ -435,7 +439,8 @@ _Avoid_: Character fetch, name search
 - A **Mule's** **Potential Income** equals its **Total Crystal Value** under its **World Group** — `Income.of` resolves each **Mule** individually, so a **Roster** mixing **Heroic** and **Interactive** **Mules** prices each one against its own **Crystal Value** component.
 - A **Mule** is an **Active Mule** iff its **Active Flag** is `true` — independent of whether it has any bosses selected.
 - **Total Weekly Income** = sum of **Active Mules'** **Contributed Meso** in the **Selected World** — diverges from the sum of **Potential Meso** whenever the **World Cap Cut** drops at least one slot.
-- An **Inactive Mule** contributes zero to **Total Weekly Income** regardless of selection; its **Character Card** still shows its **Potential Meso** in muted styling.
+- An **Inactive Mule** contributes zero to **Total Weekly Income** regardless of selection; its **Character Card** and **List View** row still show its **Potential Meso** in muted styling.
+- **Displayed Weekly Meso** is the roster readout bridge: **Active Mules** show **Contributed Meso**, including muted `0` when fully dropped; **Inactive Mules** show muted **Potential Meso** for planning without affecting **Total Weekly Income** or share.
 - **World Weekly Crystal Cap** is per-**World** — every **Selected World** has its own independent **World Slot Pool** and its own 180-slot ceiling. A player with **Mules** across multiple **Worlds** has no cross-world budget.
 - **Active Preset** is derived per render in this priority order:
   1. If the **Boss Slate** satisfies **User Preset Match** against any saved **User Preset**, the **Custom Preset** pill is **Active** and that **User Preset** is the highlighted row in the **User Preset Popover**.
@@ -446,7 +451,7 @@ _Avoid_: Character fetch, name search
 - **User Presets** are global — one library shared across the **Roster**, independent of **Selected World** or which **Mule** is open in the **Drawer**.
 - The **Roster**, **KPI Card**, **PieChart Card**, **Total Weekly Income**, and the **Crystal Tally** counts all read **World Lens**-filtered **Mules** only.
 - The **Reset Anchor** is always Thursday 00:00 UTC; the **Reset Countdown** is a duration, not a wall-clock target — same remaining time regardless of timezone.
-- The **PieChart Card's** slices size on **Contributed Meso**, not **Potential Meso** — a fully-dropped **Mule** renders no slice; its **Character Card** still shows full **Potential Meso** plus a **Cap Drop Badge**.
+- The **PieChart Card's** slices size on **Contributed Meso**, not **Potential Meso** — a fully-dropped **Mule** renders no slice; its **Character Card** still shows full **Potential Meso** plus a **Cap Drop Badge**, while **List View** shows muted `0` with the dropped-boss info icon.
 - A **Character Card's** headline reads **Potential Meso** (uncapped, stable for planning); the **KPI Card's** bignum reads **Total Weekly Income** (post-cut). The two diverge whenever the **World Cap Cut** drops at least one slot.
 
 ## Example dialogue
@@ -476,7 +481,7 @@ _Avoid_: Character fetch, name search
 > **Domain expert:** "Short-circuit no-op. **Conform** detects the clicked pill is **Active** and returns before any state write. **Preset Pills** are apply-only — there's no 'click to deselect.' The exits from an **Active Preset** are clicking a different **Canonical Preset**, hitting **Matrix Reset**, or manually deselecting weekly cells until the slate drifts away."
 
 > **Dev:** "If I park a **Mule** with a full **Boss Matrix** via the **Active Toggle**, does **Total Weekly Income** drop right away?"
-> **Domain expert:** "Yes — **Active Flag** is the sole gate. Flip it off and the **Mule** falls out of the **World Slot Pool** before the **World Cap Cut**, which can free **Crystal Slots** for previously-dropped slots elsewhere on the **Roster**. The **Character Card** dims but stays clickable, and its income line still shows **Potential Meso** in muted styling so the user can see what they're parking."
+> **Domain expert:** "Yes — **Active Flag** is the sole gate. Flip it off and the **Mule** falls out of the **World Slot Pool** before the **World Cap Cut**, which can free **Crystal Slots** for previously-dropped slots elsewhere on the **Roster**. The **Character Card** dims but stays clickable, and roster readouts still show **Potential Meso** in muted styling so the user can see what they're parking."
 
 > **Dev:** "Black Mage Hard and Extreme are both **Monthly Cadence** — if both get picked, do I get both?"
 > **Domain expert:** "No — **Monthly Radio Mutex** via the **Selection Invariant**. Both share `(black-mage-id, 'monthly')`, so picking Extreme while Hard is on **Tier Swaps** to Extreme. **Monthly Count** stays at `1`. The weekly-mesos pill drops by Hard's **Crystal Value** because **Total Crystal Value** weights monthly `× 0` — that's the **Monthly Income Regression**, accepted-by-design."

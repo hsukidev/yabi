@@ -27,6 +27,20 @@ Use `pnpm exec vitest run --exclude '.Codex/**' ...` for focused runs from the
 main checkout, or run tests from the agent worktree itself when you are inside
 one.
 
+## Roster income semantics are Potential vs Contributed vs Displayed
+
+This surprised us during #272: older docs said Character Card/List View showed
+**Potential Meso**, but List View had already been wired to post-**World Cap
+Cut** **Contributed Meso** for active mules.
+
+Use the precise term for the surface:
+
+- **Character Card** income is **Potential Meso** (stable planning number).
+- **List View** income is **Displayed Weekly Meso**: **Contributed Meso** for
+  Active Mules, muted **Potential Meso** for Inactive Mules.
+- Share, **Total Weekly Income**, and **PieChart Card** slices stay based on
+  **Contributed Meso**, never the inactive planning value.
+
 ## MuleDetailDrawer — keystroke perf invariants
 
 The drawer renders `BossMatrix` (potentially hundreds of cells).

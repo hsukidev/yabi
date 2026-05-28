@@ -26,6 +26,7 @@ const baseMetrics: RosterRowMetrics = {
   dailyCount: 3,
   monthlyCount: 1,
   postCapMeso: 1_500_000_000,
+  displayedWeeklyMeso: { meso: 1_500_000_000, source: 'contributed', muted: false },
   sharePct: 0.095,
   droppedKeys: new Map(),
 };
@@ -51,7 +52,6 @@ function renderRow(opts: RenderRowOpts = {}) {
           <MuleListRow
             mule={mule}
             metrics={metrics}
-            postCapIncomeMeso={metrics.postCapMeso}
             onClick={onClick}
             bulkMode={opts.bulkMode ?? false}
             selected={opts.selected ?? false}
@@ -117,7 +117,7 @@ describe('MuleListRow — comfy spec', () => {
     expect(row.textContent).not.toMatch(/7\s*\/\s*7/);
   });
 
-  it('renders the post-cap income figure (abbreviated by default)', () => {
+  it('renders the Displayed Weekly Meso figure (abbreviated by default)', () => {
     renderRow();
     expect(screen.getByText('1.5B')).toBeTruthy();
   });

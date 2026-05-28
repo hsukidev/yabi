@@ -37,7 +37,6 @@ export function RosterListView({
             key={mule.id}
             mule={mule}
             metrics={metrics}
-            postCapIncomeMeso={metrics.postCapMeso}
             onClick={onCardClick}
             bulkMode={bulkMode}
             selected={toDelete.has(mule.id)}

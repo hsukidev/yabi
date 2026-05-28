@@ -11,7 +11,6 @@ import { MetricTooltip } from './MetricTooltip';
 import { NotesTooltipTrigger } from './RosterItem/NotesTooltipTrigger';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import { SelectionIndicator } from './RosterItem/SelectionIndicator';
-import { isContributingMule } from './RosterItem/contributingMule';
 import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
 import monthlyCrystalPng from '../assets/monthly-crystal.png';
@@ -19,7 +18,6 @@ import monthlyCrystalPng from '../assets/monthly-crystal.png';
 interface MuleListRowProps {
   mule: Mule;
   metrics: RosterRowMetrics;
-  postCapIncomeMeso: number;
   onClick: (id: string) => void;
   bulkMode?: boolean;
   selected?: boolean;
@@ -70,7 +68,6 @@ const LEVEL_PILL_STYLE: React.CSSProperties = {
 export const MuleListRow = memo(function MuleListRow({
   mule,
   metrics,
-  postCapIncomeMeso,
   onClick,
   bulkMode = false,
   selected = false,
@@ -93,7 +90,10 @@ export const MuleListRow = memo(function MuleListRow({
     id: mule.id,
     disabled: bulkMode,
   });
-  const { abbreviated: displayedIncome, full: fullIncome } = useFormattedIncome(postCapIncomeMeso);
+  const displayedWeeklyMeso = metrics.displayedWeeklyMeso;
+  const { abbreviated: displayedIncome, full: fullIncome } = useFormattedIncome(
+    displayedWeeklyMeso.meso,
+  );
 
   function handleActivate() {
     if (bulkMode) onToggleSelect?.(mule.id);
@@ -146,9 +146,9 @@ export const MuleListRow = memo(function MuleListRow({
     userSelect: 'none',
   };
 
-  const incomeColor = isContributingMule(mule, metrics)
-    ? 'var(--accent-raw, var(--accent))'
-    : 'var(--dim, var(--surface-dim))';
+  const incomeColor = displayedWeeklyMeso.muted
+    ? 'var(--dim, var(--surface-dim))'
+    : 'var(--accent-raw, var(--accent))';
 
   return (
     <div
@@ -291,7 +291,7 @@ export const MuleListRow = memo(function MuleListRow({
 
       <div style={{ textAlign: 'right', minWidth: 0 }}>
         <div className="flex flex-row items-center justify-end gap-1.5" style={{ minWidth: 0 }}>
-          {postCapIncomeMeso === 0 ? (
+          {displayedWeeklyMeso.meso === 0 ? (
             <span
               data-row-income-value
               style={{
@@ -306,7 +306,7 @@ export const MuleListRow = memo(function MuleListRow({
               {displayedIncome}
             </span>
           ) : (
-            <MetricTooltip ariaLabel={`Potential meso ${fullIncome}`} tooltip={fullIncome}>
+            <MetricTooltip ariaLabel={`Weekly meso ${fullIncome}`} tooltip={fullIncome}>
               <span
                 data-row-income-value
                 style={{

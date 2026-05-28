@@ -38,6 +38,7 @@ const baseMetrics: RosterRowMetrics = {
   dailyCount: 0,
   monthlyCount: 0,
   postCapMeso: 0,
+  displayedWeeklyMeso: { meso: 0, source: 'contributed', muted: true },
   sharePct: 0,
   droppedKeys: new Map(),
 };
@@ -150,7 +151,6 @@ describe('MuleListRow inline styles reference the density-scoped row vars', () =
           <MuleListRow
             mule={baseMule}
             metrics={baseMetrics}
-            postCapIncomeMeso={0}
             onClick={() => {}}
           />
         </SortableContext>
@@ -168,7 +168,6 @@ describe('MuleListRow inline styles reference the density-scoped row vars', () =
           <MuleListRow
             mule={baseMule}
             metrics={baseMetrics}
-            postCapIncomeMeso={0}
             onClick={() => {}}
           />
         </SortableContext>
@@ -185,7 +184,6 @@ describe('MuleListRow inline styles reference the density-scoped row vars', () =
           <MuleListRow
             mule={baseMule}
             metrics={baseMetrics}
-            postCapIncomeMeso={0}
             onClick={() => {}}
           />
         </SortableContext>
@@ -202,7 +200,6 @@ describe('MuleListRow inline styles reference the density-scoped row vars', () =
           <MuleListRow
             mule={baseMule}
             metrics={baseMetrics}
-            postCapIncomeMeso={0}
             onClick={() => {}}
           />
         </SortableContext>

@@ -5,6 +5,15 @@ import { resolveWorldGroup } from '../data/worlds';
 
 const EMPTY_DROPPED_KEYS: ReadonlyMap<SlateKey, number> = new Map<SlateKey, number>();
 
+export interface DisplayedWeeklyMeso {
+  /** Meso amount rendered by weekly readout surfaces. */
+  meso: number;
+  /** Whether the readout came from post-cut contribution or inactive planning potential. */
+  source: 'contributed' | 'potential';
+  /** Whether the readout should render in the muted/dim treatment. */
+  muted: boolean;
+}
+
 export interface RosterRowMetrics {
   /** Count of `:weekly` slate keys on the mule. Renders as `N/14`. */
   weeklyCount: number;
@@ -14,10 +23,40 @@ export interface RosterRowMetrics {
   monthlyCount: number;
   /** Post-cap meso the mule contributed to the world total. */
   postCapMeso: number;
+  /** Shared per-mule weekly readout used by roster display surfaces. */
+  displayedWeeklyMeso: DisplayedWeeklyMeso;
   /** `postCapMeso / worldTotalContributedMeso`, zero-safe. Renders as `9.5% SHARE`. */
   sharePct: number;
   /** Per-slate-key drop counts from the World Cap Cut. Empty when nothing was cut. */
   droppedKeys: ReadonlyMap<SlateKey, number>;
+}
+
+/**
+ * Derive the roster-facing weekly meso readout for one **Mule**.
+ *
+ * Active mules show post-**World Cap Cut** **Contributed Meso**. Inactive
+ * mules show muted **Potential Meso** so the row can act as a planning hint
+ * without affecting share or **Total Weekly Income**.
+ */
+export function deriveDisplayedWeeklyMeso(
+  mule: Mule,
+  contribution: MuleContribution | undefined,
+): DisplayedWeeklyMeso {
+  if (mule.active === false) {
+    const slate = MuleBossSlate.from(mule.selectedBosses, resolveWorldGroup(mule.worldId));
+    return {
+      meso: slate.totalCrystalValue(mule.partySizes),
+      source: 'potential',
+      muted: true,
+    };
+  }
+
+  const meso = contribution?.contributedMeso ?? 0;
+  return {
+    meso,
+    source: 'contributed',
+    muted: meso === 0,
+  };
 }
 
 /**
@@ -45,6 +84,7 @@ export function rosterRowMetrics(
     dailyCount: slate.dailyCount,
     monthlyCount: slate.monthlyCount,
     postCapMeso,
+    displayedWeeklyMeso: deriveDisplayedWeeklyMeso(mule, contribution),
     sharePct,
     droppedKeys: contribution?.droppedKeys ?? EMPTY_DROPPED_KEYS,
   };
