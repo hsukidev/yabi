@@ -278,6 +278,7 @@ describe('MuleBossSlate.view', () => {
       'kalos-the-guardian',
       'chosen-seren',
       'baldrix',
+      'malefic-star',
       'limbo',
       'lotus',
       'verus-hilla',

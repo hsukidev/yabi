@@ -235,6 +235,7 @@ const DISPLAY_ORDER: readonly string[] = [
   'kalos-the-guardian',
   'chosen-seren',
   'baldrix',
+  'malefic-star',
   'limbo',
   'lotus',
   'verus-hilla',

@@ -155,6 +155,23 @@ export const bosses: Boss[] = [
     ],
   },
   {
+    id: '035d4f7e-66d6-4ef1-bf2f-81909441b410',
+    name: 'Malefic Star',
+    family: 'malefic-star',
+    difficulty: [
+      {
+        tier: 'normal',
+        crystalValue: { Heroic: 1452000000, Interactive: 290400000 },
+        cadence: 'weekly',
+      },
+      {
+        tier: 'hard',
+        crystalValue: { Heroic: 3990000000, Interactive: 798000000 },
+        cadence: 'weekly',
+      },
+    ],
+  },
+  {
     id: 'd8c9fbda-6887-49e2-bd32-63e08adc62b6',
     name: 'Limbo',
     family: 'limbo',
