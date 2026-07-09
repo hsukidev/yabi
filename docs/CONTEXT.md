@@ -35,7 +35,7 @@ The **Crystal Value** component a **Mule** on an **Interactive** world receives 
 _Avoid_: Interactive price
 
 **Crystal Value Ratio**:
-The informal `Interactive ÷ Heroic` relationship across the boss matrix — ~0.2 for 75 of 76 `(boss, tier)` pairs; **Extreme Kaling** is the only outlier (a 250 000-meso deviation, accepted as a real per-boss difference, not a typo).
+The informal `Interactive ÷ Heroic` relationship across the boss matrix — ~0.2 for 77 of 78 `(boss, tier)` pairs; **Extreme Kaling** is the only outlier (a 250 000-meso deviation, accepted as a real per-boss difference, not a typo).
 _Avoid_: 5x rule, Interactive multiplier
 
 **World Pricing**:

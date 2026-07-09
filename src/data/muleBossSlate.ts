@@ -230,6 +230,7 @@ function toggleBoss(keys: string[], bossId: string, tier: BossTier): string[] {
  */
 const DISPLAY_ORDER: readonly string[] = [
   'black-mage',
+  'jupiter',
   'kaling',
   'first-adversary',
   'kalos-the-guardian',

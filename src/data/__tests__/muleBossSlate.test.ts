@@ -225,17 +225,25 @@ describe('MuleBossSlate.canToggle', () => {
   });
 
   it('returns true for a weekly tier-swap at the cap (count unchanged)', () => {
-    // Build a 14-weekly slate that includes Normal Lucid; swapping to Hard
-    // Lucid stays in the same (bossId, weekly) bucket → count unchanged.
+    // Build a 14-weekly slate, then pick a family already in it that offers
+    // both a Normal and a Hard weekly tier. Swapping that family Normal → Hard
+    // stays in the same (bossId, weekly) bucket → count unchanged. Derived
+    // from the slate rather than a hard-coded family so the test doesn't
+    // depend on any one boss's ordinal position in the dataset.
     const fourteen = pickDistinctWeeklyKeys(14);
-    // Replace Lucid's pick with Normal Lucid so the swap target (Hard) is a
-    // higher tier on the same bucket.
-    const lucidIdx = fourteen.findIndex((k) => k.startsWith(`${LUCID}:`));
-    expect(lucidIdx).toBeGreaterThanOrEqual(0);
-    fourteen[lucidIdx] = key(LUCID, 'normal');
+    const swapIdx = fourteen.findIndex((k) => {
+      const boss = getBossById(k.split(':')[0])!;
+      const weeklyTiers = new Set(
+        boss.difficulty.filter((d) => d.cadence === 'weekly').map((d) => d.tier),
+      );
+      return weeklyTiers.has('normal') && weeklyTiers.has('hard');
+    });
+    expect(swapIdx).toBeGreaterThanOrEqual(0);
+    const swapId = fourteen[swapIdx].split(':')[0];
+    fourteen[swapIdx] = key(swapId, 'normal');
     const slate = MuleBossSlate.from(fourteen);
     expect(slate.weeklyCount).toBe(14);
-    expect(slate.canToggle(key(LUCID, 'hard'))).toBe(true);
+    expect(slate.canToggle(key(swapId, 'hard'))).toBe(true);
   });
 
   it('returns true for a weekly remove at the cap (count decreases)', () => {
@@ -273,6 +281,7 @@ describe('MuleBossSlate.view', () => {
     const families = view.map((f) => f.family);
     const expected = [
       'black-mage',
+      'jupiter',
       'kaling',
       'first-adversary',
       'kalos-the-guardian',

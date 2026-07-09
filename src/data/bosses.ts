@@ -35,6 +35,23 @@ export const bosses: Boss[] = [
     ],
   },
   {
+    id: '39410585-b9ad-46e3-b332-e163d8d323d7',
+    name: 'Jupiter',
+    family: 'jupiter',
+    difficulty: [
+      {
+        tier: 'normal',
+        crystalValue: { Heroic: 8500000000, Interactive: 1700000000 },
+        cadence: 'weekly',
+      },
+      {
+        tier: 'hard',
+        crystalValue: { Heroic: 25500000000, Interactive: 5100000000 },
+        cadence: 'weekly',
+      },
+    ],
+  },
+  {
     id: '0fec4e62-1f8b-45e6-afb7-e137ca2056b3',
     name: 'Kaling',
     family: 'kaling',

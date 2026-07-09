@@ -151,10 +151,21 @@ describe('useSlateActions', () => {
     });
 
     it('allows a weekly tier-swap at the cap: no toast, onUpdate fires', () => {
+      // Derive the swap family from the capped slate rather than assuming any
+      // one boss sits within the first 14 weekly picks. Pick a family already
+      // in the slate that offers both a Normal and a Hard weekly tier; swapping
+      // it Normal → Hard stays in the same bucket, so the count is unchanged.
       const fourteen = pickDistinctWeeklyKeys(14);
-      const lucidIdx = fourteen.findIndex((k) => k.startsWith(`${LUCID_BOSS.id}:`));
-      expect(lucidIdx).toBeGreaterThanOrEqual(0);
-      fourteen[lucidIdx] = NORMAL_LUCID;
+      const swapIdx = fourteen.findIndex((k) => {
+        const boss = bosses.find((b) => b.id === k.split(':')[0])!;
+        const weeklyTiers = new Set(
+          boss.difficulty.filter((d) => d.cadence === 'weekly').map((d) => d.tier),
+        );
+        return weeklyTiers.has('normal') && weeklyTiers.has('hard');
+      });
+      expect(swapIdx).toBeGreaterThanOrEqual(0);
+      const swapId = fourteen[swapIdx].split(':')[0];
+      fourteen[swapIdx] = `${swapId}:normal:weekly`;
       const onUpdate = vi.fn();
       const { result } = renderHook(() =>
         useSlateActions({
@@ -167,7 +178,7 @@ describe('useSlateActions', () => {
       );
 
       act(() => {
-        result.current.toggleKey(HARD_LUCID);
+        result.current.toggleKey(`${swapId}:hard:weekly`);
       });
       expect(toastMock.toast.error).not.toHaveBeenCalled();
       expect(onUpdate).toHaveBeenCalledTimes(1);

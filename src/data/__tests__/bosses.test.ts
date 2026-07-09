@@ -47,7 +47,7 @@ describe('bosses data (Matrix schema)', () => {
     expect(families.size).toBe(bosses.length);
     // Guard against drift: the pre-1A dataset had 32 distinct families
     // (issue #99 approximates as ~26).
-    expect(bosses.length).toBe(33);
+    expect(bosses.length).toBe(34);
   });
 
   it('every Boss has a stable UUIDv4 id', () => {
