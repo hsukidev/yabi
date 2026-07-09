@@ -389,8 +389,28 @@ The donut breakdown of **Contributed Meso** across **Active Mules** in the **Sel
 _Avoid_: Split card, breakdown card
 
 **Boss Matrix**:
-The grid inside the **Drawer** — rows are **Boss Families**, columns are **Boss Difficulty** tiers.
+The grid inside the **Drawer** — rows are **Boss Families**, columns are **Boss Difficulty** tiers. One of the two **Slate Display Modes**.
 _Avoid_: Matrix, boss grid
+
+**Slate Display Mode**:
+How the **Drawer** renders the open **Mule's** **Boss Slate** — exactly one of **Boss Matrix** or **Boss Card View**. Persisted per user, global across **Mules**; both modes read and write the same **Boss Slate**.
+_Avoid_: Drawer view mode, boss view (unqualified)
+
+**Boss Card View**:
+The **Slate Display Mode** that renders one **Boss Card** per **Boss Family** in a responsive grid (one or two per row). Distinct from **Card View**, which is a **Roster Display Mode**.
+_Avoid_: Card view (reserved for the **Roster Display Mode**), card mode
+
+**Boss Card**:
+The tile in the **Boss Card View** for one **Boss Family** — sprite, family name, **Party Size** stepper, **Difficulty Rows**, and a per-clear meso readout. Shows selected styling when the family holds at least one **Slate Key**; the card body itself is never a selection surface.
+_Avoid_: Boss tile, family card, the card (unqualified)
+
+**Difficulty Row**:
+One (**Boss Difficulty**, **Boss Cadence**) option row on a **Boss Card** — the sole selection surface of the card. Tapping it toggles that **Slate Key**; unselected rows of an already-selected cadence dim but stay tappable (**Tier Swap**).
+_Avoid_: Mode toggle option, tier row
+
+**Slate View Toggle**:
+The **Drawer** toolbar control, left of the Matrix Reset button, that flips the **Slate Display Mode**.
+_Avoid_: View toggle (unqualified), matrix/card switch
 
 **Add Card**:
 The dashed-border placeholder at the end of the **Roster** that creates a new **Mule** on click.
@@ -453,6 +473,8 @@ _Avoid_: Character fetch, name search
 - The **Reset Anchor** is always Thursday 00:00 UTC; the **Reset Countdown** is a duration, not a wall-clock target — same remaining time regardless of timezone.
 - The **PieChart Card's** slices size on **Contributed Meso**, not **Potential Meso** — a fully-dropped **Mule** renders no slice; its **Character Card** still shows full **Potential Meso** plus a **Cap Drop Badge**, while **List View** shows muted `0` with the dropped-boss info icon.
 - A **Character Card's** headline reads **Potential Meso** (uncapped, stable for planning); the **KPI Card's** bignum reads **Total Weekly Income** (post-cut). The two diverge whenever the **World Cap Cut** drops at least one slot.
+- The **Drawer** renders the **Boss Slate** in exactly one **Slate Display Mode** at a time; **Boss Matrix** and **Boss Card View** are projections of the same **Boss Slate**, so selections, **Boss Presets**, and Matrix Reset reflect identically in both — there is no per-mode selection state.
+- A **Boss Card's** meso readout is per-clear and always equals the corresponding **Boss Matrix** cell: **Daily Cadence** at full **Crystal Value**, **Weekly**/**Monthly Cadence** at **Crystal Value** ÷ **Party Size**; one line per held **Slate Key**, and a muted **Hardest Tier** preview when the family holds none.
 
 ## Example dialogue
 
@@ -493,7 +515,8 @@ _Avoid_: Character fetch, name search
 
 - "Income" was used for both per-mule and roster-wide totals. Canonical in prose: **Potential Income** (per **Mule**) vs **Total Weekly Income** (roster-wide, post-cut). The **Character Card** user-facing label `INCOME` means **Potential Meso** only.
 - "Boss" was overloaded with the **Crystal** it drops. Canonical separation: **Boss** = the encounter, **Crystal** = the sellable item, **Crystal Value** = the mesos received.
-- "Card" is overloaded — **Character Card**, **KPI Card**, **PieChart Card**, **Add Card** all coexist. Always use the full compound name; never write "the card" unqualified.
+- "Card" is overloaded — **Character Card**, **KPI Card**, **PieChart Card**, **Add Card**, **Boss Card** all coexist. Always use the full compound name; never write "the card" unqualified.
+- "Card View" vs "Boss Card View" — **Card View** is the **Roster Display Mode**; **Boss Card View** is the **Slate Display Mode**. Never shorten the latter to "card view".
 - "Mule Card" (from the design handoff) is the same concept as **Character Card**. Canonical: **Character Card** in prose; the component file is named `MuleCharacterCard.tsx` for historical reasons only.
 - "Active" is now intent-based, not income-derived. Previously: "**Mule** with ≥1 boss selected". Canonical: **Active Flag** is `true`. A new **Active Mule** can have zero bosses.
 - "Active world" collapses two distinct axes. Use **Selected World** for the user's choice; reserve **World Lens** for the filtering rule it drives.
