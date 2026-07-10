@@ -39,8 +39,8 @@ function AboutPage() {
               <strong>Y</strong>et <strong>A</strong>nother <strong>B</strong>oss <strong>I</strong>
               ncome
             </em>{' '}
-            tracking tool. With a simplified user experience for both desktop and mobile, users can
-            build a roster and select bosses to display the per-world weekly meso totals.
+            tracker. With a simplified user experience for both desktop and mobile, users can build
+            a roster and select bosses to display the per-world weekly meso totals.
           </p>
           <p className="mt-3" style={{ color: 'var(--text, var(--foreground))' }}>
             Your roster data is stored in the browser's localStorage — nothing leaves your machine
