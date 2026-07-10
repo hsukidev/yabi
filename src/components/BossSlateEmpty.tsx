@@ -20,9 +20,6 @@ export function BossSlateEmpty() {
       <p className="font-display text-[13px] font-medium text-(--text,var(--foreground))">
         No bosses match
       </p>
-      <p className="mt-1 font-mono-nums text-[11px] text-(--muted-raw,var(--muted-foreground))">
-        Try a different search or cadence filter.
-      </p>
     </div>
   );
 }

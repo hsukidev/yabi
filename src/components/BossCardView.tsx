@@ -105,7 +105,12 @@ function DifficultyRow({
           className="inline-block size-2 shrink-0 rounded-full"
           style={{ background: TIER_COLOR[row.tier] }}
         />
-        <span className="font-display text-[12px] font-medium leading-[1.2]">
+        <span
+          className={[
+            'font-display text-[12px] font-medium leading-[1.2] transition-none',
+            isSelected ? 'text-[var(--accent)]' : '',
+          ].join(' ')}
+        >
           {TIER_HEADER_LABEL[row.tier]}
         </span>
       </span>
@@ -179,13 +184,11 @@ const BossCard = memo(function BossCard({
       data-selected={hasSelection ? 'true' : undefined}
       className={[
         'flex flex-col overflow-clip rounded-[10px] border bg-(--surface)',
-        hasSelection ? 'border-[var(--accent)]' : 'border-(--border)',
+        // `border-t-[var(--accent)]!` recolors the top edge for top-row cards,
+        // whose top border the grid holds transparent — so a selected top card
+        // shows its accent edge on all four sides, not three, with no shift.
+        hasSelection ? 'border-[var(--accent)] border-t-[var(--accent)]!' : 'border-(--border)',
       ].join(' ')}
-      style={
-        hasSelection
-          ? { background: 'color-mix(in srgb, var(--accent) 6%, var(--surface))' }
-          : undefined
-      }
     >
       <div className="flex items-center gap-3 p-3 border-b border-(--border) bg-(--surface-2)">
         <img
@@ -252,7 +255,16 @@ export const BossCardView = memo(function BossCardView({
     // is the ceiling — the winning card proportions don't support 3-across.
     <div
       data-testid="boss-card-view"
-      className="grid grid-cols-1 gap-3 @min-[440px]/drawer:grid-cols-2"
+      className={[
+        'grid grid-cols-1 gap-3 @min-[440px]/drawer:grid-cols-2',
+        // Top row sits flush under the fused search bar, like the fused matrix:
+        // the first card drops its top border/rounding always; the second card
+        // joins it only once the grid goes 2-across.
+        // Transparent (not removed) top border keeps the 1px reserved, so a card
+        // doesn't shift down when selection recolors that edge accent.
+        '[&>*:first-child]:rounded-t-none [&>*:first-child]:border-t-transparent',
+        '@min-[440px]/drawer:[&>*:nth-child(2)]:rounded-t-none @min-[440px]/drawer:[&>*:nth-child(2)]:border-t-transparent',
+      ].join(' ')}
     >
       {families.map((family) => (
         <BossCard
