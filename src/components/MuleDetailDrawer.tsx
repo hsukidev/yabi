@@ -394,6 +394,7 @@ export function MuleDetailDrawer({
                   {slateDisplayMode === 'cards' ? (
                     <BossCardView
                       families={matrixFilter.visibleBosses}
+                      onToggleKey={slateActions.toggleKey}
                       partySizes={partySizes.stablePartySizes}
                       onChangePartySize={partySizes.setPartySize}
                       activeCadence={matrixFilter.activeCadence}
