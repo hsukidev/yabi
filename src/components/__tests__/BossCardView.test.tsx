@@ -570,7 +570,7 @@ describe('BossCardView', () => {
           const value = screen.getByTestId(`boss-card-meso-value-${LUCID}-hard`);
           // The native title is gone — the shared tooltip replaces it.
           expect(value.getAttribute('title')).toBeNull();
-          // The scoped provider's 0.7s delay is a rest delay: it arms on pointer
+          // MesoValue's 0.7s delay is a rest delay: it arms on pointer
           // movement over the trigger, then opens after 0.7s of stillness.
           fireEvent.mouseEnter(value);
           fireEvent.mouseMove(value);

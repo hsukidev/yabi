@@ -2,7 +2,6 @@ import { memo, useMemo } from 'react';
 import type { BossCadence, BossTier } from '../types';
 import type { SlateFamily, SlateKey, SlateRow } from '../data/muleBossSlate';
 import { TIER_COLOR, TIER_HEADER_LABEL } from '../constants/tiers';
-import { TooltipProvider } from '@/components/ui/tooltip';
 import { MesoValue } from './MesoValue';
 import { PartyStepper } from './PartyStepper';
 
@@ -187,55 +186,49 @@ export const BossMatrix = memo(function BossMatrix({
   const gridTemplate = `max-content repeat(${visibleTiers.length}, 1fr)`;
 
   return (
-    // Scoped tooltip provider: meso-value tooltips wait 0.7s before opening
-    // (an instant tooltip would pop on every cell the pointer crosses), then
-    // open instantly while moving cell-to-cell within the delay group.
-    // Shadows the app root's delay=0 provider for this subtree only.
-    <TooltipProvider delay={700}>
-      {/* overflow-clip (not hidden) — keeps sticky header attached to drawer scroll; narrow drawer trades sticky for horizontal scroll */}
+    // overflow-clip (not hidden) — keeps sticky header attached to drawer scroll; narrow drawer trades sticky for horizontal scroll
+    <div
+      className={`${cornerClass} overflow-clip @max-[500px]/drawer:overflow-x-auto @max-[500px]/drawer:overflow-y-hidden border border-(--border) bg-(--surface)`}
+    >
       <div
-        className={`${cornerClass} overflow-clip @max-[500px]/drawer:overflow-x-auto @max-[500px]/drawer:overflow-y-hidden border border-(--border) bg-(--surface)`}
+        role="table"
+        className="grid @max-[500px]/drawer:min-w-[500px]"
+        style={{ gridTemplateColumns: gridTemplate }}
       >
         <div
-          role="table"
-          className="grid @max-[500px]/drawer:min-w-[500px]"
-          style={{ gridTemplateColumns: gridTemplate }}
+          role="row"
+          className="col-span-full grid grid-cols-subgrid border-b border-(--border) sticky top-0 z-10 bg-(--surface-2)"
         >
           <div
-            role="row"
-            className="col-span-full grid grid-cols-subgrid border-b border-(--border) sticky top-0 z-10 bg-(--surface-2)"
+            role="columnheader"
+            className="grid place-items-center px-3 py-[10px] border-r border-(--border) font-mono-nums text-[10px] uppercase tracking-[0.08em] text-(--muted-raw,var(--muted-foreground))"
           >
-            <div
-              role="columnheader"
-              className="grid place-items-center px-3 py-[10px] border-r border-(--border) font-mono-nums text-[10px] uppercase tracking-[0.08em] text-(--muted-raw,var(--muted-foreground))"
-            >
-              Bosses
-            </div>
-            {visibleTiers.map((tier) => (
-              <div
-                key={tier}
-                role="columnheader"
-                aria-label={TIER_HEADER_LABEL[tier]}
-                className="px-2 py-[10px]"
-              >
-                <TierHeader tier={tier} />
-              </div>
-            ))}
+            Bosses
           </div>
-
-          {families.map((family) => (
-            <FamilyMatrixRow
-              key={family.family}
-              family={family}
-              partySize={partySizes[family.family] ?? 1}
-              onToggleKey={onToggleKey}
-              onChangePartySize={onChangePartySize}
-              visibleTiers={visibleTiers}
-              activeCadence={activeCadence}
-            />
+          {visibleTiers.map((tier) => (
+            <div
+              key={tier}
+              role="columnheader"
+              aria-label={TIER_HEADER_LABEL[tier]}
+              className="px-2 py-[10px]"
+            >
+              <TierHeader tier={tier} />
+            </div>
           ))}
         </div>
+
+        {families.map((family) => (
+          <FamilyMatrixRow
+            key={family.family}
+            family={family}
+            partySize={partySizes[family.family] ?? 1}
+            onToggleKey={onToggleKey}
+            onChangePartySize={onChangePartySize}
+            visibleTiers={visibleTiers}
+            activeCadence={activeCadence}
+          />
+        ))}
       </div>
-    </TooltipProvider>
+    </div>
   );
 });

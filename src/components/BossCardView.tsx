@@ -3,7 +3,6 @@ import type { BossCadence } from '../types';
 import type { SlateFamily, SlateKey, SlateRow } from '../data/muleBossSlate';
 import { bossImageUrl } from '../data/bosses';
 import { TIER_COLOR, TIER_HEADER_LABEL } from '../constants/tiers';
-import { TooltipProvider } from '@/components/ui/tooltip';
 import { MesoValue } from './MesoValue';
 import { PartyStepper } from './PartyStepper';
 
@@ -248,38 +247,32 @@ export const BossCardView = memo(function BossCardView({
   activeCadence,
 }: BossCardViewProps) {
   return (
-    // Scoped tooltip provider: meso-value tooltips wait 0.7s before opening
-    // (an instant tooltip would pop on every row the pointer crosses), then
-    // open instantly while moving row-to-row within the delay group.
-    // Shadows the app root's delay=0 provider for this subtree only.
-    <TooltipProvider delay={700}>
-      {/* Responsive Boss Card grid: 1-across on narrow drawers, 2-across from
-          ~440px of drawer width via the `@container/drawer` container query. Two
-          is the ceiling — the winning card proportions don't support 3-across. */}
-      <div
-        data-testid="boss-card-view"
-        className={[
-          'grid grid-cols-1 gap-3 @min-[440px]/drawer:grid-cols-2',
-          // Top row sits flush under the fused search bar, like the fused matrix:
-          // the first card drops its top border/rounding always; the second card
-          // joins it only once the grid goes 2-across.
-          // Transparent (not removed) top border keeps the 1px reserved, so a card
-          // doesn't shift down when selection recolors that edge accent.
-          '[&>*:first-child]:rounded-t-none [&>*:first-child]:border-t-transparent',
-          '@min-[440px]/drawer:[&>*:nth-child(2)]:rounded-t-none @min-[440px]/drawer:[&>*:nth-child(2)]:border-t-transparent',
-        ].join(' ')}
-      >
-        {families.map((family) => (
-          <BossCard
-            key={family.family}
-            family={family}
-            partySize={partySizes[family.family] ?? 1}
-            onToggleKey={onToggleKey}
-            onChangePartySize={onChangePartySize}
-            activeCadence={activeCadence}
-          />
-        ))}
-      </div>
-    </TooltipProvider>
+    // Responsive Boss Card grid: 1-across on narrow drawers, 2-across from
+    // ~440px of drawer width via the `@container/drawer` container query. Two
+    // is the ceiling — the winning card proportions don't support 3-across.
+    <div
+      data-testid="boss-card-view"
+      className={[
+        'grid grid-cols-1 gap-3 @min-[440px]/drawer:grid-cols-2',
+        // Top row sits flush under the fused search bar, like the fused matrix:
+        // the first card drops its top border/rounding always; the second card
+        // joins it only once the grid goes 2-across.
+        // Transparent (not removed) top border keeps the 1px reserved, so a card
+        // doesn't shift down when selection recolors that edge accent.
+        '[&>*:first-child]:rounded-t-none [&>*:first-child]:border-t-transparent',
+        '@min-[440px]/drawer:[&>*:nth-child(2)]:rounded-t-none @min-[440px]/drawer:[&>*:nth-child(2)]:border-t-transparent',
+      ].join(' ')}
+    >
+      {families.map((family) => (
+        <BossCard
+          key={family.family}
+          family={family}
+          partySize={partySizes[family.family] ?? 1}
+          onToggleKey={onToggleKey}
+          onChangePartySize={onChangePartySize}
+          activeCadence={activeCadence}
+        />
+      ))}
+    </div>
   );
 });

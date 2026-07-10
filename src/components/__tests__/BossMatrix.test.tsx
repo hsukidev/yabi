@@ -388,15 +388,15 @@ describe('BossMatrix', () => {
   });
 
   // Meso Display convention: abbreviated inline, full-precision value in the
-  // shared hover tooltip — the same tooltip the roster rows/cards use. The
-  // matrix scopes its own TooltipProvider, so no wrapper is needed here.
+  // shared hover tooltip — the same tooltip the roster rows/cards use.
+  // MesoValue carries its own TooltipProvider, so no wrapper is needed here.
   describe('Meso Display tooltip', () => {
     it('shows the full-precision per-clear value in a hover tooltip after a 0.7s delay', async () => {
       vi.useFakeTimers();
       try {
         renderMatrix([], vi.fn(), { [LUCID_BOSS.family]: 2 });
         const value = screen.getByTestId(`matrix-meso-value-${LUCID}-hard`);
-        // The scoped provider's 0.7s delay is a rest delay: it arms on pointer
+        // MesoValue's 0.7s delay is a rest delay: it arms on pointer
         // movement over the trigger, then opens after 0.7s of stillness.
         fireEvent.mouseEnter(value);
         fireEvent.mouseMove(value);
@@ -432,6 +432,39 @@ describe('BossMatrix', () => {
       const { onToggleKey } = renderMatrix();
       fireEvent.click(screen.getByTestId(`matrix-meso-value-${LUCID}-hard`));
       expect(onToggleKey).toHaveBeenCalledWith(HARD_LUCID);
+    });
+
+    it('waits the full 0.7s on every hover — no instant re-open after a close', async () => {
+      vi.useFakeTimers();
+      try {
+        renderMatrix([], vi.fn(), { [LUCID_BOSS.family]: 2 });
+        const value = screen.getByTestId(`matrix-meso-value-${LUCID}-hard`);
+        const full = formatMeso(LUCID_HARD_VALUE / 2, false);
+        // First hover: opens after 0.7s.
+        fireEvent.mouseEnter(value);
+        fireEvent.mouseMove(value);
+        await act(async () => {
+          vi.advanceTimersByTime(700);
+        });
+        expect(screen.getByText(full)).toBeTruthy();
+        // Click closes the tooltip (closeOnClick); leave resets hover state.
+        fireEvent.click(value);
+        fireEvent.mouseLeave(value);
+        await act(async () => {
+          vi.advanceTimersByTime(0);
+        });
+        expect(screen.queryByText(full)).toBeNull();
+        // Second hover: the full 0.7s applies again — never instant.
+        fireEvent.mouseEnter(value);
+        fireEvent.mouseMove(value);
+        expect(screen.queryByText(full)).toBeNull();
+        await act(async () => {
+          vi.advanceTimersByTime(700);
+        });
+        expect(screen.getByText(full)).toBeTruthy();
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 

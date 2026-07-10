@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatMeso } from '../utils/meso';
 
 interface MesoValueProps {
@@ -27,11 +27,14 @@ interface MesoValueProps {
  * tooltip would break the toggle. Keyboard/touch users see the abbreviated
  * value only — exactly what the native `title` this replaces offered.
  *
- * Open delay is NOT set here: both host views wrap themselves in a scoped
- * `TooltipProvider delay={700}`, which shadows the app root's instant
- * provider. It must live on a provider — under a provider, Base UI's delay
- * group substitutes the provider's `open` delay for any per-trigger `delay`,
- * so a trigger-level prop is silently ignored.
+ * Every hover waits the full 0.7s: each value carries its own one-tooltip
+ * `TooltipProvider` (`delay={700}`, `timeout={0}`), shadowing the app root's
+ * instant provider. The delay must live on a provider — under a provider,
+ * Base UI's delay group substitutes the provider's `open` delay for any
+ * per-trigger `delay` prop, silently ignoring it. Per-value providers (rather
+ * than one around the view) also kill the delay group's "open instantly while
+ * moving between triggers" behavior, and `timeout={0}` kills the post-close
+ * grace window — so no hover is ever instant.
  */
 export function MesoValue({
   value,
@@ -54,13 +57,15 @@ export function MesoValue({
     );
   }
   return (
-    <Tooltip>
-      <TooltipTrigger render={<span data-testid={testId} className={className} style={style} />}>
-        {body}
-      </TooltipTrigger>
-      <TooltipContent side="top" className="normal-case tracking-normal text-[11px]">
-        {formatMeso(value, false)}
-      </TooltipContent>
-    </Tooltip>
+    <TooltipProvider delay={700} timeout={0}>
+      <Tooltip>
+        <TooltipTrigger render={<span data-testid={testId} className={className} style={style} />}>
+          {body}
+        </TooltipTrigger>
+        <TooltipContent side="top" className="normal-case tracking-normal text-[11px]">
+          {formatMeso(value, false)}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
