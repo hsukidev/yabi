@@ -11,9 +11,11 @@ const toastMock = vi.hoisted(() => ({
 vi.mock('../../lib/toast', () => toastMock);
 
 import { BossCardView } from '../BossCardView';
+import { BossMatrix } from '../BossMatrix';
 import { useSlateActions } from '../MuleDetailDrawer/hooks/useSlateActions';
 import { bosses, bossImageUrl } from '../../data/bosses';
-import { MuleBossSlate, type SlateFamily } from '../../data/muleBossSlate';
+import { MuleBossSlate, type SlateFamily, type SlateRow } from '../../data/muleBossSlate';
+import { formatMeso } from '../../utils/meso';
 
 /** Build the same `SlateFamily[]` projection the Boss Matrix consumes. */
 function viewOf(keys: string[] = []): SlateFamily[] {
@@ -457,6 +459,270 @@ describe('BossCardView', () => {
       expect(
         screen.getByTestId(`boss-card-row-${BLACK_MAGE}-hard`).getAttribute('data-state'),
       ).toBe('off');
+    });
+  });
+
+  // ─── Meso readout (#288) ──────────────────────────────────────────────────
+  // Per-clear Computed Values at the card bottom that ALWAYS numerically equal
+  // the matching Boss Matrix cell. The readout re-derives nothing — it reuses
+  // the matrix's exact formula: daily = full Crystal Value, weekly/monthly =
+  // Crystal Value ÷ Party Size.
+  describe('meso readout', () => {
+    /** The `crystalValue` the projection baked into a family's (tier) row. */
+    function crystalValueOf(family: string, tier: string): number {
+      const boss = bosses.find((b) => b.family === family)!;
+      const row = viewOf()
+        .find((f) => f.family === family)!
+        .rows.find((r) => r.tier === tier)!;
+      expect(row.bossId).toBe(boss.id); // sanity: right family
+      return row.crystalValue;
+    }
+
+    /** Expected abbreviated per-clear string, matching the matrix cell formula. */
+    function expectedAbbrev(
+      family: string,
+      tier: string,
+      cadence: 'daily' | 'weekly' | 'monthly',
+      party: number,
+    ): string {
+      const cv = crystalValueOf(family, tier);
+      return formatMeso(cadence === 'daily' ? cv : cv / party, true);
+    }
+
+    describe('held keys — one line per Slate Key', () => {
+      it('a weekly key renders its per-clear value ÷ Party Size', () => {
+        renderCards(viewOf([HARD_LUCID]), { [LUCID_BOSS.family]: 3 });
+        const value = screen.getByTestId(`boss-card-meso-value-${LUCID}-hard`);
+        expect(value.textContent).toBe(expectedAbbrev('lucid', 'hard', 'weekly', 3));
+        // No cadence tag on a weekly line.
+        const line = screen.getByTestId(`boss-card-meso-line-${LUCID}-hard`);
+        expect(line.textContent).not.toContain('x 7');
+        expect(line.textContent).not.toContain('mo');
+      });
+
+      it('a daily key renders full Crystal Value (Party Size ignored) with the x 7 tag', () => {
+        renderCards(viewOf([NORMAL_VELLUM_DAILY]), { [VELLUM_BOSS.family]: 5 });
+        const value = screen.getByTestId(`boss-card-meso-value-${VELLUM}-normal`);
+        // Party size 5 must NOT change the daily value.
+        expect(value.textContent).toBe(expectedAbbrev('vellum', 'normal', 'daily', 1));
+        expect(value.textContent).toBe(expectedAbbrev('vellum', 'normal', 'daily', 5));
+        expect(screen.getByTestId(`boss-card-meso-line-${VELLUM}-normal`).textContent).toContain(
+          'x 7',
+        );
+      });
+
+      it('a monthly key renders its per-clear value ÷ Party Size with the mo tag', () => {
+        renderCards(viewOf([HARD_BM]), { [BLACK_MAGE_BOSS.family]: 2 });
+        const value = screen.getByTestId(`boss-card-meso-value-${BLACK_MAGE}-hard`);
+        expect(value.textContent).toBe(expectedAbbrev('black-mage', 'hard', 'monthly', 2));
+        const line = screen.getByTestId(`boss-card-meso-line-${BLACK_MAGE}-hard`);
+        expect(line.textContent).toContain('mo');
+        expect(line.textContent).not.toContain('x 7');
+      });
+
+      it('multiple held cadences render one line each and are never summed', () => {
+        renderCards(viewOf([NORMAL_VELLUM_DAILY, CHAOS_VELLUM_WEEKLY]), {
+          [VELLUM_BOSS.family]: 1,
+        });
+        const container = screen.getByTestId(`boss-card-meso-${VELLUM}`);
+        const lines = container.querySelectorAll('[data-testid^="boss-card-meso-line-"]');
+        expect(lines).toHaveLength(2);
+
+        const dailyStr = expectedAbbrev('vellum', 'normal', 'daily', 1);
+        const weeklyStr = expectedAbbrev('vellum', 'chaos', 'weekly', 1);
+        expect(screen.getByTestId(`boss-card-meso-value-${VELLUM}-normal`).textContent).toBe(
+          dailyStr,
+        );
+        expect(screen.getByTestId(`boss-card-meso-value-${VELLUM}-chaos`).textContent).toBe(
+          weeklyStr,
+        );
+        // Neither line shows a summed total.
+        const summed = formatMeso(
+          crystalValueOf('vellum', 'normal') + crystalValueOf('vellum', 'chaos'),
+          true,
+        );
+        expect(container.textContent).not.toContain(summed);
+      });
+    });
+
+    describe('unselected card — muted Hardest Tier preview', () => {
+      it('shows the Hardest Tier per-clear value, muted, when no key is held', () => {
+        renderCards(viewOf(), { [LUCID_BOSS.family]: 1 });
+        // Hardest Tier = highest Crystal Value row in the projection.
+        const hardest = viewOf()
+          .find((f) => f.family === 'lucid')!
+          .rows.reduce((best, r) => (r.crystalValue > best.crystalValue ? r : best));
+        const line = screen.getByTestId(`boss-card-meso-line-${LUCID}-${hardest.tier}`);
+        expect(line.getAttribute('data-preview')).toBe('true');
+        expect(line.getAttribute('data-muted')).toBe('true');
+        const value = screen.getByTestId(`boss-card-meso-value-${LUCID}-${hardest.tier}`);
+        expect(value.textContent).toBe(
+          formatMeso(
+            hardest.cadence === 'daily' ? hardest.crystalValue : hardest.crystalValue / 1,
+            true,
+          ),
+        );
+      });
+
+      it('replaces the preview with a live line once a key is held', () => {
+        const { rerender } = renderCards(viewOf(), { [LUCID_BOSS.family]: 1 });
+        expect(
+          screen.getByTestId(`boss-card-meso-${LUCID}`).querySelector('[data-preview="true"]'),
+        ).toBeTruthy();
+        rerender(
+          <BossCardView
+            families={viewOf([NORMAL_LUCID])}
+            onToggleKey={vi.fn()}
+            partySizes={{ [LUCID_BOSS.family]: 1 }}
+            onChangePartySize={vi.fn()}
+          />,
+        );
+        const container = screen.getByTestId(`boss-card-meso-${LUCID}`);
+        expect(container.querySelector('[data-preview="true"]')).toBeNull();
+        expect(screen.getByTestId(`boss-card-meso-line-${LUCID}-normal`)).toBeTruthy();
+      });
+    });
+
+    describe('Meso Display convention (tooltip + zero)', () => {
+      it('exposes the full value via a tooltip trigger when non-zero', () => {
+        renderCards(viewOf([HARD_LUCID]), { [LUCID_BOSS.family]: 1 });
+        const value = screen.getByTestId(`boss-card-meso-value-${LUCID}-hard`);
+        const trigger = value.querySelector('button');
+        expect(trigger).toBeTruthy();
+        const full = formatMeso(crystalValueOf('lucid', 'hard'), false);
+        expect(trigger!.getAttribute('aria-label')).toContain(full);
+      });
+
+      it('renders a zero value as plain text with no tooltip trigger', () => {
+        // No real boss has a zero per-clear Crystal Value, so exercise the
+        // Meso Display zero branch directly with a synthetic family.
+        const zeroRow: SlateRow = {
+          key: 'zero:normal:weekly',
+          bossId: 'zero',
+          tier: 'normal',
+          cadence: 'weekly',
+          name: 'Zero',
+          crystalValue: 0,
+          formattedValue: '0',
+          difficultyLabel: 'Normal',
+          selected: true,
+        };
+        const zeroFamily: SlateFamily = {
+          family: 'zero',
+          displayName: 'Zero',
+          rows: [zeroRow],
+        };
+        render(
+          <BossCardView
+            families={[zeroFamily]}
+            onToggleKey={vi.fn()}
+            partySizes={{}}
+            onChangePartySize={vi.fn()}
+          />,
+        );
+        const value = screen.getByTestId('boss-card-meso-value-zero-normal');
+        expect(value.textContent).toBe('0');
+        expect(value.querySelector('button')).toBeNull();
+      });
+    });
+
+    describe('live coupling — reprice with the Party Stepper', () => {
+      it('weekly and monthly lines divide by the new Party Size on the next render', () => {
+        const { rerender } = renderCards(viewOf([HARD_LUCID]), { [LUCID_BOSS.family]: 2 });
+        expect(screen.getByTestId(`boss-card-meso-value-${LUCID}-hard`).textContent).toBe(
+          expectedAbbrev('lucid', 'hard', 'weekly', 2),
+        );
+        rerender(
+          <BossCardView
+            families={viewOf([HARD_LUCID])}
+            onToggleKey={vi.fn()}
+            partySizes={{ [LUCID_BOSS.family]: 4 }}
+            onChangePartySize={vi.fn()}
+          />,
+        );
+        expect(screen.getByTestId(`boss-card-meso-value-${LUCID}-hard`).textContent).toBe(
+          expectedAbbrev('lucid', 'hard', 'weekly', 4),
+        );
+      });
+    });
+
+    describe('equivalence — card line always equals the matrix cell', () => {
+      // Render BOTH Slate Display Modes off the same projection + party sizes
+      // and assert the card's per-clear number matches the matrix cell across
+      // selection states and party sizes. This is the locked #288 invariant.
+      const cases: {
+        label: string;
+        keys: string[];
+        party: Record<string, number>;
+        checks: { family: string; bossId: string; tier: string }[];
+      }[] = [
+        {
+          label: 'weekly, solo',
+          keys: [HARD_LUCID],
+          party: { [LUCID_BOSS.family]: 1 },
+          checks: [{ family: 'lucid', bossId: LUCID, tier: 'hard' }],
+        },
+        {
+          label: 'weekly, party of 4',
+          keys: [HARD_LUCID],
+          party: { [LUCID_BOSS.family]: 4 },
+          checks: [{ family: 'lucid', bossId: LUCID, tier: 'hard' }],
+        },
+        {
+          label: 'monthly, party of 3',
+          keys: [HARD_BM],
+          party: { [BLACK_MAGE_BOSS.family]: 3 },
+          checks: [{ family: 'black-mage', bossId: BLACK_MAGE, tier: 'hard' }],
+        },
+        {
+          label: 'daily + weekly on one family, party of 6',
+          keys: [NORMAL_VELLUM_DAILY, CHAOS_VELLUM_WEEKLY],
+          party: { [VELLUM_BOSS.family]: 6 },
+          checks: [
+            { family: 'vellum', bossId: VELLUM, tier: 'normal' },
+            { family: 'vellum', bossId: VELLUM, tier: 'chaos' },
+          ],
+        },
+      ];
+
+      it.each(cases)('$label', ({ keys, party, checks }) => {
+        const families = viewOf(keys);
+
+        const matrix = render(
+          <BossMatrix
+            families={families}
+            onToggleKey={vi.fn()}
+            partySizes={party}
+            onChangePartySize={vi.fn()}
+          />,
+        );
+        const matrixText: Record<string, string> = {};
+        for (const c of checks) {
+          matrixText[c.tier] = matrix
+            .getByTestId(`matrix-cell-${c.bossId}-${c.tier}`)
+            .textContent!.trim();
+        }
+        matrix.unmount();
+
+        const cards = render(
+          <BossCardView
+            families={families}
+            onToggleKey={vi.fn()}
+            partySizes={party}
+            onChangePartySize={vi.fn()}
+          />,
+        );
+        for (const c of checks) {
+          const cardValue = cards
+            .getByTestId(`boss-card-meso-value-${c.bossId}-${c.tier}`)
+            .textContent!.trim();
+          // The matrix cell text is the same abbreviated number, optionally
+          // trailed by its own `x 7` daily tag — so it must CONTAIN the card's
+          // bare per-clear number, and both derive from the one shared formula.
+          expect(matrixText[c.tier]).toContain(cardValue);
+          expect(cardValue.length).toBeGreaterThan(0);
+        }
+      });
     });
   });
 });

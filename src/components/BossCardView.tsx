@@ -3,7 +3,9 @@ import type { BossCadence } from '../types';
 import type { SlateFamily, SlateKey, SlateRow } from '../data/muleBossSlate';
 import { bossImageUrl } from '../data/bosses';
 import { TIER_COLOR, TIER_HEADER_LABEL } from '../constants/tiers';
+import { formatMeso } from '../utils/meso';
 import { PartyStepper } from './PartyStepper';
+import { MetricTooltip } from './MetricTooltip';
 
 interface BossCardViewProps {
   /**
@@ -83,6 +85,130 @@ function DifficultyRow({
         {row.cadence}
       </span>
     </button>
+  );
+}
+
+/**
+ * Per-clear **Computed Value** for one **Slate Row**, byte-for-byte the same
+ * arithmetic the **Boss Matrix** cell uses (see `FamilyMatrixRow`): **Daily
+ * Cadence** clears pay full **Crystal Value** (Party Size ignored); Weekly and
+ * Monthly clears split the Crystal Value across the **Party Size**. Reusing the
+ * one formula is what guarantees the readout always numerically equals its
+ * matrix cell.
+ */
+function perClearValue(row: SlateRow, partySize: number): number {
+  return row.cadence === 'daily' ? row.crystalValue : row.crystalValue / partySize;
+}
+
+/**
+ * Cadence decoration on a meso line: daily folds into weekly income at ×7 (the
+ * matrix cell's `x 7` tag), monthly is flagged `mo`. Weekly carries no tag.
+ */
+const CADENCE_TAG: Partial<Record<BossCadence, string>> = {
+  daily: 'x 7',
+  monthly: 'mo',
+};
+
+/**
+ * One meso line in the readout for a single **Slate Row**. Follows the **Meso
+ * Display** convention exactly: abbreviated inline (`formatMeso(v, true)`), the
+ * full value (`formatMeso(v, false)`) exposed by the hover/focus tooltip **only
+ * when non-zero** — a zero renders as plain `0` with no tooltip. The cadence
+ * tag (`x 7` / `mo`) sits outside the numeric node so equivalence tests can
+ * read the bare number.
+ */
+function MesoLine({
+  row,
+  partySize,
+  bossId,
+  muted,
+  preview,
+}: {
+  row: SlateRow;
+  partySize: number;
+  bossId: string;
+  muted?: boolean;
+  preview?: boolean;
+}) {
+  const value = perClearValue(row, partySize);
+  const abbreviated = formatMeso(value, true);
+  const full = formatMeso(value, false);
+  const tag = CADENCE_TAG[row.cadence];
+
+  return (
+    <div
+      data-testid={`boss-card-meso-line-${bossId}-${row.tier}`}
+      data-muted={muted ? 'true' : undefined}
+      data-preview={preview ? 'true' : undefined}
+      className={[
+        'flex items-baseline justify-end font-mono-nums text-[12px] tabular-nums leading-[1.4]',
+        muted ? 'text-(--muted-raw,var(--muted-foreground))' : 'text-(--text,var(--foreground))',
+      ].join(' ')}
+    >
+      <span data-testid={`boss-card-meso-value-${bossId}-${row.tier}`}>
+        {value === 0 ? (
+          abbreviated
+        ) : (
+          <MetricTooltip
+            ariaLabel={`${TIER_HEADER_LABEL[row.tier]} per-clear meso ${full}`}
+            tooltip={full}
+          >
+            {abbreviated}
+          </MetricTooltip>
+        )}
+      </span>
+      {tag && <span className="ml-1 text-[9px] opacity-60">{tag}</span>}
+    </div>
+  );
+}
+
+/**
+ * The **Boss Card** meso readout — per-clear **Computed Values**, each always
+ * numerically equal to the matching **Boss Matrix** cell.
+ *
+ * - **Held keys**: one line per selected **Slate Row**, never summed — daily at
+ *   full Crystal Value (`x 7`), weekly at Crystal Value ÷ Party Size, monthly
+ *   likewise (`mo`). Multiple held cadences on one family render one line each.
+ * - **No key held**: the family's **Hardest Tier** (highest Crystal Value)
+ *   per-clear value, muted, as a planning preview.
+ *
+ * Lives inside the memoized `BossCard`, so it reprices live as the card's
+ * PartyStepper moves — weekly/monthly lines divide by the new party size on the
+ * very next render.
+ */
+function MesoReadout({
+  family,
+  partySize,
+  bossId,
+}: {
+  family: SlateFamily;
+  partySize: number;
+  bossId: string;
+}) {
+  const selected = family.rows.filter((r) => r.selected);
+  // No key held → muted Hardest Tier preview (highest Crystal Value row; first
+  // wins on a tie, matching insertion order).
+  const previewRow =
+    selected.length === 0
+      ? family.rows.reduce<SlateRow | undefined>(
+          (best, r) => (!best || r.crystalValue > best.crystalValue ? r : best),
+          undefined,
+        )
+      : undefined;
+
+  return (
+    <div
+      data-testid={`boss-card-meso-${bossId}`}
+      className="flex flex-col gap-1 px-3 py-2 border-t border-(--border)"
+    >
+      {selected.length > 0
+        ? selected.map((row) => (
+            <MesoLine key={row.key} row={row} partySize={partySize} bossId={bossId} />
+          ))
+        : previewRow && (
+            <MesoLine row={previewRow} partySize={partySize} bossId={bossId} muted preview />
+          )}
+    </div>
   );
 }
 
@@ -187,6 +313,10 @@ const BossCard = memo(function BossCard({
           />
         ))}
       </div>
+
+      {/* Meso readout — per-clear values that always equal the matrix cell.
+          Reprices live with the PartyStepper (weekly/monthly ÷ Party Size). */}
+      <MesoReadout family={family} partySize={partySize} bossId={bossId} />
     </div>
   );
 });
