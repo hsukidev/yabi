@@ -5,6 +5,7 @@ import { bosses } from '../../data/bosses';
 import { MuleBossSlate, type SlateFamily } from '../../data/muleBossSlate';
 import type { BossTier } from '../../types';
 import { formatMeso } from '../../utils/meso';
+import { TooltipProvider } from '../ui/tooltip';
 
 // Column order in the Matrix — extreme → easy, hardest first. Mirrors the
 // private constant inside BossMatrix/muleBossSlate.
@@ -384,6 +385,44 @@ describe('BossMatrix', () => {
       renderMatrix([], vi.fn(), { [VELLUM_BOSS.family]: 2 });
       const cell = screen.getByTestId(`matrix-cell-${VELLUM}-chaos`);
       expect(cell.textContent).toBe(formatMeso(VELLUM_CHAOS_VALUE / 2, true));
+    });
+  });
+
+  // Meso Display convention: abbreviated inline, full-precision value in the
+  // shared hover tooltip — the same tooltip the roster rows/cards use.
+  describe('Meso Display tooltip', () => {
+    function renderWithTooltips(partySizes: Record<string, number> = {}, onToggleKey = vi.fn()) {
+      render(
+        <TooltipProvider>
+          <BossMatrix
+            families={viewOf()}
+            onToggleKey={onToggleKey}
+            partySizes={partySizes}
+            onChangePartySize={vi.fn()}
+          />
+        </TooltipProvider>,
+      );
+      return { onToggleKey };
+    }
+
+    it('shows the full-precision per-clear value in a hover tooltip', async () => {
+      renderWithTooltips({ [LUCID_BOSS.family]: 2 });
+      const value = screen.getByTestId(`matrix-meso-value-${LUCID}-hard`);
+      fireEvent.mouseEnter(value);
+      expect(await screen.findByText(formatMeso(LUCID_HARD_VALUE / 2, false))).toBeTruthy();
+    });
+
+    it('tooltips the full per-clear crystal value on daily cells (party ignored)', async () => {
+      renderWithTooltips({ [VELLUM_BOSS.family]: 4 });
+      const value = screen.getByTestId(`matrix-meso-value-${VELLUM}-normal`);
+      fireEvent.mouseEnter(value);
+      expect(await screen.findByText(formatMeso(VELLUM_NORMAL_VALUE, false))).toBeTruthy();
+    });
+
+    it('does not intercept clicks — tapping the value still toggles the cell', () => {
+      const { onToggleKey } = renderWithTooltips({});
+      fireEvent.click(screen.getByTestId(`matrix-meso-value-${LUCID}-hard`));
+      expect(onToggleKey).toHaveBeenCalledWith(HARD_LUCID);
     });
   });
 

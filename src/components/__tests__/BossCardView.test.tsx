@@ -16,6 +16,7 @@ import { useSlateActions } from '../MuleDetailDrawer/hooks/useSlateActions';
 import { bosses, bossImageUrl } from '../../data/bosses';
 import { MuleBossSlate, type SlateFamily, type SlateRow } from '../../data/muleBossSlate';
 import { formatMeso } from '../../utils/meso';
+import { TooltipProvider } from '../ui/tooltip';
 
 /** Build the same `SlateFamily[]` projection the Boss Matrix consumes. */
 function viewOf(keys: string[] = []): SlateFamily[] {
@@ -562,15 +563,43 @@ describe('BossCardView', () => {
       });
     });
 
-    describe('Meso Display convention (title + zero)', () => {
-      it('exposes the full value via the native title attribute when non-zero', () => {
-        renderCards(viewOf([HARD_LUCID]), { [LUCID_BOSS.family]: 1 });
+    describe('Meso Display convention (tooltip + zero)', () => {
+      it('shows the full-precision value in the shared hover tooltip when non-zero', async () => {
+        render(
+          <TooltipProvider>
+            <BossCardView
+              families={viewOf([HARD_LUCID])}
+              onToggleKey={vi.fn()}
+              partySizes={{ [LUCID_BOSS.family]: 1 }}
+              onChangePartySize={vi.fn()}
+            />
+          </TooltipProvider>,
+        );
         const value = screen.getByTestId(`boss-card-meso-value-${LUCID}-hard`);
+        // The native title is gone — the shared tooltip replaces it.
+        expect(value.getAttribute('title')).toBeNull();
+        fireEvent.mouseEnter(value);
         const full = formatMeso(crystalValueOf('lucid', 'hard'), false);
-        expect(value.getAttribute('title')).toBe(full);
+        expect(await screen.findByText(full)).toBeTruthy();
       });
 
-      it('renders a zero value as plain text with no title', () => {
+      it('does not intercept clicks — tapping the value still toggles the row', () => {
+        const onToggleKey = vi.fn();
+        render(
+          <TooltipProvider>
+            <BossCardView
+              families={viewOf()}
+              onToggleKey={onToggleKey}
+              partySizes={{ [LUCID_BOSS.family]: 1 }}
+              onChangePartySize={vi.fn()}
+            />
+          </TooltipProvider>,
+        );
+        fireEvent.click(screen.getByTestId(`boss-card-meso-value-${LUCID}-hard`));
+        expect(onToggleKey).toHaveBeenCalledWith(HARD_LUCID);
+      });
+
+      it('renders a zero value as plain text with no tooltip trigger', () => {
         // No real boss has a zero per-clear Crystal Value, so exercise the
         // Meso Display zero branch directly with a synthetic family.
         const zeroRow: SlateRow = {
@@ -600,6 +629,8 @@ describe('BossCardView', () => {
         const value = screen.getByTestId('boss-card-meso-value-zero-normal');
         expect(value.textContent).toBe('0');
         expect(value.getAttribute('title')).toBeNull();
+        // Not wired as a tooltip trigger at all.
+        expect(value.getAttribute('data-slot')).toBeNull();
       });
     });
 

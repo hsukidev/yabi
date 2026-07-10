@@ -3,7 +3,7 @@ import type { BossCadence } from '../types';
 import type { SlateFamily, SlateKey, SlateRow } from '../data/muleBossSlate';
 import { bossImageUrl } from '../data/bosses';
 import { TIER_COLOR, TIER_HEADER_LABEL } from '../constants/tiers';
-import { formatMeso } from '../utils/meso';
+import { MesoValue } from './MesoValue';
 import { PartyStepper } from './PartyStepper';
 
 interface BossCardViewProps {
@@ -52,9 +52,9 @@ function perClearValue(row: SlateRow, partySize: number): number {
  * the existing "Weekly cap reached" toast from the handler layer.
  *
  * The inline value is byte-for-byte the matrix cell's per-clear number and
- * follows the **Meso Display** convention: abbreviated inline
- * (`formatMeso(v, true)`), full value on hover via the native `title`
- * attribute **only when non-zero** (a zero shows plain `0`, no title). It
+ * follows the **Meso Display** convention via the shared `MesoValue`:
+ * abbreviated inline, full value in the shared hover tooltip **only when
+ * non-zero** (a zero shows plain `0`, no tooltip). It
  * reprices live as the card's PartyStepper moves — weekly/monthly divide by
  * the new `partySize` on the very next render. Value and cadence share one
  * color (accent when the row is selected, muted otherwise) so they read as a
@@ -76,7 +76,6 @@ function DifficultyRow({
 }) {
   const isSelected = row.selected;
   const value = perClearValue(row, partySize);
-  const abbreviated = formatMeso(value, true);
   // Value + cadence are one right-edge cluster, so they share color: accent
   // when the row holds a Slate Key, muted otherwise (echoes the old muted
   // preview, now spread across every row).
@@ -115,15 +114,13 @@ function DifficultyRow({
         </span>
       </span>
       <span className="flex shrink-0 items-baseline justify-end gap-2">
-        <span
+        <MesoValue
+          value={value}
           data-testid={`boss-card-meso-value-${bossId}-${row.tier}`}
-          title={value === 0 ? undefined : formatMeso(value, false)}
           className={['font-mono-nums text-[12px] tabular-nums leading-[1.4]', clusterColor].join(
             ' ',
           )}
-        >
-          {abbreviated}
-        </span>
+        />
         <span
           className={[
             'w-14 text-right font-mono-nums text-[10px] lowercase tracking-widest',

@@ -1,8 +1,8 @@
 import { memo, useMemo } from 'react';
 import type { BossCadence, BossTier } from '../types';
 import type { SlateFamily, SlateKey, SlateRow } from '../data/muleBossSlate';
-import { formatMeso } from '../utils/meso';
 import { TIER_COLOR, TIER_HEADER_LABEL } from '../constants/tiers';
+import { MesoValue } from './MesoValue';
 import { PartyStepper } from './PartyStepper';
 
 /** Column order in the Matrix — extreme → easy, hardest first. */
@@ -144,10 +144,13 @@ const FamilyMatrixRow = memo(function FamilyMatrixRow({
                 : 'text-[var(--muted-raw,var(--muted-foreground))] hover:bg-[var(--surface-2)] hover:text-[var(--text,var(--foreground))]',
             ].join(' ')}
           >
-            <span style={isDim ? { opacity: 0.35 } : undefined}>
-              {formatMeso(displayedValue, true)}
+            <MesoValue
+              value={displayedValue}
+              data-testid={`matrix-meso-value-${bossId}-${tier}`}
+              style={isDim ? { opacity: 0.35 } : undefined}
+            >
               {row.cadence === 'daily' && <span className="ml-1 text-[9px] opacity-60">x 7</span>}
-            </span>
+            </MesoValue>
           </button>
         );
       })}
