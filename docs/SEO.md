@@ -58,7 +58,7 @@ Google. `YABI` matches no real-world query and gets dropped from SERP
 ranking entirely.
 
 **Decision.** Title becomes
-`YABI — Maplestory's Yet Another Boss Income Tool`, and a
+`YABI — Maplestory's Yet Another Boss Income Tracker`, and a
 ~150-char description names the actual capabilities a Reboot player
 searches for: mule roster, weekly boss crystals, top-14 cuts, CRA /
 Lomien / Ctene presets, world pricing. The brand name leads; the

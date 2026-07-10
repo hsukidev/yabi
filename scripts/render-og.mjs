@@ -94,7 +94,7 @@ const html = `<!doctype html>
   </div>
   <div class="text">
     <div class="word">YABI</div>
-    <div class="tag">Maplestory's Yet Another Boss Income Tool</div>
+    <div class="tag">Maplestory's Yet Another Boss Income Tracker</div>
     <div class="url">yabi.henesys.io</div>
   </div>
 </body>

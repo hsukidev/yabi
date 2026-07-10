@@ -1,4 +1,4 @@
-# YABI — Maplestory's Yet Another Boss Income Tool
+# YABI — Maplestory's Yet Another Boss Income Tracker
 
 A personal tool for MapleStory GMS Reboot players to track potential weekly meso income from boss crystal sales across a roster of mule characters.
 
