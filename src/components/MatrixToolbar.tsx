@@ -1,6 +1,8 @@
 import { memo, useState } from 'react';
 import { Popover, PopoverTrigger } from '@/components/ui/popover';
 import { UserPresetPopover } from './UserPresetPopover';
+import { SlateViewToggle } from './SlateViewToggle';
+import type { SlateDisplayMode } from '../hooks/useSlateDisplayMode';
 import type { UserPreset } from '../data/userPresets';
 
 export type CadenceFilter = 'All' | 'Weekly' | 'Daily';
@@ -31,6 +33,10 @@ interface MatrixToolbarProps {
   onDeleteUserPreset: (presetId: string) => void;
   /** Apply a saved User Preset by id (replaces the slate atomically). */
   onApplyUserPreset: (presetId: string) => void;
+  /** Current **Slate Display Mode** driving the Slate View Toggle's pressed state. */
+  slateDisplayMode: SlateDisplayMode;
+  /** Flip the Slate Display Mode (matrix ↔ cards). */
+  onToggleSlateDisplayMode: () => void;
 }
 
 function CadenceIcon({ children }: { children: React.ReactNode }) {
@@ -88,6 +94,8 @@ export const MatrixToolbar = memo(function MatrixToolbar({
   onSaveUserPreset,
   onDeleteUserPreset,
   onApplyUserPreset,
+  slateDisplayMode,
+  onToggleSlateDisplayMode,
 }: MatrixToolbarProps) {
   const [popoverOpen, setPopoverOpen] = useState(false);
 
@@ -157,10 +165,13 @@ export const MatrixToolbar = memo(function MatrixToolbar({
           />
         </Popover>
       </div>
+      <div className="ml-auto max-[339.99px]:ml-0">
+        <SlateViewToggle mode={slateDisplayMode} onToggle={onToggleSlateDisplayMode} />
+      </div>
       <button
         type="button"
         onClick={onReset}
-        className="d-toolbar-reset ml-auto max-[339.99px]:ml-0 max-[339.99px]:basis-full max-[339.99px]:w-full max-[339.99px]:text-center max-[339.99px]:p-2  max-[339.99px]:border max-[339.99px]:border-border max-[339.99px]:rounded-[8px]"
+        className="d-toolbar-reset ml-2 max-[339.99px]:ml-0 max-[339.99px]:basis-full max-[339.99px]:w-full max-[339.99px]:text-center max-[339.99px]:p-2  max-[339.99px]:border max-[339.99px]:border-border max-[339.99px]:rounded-[8px]"
         style={{ opacity: 0.6 }}
       >
         Reset

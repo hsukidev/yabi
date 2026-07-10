@@ -676,3 +676,29 @@ export function getBossById(id: string): Boss | undefined {
 export function getBossByFamily(family: string): Boss | undefined {
   return bossByFamily.get(family);
 }
+
+/**
+ * Slugify a Boss Family display `name` for asset lookup: lowercase, then
+ * collapse every run of non-alphanumeric characters to a single dash, with
+ * leading/trailing dashes trimmed. `"OMNI-CLN"` → `omni-cln`,
+ * `"Princess No"` → `princess-no`.
+ *
+ * Note this operates on `name`, **not** `family` — the family slug diverges
+ * from the sprite filename for several bosses (e.g. name "Kalos" has family
+ * `kalos-the-guardian` but sprite `kalos.png`).
+ */
+export function bossSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/**
+ * Resolve a Boss Family display `name` to its committed sprite URL under
+ * `public/bosses/`. Every family in `bosses` resolves 1:1 to an existing
+ * 66×67 PNG — guarded by `bosses.test.ts`.
+ */
+export function bossImageUrl(name: string): string {
+  return `/bosses/${bossSlug(name)}.png`;
+}
