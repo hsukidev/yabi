@@ -1,11 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen, fireEvent } from '@/test/test-utils';
+import { act, render, screen, fireEvent } from '@/test/test-utils';
 import { BossMatrix } from '../BossMatrix';
 import { bosses } from '../../data/bosses';
 import { MuleBossSlate, type SlateFamily } from '../../data/muleBossSlate';
 import type { BossTier } from '../../types';
 import { formatMeso } from '../../utils/meso';
-import { TooltipProvider } from '../ui/tooltip';
 
 // Column order in the Matrix — extreme → easy, hardest first. Mirrors the
 // private constant inside BossMatrix/muleBossSlate.
@@ -389,38 +388,48 @@ describe('BossMatrix', () => {
   });
 
   // Meso Display convention: abbreviated inline, full-precision value in the
-  // shared hover tooltip — the same tooltip the roster rows/cards use.
+  // shared hover tooltip — the same tooltip the roster rows/cards use. The
+  // matrix scopes its own TooltipProvider, so no wrapper is needed here.
   describe('Meso Display tooltip', () => {
-    function renderWithTooltips(partySizes: Record<string, number> = {}, onToggleKey = vi.fn()) {
-      render(
-        <TooltipProvider>
-          <BossMatrix
-            families={viewOf()}
-            onToggleKey={onToggleKey}
-            partySizes={partySizes}
-            onChangePartySize={vi.fn()}
-          />
-        </TooltipProvider>,
-      );
-      return { onToggleKey };
-    }
-
-    it('shows the full-precision per-clear value in a hover tooltip', async () => {
-      renderWithTooltips({ [LUCID_BOSS.family]: 2 });
-      const value = screen.getByTestId(`matrix-meso-value-${LUCID}-hard`);
-      fireEvent.mouseEnter(value);
-      expect(await screen.findByText(formatMeso(LUCID_HARD_VALUE / 2, false))).toBeTruthy();
+    it('shows the full-precision per-clear value in a hover tooltip after a 1s delay', async () => {
+      vi.useFakeTimers();
+      try {
+        renderMatrix([], vi.fn(), { [LUCID_BOSS.family]: 2 });
+        const value = screen.getByTestId(`matrix-meso-value-${LUCID}-hard`);
+        // The scoped provider's 1s delay is a rest delay: it arms on pointer
+        // movement over the trigger, then opens after 1s of stillness.
+        fireEvent.mouseEnter(value);
+        fireEvent.mouseMove(value);
+        const full = formatMeso(LUCID_HARD_VALUE / 2, false);
+        // Not instant — the matrix holds a 1s open delay.
+        expect(screen.queryByText(full)).toBeNull();
+        await act(async () => {
+          vi.advanceTimersByTime(1000);
+        });
+        expect(screen.getByText(full)).toBeTruthy();
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('tooltips the full per-clear crystal value on daily cells (party ignored)', async () => {
-      renderWithTooltips({ [VELLUM_BOSS.family]: 4 });
-      const value = screen.getByTestId(`matrix-meso-value-${VELLUM}-normal`);
-      fireEvent.mouseEnter(value);
-      expect(await screen.findByText(formatMeso(VELLUM_NORMAL_VALUE, false))).toBeTruthy();
+      vi.useFakeTimers();
+      try {
+        renderMatrix([], vi.fn(), { [VELLUM_BOSS.family]: 4 });
+        const value = screen.getByTestId(`matrix-meso-value-${VELLUM}-normal`);
+        fireEvent.mouseEnter(value);
+        fireEvent.mouseMove(value);
+        await act(async () => {
+          vi.advanceTimersByTime(1000);
+        });
+        expect(screen.getByText(formatMeso(VELLUM_NORMAL_VALUE, false))).toBeTruthy();
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('does not intercept clicks — tapping the value still toggles the cell', () => {
-      const { onToggleKey } = renderWithTooltips({});
+      const { onToggleKey } = renderMatrix();
       fireEvent.click(screen.getByTestId(`matrix-meso-value-${LUCID}-hard`));
       expect(onToggleKey).toHaveBeenCalledWith(HARD_LUCID);
     });

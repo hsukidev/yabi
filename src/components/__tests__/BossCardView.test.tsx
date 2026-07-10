@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useMemo, useState } from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { act, render, screen, fireEvent } from '@testing-library/react';
 
 // Mock the toast module so the integration block can assert the shared
 // Weekly Crystal Cap toast fires when a card Difficulty Row routes through the
@@ -16,7 +16,6 @@ import { useSlateActions } from '../MuleDetailDrawer/hooks/useSlateActions';
 import { bosses, bossImageUrl } from '../../data/bosses';
 import { MuleBossSlate, type SlateFamily, type SlateRow } from '../../data/muleBossSlate';
 import { formatMeso } from '../../utils/meso';
-import { TooltipProvider } from '../ui/tooltip';
 
 /** Build the same `SlateFamily[]` projection the Boss Matrix consumes. */
 function viewOf(keys: string[] = []): SlateFamily[] {
@@ -564,37 +563,31 @@ describe('BossCardView', () => {
     });
 
     describe('Meso Display convention (tooltip + zero)', () => {
-      it('shows the full-precision value in the shared hover tooltip when non-zero', async () => {
-        render(
-          <TooltipProvider>
-            <BossCardView
-              families={viewOf([HARD_LUCID])}
-              onToggleKey={vi.fn()}
-              partySizes={{ [LUCID_BOSS.family]: 1 }}
-              onChangePartySize={vi.fn()}
-            />
-          </TooltipProvider>,
-        );
-        const value = screen.getByTestId(`boss-card-meso-value-${LUCID}-hard`);
-        // The native title is gone — the shared tooltip replaces it.
-        expect(value.getAttribute('title')).toBeNull();
-        fireEvent.mouseEnter(value);
-        const full = formatMeso(crystalValueOf('lucid', 'hard'), false);
-        expect(await screen.findByText(full)).toBeTruthy();
+      it('shows the full-precision value in the shared hover tooltip after a 1s delay', async () => {
+        vi.useFakeTimers();
+        try {
+          renderCards(viewOf([HARD_LUCID]), { [LUCID_BOSS.family]: 1 });
+          const value = screen.getByTestId(`boss-card-meso-value-${LUCID}-hard`);
+          // The native title is gone — the shared tooltip replaces it.
+          expect(value.getAttribute('title')).toBeNull();
+          // The scoped provider's 1s delay is a rest delay: it arms on pointer
+          // movement over the trigger, then opens after 1s of stillness.
+          fireEvent.mouseEnter(value);
+          fireEvent.mouseMove(value);
+          const full = formatMeso(crystalValueOf('lucid', 'hard'), false);
+          // Not instant — the Boss Card View holds a 1s open delay.
+          expect(screen.queryByText(full)).toBeNull();
+          await act(async () => {
+            vi.advanceTimersByTime(1000);
+          });
+          expect(screen.getByText(full)).toBeTruthy();
+        } finally {
+          vi.useRealTimers();
+        }
       });
 
       it('does not intercept clicks — tapping the value still toggles the row', () => {
-        const onToggleKey = vi.fn();
-        render(
-          <TooltipProvider>
-            <BossCardView
-              families={viewOf()}
-              onToggleKey={onToggleKey}
-              partySizes={{ [LUCID_BOSS.family]: 1 }}
-              onChangePartySize={vi.fn()}
-            />
-          </TooltipProvider>,
-        );
+        const { onToggleKey } = renderCards(viewOf(), { [LUCID_BOSS.family]: 1 });
         fireEvent.click(screen.getByTestId(`boss-card-meso-value-${LUCID}-hard`));
         expect(onToggleKey).toHaveBeenCalledWith(HARD_LUCID);
       });
