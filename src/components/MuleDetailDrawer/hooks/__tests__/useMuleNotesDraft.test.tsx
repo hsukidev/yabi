@@ -118,20 +118,7 @@ describe('useMuleNotesDraft', () => {
     expect(onUpdate).toHaveBeenCalledWith('mule-1', { notes: 'closed mid-edit' });
   });
 
-  it('does NOT flush on initial mount', () => {
-    const onUpdate = vi.fn();
-    renderHook(() => useMuleNotesDraft(baseMule, onUpdate));
-    expect(onUpdate).not.toHaveBeenCalled();
-  });
-
-  it('resyncs draft when mule.notes changes externally', () => {
-    const onUpdate = vi.fn();
-    const { result, rerender } = renderHook(
-      ({ mule }: { mule: Mule }) => useMuleNotesDraft(mule, onUpdate),
-      { initialProps: { mule: baseMule } },
-    );
-    const updated: Mule = { ...baseMule, notes: 'replaced externally' };
-    rerender({ mule: updated });
-    expect(result.current.draft).toBe('replaced externally');
-  });
+  // Mount suppression and plain Draft Source Resync are covered once in
+  // useCommittedDraft.test.tsx; the switch/unmount cases above stay because
+  // they exercise this adapter's commit wiring (trim + notes payload).
 });

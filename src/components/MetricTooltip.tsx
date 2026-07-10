@@ -1,13 +1,11 @@
 import { useState } from 'react';
-import type { CSSProperties, ReactNode, SyntheticEvent } from 'react';
+import type { HTMLAttributes, ReactNode, SyntheticEvent } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-interface MetricTooltipProps {
+interface MetricTooltipProps extends HTMLAttributes<HTMLButtonElement> {
   ariaLabel: string;
   tooltip: ReactNode;
   children: ReactNode;
-  className?: string;
-  style?: CSSProperties;
 }
 
 const DEFAULT_TRIGGER_CLASS =
@@ -21,11 +19,13 @@ export function MetricTooltip({
   children,
   className = DEFAULT_TRIGGER_CLASS,
   style,
+  ...rest
 }: MetricTooltipProps) {
   const [open, setOpen] = useState(false);
   return (
     <Tooltip open={open} onOpenChange={setOpen}>
       <TooltipTrigger
+        {...rest}
         aria-label={ariaLabel}
         closeOnClick={false}
         onClick={(e) => {

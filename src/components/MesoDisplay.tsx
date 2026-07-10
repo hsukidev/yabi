@@ -43,9 +43,9 @@ interface MesoMetricProps extends HTMLAttributes<HTMLSpanElement> {
    * attributes (data hooks, testids) land on the abbreviated-value
    * `<span>`; the tooltip trigger keeps `MetricTooltip`'s default chrome.
    * With `children` (chip mode — e.g. the Drawer's eyebrow+value chip):
-   * `className`/`style` shape the whole trigger surface, and the zero
-   * branch renders the same content in a plain wrapper that keeps the
-   * aria-label. `children` defaults to the abbreviated value.
+   * `className`/`style` and the remaining attributes land on the whole
+   * trigger surface (zero branch: a plain wrapper that keeps the
+   * aria-label). `children` defaults to the abbreviated value.
    */
   children?: ReactNode;
 }
@@ -72,7 +72,13 @@ export function MesoMetric({
       );
     }
     return (
-      <MetricTooltip ariaLabel={ariaLabel} tooltip={full} className={className} style={style}>
+      <MetricTooltip
+        ariaLabel={ariaLabel}
+        tooltip={full}
+        className={className}
+        style={style}
+        {...rest}
+      >
         {children}
       </MetricTooltip>
     );

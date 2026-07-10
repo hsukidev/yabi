@@ -17,6 +17,11 @@ export interface DebouncedStore<T> {
  * Per-store adapter config: how a `T` becomes the persisted string and how
  * a raw persisted string (or `null`) becomes a validated `T`. Migration,
  * schema versioning, and pruning all live inside `migrate`.
+ *
+ * `T` must not itself admit `null` — the store uses `null` internally as
+ * its no-pending-write sentinel, so `save(null)` would be dropped. Both
+ * current adapters persist arrays; wrap a nullable payload in an object
+ * before making it a store.
  */
 export interface DebouncedStoreConfig<T> {
   serialize(value: T): string;

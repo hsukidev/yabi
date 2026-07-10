@@ -176,23 +176,26 @@ describe('useMuleIdentityDraft', () => {
     expect(onUpdate).toHaveBeenCalledWith('mule-1', { level: 77 });
   });
 
-  it('does NOT flush on initial mount', () => {
-    const onUpdate = vi.fn();
-    renderHook(() => useMuleIdentityDraft(baseMule, onUpdate));
-    expect(onUpdate).not.toHaveBeenCalled();
-  });
+  // Mount suppression and plain Draft Source Resync are covered once in
+  // useCommittedDraft.test.tsx; the switch/unmount cases above stay because
+  // they exercise this adapter's two-instance commit wiring.
 
-  it('resyncs drafts when mule prop changes externally', () => {
+  it('an external write to one field does not blow away an unblurred edit on the other', () => {
     const onUpdate = vi.fn();
     const { result, rerender } = renderHook(
       ({ mule }: { mule: Mule }) => useMuleIdentityDraft(mule, onUpdate),
       { initialProps: { mule: baseMule } },
     );
 
-    const edited: Mule = { ...baseMule, id: 'mule-2', name: 'Beta', level: 77 };
-    rerender({ mule: edited });
+    // Edit the level without blurring, then rebase the name externally
+    // (same mule id — e.g. a Character Lookup writing the real name).
+    act(() => {
+      result.current.level.onChange(makeOnChange('150'));
+    });
+    const renamed: Mule = { ...baseMule, name: 'Renamed' };
+    rerender({ mule: renamed });
 
-    expect(result.current.name.draft).toBe('Beta');
-    expect(result.current.level.draft).toBe('77');
+    expect(result.current.name.draft).toBe('Renamed');
+    expect(result.current.level.draft).toBe('150');
   });
 });
