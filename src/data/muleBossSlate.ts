@@ -7,6 +7,7 @@ import {
   PRESET_FAMILIES,
   type CanonicalPresetKey,
   type PresetEntry,
+  type PresetKey,
 } from './bossPresets';
 import type { UserPreset } from './userPresets';
 
@@ -723,6 +724,31 @@ export class MuleBossSlate {
       return preset;
     }
     return null;
+  }
+
+  /**
+   * **Active Preset** — the **Boss Preset** this slate matches, derived by
+   * the CONTEXT.md priority ladder:
+   *
+   *  1. **User Preset Match** → `'CUSTOM'` pill + the matched snapshot.
+   *  2. Empty slate → no active preset. (Sits after step 1 so an empty
+   *     saved preset can still match an empty slate.)
+   *  3. **Full-Slate Equality** with a **Canonical Preset** → that preset.
+   *  4. Any **Slate Key** of any cadence → `'CUSTOM'`, no matched snapshot.
+   *
+   * `partySizes` is the **Mule's** record, threaded by the caller — the
+   * slate stays party-size-agnostic (same contract as `matchedUserPreset`).
+   */
+  activePreset(
+    snapshots: readonly UserPreset[],
+    partySizes: Record<string, number>,
+  ): { activePreset: PresetKey | null; matchedUserPreset: UserPreset | null } {
+    const matchedUserPreset = this.matchedUserPreset(snapshots, partySizes);
+    if (matchedUserPreset) return { activePreset: 'CUSTOM', matchedUserPreset };
+    if (this.totalKeys === 0) return { activePreset: null, matchedUserPreset: null };
+    const canonical = this.matchedCanonical();
+    if (canonical) return { activePreset: canonical, matchedUserPreset: null };
+    return { activePreset: 'CUSTOM', matchedUserPreset: null };
   }
 
   /**

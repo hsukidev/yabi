@@ -11,7 +11,6 @@ import type { PresetKey } from './MatrixToolbar';
 import { resolveWorldGroup } from '../data/worlds';
 import { useUserPresets } from '../hooks/useUserPresets';
 import { useSlateDisplayMode } from '../hooks/useSlateDisplayMode';
-import type { UserPreset } from '../data/userPresets';
 import { BossMatrix } from './BossMatrix';
 import { BossCardView } from './BossCardView';
 import { BossSlateEmpty } from './BossSlateEmpty';
@@ -96,21 +95,12 @@ export function MuleDetailDrawer({
   });
   const { userPresets, createUserPreset, deleteUserPreset } = useUserPresets();
   const { stablePartySizes } = partySizes;
-  // **Active Pill** derivation. Priority: User Preset Match → empty slate →
-  // Canonical Full-Slate Equality → CUSTOM fallthrough. The empty check sits
-  // after the User Preset Match so an empty saved preset can still match an
-  // empty slate.
-  const pill = useMemo<{
-    activePill: PresetKey | null;
-    matchedUserPreset: UserPreset | null;
-  }>(() => {
-    const matchedUserPreset = slate.matchedUserPreset(userPresets, stablePartySizes);
-    if (matchedUserPreset) return { activePill: 'CUSTOM', matchedUserPreset };
-    if (slate.totalKeys === 0) return { activePill: null, matchedUserPreset: null };
-    const canonical = slate.matchedCanonical();
-    if (canonical) return { activePill: canonical, matchedUserPreset: null };
-    return { activePill: 'CUSTOM', matchedUserPreset: null };
-  }, [slate, stablePartySizes, userPresets]);
+  // **Active Pill** ← the slate's **Active Preset** ladder. Memoized for
+  // referential stability only; the rule itself lives on `MuleBossSlate`.
+  const pill = useMemo(
+    () => slate.activePreset(userPresets, stablePartySizes),
+    [slate, stablePartySizes, userPresets],
+  );
   const slateActions = useSlateActions({
     muleId,
     partySizes: stablePartySizes,
@@ -378,7 +368,7 @@ export function MuleDetailDrawer({
                 <MatrixToolbar
                   filter={matrixFilter.filter}
                   onFilterChange={matrixFilter.setFilter}
-                  activePill={pill.activePill}
+                  activePill={pill.activePreset}
                   onApplyPreset={handleApplyPreset}
                   onReset={slateActions.resetBosses}
                   userPresets={userPresets}
