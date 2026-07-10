@@ -45,6 +45,11 @@ function enterCardView() {
   fireEvent.click(within(group).getByRole('button', { name: /boss card view/i }));
 }
 
+function enterMatrixView() {
+  const group = screen.getByRole('group', { name: /slate display mode/i });
+  fireEvent.click(within(group).getByRole('button', { name: /boss matrix/i }));
+}
+
 function cadence(label: string): HTMLButtonElement {
   const group = screen.getByRole('group', { name: /cadence filter/i });
   return within(group).getByRole('button', {
@@ -179,7 +184,8 @@ describe('MuleDetailDrawer — Boss Card View integration (#289)', () => {
 
     it('the same empty panel replaces the matrix when the projection is empty (consistent across modes)', () => {
       render(<StatefulDrawer />);
-      // Stay in matrix mode (default).
+      // Cards is the default now — switch to matrix mode explicitly.
+      enterMatrixView();
       fireEvent.change(screen.getByLabelText('Search bosses'), { target: { value: 'zzzzzzz' } });
 
       expect(screen.getByTestId('boss-slate-empty')).toBeTruthy();

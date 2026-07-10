@@ -17,23 +17,23 @@ function getInitialMode(): SlateDisplayMode {
   } catch {
     // localStorage can throw in private-mode / sandboxed iframes — fall through.
   }
-  return 'matrix';
+  return 'cards';
 }
 
 /**
  * Owns the **Slate Display Mode** — persisted per user in localStorage and
  * global across Mules (a single key, not keyed by mule), defaulting to the
- * Boss Matrix. Mirrors the Roster Display Mode persistence pattern
- * (`DisplayProvider`), scoped to a hook because only the Drawer reads it.
+ * Boss Card View for users without a stored preference. Mirrors the Roster
+ * Display Mode persistence pattern (`DisplayProvider`), scoped to a hook
+ * because only the Drawer reads it.
  *
- * `setMode` / `toggleMode` are `useCallback`-stable so passing them through the
- * memoized `MatrixToolbar` never busts its memo barrier — see CLAUDE.md
+ * `setMode` is `useCallback`-stable so passing it through the memoized
+ * `MatrixToolbar` never busts its memo barrier — see CLAUDE.md
  * (drawer keystroke perf).
  */
 export function useSlateDisplayMode(): {
   mode: SlateDisplayMode;
   setMode: (mode: SlateDisplayMode) => void;
-  toggleMode: () => void;
 } {
   const [mode, setModeState] = useState<SlateDisplayMode>(getInitialMode);
 
@@ -46,10 +46,6 @@ export function useSlateDisplayMode(): {
   }, [mode]);
 
   const setMode = useCallback((next: SlateDisplayMode) => setModeState(next), []);
-  const toggleMode = useCallback(
-    () => setModeState((prev) => (prev === 'matrix' ? 'cards' : 'matrix')),
-    [],
-  );
 
-  return { mode, setMode, toggleMode };
+  return { mode, setMode };
 }

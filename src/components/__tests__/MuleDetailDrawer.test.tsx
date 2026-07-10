@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, fireEvent, within } from '@/test/test-utils';
 
 import { MuleDetailDrawer } from '../MuleDetailDrawer';
@@ -51,6 +51,13 @@ function metricsFor(mule: Mule | null, worldMules: readonly Mule[]): RosterRowMe
 type DrawerRenderOverrides = Partial<Parameters<typeof MuleDetailDrawer>[0]> & {
   worldMules?: readonly Mule[];
 };
+
+// This suite exercises the Boss Matrix path (cells, columns, toolbar wiring).
+// The Slate Display Mode now defaults to cards, so pin matrix explicitly.
+beforeEach(() => {
+  localStorage.clear();
+  localStorage.setItem('slate-display-mode', 'matrix');
+});
 
 function renderDrawer(overrides: DrawerRenderOverrides = {}) {
   const { worldMules: providedWorldMules, ...propOverrides } = overrides;

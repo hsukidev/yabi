@@ -35,8 +35,8 @@ interface MatrixToolbarProps {
   onApplyUserPreset: (presetId: string) => void;
   /** Current **Slate Display Mode** driving the Slate View Toggle's pressed state. */
   slateDisplayMode: SlateDisplayMode;
-  /** Flip the Slate Display Mode (matrix ↔ cards). */
-  onToggleSlateDisplayMode: () => void;
+  /** Select a Slate Display Mode (cards / matrix). */
+  onSelectSlateDisplayMode: (mode: SlateDisplayMode) => void;
 }
 
 function CadenceIcon({ children }: { children: React.ReactNode }) {
@@ -95,7 +95,7 @@ export const MatrixToolbar = memo(function MatrixToolbar({
   onDeleteUserPreset,
   onApplyUserPreset,
   slateDisplayMode,
-  onToggleSlateDisplayMode,
+  onSelectSlateDisplayMode,
 }: MatrixToolbarProps) {
   const [popoverOpen, setPopoverOpen] = useState(false);
 
@@ -166,7 +166,7 @@ export const MatrixToolbar = memo(function MatrixToolbar({
         </Popover>
       </div>
       <div className="ml-auto max-[339.99px]:ml-0">
-        <SlateViewToggle mode={slateDisplayMode} onToggle={onToggleSlateDisplayMode} />
+        <SlateViewToggle mode={slateDisplayMode} onSelect={onSelectSlateDisplayMode} />
       </div>
       <button
         type="button"

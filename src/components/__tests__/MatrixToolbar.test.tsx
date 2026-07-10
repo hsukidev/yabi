@@ -19,7 +19,7 @@ function renderToolbar(overrides: Partial<Parameters<typeof MatrixToolbar>[0]> =
     onDeleteUserPreset: vi.fn(),
     onApplyUserPreset: vi.fn(),
     slateDisplayMode: 'matrix' as Parameters<typeof MatrixToolbar>[0]['slateDisplayMode'],
-    onToggleSlateDisplayMode: vi.fn(),
+    onSelectSlateDisplayMode: vi.fn(),
     ...overrides,
   };
   return {

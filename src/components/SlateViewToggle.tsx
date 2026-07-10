@@ -2,35 +2,36 @@ import { Grid3x3, LayoutGrid } from 'lucide-react';
 import type { SlateDisplayMode } from '../hooks/useSlateDisplayMode';
 
 /**
- * Segmented control that flips the **Slate Display Mode** — matrix-grid glyph
- * for the Boss Matrix, four-square glyph for the Boss Card View. Styled with
- * the shared `d-c-toggle` treatment (matching the cadence filter) and exposes
- * `role="group"` with a per-button pressed state.
+ * Segmented control that selects the **Slate Display Mode** — four-square
+ * glyph for the Boss Card View (the default, listed first), matrix-grid glyph
+ * for the Boss Matrix. Styled with the shared `d-c-toggle` treatment (matching
+ * the cadence filter and preset pills) and exposes `role="group"` with a
+ * per-button pressed state.
  *
- * Both segments call the single `onToggle` flip: with only two modes, clicking
- * the inactive segment and clicking the active segment are both flips.
+ * Each segment selects its own mode (standard segmented-control semantics);
+ * clicking the already-active segment is a no-op upstream.
  */
 const OPTIONS: ReadonlyArray<{
   value: SlateDisplayMode;
   Icon: typeof LayoutGrid;
   label: string;
 }> = [
-  { value: 'matrix', Icon: Grid3x3, label: 'Boss Matrix' },
   { value: 'cards', Icon: LayoutGrid, label: 'Boss Card View' },
+  { value: 'matrix', Icon: Grid3x3, label: 'Boss Matrix' },
 ];
 
 export function SlateViewToggle({
   mode,
-  onToggle,
+  onSelect,
 }: {
   mode: SlateDisplayMode;
-  onToggle: () => void;
+  onSelect: (mode: SlateDisplayMode) => void;
 }) {
   return (
     <div
       data-testid="slate-view-toggle"
       data-mode={mode}
-      className="d-c-toggle"
+      className="d-c-toggle d-c-toggle--icons"
       role="group"
       aria-label="Slate display mode"
     >
@@ -44,9 +45,9 @@ export function SlateViewToggle({
             aria-label={label}
             aria-pressed={isActive}
             className={isActive ? 'on' : ''}
-            onClick={onToggle}
+            onClick={() => onSelect(value)}
           >
-            <Icon size={12} strokeWidth={1.75} aria-hidden />
+            <Icon size={14} strokeWidth={1.75} aria-hidden />
           </button>
         );
       })}

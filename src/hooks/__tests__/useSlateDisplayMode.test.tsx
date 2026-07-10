@@ -9,32 +9,30 @@ describe('useSlateDisplayMode', () => {
     localStorage.clear();
   });
 
-  it('defaults to matrix when nothing is stored', () => {
+  it('defaults to cards when nothing is stored', () => {
     const { result } = renderHook(() => useSlateDisplayMode());
-    expect(result.current.mode).toBe('matrix');
+    expect(result.current.mode).toBe('cards');
   });
 
   it('hydrates the stored mode on mount', () => {
-    localStorage.setItem(STORAGE_KEY, 'cards');
+    localStorage.setItem(STORAGE_KEY, 'matrix');
     const { result } = renderHook(() => useSlateDisplayMode());
-    expect(result.current.mode).toBe('cards');
+    expect(result.current.mode).toBe('matrix');
   });
 
-  it('ignores an invalid stored value and falls back to matrix', () => {
+  it('ignores an invalid stored value and falls back to cards', () => {
     localStorage.setItem(STORAGE_KEY, 'bogus');
     const { result } = renderHook(() => useSlateDisplayMode());
-    expect(result.current.mode).toBe('matrix');
-  });
-
-  it('toggleMode flips matrix -> cards -> matrix', () => {
-    const { result } = renderHook(() => useSlateDisplayMode());
-    act(() => result.current.toggleMode());
     expect(result.current.mode).toBe('cards');
-    act(() => result.current.toggleMode());
-    expect(result.current.mode).toBe('matrix');
   });
 
   it('setMode sets the mode explicitly', () => {
+    const { result } = renderHook(() => useSlateDisplayMode());
+    act(() => result.current.setMode('matrix'));
+    expect(result.current.mode).toBe('matrix');
+  });
+
+  it('setMode with the current mode is a no-op (stays put)', () => {
     const { result } = renderHook(() => useSlateDisplayMode());
     act(() => result.current.setMode('cards'));
     expect(result.current.mode).toBe('cards');
@@ -42,24 +40,22 @@ describe('useSlateDisplayMode', () => {
 
   it('persists the mode to localStorage on change', () => {
     const { result } = renderHook(() => useSlateDisplayMode());
-    act(() => result.current.setMode('cards'));
-    expect(localStorage.getItem(STORAGE_KEY)).toBe('cards');
+    act(() => result.current.setMode('matrix'));
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('matrix');
   });
 
   it('a fresh hook (simulating reload) reads back the persisted mode', () => {
     const first = renderHook(() => useSlateDisplayMode());
-    act(() => first.result.current.setMode('cards'));
+    act(() => first.result.current.setMode('matrix'));
     // A brand-new hook instance mimics a page reload reading persisted state.
     const second = renderHook(() => useSlateDisplayMode());
-    expect(second.result.current.mode).toBe('cards');
+    expect(second.result.current.mode).toBe('matrix');
   });
 
-  it('setMode and toggleMode keep stable identities across renders', () => {
+  it('setMode keeps a stable identity across renders', () => {
     const { result, rerender } = renderHook(() => useSlateDisplayMode());
     const firstSet = result.current.setMode;
-    const firstToggle = result.current.toggleMode;
     rerender();
     expect(result.current.setMode).toBe(firstSet);
-    expect(result.current.toggleMode).toBe(firstToggle);
   });
 });

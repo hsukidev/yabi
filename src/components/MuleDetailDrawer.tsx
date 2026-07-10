@@ -127,10 +127,10 @@ export function MuleDetailDrawer({
   const identity = useMuleIdentityDraft(mule, onUpdate);
   const liveLevel = Number(identity.level.draft) || 0;
   const [activeInfoOpen, setActiveInfoOpen] = useState(false);
-  // Slate Display Mode is a `useState`-backed primitive with a stable toggle
+  // Slate Display Mode is a `useState`-backed primitive with a stable setter
   // callback, so threading it through the memoized MatrixToolbar / grids never
   // busts their memo barriers on keystrokes. See CLAUDE.md (drawer perf).
-  const { mode: slateDisplayMode, toggleMode: toggleSlateDisplayMode } = useSlateDisplayMode();
+  const { mode: slateDisplayMode, setMode: setSlateDisplayMode } = useSlateDisplayMode();
 
   // Presets emit weekly Slate Keys; under Daily filter those would render as
   // Filtered-out Cells. Flip to All so the click has a visible effect.
@@ -388,7 +388,7 @@ export function MuleDetailDrawer({
                   onDeleteUserPreset={deleteUserPreset}
                   onApplyUserPreset={handleApplyUserPreset}
                   slateDisplayMode={slateDisplayMode}
-                  onToggleSlateDisplayMode={toggleSlateDisplayMode}
+                  onSelectSlateDisplayMode={setSlateDisplayMode}
                 />
                 <div className="mt-2">
                   <BossSearch fused value={matrixFilter.search} onChange={matrixFilter.setSearch} />

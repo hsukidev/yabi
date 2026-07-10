@@ -613,6 +613,11 @@ html[data-theme-swap] *::after {
     background: var(--surface-2);
     color: var(--foreground);
   }
+  /* Icon-only segments (Slate View Toggle): larger glyph, tighter vertical
+   * padding so the control height stays flush with the text-based groups. */
+  .d-c-toggle--icons button {
+    padding: 4px 10px;
+  }
 
   .d-toolbar-sep {
     width: 1px;
