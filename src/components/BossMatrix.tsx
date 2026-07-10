@@ -187,11 +187,11 @@ export const BossMatrix = memo(function BossMatrix({
   const gridTemplate = `max-content repeat(${visibleTiers.length}, 1fr)`;
 
   return (
-    // Scoped tooltip provider: meso-value tooltips wait 1s before opening
+    // Scoped tooltip provider: meso-value tooltips wait 0.7s before opening
     // (an instant tooltip would pop on every cell the pointer crosses), then
     // open instantly while moving cell-to-cell within the delay group.
     // Shadows the app root's delay=0 provider for this subtree only.
-    <TooltipProvider delay={1000}>
+    <TooltipProvider delay={700}>
       {/* overflow-clip (not hidden) — keeps sticky header attached to drawer scroll; narrow drawer trades sticky for horizontal scroll */}
       <div
         className={`${cornerClass} overflow-clip @max-[500px]/drawer:overflow-x-auto @max-[500px]/drawer:overflow-y-hidden border border-(--border) bg-(--surface)`}

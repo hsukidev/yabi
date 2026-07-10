@@ -28,7 +28,7 @@ interface MesoValueProps {
  * value only — exactly what the native `title` this replaces offered.
  *
  * Open delay is NOT set here: both host views wrap themselves in a scoped
- * `TooltipProvider delay={1000}`, which shadows the app root's instant
+ * `TooltipProvider delay={700}`, which shadows the app root's instant
  * provider. It must live on a provider — under a provider, Base UI's delay
  * group substitutes the provider's `open` delay for any per-trigger `delay`,
  * so a trigger-level prop is silently ignored.

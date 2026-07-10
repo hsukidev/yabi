@@ -391,20 +391,20 @@ describe('BossMatrix', () => {
   // shared hover tooltip — the same tooltip the roster rows/cards use. The
   // matrix scopes its own TooltipProvider, so no wrapper is needed here.
   describe('Meso Display tooltip', () => {
-    it('shows the full-precision per-clear value in a hover tooltip after a 1s delay', async () => {
+    it('shows the full-precision per-clear value in a hover tooltip after a 0.7s delay', async () => {
       vi.useFakeTimers();
       try {
         renderMatrix([], vi.fn(), { [LUCID_BOSS.family]: 2 });
         const value = screen.getByTestId(`matrix-meso-value-${LUCID}-hard`);
-        // The scoped provider's 1s delay is a rest delay: it arms on pointer
-        // movement over the trigger, then opens after 1s of stillness.
+        // The scoped provider's 0.7s delay is a rest delay: it arms on pointer
+        // movement over the trigger, then opens after 0.7s of stillness.
         fireEvent.mouseEnter(value);
         fireEvent.mouseMove(value);
         const full = formatMeso(LUCID_HARD_VALUE / 2, false);
-        // Not instant — the matrix holds a 1s open delay.
+        // Not instant — the matrix holds a 0.7s open delay.
         expect(screen.queryByText(full)).toBeNull();
         await act(async () => {
-          vi.advanceTimersByTime(1000);
+          vi.advanceTimersByTime(700);
         });
         expect(screen.getByText(full)).toBeTruthy();
       } finally {
@@ -420,7 +420,7 @@ describe('BossMatrix', () => {
         fireEvent.mouseEnter(value);
         fireEvent.mouseMove(value);
         await act(async () => {
-          vi.advanceTimersByTime(1000);
+          vi.advanceTimersByTime(700);
         });
         expect(screen.getByText(formatMeso(VELLUM_NORMAL_VALUE, false))).toBeTruthy();
       } finally {

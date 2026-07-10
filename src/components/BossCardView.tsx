@@ -248,11 +248,11 @@ export const BossCardView = memo(function BossCardView({
   activeCadence,
 }: BossCardViewProps) {
   return (
-    // Scoped tooltip provider: meso-value tooltips wait 1s before opening
+    // Scoped tooltip provider: meso-value tooltips wait 0.7s before opening
     // (an instant tooltip would pop on every row the pointer crosses), then
     // open instantly while moving row-to-row within the delay group.
     // Shadows the app root's delay=0 provider for this subtree only.
-    <TooltipProvider delay={1000}>
+    <TooltipProvider delay={700}>
       {/* Responsive Boss Card grid: 1-across on narrow drawers, 2-across from
           ~440px of drawer width via the `@container/drawer` container query. Two
           is the ceiling — the winning card proportions don't support 3-across. */}
