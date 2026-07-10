@@ -401,7 +401,7 @@ The **Slate Display Mode** that renders one **Boss Card** per **Boss Family** in
 _Avoid_: Card view (reserved for the **Roster Display Mode**), card mode
 
 **Boss Card**:
-The tile in the **Boss Card View** for one **Boss Family** — sprite, family name, **Party Size** stepper, **Difficulty Rows**, and a per-clear meso readout. Shows selected styling when the family holds at least one **Slate Key**; the card body itself is never a selection surface.
+The tile in the **Boss Card View** for one **Boss Family** — sprite, family name, **Party Size** stepper, and **Difficulty Rows**, each **Difficulty Row** carrying its per-clear meso value inline next to the cadence. Shows selected styling when the family holds at least one **Slate Key**; the card body itself is never a selection surface.
 _Avoid_: Boss tile, family card, the card (unqualified)
 
 **Difficulty Row**:
@@ -474,7 +474,7 @@ _Avoid_: Character fetch, name search
 - The **PieChart Card's** slices size on **Contributed Meso**, not **Potential Meso** — a fully-dropped **Mule** renders no slice; its **Character Card** still shows full **Potential Meso** plus a **Cap Drop Badge**, while **List View** shows muted `0` with the dropped-boss info icon.
 - A **Character Card's** headline reads **Potential Meso** (uncapped, stable for planning); the **KPI Card's** bignum reads **Total Weekly Income** (post-cut). The two diverge whenever the **World Cap Cut** drops at least one slot.
 - The **Drawer** renders the **Boss Slate** in exactly one **Slate Display Mode** at a time; **Boss Matrix** and **Boss Card View** are projections of the same **Boss Slate**, so selections, **Boss Presets**, and Matrix Reset reflect identically in both — there is no per-mode selection state.
-- A **Boss Card's** meso readout is per-clear and always equals the corresponding **Boss Matrix** cell: **Daily Cadence** at full **Crystal Value**, **Weekly**/**Monthly Cadence** at **Crystal Value** ÷ **Party Size**; one line per held **Slate Key**, and a muted **Hardest Tier** preview when the family holds none.
+- A **Boss Card's** per-clear meso values are shown inline on every **Difficulty Row** (next to the cadence, always — selected or not) and always equal the corresponding **Boss Matrix** cell: **Daily Cadence** at full **Crystal Value**, **Weekly**/**Monthly Cadence** at **Crystal Value** ÷ **Party Size**. The value shares the row's color — accent when the **Difficulty Row** holds its **Slate Key**, muted otherwise.
 
 ## Example dialogue
 

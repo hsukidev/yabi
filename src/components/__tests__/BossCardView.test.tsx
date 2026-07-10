@@ -463,10 +463,10 @@ describe('BossCardView', () => {
   });
 
   // ─── Meso readout (#288) ──────────────────────────────────────────────────
-  // Per-clear Computed Values at the card bottom that ALWAYS numerically equal
-  // the matching Boss Matrix cell. The readout re-derives nothing — it reuses
-  // the matrix's exact formula: daily = full Crystal Value, weekly/monthly =
-  // Crystal Value ÷ Party Size.
+  // Per-clear Computed Values shown inline on EVERY Difficulty Row, next to the
+  // cadence, that ALWAYS numerically equal the matching Boss Matrix cell. The
+  // readout re-derives nothing — it reuses the matrix's exact formula: daily =
+  // full Crystal Value, weekly/monthly = Crystal Value ÷ Party Size.
   describe('meso readout', () => {
     /** The `crystalValue` the projection baked into a family's (tier) row. */
     function crystalValueOf(family: string, tier: string): number {
@@ -489,44 +489,32 @@ describe('BossCardView', () => {
       return formatMeso(cadence === 'daily' ? cv : cv / party, true);
     }
 
-    describe('held keys — one line per Slate Key', () => {
+    describe('held keys — one inline value per Slate Row', () => {
       it('a weekly key renders its per-clear value ÷ Party Size', () => {
         renderCards(viewOf([HARD_LUCID]), { [LUCID_BOSS.family]: 3 });
         const value = screen.getByTestId(`boss-card-meso-value-${LUCID}-hard`);
         expect(value.textContent).toBe(expectedAbbrev('lucid', 'hard', 'weekly', 3));
-        // No cadence tag on a weekly line.
-        const line = screen.getByTestId(`boss-card-meso-line-${LUCID}-hard`);
-        expect(line.textContent).not.toContain('x 7');
-        expect(line.textContent).not.toContain('mo');
       });
 
-      it('a daily key renders full Crystal Value (Party Size ignored) with the x 7 tag', () => {
+      it('a daily key renders full Crystal Value (Party Size ignored)', () => {
         renderCards(viewOf([NORMAL_VELLUM_DAILY]), { [VELLUM_BOSS.family]: 5 });
         const value = screen.getByTestId(`boss-card-meso-value-${VELLUM}-normal`);
         // Party size 5 must NOT change the daily value.
         expect(value.textContent).toBe(expectedAbbrev('vellum', 'normal', 'daily', 1));
         expect(value.textContent).toBe(expectedAbbrev('vellum', 'normal', 'daily', 5));
-        expect(screen.getByTestId(`boss-card-meso-line-${VELLUM}-normal`).textContent).toContain(
-          'x 7',
-        );
       });
 
-      it('a monthly key renders its per-clear value ÷ Party Size with the mo tag', () => {
+      it('a monthly key renders its per-clear value ÷ Party Size', () => {
         renderCards(viewOf([HARD_BM]), { [BLACK_MAGE_BOSS.family]: 2 });
         const value = screen.getByTestId(`boss-card-meso-value-${BLACK_MAGE}-hard`);
         expect(value.textContent).toBe(expectedAbbrev('black-mage', 'hard', 'monthly', 2));
-        const line = screen.getByTestId(`boss-card-meso-line-${BLACK_MAGE}-hard`);
-        expect(line.textContent).toContain('mo');
-        expect(line.textContent).not.toContain('x 7');
       });
 
-      it('multiple held cadences render one line each and are never summed', () => {
+      it('multiple held cadences each show their own inline value, never summed', () => {
         renderCards(viewOf([NORMAL_VELLUM_DAILY, CHAOS_VELLUM_WEEKLY]), {
           [VELLUM_BOSS.family]: 1,
         });
-        const container = screen.getByTestId(`boss-card-meso-${VELLUM}`);
-        const lines = container.querySelectorAll('[data-testid^="boss-card-meso-line-"]');
-        expect(lines).toHaveLength(2);
+        const rows = screen.getByTestId(`boss-card-rows-${VELLUM}`);
 
         const dailyStr = expectedAbbrev('vellum', 'normal', 'daily', 1);
         const weeklyStr = expectedAbbrev('vellum', 'chaos', 'weekly', 1);
@@ -536,39 +524,30 @@ describe('BossCardView', () => {
         expect(screen.getByTestId(`boss-card-meso-value-${VELLUM}-chaos`).textContent).toBe(
           weeklyStr,
         );
-        // Neither line shows a summed total.
+        // No row shows a summed total.
         const summed = formatMeso(
           crystalValueOf('vellum', 'normal') + crystalValueOf('vellum', 'chaos'),
           true,
         );
-        expect(container.textContent).not.toContain(summed);
+        expect(rows.textContent).not.toContain(summed);
       });
     });
 
-    describe('unselected card — muted Hardest Tier preview', () => {
-      it('shows the Hardest Tier per-clear value, muted, when no key is held', () => {
+    describe('unselected card — every row shows its value', () => {
+      it('renders a per-clear value on every Difficulty Row when no key is held', () => {
         renderCards(viewOf(), { [LUCID_BOSS.family]: 1 });
-        // Hardest Tier = highest Crystal Value row in the projection.
-        const hardest = viewOf()
-          .find((f) => f.family === 'lucid')!
-          .rows.reduce((best, r) => (r.crystalValue > best.crystalValue ? r : best));
-        const line = screen.getByTestId(`boss-card-meso-line-${LUCID}-${hardest.tier}`);
-        expect(line.getAttribute('data-preview')).toBe('true');
-        expect(line.getAttribute('data-muted')).toBe('true');
-        const value = screen.getByTestId(`boss-card-meso-value-${LUCID}-${hardest.tier}`);
-        expect(value.textContent).toBe(
-          formatMeso(
-            hardest.cadence === 'daily' ? hardest.crystalValue : hardest.crystalValue / 1,
-            true,
-          ),
-        );
+        const lucid = viewOf().find((f) => f.family === 'lucid')!;
+        for (const row of lucid.rows) {
+          const value = screen.getByTestId(`boss-card-meso-value-${LUCID}-${row.tier}`);
+          expect(value.textContent).toBe(
+            formatMeso(row.cadence === 'daily' ? row.crystalValue : row.crystalValue / 1, true),
+          );
+        }
       });
 
-      it('replaces the preview with a live line once a key is held', () => {
+      it('keeps a value on every row once a key is held', () => {
         const { rerender } = renderCards(viewOf(), { [LUCID_BOSS.family]: 1 });
-        expect(
-          screen.getByTestId(`boss-card-meso-${LUCID}`).querySelector('[data-preview="true"]'),
-        ).toBeTruthy();
+        const lucid = viewOf([NORMAL_LUCID]).find((f) => f.family === 'lucid')!;
         rerender(
           <BossCardView
             families={viewOf([NORMAL_LUCID])}
@@ -577,23 +556,21 @@ describe('BossCardView', () => {
             onChangePartySize={vi.fn()}
           />,
         );
-        const container = screen.getByTestId(`boss-card-meso-${LUCID}`);
-        expect(container.querySelector('[data-preview="true"]')).toBeNull();
-        expect(screen.getByTestId(`boss-card-meso-line-${LUCID}-normal`)).toBeTruthy();
+        for (const row of lucid.rows) {
+          expect(screen.getByTestId(`boss-card-meso-value-${LUCID}-${row.tier}`)).toBeTruthy();
+        }
       });
     });
 
-    describe('Meso Display convention (tooltip + zero)', () => {
-      it('exposes the full value via a tooltip trigger when non-zero', () => {
+    describe('Meso Display convention (title + zero)', () => {
+      it('exposes the full value via the native title attribute when non-zero', () => {
         renderCards(viewOf([HARD_LUCID]), { [LUCID_BOSS.family]: 1 });
         const value = screen.getByTestId(`boss-card-meso-value-${LUCID}-hard`);
-        const trigger = value.querySelector('button');
-        expect(trigger).toBeTruthy();
         const full = formatMeso(crystalValueOf('lucid', 'hard'), false);
-        expect(trigger!.getAttribute('aria-label')).toContain(full);
+        expect(value.getAttribute('title')).toBe(full);
       });
 
-      it('renders a zero value as plain text with no tooltip trigger', () => {
+      it('renders a zero value as plain text with no title', () => {
         // No real boss has a zero per-clear Crystal Value, so exercise the
         // Meso Display zero branch directly with a synthetic family.
         const zeroRow: SlateRow = {
@@ -622,7 +599,7 @@ describe('BossCardView', () => {
         );
         const value = screen.getByTestId('boss-card-meso-value-zero-normal');
         expect(value.textContent).toBe('0');
-        expect(value.querySelector('button')).toBeNull();
+        expect(value.getAttribute('title')).toBeNull();
       });
     });
 
