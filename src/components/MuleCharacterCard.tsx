@@ -3,12 +3,11 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { Mule } from '../types';
 import { useDensity } from '../context/DensityProvider';
-import { useFormattedIncome } from '../hooks/useFormattedIncome';
 import { useMatchMedia } from '../hooks/useMatchMedia';
 import { MuleBossSlate, type SlateKey } from '../data/muleBossSlate';
 import { resolveWorldGroup } from '../data/worlds';
 import { CharacterAvatar } from './CharacterAvatar';
-import { MetricTooltip } from './MetricTooltip';
+import { MesoMetric } from './MesoDisplay';
 import { ROSTER_CARD_ASPECT, ROSTER_CARD_MIN_HEIGHT } from './rosterCardContract';
 import { NotesTooltipTrigger } from './RosterItem/NotesTooltipTrigger';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
@@ -73,8 +72,6 @@ const MuleCardInner = memo(function MuleCardInner({
     mule.selectedBosses,
     resolveWorldGroup(mule.worldId),
   ).monthlyCrystalValue(mule.partySizes);
-  const { abbreviated: weeklyIncome, full: weeklyIncomeFull } = useFormattedIncome(weeklyIncomeRaw);
-  const { abbreviated: bmIncome, full: bmIncomeFull } = useFormattedIncome(bmIncomeRaw);
   const incomeColor = displayedWeeklyMeso.muted
     ? 'var(--dim, var(--surface-dim))'
     : 'var(--accent-raw, var(--accent))';
@@ -165,21 +162,11 @@ const MuleCardInner = memo(function MuleCardInner({
       </div>
 
       <div style={{ marginTop: 6, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
-        <IncomeLine
-          label="INCOME"
-          value={weeklyIncome}
-          fullValue={weeklyIncomeFull}
-          color={incomeColor}
-        >
+        <IncomeLine label="INCOME" value={weeklyIncomeRaw} color={incomeColor}>
           <CapDropTooltipTrigger droppedKeys={dropped} />
         </IncomeLine>
         {density !== 'compact' && (
-          <IncomeLine
-            label="BM INCOME"
-            value={bmIncome}
-            fullValue={bmIncomeFull}
-            color={bmIncomeColor}
-          />
+          <IncomeLine label="BM INCOME" value={bmIncomeRaw} color={bmIncomeColor} />
         )}
       </div>
     </>
@@ -189,34 +176,14 @@ const MuleCardInner = memo(function MuleCardInner({
 function IncomeLine({
   label,
   value,
-  fullValue,
   color,
   children,
 }: {
   label: string;
-  value: string;
-  fullValue: string;
+  value: number;
   color: string;
   children?: React.ReactNode;
 }) {
-  const valueNode = (
-    <span
-      data-card-income-value
-      style={{
-        color,
-        fontFamily: 'Geist Mono, monospace',
-        fontSize: 13,
-        fontWeight: 600,
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        minWidth: 0,
-      }}
-    >
-      {value}
-    </span>
-  );
-
   return (
     <div className="flex flex-row items-center justify-between gap-2 min-w-0">
       <span
@@ -235,13 +202,21 @@ function IncomeLine({
         {label}
       </span>
       <div className="flex flex-row items-center gap-1.5 min-w-0">
-        {value === '0' ? (
-          valueNode
-        ) : (
-          <MetricTooltip ariaLabel={`${label} meso ${fullValue}`} tooltip={fullValue}>
-            {valueNode}
-          </MetricTooltip>
-        )}
+        <MesoMetric
+          value={value}
+          label={`${label} meso`}
+          data-card-income-value
+          style={{
+            color,
+            fontFamily: 'Geist Mono, monospace',
+            fontSize: 13,
+            fontWeight: 600,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            minWidth: 0,
+          }}
+        />
         {children}
       </div>
     </div>

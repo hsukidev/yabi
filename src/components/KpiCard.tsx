@@ -1,13 +1,12 @@
 import { memo } from 'react';
 import { useMatchMedia } from '../hooks/useMatchMedia';
-import { formatMeso } from '../utils/meso';
 import { useWorldIncome, WORLD_WEEKLY_CRYSTAL_CAP } from '../modules/worldIncome';
 import { expectedBlackMageIncomeForRoster } from '../modules/monthlyIncome';
 import { MuleBossSlate } from '../data/muleBossSlate';
 import { resolveWorldGroup } from '../data/worlds';
 import { ResetCountdown } from './ResetCountdown';
 import { WeeklyCapRail } from './WeeklyCapRail';
-import { MetricTooltip } from './MetricTooltip';
+import { MesoMetric } from './MesoDisplay';
 import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
 import monthlyCrystalPng from '../assets/monthly-crystal.png';
@@ -57,14 +56,6 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
     ? { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 20 }
     : { display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: 10, marginTop: 20 };
 
-  const abbrFormatted = formatMeso(totalRaw, true, isNarrowViewport);
-  const fullFormatted = formatMeso(totalRaw, false);
-  const expectedBlackMageIncomeAbbrFormatted = formatMeso(
-    expectedBlackMageIncomeRaw,
-    true,
-    isNarrowViewport,
-  );
-  const expectedBlackMageIncomeFullFormatted = formatMeso(expectedBlackMageIncomeRaw, false);
   const incomeGridStyle: React.CSSProperties = isIncomeStackedLayout
     ? { display: 'grid', gridTemplateColumns: '1fr', gap: 12, marginTop: 18 }
     : {
@@ -103,11 +94,11 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
               position: 'relative',
             }}
           >
-            <MesoTooltipValue
-              raw={totalRaw}
-              abbreviated={abbrFormatted}
-              full={fullFormatted}
-              ariaLabel={`Expected weekly income ${fullFormatted}`}
+            <MesoMetric
+              value={totalRaw}
+              narrow={isNarrowViewport}
+              label="Expected weekly income"
+              className="bignum"
             />
           </div>
         </KpiIncomeBlock>
@@ -124,11 +115,11 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
               position: 'relative',
             }}
           >
-            <MesoTooltipValue
-              raw={expectedBlackMageIncomeRaw}
-              abbreviated={expectedBlackMageIncomeAbbrFormatted}
-              full={expectedBlackMageIncomeFullFormatted}
-              ariaLabel={`Expected Black Mage income ${expectedBlackMageIncomeFullFormatted}`}
+            <MesoMetric
+              value={expectedBlackMageIncomeRaw}
+              narrow={isNarrowViewport}
+              label="Expected Black Mage income"
+              className="bignum"
             />
           </div>
         </KpiIncomeBlock>
@@ -158,32 +149,6 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
     </div>
   );
 });
-
-function MesoTooltipValue({
-  raw,
-  abbreviated,
-  full,
-  ariaLabel,
-}: {
-  raw: number;
-  abbreviated: string;
-  full: string;
-  ariaLabel: string;
-}) {
-  if (raw === 0) {
-    return <span className="bignum">{abbreviated}</span>;
-  }
-
-  return (
-    <MetricTooltip
-      ariaLabel={ariaLabel}
-      tooltip={full}
-      className="bignum inline-flex bg-transparent border-0 p-0"
-    >
-      {abbreviated}
-    </MetricTooltip>
-  );
-}
 
 const KpiIncomeBlock = memo(function KpiIncomeBlock({ children }: { children: React.ReactNode }) {
   return (

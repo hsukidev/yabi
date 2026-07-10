@@ -17,7 +17,7 @@ import { BossSlateEmpty } from './BossSlateEmpty';
 import { BossSearch } from './BossSearch';
 import { MatrixToolbar } from './MatrixToolbar';
 import { CharacterAvatar } from './CharacterAvatar';
-import { MetricTooltip } from './MetricTooltip';
+import { MesoMetric } from './MesoDisplay';
 import { useDeleteConfirm } from './MuleDetailDrawer/hooks/useDeleteConfirm';
 import { useMuleIdentityDraft } from './MuleDetailDrawer/hooks/useMuleIdentityDraft';
 import { useMatrixFilter } from './MuleDetailDrawer/hooks/useMatrixFilter';
@@ -73,8 +73,6 @@ export function MuleDetailDrawer({
   );
   const weeklyIncomeRaw = metrics?.displayedWeeklyMeso.meso ?? potentialIncomeRaw;
   const weeklyIncome = formatMeso(weeklyIncomeRaw, true);
-  const fullWeeklyIncome = formatMeso(weeklyIncomeRaw, false);
-  const showWeeklyIncomeTooltip = weeklyIncomeRaw > 0;
   const weeklyIncomeColor = metrics?.displayedWeeklyMeso.muted
     ? 'var(--dim, var(--surface-dim))'
     : 'var(--accent-numeric)';
@@ -84,8 +82,6 @@ export function MuleDetailDrawer({
     [slate, mule?.partySizes],
   );
   const monthlyIncome = formatMeso(monthlyIncomeRaw, true);
-  const fullMonthlyIncome = formatMeso(monthlyIncomeRaw, false);
-  const showMonthlyIncomeTooltip = monthlyIncomeRaw > 0;
 
   const matrixFilter = useMatrixFilter({ muleId, slate });
   const partySizes = usePartySizes({
@@ -202,72 +198,38 @@ export function MuleDetailDrawer({
                       data-testid="drawer-weekly-income-row"
                       className="inline-flex items-center gap-1.5"
                     >
-                      {showWeeklyIncomeTooltip ? (
-                        <MetricTooltip
-                          ariaLabel={`Weekly meso ${fullWeeklyIncome}`}
-                          tooltip={fullWeeklyIncome}
-                          className={HEADER_INCOME_CHIP_CLASS}
-                          style={HEADER_INCOME_CHIP_STYLE}
+                      <MesoMetric
+                        value={weeklyIncomeRaw}
+                        label="Weekly meso"
+                        className={HEADER_INCOME_CHIP_CLASS}
+                        style={HEADER_INCOME_CHIP_STYLE}
+                      >
+                        <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
+                          Weekly
+                        </span>
+                        <span
+                          data-testid="drawer-weekly-income-value"
+                          className="font-mono-nums text-base"
+                          style={{ color: weeklyIncomeColor }}
                         >
-                          <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
-                            Weekly
-                          </span>
-                          <span
-                            data-testid="drawer-weekly-income-value"
-                            className="font-mono-nums text-base"
-                            style={{ color: weeklyIncomeColor }}
-                          >
-                            {weeklyIncome}
-                          </span>
-                        </MetricTooltip>
-                      ) : (
-                        <div
-                          aria-label={`Weekly meso ${fullWeeklyIncome}`}
-                          className={HEADER_INCOME_CHIP_CLASS}
-                          style={HEADER_INCOME_CHIP_STYLE}
-                        >
-                          <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
-                            Weekly
-                          </span>
-                          <span
-                            data-testid="drawer-weekly-income-value"
-                            className="font-mono-nums text-base"
-                            style={{ color: weeklyIncomeColor }}
-                          >
-                            {weeklyIncome}
-                          </span>
-                        </div>
-                      )}
+                          {weeklyIncome}
+                        </span>
+                      </MesoMetric>
                       <CapDropTooltipTrigger droppedKeys={droppedKeys} />
                     </div>
-                    {showMonthlyIncomeTooltip ? (
-                      <MetricTooltip
-                        ariaLabel={`Potential Black Mage monthly meso ${fullMonthlyIncome}`}
-                        tooltip={fullMonthlyIncome}
-                        className={HEADER_INCOME_CHIP_CLASS}
-                        style={HEADER_INCOME_CHIP_STYLE}
-                      >
-                        <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
-                          BM MONTHLY
-                        </span>
-                        <span className="font-mono-nums text-base text-(--accent-numeric)">
-                          {monthlyIncome}
-                        </span>
-                      </MetricTooltip>
-                    ) : (
-                      <div
-                        aria-label={`Potential Black Mage monthly meso ${fullMonthlyIncome}`}
-                        className={HEADER_INCOME_CHIP_CLASS}
-                        style={HEADER_INCOME_CHIP_STYLE}
-                      >
-                        <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
-                          BM MONTHLY
-                        </span>
-                        <span className="font-mono-nums text-base text-(--accent-numeric)">
-                          {monthlyIncome}
-                        </span>
-                      </div>
-                    )}
+                    <MesoMetric
+                      value={monthlyIncomeRaw}
+                      label="Potential Black Mage monthly meso"
+                      className={HEADER_INCOME_CHIP_CLASS}
+                      style={HEADER_INCOME_CHIP_STYLE}
+                    >
+                      <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
+                        BM MONTHLY
+                      </span>
+                      <span className="font-mono-nums text-base text-(--accent-numeric)">
+                        {monthlyIncome}
+                      </span>
+                    </MesoMetric>
                     <div className="inline-flex items-center">
                       <button
                         type="button"

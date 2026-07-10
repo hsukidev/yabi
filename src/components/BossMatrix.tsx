@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react';
 import type { BossCadence, BossTier } from '../types';
 import type { SlateFamily, SlateKey, SlateRow } from '../data/muleBossSlate';
 import { TIER_COLOR, TIER_HEADER_LABEL } from '../constants/tiers';
-import { MesoValue } from './MesoValue';
+import { MesoValue } from './MesoDisplay';
 import { PartyStepper } from './PartyStepper';
 
 /** Column order in the Matrix — extreme → easy, hardest first. */

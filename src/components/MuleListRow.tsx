@@ -2,13 +2,12 @@ import { memo, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
-import { useFormattedIncome } from '../hooks/useFormattedIncome';
 import { useMatchMedia } from '../hooks/useMatchMedia';
 import type { SlateKey } from '../data/muleBossSlate';
 import type { Mule } from '../types';
 import type { RosterRowMetrics } from './rosterRowMetrics';
 import { CharacterAvatar } from './CharacterAvatar';
-import { MetricTooltip } from './MetricTooltip';
+import { MesoMetric } from './MesoDisplay';
 import { NotesTooltipTrigger } from './RosterItem/NotesTooltipTrigger';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import { SelectionIndicator } from './RosterItem/SelectionIndicator';
@@ -98,9 +97,6 @@ export const MuleListRow = memo(function MuleListRow({
     disabled: bulkMode,
   });
   const displayedWeeklyMeso = metrics.displayedWeeklyMeso;
-  const { abbreviated: displayedIncome, full: fullIncome } = useFormattedIncome(
-    displayedWeeklyMeso.meso,
-  );
 
   function handleActivate() {
     if (bulkMode) onToggleSelect?.(mule.id);
@@ -309,37 +305,19 @@ export const MuleListRow = memo(function MuleListRow({
 
       <div style={{ textAlign: 'right', minWidth: 0 }}>
         <div className="flex flex-row items-center justify-end gap-1.5" style={{ minWidth: 0 }}>
-          {displayedWeeklyMeso.meso === 0 ? (
-            <span
-              data-row-income-value
-              style={{
-                fontFamily: MONO,
-                fontSize: 'var(--row-income-size, 22px)',
-                fontWeight: 600,
-                color: incomeColor,
-                lineHeight: 1.1,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {displayedIncome}
-            </span>
-          ) : (
-            <MetricTooltip ariaLabel={`Weekly meso ${fullIncome}`} tooltip={fullIncome}>
-              <span
-                data-row-income-value
-                style={{
-                  fontFamily: MONO,
-                  fontSize: 'var(--row-income-size, 22px)',
-                  fontWeight: 600,
-                  color: incomeColor,
-                  lineHeight: 1.1,
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {displayedIncome}
-              </span>
-            </MetricTooltip>
-          )}
+          <MesoMetric
+            value={displayedWeeklyMeso.meso}
+            label="Weekly meso"
+            data-row-income-value
+            style={{
+              fontFamily: MONO,
+              fontSize: 'var(--row-income-size, 22px)',
+              fontWeight: 600,
+              color: incomeColor,
+              lineHeight: 1.1,
+              whiteSpace: 'nowrap',
+            }}
+          />
           <CapDropTooltipTrigger droppedKeys={droppedKeys} />
         </div>
         <div

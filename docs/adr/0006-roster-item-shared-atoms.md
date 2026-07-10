@@ -8,6 +8,7 @@
 - **`<CapDropTooltipTrigger />`** — the Info-icon trigger + `formatDroppedSlots` lines. Identical across modes.
 - **`<SelectionIndicator />`** — the destructive-tinted box + Check render in **Bulk Delete Mode**. Identical visual; positioning controlled by the parent layout.
 - **`useFormattedIncome(displayedWeeklyMeso.meso, { force?: boolean })`** — single hook that reads **Format Preference** and the optional `forceAbbreviated` override. Replaces the parallel `useIncome().abbreviated` / `formatMeso` calls in both files.
+  _Superseded (2026-07): **Format Preference** was later removed in favour of the always-abbreviated **Meso Display** convention, leaving `useFormattedIncome` a shallow non-hook. Its job folded into the `MesoDisplay` module (`MesoMetric` / `MesoValue`), which owns the whole convention — zero-branch, tooltip, and formatting. The sharing this ADR wanted is preserved; the seam deepened._
 
 ## What stays divergent
 

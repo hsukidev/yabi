@@ -3,7 +3,7 @@ import type { BossCadence } from '../types';
 import type { SlateFamily, SlateKey, SlateRow } from '../data/muleBossSlate';
 import { bossImageUrl } from '../data/bosses';
 import { TIER_COLOR, TIER_HEADER_LABEL } from '../constants/tiers';
-import { MesoValue } from './MesoValue';
+import { MesoValue } from './MesoDisplay';
 import { PartyStepper } from './PartyStepper';
 
 interface BossCardViewProps {
