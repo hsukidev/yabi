@@ -29,6 +29,15 @@ predecessor-slice changes that aren't yet in main.
 
 `git worktree list` will show the full path for the current agent's worktree.
 
+## Base UI Switch — clicks re-bubble from a hidden input
+
+`@base-ui/react` Switch toggles through a hidden `<input>`, so a click on the
+visible switch button dispatches a **second** click event from that input.
+`stopPropagation` on the Switch element itself does not stop it. If a Switch
+sits inside a click-to-activate surface (roster row/card body), wrap it in a
+guard element that calls `stopPropagation` for click/pointerdown/keydown —
+see `RosterItem/RosterActiveSwitch.tsx`.
+
 ## MuleDetailDrawer — keystroke perf invariants
 
 The drawer renders `BossMatrix` (potentially hundreds of cells).

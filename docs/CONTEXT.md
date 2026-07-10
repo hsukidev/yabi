@@ -427,6 +427,11 @@ _Avoid_: World dropdown, world picker
 
 **Active Toggle**:
 The pill in the **Drawer's** identity section that flips a **Mule's** **Active Flag**.
+_Avoid_: Active switch (that's the **Roster Active Switch**)
+
+**Roster Active Switch**:
+The hover-revealed switch (track + thumb) on roster items that flips a **Mule's** **Active Flag** in place, without opening the **Drawer** — top-right corner on a **Character Card**, in the identity cluster after the Lv.X pill on a **List View** row. Revealed on pointer hover or keyboard focus only, in both states; absent on touch devices and in bulk-delete mode. Flips instantly — no confirmation. Distinct from the **Active Toggle** (the **Drawer** pill); both write the same **Active Flag**.
+_Avoid_: Card toggle, hover toggle, active toggle (unqualified), park switch
 
 **Crystal Tally**:
 The horizontal three-cell readout in the **Drawer** showing **Weekly Count** (`X/14`), **Daily Count** (`X`), and **Monthly Count** (`X`).
@@ -458,6 +463,8 @@ _Avoid_: Character fetch, name search
 - A **Monthly Cadence** **Slate Key** contributes 0 **Crystal Slots** and 0 meso to **Total Weekly Income** (see **Monthly Income Regression**), while contributing to **Expected Black Mage Income** when it is a Black Mage key.
 - A **Mule's** **Potential Income** equals its **Total Crystal Value** under its **World Group** — `Income.of` resolves each **Mule** individually, so a **Roster** mixing **Heroic** and **Interactive** **Mules** prices each one against its own **Crystal Value** component.
 - A **Mule** is an **Active Mule** iff its **Active Flag** is `true` — independent of whether it has any bosses selected.
+- The **Active Flag** has exactly two writers — the **Active Toggle** (**Drawer**) and the **Roster Active Switch** (**Character Card** and **List View** row) — and they are always in agreement because there is one flag.
+- Deleting a **Mule** has exactly two paths: bulk delete from the **Roster** header, or the **Drawer's** delete action. Roster items (**Character Card**, **List View** row) carry no per-item delete.
 - **Total Weekly Income** = sum of **Active Mules'** **Contributed Meso** in the **Selected World** — diverges from the sum of **Potential Meso** whenever the **World Cap Cut** drops at least one slot.
 - An **Inactive Mule** contributes zero to **Total Weekly Income** regardless of selection; its **Character Card** and **List View** row still show its **Potential Meso** in muted styling.
 - **Displayed Weekly Meso** is the roster readout bridge: **Active Mules** show **Contributed Meso**, including muted `0` when fully dropped; **Inactive Mules** show muted **Potential Meso** for planning without affecting **Total Weekly Income** or share.

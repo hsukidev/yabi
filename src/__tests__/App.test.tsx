@@ -578,14 +578,12 @@ describe('Bulk Delete Mode', () => {
     expect(screen.queryByText(/Lv\./)).toBeNull();
   });
 
-  it('hides the hover-trash popover on every card while in bulk mode', async () => {
+  it('hides the Roster Active Switch on every card while in bulk mode', async () => {
     seedMules(testMules);
     const { container } = await renderApp();
-    expect(container.querySelectorAll('button[aria-label="Delete mule"]').length).toBeGreaterThan(
-      0,
-    );
+    expect(container.querySelectorAll('[role="switch"]').length).toBeGreaterThan(0);
     enterBulk();
-    expect(container.querySelectorAll('button[aria-label="Delete mule"]')).toHaveLength(0);
+    expect(container.querySelectorAll('[role="switch"]')).toHaveLength(0);
   });
 
   it('drag-to-reorder does not trigger in bulk mode (dnd sensors suspended)', async () => {

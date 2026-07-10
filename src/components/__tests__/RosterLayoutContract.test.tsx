@@ -71,7 +71,7 @@ function renderMuleCard(mule: Mule = makeMule()) {
         <MuleCharacterCard
           mule={mule}
           onClick={() => {}}
-          onDelete={() => {}}
+          onToggleActive={() => {}}
           metrics={emptyMetrics}
         />
       </SortableContext>

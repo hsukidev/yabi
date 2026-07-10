@@ -138,6 +138,16 @@ export function Dashboard() {
     setSelectedMuleId(muleId);
   }, []);
 
+  // Roster Active Switch — same Active Flag write as the Drawer's Active
+  // Toggle. `updateMule` is identity-stable, so this never busts the
+  // card/row memo barriers.
+  const handleToggleActive = useCallback(
+    (id: string, active: boolean) => {
+      updateMule(id, { active });
+    },
+    [updateMule],
+  );
+
   const handleCloseDrawer = useCallback(() => {
     setSelectedMuleId(null);
   }, []);
@@ -258,6 +268,7 @@ export function Dashboard() {
                     mules={mulesInWorld}
                     metricsByMule={metricsByMule}
                     onCardClick={handleCardClick}
+                    onToggleActive={handleToggleActive}
                     bulkMode={bulkMode}
                     toDelete={toDelete}
                     onToggleSelect={toggleDelete}
@@ -279,7 +290,7 @@ export function Dashboard() {
                           key={mule.id}
                           mule={mule}
                           onClick={handleCardClick}
-                          onDelete={deleteMule}
+                          onToggleActive={handleToggleActive}
                           bulkMode={bulkMode}
                           selected={toDelete.has(mule.id)}
                           onToggleSelect={toggleDelete}

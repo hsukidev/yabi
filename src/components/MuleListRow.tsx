@@ -3,6 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
 import { useFormattedIncome } from '../hooks/useFormattedIncome';
+import { useMatchMedia } from '../hooks/useMatchMedia';
 import type { SlateKey } from '../data/muleBossSlate';
 import type { Mule } from '../types';
 import type { RosterRowMetrics } from './rosterRowMetrics';
@@ -11,6 +12,7 @@ import { MetricTooltip } from './MetricTooltip';
 import { NotesTooltipTrigger } from './RosterItem/NotesTooltipTrigger';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import { SelectionIndicator } from './RosterItem/SelectionIndicator';
+import { RosterActiveSwitch } from './RosterItem/RosterActiveSwitch';
 import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
 import monthlyCrystalPng from '../assets/monthly-crystal.png';
@@ -19,6 +21,7 @@ interface MuleListRowProps {
   mule: Mule;
   metrics: RosterRowMetrics;
   onClick: (id: string) => void;
+  onToggleActive: (id: string, active: boolean) => void;
   bulkMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
@@ -69,12 +72,15 @@ export const MuleListRow = memo(function MuleListRow({
   mule,
   metrics,
   onClick,
+  onToggleActive,
   bulkMode = false,
   selected = false,
   onToggleSelect,
   isPaintEngaged = false,
 }: MuleListRowProps) {
   const [isPressed, setIsPressed] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const isTouch = useMatchMedia('(pointer: coarse)');
   const handlePressStart = () => setIsPressed(true);
   const handlePressEnd = () => setIsPressed(false);
 
@@ -161,6 +167,8 @@ export const MuleListRow = memo(function MuleListRow({
       tabIndex={0}
       onClick={handleActivate}
       onKeyDown={handleKeyDown}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       onTouchStart={handlePressStart}
       onTouchEnd={handlePressEnd}
       onTouchCancel={handlePressEnd}
@@ -228,6 +236,14 @@ export const MuleListRow = memo(function MuleListRow({
             <span data-row-level style={LEVEL_PILL_STYLE}>
               Lv.{mule.level}
             </span>
+          )}
+          {!bulkMode && !isTouch && (
+            <RosterActiveSwitch
+              muleId={mule.id}
+              active={mule.active}
+              revealed={isHovered}
+              onToggleActive={onToggleActive}
+            />
           )}
           <NotesTooltipTrigger notes={notes} iconSize="md" />
         </div>

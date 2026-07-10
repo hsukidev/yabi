@@ -1,9 +1,6 @@
 import { memo, useEffect, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { Mule } from '../types';
 import { useDensity } from '../context/DensityProvider';
 import { useFormattedIncome } from '../hooks/useFormattedIncome';
@@ -16,12 +13,13 @@ import { ROSTER_CARD_ASPECT, ROSTER_CARD_MIN_HEIGHT } from './rosterCardContract
 import { NotesTooltipTrigger } from './RosterItem/NotesTooltipTrigger';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import { SelectionIndicator } from './RosterItem/SelectionIndicator';
+import { RosterActiveSwitch } from './RosterItem/RosterActiveSwitch';
 import type { RosterRowMetrics } from './rosterRowMetrics';
 
 interface MuleCharacterCardProps {
   mule: Mule;
   onClick: (id: string) => void;
-  onDelete: (id: string) => void;
+  onToggleActive: (id: string, active: boolean) => void;
   bulkMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
@@ -252,7 +250,7 @@ function IncomeLine({
 export const MuleCharacterCard = memo(function MuleCharacterCard({
   mule,
   onClick,
-  onDelete,
+  onToggleActive,
   bulkMode = false,
   selected = false,
   onToggleSelect,
@@ -266,7 +264,6 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
   });
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
-  const [popoverOpen, setPopoverOpen] = useState(false);
   const isTouch = useMatchMedia('(pointer: coarse)');
 
   useEffect(() => {
@@ -294,20 +291,9 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
       handleActivate();
     }
   }
-  function stopPropagation(e: React.SyntheticEvent) {
-    e.stopPropagation();
-  }
-  function handleDeleteConfirm() {
-    onDelete(mule.id);
-    setPopoverOpen(false);
-  }
-  function handleDeleteCancel() {
-    setPopoverOpen(false);
-  }
-
   // In bulk mode we suppress hover-lift on unselected cards AND the selected
-  // visual treatment overrides any hover shadow. Single delete path is
-  // untouched — `isHovered` still drives the normal hover state outside bulk.
+  // visual treatment overrides any hover shadow. Outside bulk, `isHovered`
+  // still drives the normal hover state (and the Roster Active Switch reveal).
   const hoverActive = !bulkMode && isHovered;
   const panelBoxShadow =
     bulkMode && selected
@@ -375,61 +361,14 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
         )}
 
         {!bulkMode && !isTouch && (
-          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-            <PopoverTrigger
-              render={
-                <button
-                  aria-label="Delete mule"
-                  style={{
-                    position: 'absolute',
-                    top: 8,
-                    right: 8,
-                    padding: '4px 6px',
-                    borderRadius: 4,
-                    background: 'var(--surface-2, var(--surface-raised))',
-                    border: '1px solid var(--border)',
-                    color: 'var(--muted-raw, var(--muted-foreground))',
-                    opacity: isHovered || popoverOpen ? 1 : 0,
-                    transition: 'opacity 140ms, color 140ms, border-color 140ms, background 140ms',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = DESTRUCTIVE;
-                    e.currentTarget.style.borderColor = destructiveAlpha(40);
-                    e.currentTarget.style.background = destructiveAlpha(10);
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = 'var(--muted-raw, var(--muted-foreground))';
-                    e.currentTarget.style.borderColor = 'var(--border)';
-                    e.currentTarget.style.background = 'var(--surface-2, var(--surface-raised))';
-                  }}
-                  onClick={stopPropagation}
-                  onPointerDown={stopPropagation}
-                />
-              }
-            >
-              <Trash2 style={{ width: 14, height: 14 }} />
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-auto p-3"
-              side="bottom"
-              align="end"
-              onClick={stopPropagation}
-              onPointerDown={stopPropagation}
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-sm">Delete?</span>
-                <Button size="sm" variant="destructive" onClick={handleDeleteConfirm}>
-                  Yes
-                </Button>
-                <Button size="sm" variant="outline" onClick={handleDeleteCancel}>
-                  Cancel
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
+          <span style={{ position: 'absolute', top: 10, right: 10, display: 'flex' }}>
+            <RosterActiveSwitch
+              muleId={mule.id}
+              active={mule.active}
+              revealed={isHovered}
+              onToggleActive={onToggleActive}
+            />
+          </span>
         )}
       </div>
     </div>

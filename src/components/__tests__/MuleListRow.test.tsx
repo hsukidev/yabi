@@ -1,5 +1,11 @@
-import { describe, expect, it, vi } from 'vitest';
-import { render, screen, fireEvent } from '../../test/test-utils';
+import { describe, expect, it, vi, afterEach } from 'vitest';
+import {
+  render,
+  screen,
+  fireEvent,
+  mockMatchMedia,
+  restoreMatchMedia,
+} from '../../test/test-utils';
 import { DndContext } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { MuleListRow } from '../MuleListRow';
@@ -35,6 +41,7 @@ interface RenderRowOpts {
   mule?: Partial<Mule>;
   metrics?: Partial<RosterRowMetrics>;
   onClick?: (id: string) => void;
+  onToggleActive?: (id: string, active: boolean) => void;
   bulkMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
@@ -42,6 +49,7 @@ interface RenderRowOpts {
 
 function renderRow(opts: RenderRowOpts = {}) {
   const onClick = opts.onClick ?? vi.fn();
+  const onToggleActive = opts.onToggleActive ?? vi.fn();
   const onToggleSelect = opts.onToggleSelect ?? vi.fn();
   const mule: Mule = { ...baseMule, ...opts.mule };
   const metrics: RosterRowMetrics = { ...baseMetrics, ...opts.metrics };
@@ -53,6 +61,7 @@ function renderRow(opts: RenderRowOpts = {}) {
             mule={mule}
             metrics={metrics}
             onClick={onClick}
+            onToggleActive={onToggleActive}
             bulkMode={opts.bulkMode ?? false}
             selected={opts.selected ?? false}
             onToggleSelect={onToggleSelect}
@@ -61,6 +70,7 @@ function renderRow(opts: RenderRowOpts = {}) {
       </DndContext>,
     ),
     onClick,
+    onToggleActive,
     onToggleSelect,
     mule,
   };
@@ -228,6 +238,83 @@ describe('MuleListRow — bulk mode', () => {
     const { container } = renderRow({ bulkMode: true, selected: true });
     const indicator = container.querySelector('[data-selection-indicator]') as HTMLElement;
     expect(indicator.querySelector('svg')).toBeTruthy();
+  });
+});
+
+describe('MuleListRow — Roster Active Switch', () => {
+  const getSwitch = () => screen.getByRole('switch', { name: /active/i });
+  const rowOf = (container: HTMLElement) =>
+    container.querySelector('[data-mule-row]') as HTMLElement;
+
+  it('is hidden at rest and reveals on row hover', () => {
+    const { container } = renderRow();
+    expect(getSwitch().style.opacity).toBe('0');
+
+    fireEvent.mouseEnter(rowOf(container));
+    expect(getSwitch().style.opacity).toBe('1');
+
+    fireEvent.mouseLeave(rowOf(container));
+    expect(getSwitch().style.opacity).toBe('0');
+  });
+
+  it('reveals on keyboard focus without hover', () => {
+    renderRow();
+    fireEvent.focus(getSwitch());
+    expect(getSwitch().style.opacity).toBe('1');
+
+    fireEvent.blur(getSwitch());
+    expect(getSwitch().style.opacity).toBe('0');
+  });
+
+  it('renders in the identity cluster alongside the Lv.X pill', () => {
+    const { container } = renderRow();
+    const level = container.querySelector('[data-row-level]') as HTMLElement;
+    expect(level.parentElement!.contains(getSwitch())).toBe(true);
+  });
+
+  it('reflects the Active Flag via aria-checked', () => {
+    renderRow({ mule: { active: false } });
+    expect(getSwitch().getAttribute('aria-checked')).toBe('false');
+  });
+
+  it('flips the Active Flag on click and does not open the drawer', () => {
+    const onClick = vi.fn();
+    const onToggleActive = vi.fn();
+    renderRow({ onClick, onToggleActive });
+    fireEvent.click(getSwitch());
+    expect(onToggleActive).toHaveBeenCalledTimes(1);
+    expect(onToggleActive).toHaveBeenCalledWith('row-mule-1', false);
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it('flips an inactive mule active on click', () => {
+    const onToggleActive = vi.fn();
+    renderRow({ mule: { active: false }, onToggleActive });
+    fireEvent.click(getSwitch());
+    expect(onToggleActive).toHaveBeenCalledWith('row-mule-1', true);
+  });
+
+  it('keyboard activation on the switch does not bubble to the row (no drawer open)', () => {
+    const onClick = vi.fn();
+    renderRow({ onClick });
+    fireEvent.keyDown(getSwitch(), { key: 'Enter' });
+    fireEvent.keyDown(getSwitch(), { key: ' ' });
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it('is not rendered in bulk mode', () => {
+    renderRow({ bulkMode: true });
+    expect(screen.queryByRole('switch')).toBeNull();
+  });
+
+  describe('on touch devices', () => {
+    afterEach(restoreMatchMedia);
+
+    it('does not render when (pointer: coarse) matches', () => {
+      mockMatchMedia((q) => q.includes('pointer: coarse'));
+      renderRow();
+      expect(screen.queryByRole('switch')).toBeNull();
+    });
   });
 });
 

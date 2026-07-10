@@ -3,7 +3,6 @@ import {
   render,
   screen,
   fireEvent,
-  waitFor,
   mockMatchMedia,
   restoreMatchMedia,
 } from '../../test/test-utils';
@@ -71,7 +70,7 @@ const baseMule: Mule = {
 };
 
 interface RenderCardOptions {
-  onDelete?: (id: string) => void;
+  onToggleActive?: (id: string, active: boolean) => void;
   bulkMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
@@ -86,7 +85,7 @@ interface RenderCardOptions {
 
 function renderCard(overrides: Partial<Mule> = {}, options?: RenderCardOptions) {
   const onClick = vi.fn();
-  const onDelete = options?.onDelete ?? vi.fn();
+  const onToggleActive = options?.onToggleActive ?? vi.fn();
   const onToggleSelect = options?.onToggleSelect ?? vi.fn();
   const mule = { ...baseMule, ...overrides };
   localStorage.setItem('density', options?.density ?? 'comfy');
@@ -98,7 +97,7 @@ function renderCard(overrides: Partial<Mule> = {}, options?: RenderCardOptions) 
           <MuleCharacterCard
             mule={mule}
             onClick={onClick}
-            onDelete={onDelete}
+            onToggleActive={onToggleActive}
             bulkMode={options?.bulkMode ?? false}
             selected={options?.selected ?? false}
             onToggleSelect={onToggleSelect}
@@ -109,7 +108,7 @@ function renderCard(overrides: Partial<Mule> = {}, options?: RenderCardOptions) 
       </DndContext>,
     ),
     onClick,
-    onDelete,
+    onToggleActive,
     onToggleSelect,
   };
 }
@@ -352,91 +351,78 @@ describe('MuleCharacterCard', () => {
     expect(container.querySelector('img[src$="monthly-crystal.png"]')).toBeNull();
   });
 
-  describe('trash icon and delete popover', () => {
-    it('shows trash icon on card hover', () => {
+  describe('Roster Active Switch', () => {
+    const getSwitch = () => screen.getByRole('switch', { name: /active/i });
+    const panelOf = (container: HTMLElement) =>
+      container.querySelector('[data-mule-card] .panel') as HTMLElement;
+
+    it('renders no per-card delete affordance', () => {
+      renderCard();
+      expect(screen.queryByRole('button', { name: /delete/i })).toBeNull();
+      expect(screen.queryByText('Delete?')).toBeNull();
+    });
+
+    it('is hidden at rest and reveals on card hover', () => {
       const { container } = renderCard();
-      const trashButton = screen.getByRole('button', { name: /delete/i });
-      expect(trashButton.style.opacity).toBe('0');
+      expect(getSwitch().style.opacity).toBe('0');
 
-      const cardWrapper = container.querySelector('[data-mule-card]') as HTMLElement;
-      const panel = cardWrapper.querySelector('.panel') as HTMLElement;
-      fireEvent.mouseEnter(panel);
-      expect(trashButton.style.opacity).toBe('1');
+      fireEvent.mouseEnter(panelOf(container));
+      expect(getSwitch().style.opacity).toBe('1');
+
+      fireEvent.mouseLeave(panelOf(container));
+      expect(getSwitch().style.opacity).toBe('0');
     });
 
-    it('hides trash icon when card is not hovered', () => {
-      const { container } = renderCard();
-      const trashButton = screen.getByRole('button', { name: /delete/i });
-      const cardWrapper = container.querySelector('[data-mule-card]') as HTMLElement;
-      const panel = cardWrapper.querySelector('.panel') as HTMLElement;
+    it('reveals on keyboard focus without hover', () => {
+      renderCard();
+      fireEvent.focus(getSwitch());
+      expect(getSwitch().style.opacity).toBe('1');
 
-      fireEvent.mouseEnter(panel);
-      expect(trashButton.style.opacity).toBe('1');
-
-      fireEvent.mouseLeave(panel);
-      expect(trashButton.style.opacity).toBe('0');
+      fireEvent.blur(getSwitch());
+      expect(getSwitch().style.opacity).toBe('0');
     });
 
-    it('opens popover with Delete? and Yes/Cancel when trash icon is clicked', async () => {
-      const { container } = renderCard();
-      const cardWrapper = container.querySelector('[data-mule-card]') as HTMLElement;
-      fireEvent.mouseEnter(cardWrapper);
-
-      const trashButton = screen.getByRole('button', { name: /delete/i });
-      fireEvent.click(trashButton);
-
-      await waitFor(() => {
-        expect(screen.getByText('Delete?')).toBeTruthy();
-        expect(screen.getByRole('button', { name: 'Yes' })).toBeTruthy();
-        expect(screen.getByRole('button', { name: 'Cancel' })).toBeTruthy();
-      });
+    it('stays hover-only when the mule is inactive', () => {
+      const { container } = renderCard({ active: false });
+      expect(getSwitch().style.opacity).toBe('0');
+      fireEvent.mouseEnter(panelOf(container));
+      expect(getSwitch().style.opacity).toBe('1');
     });
 
-    it('calls onDelete and closes popover when Yes is clicked', async () => {
-      const onDelete = vi.fn();
-      const { container } = renderCard({}, { onDelete });
-      const cardWrapper = container.querySelector('[data-mule-card]') as HTMLElement;
-      fireEvent.mouseEnter(cardWrapper);
-
-      fireEvent.click(screen.getByRole('button', { name: /delete/i }));
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Yes' })).toBeTruthy();
-      });
-
-      fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
-      expect(onDelete).toHaveBeenCalledWith('test-mule-1');
+    it('reflects the Active Flag via aria-checked', () => {
+      renderCard({ active: true });
+      expect(getSwitch().getAttribute('aria-checked')).toBe('true');
     });
 
-    it('closes popover without deleting when Cancel is clicked', async () => {
-      const onDelete = vi.fn();
-      const { container } = renderCard({}, { onDelete });
-      const cardWrapper = container.querySelector('[data-mule-card]') as HTMLElement;
-      fireEvent.mouseEnter(cardWrapper);
-
-      fireEvent.click(screen.getByRole('button', { name: /delete/i }));
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Cancel' })).toBeTruthy();
-      });
-
-      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-      expect(onDelete).not.toHaveBeenCalled();
-
-      await waitFor(() => {
-        expect(screen.queryByText('Delete?')).toBeNull();
-      });
+    it('reflects an inactive mule as unchecked', () => {
+      renderCard({ active: false });
+      expect(getSwitch().getAttribute('aria-checked')).toBe('false');
     });
 
-    it('does not trigger card onClick when trash icon is clicked', async () => {
-      const { container, onClick } = renderCard();
-      const cardWrapper = container.querySelector('[data-mule-card]') as HTMLElement;
-      fireEvent.mouseEnter(cardWrapper);
+    it('flips an active mule inactive on a single click — no confirmation', () => {
+      const onToggleActive = vi.fn();
+      renderCard({ active: true }, { onToggleActive });
+      fireEvent.click(getSwitch());
+      expect(onToggleActive).toHaveBeenCalledTimes(1);
+      expect(onToggleActive).toHaveBeenCalledWith('test-mule-1', false);
+    });
 
-      const trashButton = screen.getByRole('button', { name: /delete/i });
-      fireEvent.click(trashButton);
+    it('flips an inactive mule active on a single click', () => {
+      const onToggleActive = vi.fn();
+      renderCard({ active: false }, { onToggleActive });
+      fireEvent.click(getSwitch());
+      expect(onToggleActive).toHaveBeenCalledWith('test-mule-1', true);
+    });
 
+    it('does not open the drawer when clicked', () => {
+      const { onClick } = renderCard();
+      fireEvent.click(getSwitch());
       expect(onClick).not.toHaveBeenCalled();
+    });
+
+    it('is not rendered in bulk mode', () => {
+      renderCard({}, { bulkMode: true });
+      expect(screen.queryByRole('switch')).toBeNull();
     });
 
     describe('on touch devices', () => {
@@ -444,10 +430,10 @@ describe('MuleCharacterCard', () => {
 
       afterEach(restoreMatchMedia);
 
-      it('does not render the quick-delete trigger when (pointer: coarse) matches', () => {
+      it('does not render when (pointer: coarse) matches', () => {
         mockCoarsePointer();
         renderCard();
-        expect(screen.queryByRole('button', { name: /delete/i })).toBeNull();
+        expect(screen.queryByRole('switch')).toBeNull();
       });
     });
   });
@@ -523,9 +509,9 @@ describe('MuleCharacterCard', () => {
       expect(screen.queryByText(/Lv\./)).toBeNull();
     });
 
-    it('does not render the hover-trash popover trigger in bulk mode', () => {
+    it('does not render the Roster Active Switch in bulk mode', () => {
       renderCard({}, { bulkMode: true });
-      expect(screen.queryByRole('button', { name: /delete mule/i })).toBeNull();
+      expect(screen.queryByRole('switch')).toBeNull();
     });
 
     it('sets aria-pressed=false on an unselected card in bulk mode', () => {
@@ -559,7 +545,7 @@ describe('MuleCharacterCard', () => {
             <MuleCharacterCard
               mule={baseMule}
               onClick={vi.fn()}
-              onDelete={vi.fn()}
+              onToggleActive={vi.fn()}
               bulkMode={false}
               selected={false}
               onToggleSelect={vi.fn()}

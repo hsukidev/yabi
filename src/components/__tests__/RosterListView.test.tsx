@@ -84,6 +84,7 @@ function Harness({ initial }: { initial: Mule[] }) {
             mules={order}
             metricsByMule={metricsByMule}
             onCardClick={vi.fn()}
+            onToggleActive={vi.fn()}
             bulkMode={false}
             toDelete={new Set()}
             onToggleSelect={vi.fn()}
