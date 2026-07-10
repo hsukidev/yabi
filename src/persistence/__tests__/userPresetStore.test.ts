@@ -118,87 +118,19 @@ describe('createUserPresetStore', () => {
     });
   });
 
-  describe('save() — debounced writes', () => {
-    beforeEach(() => {
-      vi.useFakeTimers();
-    });
-    afterEach(() => {
-      vi.useRealTimers();
-    });
-
-    it('does not write synchronously', () => {
-      const port = makeFakePort();
-      const store = createUserPresetStore(port);
-      store.save([presetFixture()]);
-      expect(port.writes).toHaveLength(0);
-    });
-
-    it('coalesces a burst into a single write after 200ms', () => {
-      const port = makeFakePort();
-      const store = createUserPresetStore(port);
-      store.save([presetFixture({ name: 'a' })]);
-      store.save([presetFixture({ name: 'b' })]);
-      store.save([presetFixture({ name: 'c' })]);
-      vi.advanceTimersByTime(200);
-      expect(port.writes).toHaveLength(1);
-      const saved = JSON.parse(port.writes[0]);
-      expect(saved.userPresets[0].name).toBe('c');
-    });
-
+  // Debounce and flush behaviour is covered once in debouncedStore.test.ts —
+  // this suite covers only the user-preset adapter's serialize/migrate
+  // bindings.
+  describe('serialize', () => {
     it('serializes as { schemaVersion, userPresets }', () => {
       const port = makeFakePort();
       const store = createUserPresetStore(port);
       const presets = [presetFixture()];
       store.save(presets);
-      vi.advanceTimersByTime(200);
+      store.flush();
       const saved = JSON.parse(port.writes[0]);
       expect(saved.schemaVersion).toBe(CURRENT_USER_PRESET_SCHEMA_VERSION);
       expect(saved.userPresets).toEqual(presets);
-    });
-
-    it('starts a fresh debounce after the previous one flushes', () => {
-      const port = makeFakePort();
-      const store = createUserPresetStore(port);
-      store.save([presetFixture({ name: 'first' })]);
-      vi.advanceTimersByTime(200);
-      expect(port.writes).toHaveLength(1);
-      store.save([presetFixture({ name: 'second' })]);
-      vi.advanceTimersByTime(200);
-      expect(port.writes).toHaveLength(2);
-      expect(JSON.parse(port.writes[1]).userPresets[0].name).toBe('second');
-    });
-  });
-
-  describe('flush()', () => {
-    beforeEach(() => {
-      vi.useFakeTimers();
-    });
-    afterEach(() => {
-      vi.useRealTimers();
-    });
-
-    it('writes pending state immediately without waiting for the timer', () => {
-      const port = makeFakePort();
-      const store = createUserPresetStore(port);
-      store.save([presetFixture({ name: 'urgent' })]);
-      store.flush();
-      expect(port.writes).toHaveLength(1);
-    });
-
-    it('cancels the pending timer so no second write fires later', () => {
-      const port = makeFakePort();
-      const store = createUserPresetStore(port);
-      store.save([presetFixture()]);
-      store.flush();
-      vi.advanceTimersByTime(1000);
-      expect(port.writes).toHaveLength(1);
-    });
-
-    it('is a no-op when nothing is pending', () => {
-      const port = makeFakePort();
-      const store = createUserPresetStore(port);
-      store.flush();
-      expect(port.writes).toHaveLength(0);
     });
   });
 
@@ -243,7 +175,9 @@ describe('createUserPresetStore', () => {
   });
 });
 
-describe('defaultUserPresetStoragePort', () => {
+describe('defaultUserPresetStoragePort — key bindings', () => {
+  // The Storage Fallback Ladder itself is covered in storagePort.test.ts;
+  // these pin the user-preset port to its own primary/fallback keys.
   let localStorageStore: Record<string, string> = {};
   let sessionStorageStore: Record<string, string> = {};
 
@@ -276,21 +210,16 @@ describe('defaultUserPresetStoragePort', () => {
     vi.unstubAllGlobals();
   });
 
-  it('write() falls through to sessionStorage when localStorage.setItem throws', () => {
+  it('reads under its own primary key', () => {
+    localStorageStore[USER_PRESET_STORAGE_KEY] = 'primary';
+    expect(defaultUserPresetStoragePort.read()).toBe('primary');
+  });
+
+  it('falls back under its own fallback key when localStorage.setItem throws', () => {
     vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
       throw new DOMException('QuotaExceededError', 'QuotaExceededError');
     });
     defaultUserPresetStoragePort.write('payload');
     expect(sessionStorageStore['maplestory-mule-tracker-user-presets-fallback']).toBe('payload');
-  });
-
-  it('read() returns the localStorage value when present', () => {
-    localStorageStore[USER_PRESET_STORAGE_KEY] = 'primary';
-    expect(defaultUserPresetStoragePort.read()).toBe('primary');
-  });
-
-  it('read() falls through to sessionStorage when localStorage.getItem returns null', () => {
-    sessionStorageStore['maplestory-mule-tracker-user-presets-fallback'] = 'fallback';
-    expect(defaultUserPresetStoragePort.read()).toBe('fallback');
   });
 });

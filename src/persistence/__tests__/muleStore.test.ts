@@ -1,16 +1,14 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { createMuleStore, type StoragePort } from '../muleStore';
-import { defaultStoragePort } from '../muleStorage';
 import { muleMigrate } from '../muleMigrate';
 import { bosses } from '../../data/bosses';
 import type { BossTier, Mule } from '../../types';
 
 /**
- * Boundary tests for `createMuleStore(port?)`. Uses an in-memory
- * `StoragePort` double for determinism; the default port
- * (`defaultStoragePort`) is covered by a dedicated block at the bottom
- * that drives it through `window.localStorage` / `window.sessionStorage`
- * with spies.
+ * Boundary tests for the `createMuleStore(port?)` adapter — its
+ * serialize/migrate bindings and default-port key binding. The generic
+ * debounce/flush machine is covered in debouncedStore.test.ts; the
+ * Storage Fallback Ladder in storagePort.test.ts.
  */
 
 function makeFakePort(initial: string | null = null): StoragePort & {
@@ -81,141 +79,19 @@ describe('createMuleStore', () => {
     });
   });
 
-  describe('save() — debounced writes', () => {
-    beforeEach(() => {
-      vi.useFakeTimers();
-    });
-    afterEach(() => {
-      vi.useRealTimers();
-    });
-
-    it('does not write synchronously', () => {
-      const port = makeFakePort();
-      const store = createMuleStore(port);
-      store.save([muleFixture()]);
-      expect(port.writes).toHaveLength(0);
-    });
-
-    it('coalesces a burst of saves into a single write after 200ms', () => {
-      const port = makeFakePort();
-      const store = createMuleStore(port);
-      const m1 = muleFixture({ name: 'first' });
-      const m2 = muleFixture({ name: 'second' });
-      const m3 = muleFixture({ name: 'third' });
-      store.save([m1]);
-      store.save([m2]);
-      store.save([m3]);
-      expect(port.writes).toHaveLength(0);
-      vi.advanceTimersByTime(200);
-      expect(port.writes).toHaveLength(1);
-      const saved = JSON.parse(port.writes[0]);
-      expect(saved).toEqual({ schemaVersion: 6, mules: [m3] });
-    });
-
-    it('writes exactly once even when the debounce elapses from the last save', () => {
-      const port = makeFakePort();
-      const store = createMuleStore(port);
-      store.save([muleFixture({ name: 'a' })]);
-      vi.advanceTimersByTime(150);
-      // A fresh save restarts the debounce window.
-      store.save([muleFixture({ name: 'b' })]);
-      vi.advanceTimersByTime(150);
-      expect(port.writes).toHaveLength(0);
-      vi.advanceTimersByTime(60);
-      expect(port.writes).toHaveLength(1);
-      expect(JSON.parse(port.writes[0]).mules[0].name).toBe('b');
-    });
-
-    it('starts a fresh debounce after the previous one flushes', () => {
-      const port = makeFakePort();
-      const store = createMuleStore(port);
-      store.save([muleFixture({ name: 'first' })]);
-      vi.advanceTimersByTime(200);
-      expect(port.writes).toHaveLength(1);
-      store.save([muleFixture({ name: 'second' })]);
-      expect(port.writes).toHaveLength(1);
-      vi.advanceTimersByTime(200);
-      expect(port.writes).toHaveLength(2);
-      expect(JSON.parse(port.writes[1]).mules[0].name).toBe('second');
-    });
-
+  // Debounce, flush, and instance-isolation behaviour is covered once in
+  // debouncedStore.test.ts — this suite covers only the mule adapter's
+  // serialize/migrate bindings.
+  describe('serialize', () => {
     it('serializes as { schemaVersion: 6, mules }', () => {
       const port = makeFakePort();
       const store = createMuleStore(port);
       const mules = [muleFixture({ selectedBosses: [HARD_LUCID] })];
       store.save(mules);
-      vi.advanceTimersByTime(200);
+      store.flush();
       const saved = JSON.parse(port.writes[0]);
       expect(saved.schemaVersion).toBe(6);
       expect(saved.mules).toEqual(mules);
-    });
-  });
-
-  describe('flush()', () => {
-    beforeEach(() => {
-      vi.useFakeTimers();
-    });
-    afterEach(() => {
-      vi.useRealTimers();
-    });
-
-    it('writes pending state immediately without waiting for the timer', () => {
-      const port = makeFakePort();
-      const store = createMuleStore(port);
-      store.save([muleFixture({ name: 'urgent' })]);
-      store.flush();
-      expect(port.writes).toHaveLength(1);
-      expect(JSON.parse(port.writes[0]).mules[0].name).toBe('urgent');
-    });
-
-    it('cancels the pending timer so no second write fires later', () => {
-      const port = makeFakePort();
-      const store = createMuleStore(port);
-      store.save([muleFixture({ name: 'urgent' })]);
-      store.flush();
-      vi.advanceTimersByTime(1000);
-      expect(port.writes).toHaveLength(1);
-    });
-
-    it('is a no-op when nothing is pending', () => {
-      const port = makeFakePort();
-      const store = createMuleStore(port);
-      store.flush();
-      expect(port.writes).toHaveLength(0);
-    });
-
-    it('is a no-op when called twice in a row (second flush has nothing pending)', () => {
-      const port = makeFakePort();
-      const store = createMuleStore(port);
-      store.save([muleFixture()]);
-      store.flush();
-      store.flush();
-      expect(port.writes).toHaveLength(1);
-    });
-  });
-
-  describe('instance isolation', () => {
-    beforeEach(() => {
-      vi.useFakeTimers();
-    });
-    afterEach(() => {
-      vi.useRealTimers();
-    });
-
-    it('each store owns its own pending/timer refs (no module-level state)', () => {
-      const portA = makeFakePort();
-      const portB = makeFakePort();
-      const storeA = createMuleStore(portA);
-      const storeB = createMuleStore(portB);
-      storeA.save([muleFixture({ name: 'from-a' })]);
-      storeB.save([muleFixture({ name: 'from-b' })]);
-      // Flushing storeA must not touch storeB's pending write.
-      storeA.flush();
-      expect(portA.writes).toHaveLength(1);
-      expect(portB.writes).toHaveLength(0);
-      vi.advanceTimersByTime(200);
-      expect(portB.writes).toHaveLength(1);
-      expect(JSON.parse(portB.writes[0]).mules[0].name).toBe('from-b');
     });
   });
 
@@ -280,97 +156,5 @@ describe('createMuleStore', () => {
       expect(store.load()[0].name).toBe('from-default-port');
       expect(localStorage.getItem).toHaveBeenCalledWith('maplestory-mule-tracker');
     });
-  });
-});
-
-describe('defaultStoragePort', () => {
-  // Direct coverage of the Storage Fallback Ladder — both directions.
-  let localStorageStore: Record<string, string> = {};
-  let sessionStorageStore: Record<string, string> = {};
-
-  beforeEach(() => {
-    localStorageStore = {};
-    sessionStorageStore = {};
-    vi.stubGlobal('localStorage', {
-      getItem: vi.fn((key: string) => localStorageStore[key] ?? null),
-      setItem: vi.fn((key: string, value: string) => {
-        localStorageStore[key] = value;
-      }),
-      removeItem: vi.fn(),
-      clear: vi.fn(),
-      length: 0,
-      key: vi.fn(),
-    });
-    vi.stubGlobal('sessionStorage', {
-      getItem: vi.fn((key: string) => sessionStorageStore[key] ?? null),
-      setItem: vi.fn((key: string, value: string) => {
-        sessionStorageStore[key] = value;
-      }),
-      removeItem: vi.fn(),
-      clear: vi.fn(),
-      length: 0,
-      key: vi.fn(),
-    });
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
-  it('read() returns the localStorage value when present', () => {
-    localStorageStore['maplestory-mule-tracker'] = 'primary-payload';
-    expect(defaultStoragePort.read()).toBe('primary-payload');
-  });
-
-  it('read() falls through to sessionStorage when localStorage.getItem throws', () => {
-    vi.spyOn(localStorage, 'getItem').mockImplementation(() => {
-      throw new Error('boom');
-    });
-    sessionStorageStore['maplestory-mule-tracker-fallback'] = 'fallback-payload';
-    expect(defaultStoragePort.read()).toBe('fallback-payload');
-  });
-
-  it('read() falls through to sessionStorage when localStorage.getItem returns null', () => {
-    sessionStorageStore['maplestory-mule-tracker-fallback'] = 'fallback-payload';
-    expect(defaultStoragePort.read()).toBe('fallback-payload');
-  });
-
-  it('read() returns null when both storages return null', () => {
-    expect(defaultStoragePort.read()).toBeNull();
-  });
-
-  it('read() returns null when both storages throw', () => {
-    vi.spyOn(localStorage, 'getItem').mockImplementation(() => {
-      throw new Error('boom');
-    });
-    vi.spyOn(sessionStorage, 'getItem').mockImplementation(() => {
-      throw new Error('boom');
-    });
-    expect(defaultStoragePort.read()).toBeNull();
-  });
-
-  it('write() writes to localStorage on the happy path', () => {
-    defaultStoragePort.write('payload');
-    expect(localStorageStore['maplestory-mule-tracker']).toBe('payload');
-    // sessionStorage untouched when primary succeeds.
-    expect(sessionStorage.setItem).not.toHaveBeenCalled();
-  });
-
-  it('write() falls through to sessionStorage when localStorage.setItem throws', () => {
-    vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
-      throw new DOMException('QuotaExceededError', 'QuotaExceededError');
-    });
-    defaultStoragePort.write('payload');
-    expect(sessionStorageStore['maplestory-mule-tracker-fallback']).toBe('payload');
-  });
-
-  it('write() swallows a second throw silently when both storages fail', () => {
-    vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
-      throw new DOMException('QuotaExceededError', 'QuotaExceededError');
-    });
-    vi.spyOn(sessionStorage, 'setItem').mockImplementation(() => {
-      throw new DOMException('QuotaExceededError', 'QuotaExceededError');
-    });
-    expect(() => defaultStoragePort.write('payload')).not.toThrow();
   });
 });

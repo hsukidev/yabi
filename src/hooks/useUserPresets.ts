@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import type { UserPreset } from '../data/userPresets';
 import { getBossById } from '../data/bosses';
 import { parseKey } from '../data/bossPresets';
 import { createUserPresetStore } from '../persistence/userPresetStore';
+import { usePersistedState } from './usePersistedState';
 
 const MAX_NAME_LENGTH = 40;
 
@@ -70,22 +71,7 @@ export function useUserPresets(): {
   ) => CreateUserPresetResult;
   deleteUserPreset: (id: string) => void;
 } {
-  const [userPresets, setUserPresets] = useState<UserPreset[]>(store.load);
-
-  useEffect(() => {
-    store.save(userPresets);
-  }, [userPresets]);
-
-  useEffect(() => {
-    const flush = () => store.flush();
-    window.addEventListener('pagehide', flush);
-    window.addEventListener('beforeunload', flush);
-    return () => {
-      window.removeEventListener('pagehide', flush);
-      window.removeEventListener('beforeunload', flush);
-      store.flush();
-    };
-  }, []);
+  const [userPresets, setUserPresets] = usePersistedState(store);
 
   // Read current presets through a ref so `createUserPreset` can return its
   // outcome synchronously (the `setUserPresets` updater fires asynchronously
@@ -119,15 +105,18 @@ export function useUserPresets(): {
       setUserPresets(userPresetsRef.current);
       return { ok: true, preset };
     },
-    [],
+    [setUserPresets],
   );
 
-  const deleteUserPreset = useCallback((id: string) => {
-    setUserPresets((prev) => {
-      const next = prev.filter((p) => p.id !== id);
-      return next.length === prev.length ? prev : next;
-    });
-  }, []);
+  const deleteUserPreset = useCallback(
+    (id: string) => {
+      setUserPresets((prev) => {
+        const next = prev.filter((p) => p.id !== id);
+        return next.length === prev.length ? prev : next;
+      });
+    },
+    [setUserPresets],
+  );
 
   return { userPresets, createUserPreset, deleteUserPreset };
 }
