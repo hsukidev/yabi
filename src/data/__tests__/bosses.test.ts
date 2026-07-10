@@ -1,5 +1,7 @@
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { bosses, getBossById, ALL_BOSS_IDS } from '../bosses';
+import { bosses, getBossById, ALL_BOSS_IDS, bossImageUrl, bossSlug } from '../bosses';
 import type { BossTier } from '../../types';
 
 const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -187,6 +189,40 @@ describe('bosses.ts — world pricing invariants', () => {
           `${boss.name} ${diff.tier} — Heroic (${Heroic}) must be >= Interactive (${Interactive})`,
         ).toBeGreaterThanOrEqual(Interactive);
       }
+    }
+  });
+});
+
+/**
+ * Sprite-asset resolver invariants (issue #284).
+ *
+ * `bossImageUrl(name)` maps every Boss Family display `name` to a committed
+ * PNG under `public/bosses/`. The 1:1 check guards against drift: a future
+ * boss added to `bosses` without a matching sprite fails here.
+ */
+describe('bossImageUrl — sprite resolver', () => {
+  // Vitest runs with cwd at the package root, where `public/` lives.
+  const bossesDir = resolve(process.cwd(), 'public/bosses');
+
+  it('slugifies name via lowercase + non-alphanumeric-run collapse', () => {
+    expect(bossSlug('Black Mage')).toBe('black-mage');
+    expect(bossSlug('OMNI-CLN')).toBe('omni-cln');
+    expect(bossSlug('Princess No')).toBe('princess-no');
+  });
+
+  it('returns a /bosses/<slug>.png URL', () => {
+    expect(bossImageUrl('Jupiter')).toBe('/bosses/jupiter.png');
+    expect(bossImageUrl('OMNI-CLN')).toBe('/bosses/omni-cln.png');
+  });
+
+  it('every Boss name resolves 1:1 to an existing sprite file', () => {
+    for (const boss of bosses) {
+      const url = bossImageUrl(boss.name);
+      const file = url.replace(/^\/bosses\//, '');
+      expect(
+        existsSync(resolve(bossesDir, file)),
+        `${boss.name} → ${url} must exist in public/bosses/`,
+      ).toBe(true);
     }
   });
 });
