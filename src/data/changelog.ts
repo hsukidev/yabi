@@ -25,6 +25,27 @@ export const ORDERED_CATEGORIES: ChangeCategory[] = (
 
 export const releases: Release[] = [
   {
+    date: '2026-07-10',
+    version: '1.5.0',
+    changes: [
+      {
+        category: 'ui',
+        text: 'Show a "No bosses match" panel when the drawer\'s search or cadence filter leaves the Boss Matrix or Boss Card View empty.',
+      },
+      { category: 'feature', text: 'Added Boss Card View.' },
+      { category: 'ui', text: 'Allow active/inactive quick switch on character cards.' },
+      { category: 'feature', text: 'Added Jupiter (Normal and Hard).' },
+      {
+        category: 'ui',
+        text: 'Show the full-precision meso tooltip when hovering meso values in the Boss Matrix and Boss Card View.',
+      },
+      {
+        category: 'feature',
+        text: "Replace the per-card delete (hover trash + confirm popover) with the Roster Active Switch — a hover-revealed switch on Character Cards and List View rows that flips a mule's Active Flag in place. Deleting now goes through bulk delete or the Drawer.",
+      },
+    ],
+  },
+  {
     date: '2026-06-29',
     version: '1.4.2',
     changes: [{ category: 'feature', text: 'Added Malefic Star (Normal and Hard).' }],
