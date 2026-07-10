@@ -563,22 +563,22 @@ describe('BossCardView', () => {
     });
 
     describe('Meso Display convention (tooltip + zero)', () => {
-      it('shows the full-precision value in the shared hover tooltip after a 0.7s delay', async () => {
+      it('shows the full-precision value in the shared hover tooltip after a 0.5s delay', async () => {
         vi.useFakeTimers();
         try {
           renderCards(viewOf([HARD_LUCID]), { [LUCID_BOSS.family]: 1 });
           const value = screen.getByTestId(`boss-card-meso-value-${LUCID}-hard`);
           // The native title is gone — the shared tooltip replaces it.
           expect(value.getAttribute('title')).toBeNull();
-          // MesoValue's 0.7s delay is a rest delay: it arms on pointer
-          // movement over the trigger, then opens after 0.7s of stillness.
+          // MesoValue's 0.5s delay is a rest delay: it arms on pointer
+          // movement over the trigger, then opens after 0.5s of stillness.
           fireEvent.mouseEnter(value);
           fireEvent.mouseMove(value);
           const full = formatMeso(crystalValueOf('lucid', 'hard'), false);
-          // Not instant — the Boss Card View holds a 0.7s open delay.
+          // Not instant — the Boss Card View holds a 0.5s open delay.
           expect(screen.queryByText(full)).toBeNull();
           await act(async () => {
-            vi.advanceTimersByTime(700);
+            vi.advanceTimersByTime(500);
           });
           expect(screen.getByText(full)).toBeTruthy();
         } finally {

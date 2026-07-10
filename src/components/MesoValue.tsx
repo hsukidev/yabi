@@ -27,8 +27,8 @@ interface MesoValueProps {
  * tooltip would break the toggle. Keyboard/touch users see the abbreviated
  * value only — exactly what the native `title` this replaces offered.
  *
- * Every hover waits the full 0.7s: each value carries its own one-tooltip
- * `TooltipProvider` (`delay={700}`, `timeout={0}`), shadowing the app root's
+ * Every hover waits the full 0.5s: each value carries its own one-tooltip
+ * `TooltipProvider` (`delay={500}`, `timeout={0}`), shadowing the app root's
  * instant provider. The delay must live on a provider — under a provider,
  * Base UI's delay group substitutes the provider's `open` delay for any
  * per-trigger `delay` prop, silently ignoring it. Per-value providers (rather
@@ -57,7 +57,7 @@ export function MesoValue({
     );
   }
   return (
-    <TooltipProvider delay={700} timeout={0}>
+    <TooltipProvider delay={500} timeout={0}>
       {/* disableHoverablePopup renders the popup inert (pointer-events: none),
           so it never steals the pointer from the toggle button beneath — the
           cursor stays `pointer` the whole time the tooltip is up. A value
