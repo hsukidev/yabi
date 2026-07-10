@@ -10,8 +10,10 @@ import { MuleBossSlate, type SlateKey } from '../data/muleBossSlate';
 import type { PresetKey } from './MatrixToolbar';
 import { resolveWorldGroup } from '../data/worlds';
 import { useUserPresets } from '../hooks/useUserPresets';
+import { useSlateDisplayMode } from '../hooks/useSlateDisplayMode';
 import type { UserPreset } from '../data/userPresets';
 import { BossMatrix } from './BossMatrix';
+import { BossCardView } from './BossCardView';
 import { BossSearch } from './BossSearch';
 import { MatrixToolbar } from './MatrixToolbar';
 import { CharacterAvatar } from './CharacterAvatar';
@@ -124,6 +126,10 @@ export function MuleDetailDrawer({
   const identity = useMuleIdentityDraft(mule, onUpdate);
   const liveLevel = Number(identity.level.draft) || 0;
   const [activeInfoOpen, setActiveInfoOpen] = useState(false);
+  // Slate Display Mode is a `useState`-backed primitive with a stable toggle
+  // callback, so threading it through the memoized MatrixToolbar / grids never
+  // busts their memo barriers on keystrokes. See CLAUDE.md (drawer perf).
+  const { mode: slateDisplayMode, toggleMode: toggleSlateDisplayMode } = useSlateDisplayMode();
 
   // Presets emit weekly Slate Keys; under Daily filter those would render as
   // Filtered-out Cells. Flip to All so the click has a visible effect.
@@ -380,17 +386,28 @@ export function MuleDetailDrawer({
                   onSaveUserPreset={handleSaveUserPreset}
                   onDeleteUserPreset={deleteUserPreset}
                   onApplyUserPreset={handleApplyUserPreset}
+                  slateDisplayMode={slateDisplayMode}
+                  onToggleSlateDisplayMode={toggleSlateDisplayMode}
                 />
                 <div className="mt-2">
                   <BossSearch fused value={matrixFilter.search} onChange={matrixFilter.setSearch} />
-                  <BossMatrix
-                    families={matrixFilter.visibleBosses}
-                    fusedTop
-                    onToggleKey={slateActions.toggleKey}
-                    partySizes={partySizes.stablePartySizes}
-                    onChangePartySize={partySizes.setPartySize}
-                    activeCadence={matrixFilter.activeCadence}
-                  />
+                  {slateDisplayMode === 'cards' ? (
+                    <BossCardView
+                      families={matrixFilter.visibleBosses}
+                      partySizes={partySizes.stablePartySizes}
+                      onChangePartySize={partySizes.setPartySize}
+                      activeCadence={matrixFilter.activeCadence}
+                    />
+                  ) : (
+                    <BossMatrix
+                      families={matrixFilter.visibleBosses}
+                      fusedTop
+                      onToggleKey={slateActions.toggleKey}
+                      partySizes={partySizes.stablePartySizes}
+                      onChangePartySize={partySizes.setPartySize}
+                      activeCadence={matrixFilter.activeCadence}
+                    />
+                  )}
                 </div>
               </div>
             </div>
