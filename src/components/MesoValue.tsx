@@ -58,7 +58,11 @@ export function MesoValue({
   }
   return (
     <TooltipProvider delay={700} timeout={0}>
-      <Tooltip>
+      {/* disableHoverablePopup renders the popup inert (pointer-events: none),
+          so it never steals the pointer from the toggle button beneath — the
+          cursor stays `pointer` the whole time the tooltip is up. A value
+          readout has no reason to be hoverable. */}
+      <Tooltip disableHoverablePopup>
         <TooltipTrigger render={<span data-testid={testId} className={className} style={style} />}>
           {body}
         </TooltipTrigger>

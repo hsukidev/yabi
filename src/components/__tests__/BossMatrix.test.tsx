@@ -406,7 +406,10 @@ describe('BossMatrix', () => {
         await act(async () => {
           vi.advanceTimersByTime(700);
         });
-        expect(screen.getByText(full)).toBeTruthy();
+        const popup = screen.getByText(full);
+        // The popup is inert (disableHoverablePopup) — it never steals the
+        // pointer, so the cell's cursor stays `pointer` while the tooltip is up.
+        expect((popup.parentElement as HTMLElement).style.pointerEvents).toBe('none');
       } finally {
         vi.useRealTimers();
       }
