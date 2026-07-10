@@ -152,8 +152,11 @@ describe('useMuleIdentityDraft', () => {
     const otherMule: Mule = { ...baseMule, id: 'mule-2', name: 'Beta', level: 100 };
     rerender({ mule: otherMule });
 
-    // The hook should have flushed mule-1's drafts at switch time.
-    expect(onUpdate).toHaveBeenCalledWith('mule-1', { name: 'Edited', level: 150 });
+    // The hook should have flushed mule-1's drafts at switch time — one
+    // patch per dirty field (each useCommittedDraft instance flushes its
+    // own; updateMule merges functionally, so the outcome is identical).
+    expect(onUpdate).toHaveBeenCalledWith('mule-1', { name: 'Edited' });
+    expect(onUpdate).toHaveBeenCalledWith('mule-1', { level: 150 });
   });
 
   it('flushes both name and level on unmount (Drawer Close)', () => {
@@ -169,7 +172,8 @@ describe('useMuleIdentityDraft', () => {
 
     unmount();
 
-    expect(onUpdate).toHaveBeenCalledWith('mule-1', { name: 'Closed', level: 77 });
+    expect(onUpdate).toHaveBeenCalledWith('mule-1', { name: 'Closed' });
+    expect(onUpdate).toHaveBeenCalledWith('mule-1', { level: 77 });
   });
 
   it('does NOT flush on initial mount', () => {

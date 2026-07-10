@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react';
+import { useCallback, type ChangeEvent } from 'react';
 import type { Mule } from '../../../types';
 import { sanitizeMuleName } from '../../../utils/muleName';
+import { useCommittedDraft } from './useCommittedDraft';
 
 const LEVEL_MAX = 300;
 const LEVEL_MIN_NONZERO = 1;
@@ -14,23 +15,22 @@ function parseLevelInput(raw: string): string {
   return raw.replace(/\D/g, '').slice(0, 3);
 }
 
-type IdentityDrafts = { name: string; level: string };
-
 /**
- * Owns the Drawer's name + level draft state and the entire editing
- * lifecycle in one place — hardcoded for the `{ name, level }` shape:
+ * Identity (name + level) adapter over `useCommittedDraft` — one instance
+ * per field, so an external write to one field never blows away an
+ * unblurred edit on the other. The lifecycle (Draft Source Resync,
+ * Snapshot-before-rebase, Commit On Exit) lives in the generic; this hook
+ * contributes only the field rules:
  *
- *  - Draft Source Resync: when the mule prop's name or level changes
- *    externally, rebase the corresponding local draft using React's
- *    "store info from previous renders" render-time setState pattern.
- *  - Commit On Exit: flush unblurred drafts on Mule Switch (muleId
- *    changes) and on Drawer Close (unmount). Initial mount is suppressed.
- *  - Snapshot-before-rebase: each render captures its drafts in a ref so
- *    the flush effect can read the OUTGOING mule's drafts even though the
- *    Draft Source Resync has already rebased state to the incoming mule.
- *  - Level clamp: blur and flush coerce the level string into an integer
- *    in [1, 300] so the input can briefly show "500" before blur clamps
- *    it visibly to 300; empty maps to 0.
+ *  - Name: `sanitizeMuleName` on change, plain diff on commit.
+ *  - Level: digits-only input (≤3 chars); blur and flush coerce the level
+ *    string through `clampLevel` into an integer in [1, 300] so the input
+ *    can briefly show "500" before blur clamps it visibly to 300; empty
+ *    maps to 0.
+ *
+ * On a Mule Switch with both fields dirty, each instance flushes its own
+ * patch (two `onUpdate` calls); `updateMule` merges functionally, so the
+ * outcome matches the previous single merged patch.
  */
 export function useMuleIdentityDraft(
   mule: Mule | null,
@@ -48,106 +48,50 @@ export function useMuleIdentityDraft(
   };
 } {
   const muleId = mule?.id ?? null;
-  const sourceName = mule?.name ?? '';
-  const sourceLevelStr = mule?.level ? String(mule.level) : '';
 
-  const [nameDraft, setNameDraft] = useState<string>(sourceName);
-  const [levelDraft, setLevelDraft] = useState<string>(sourceLevelStr);
-
-  // Snapshot-before-rebase: capture this render's drafts under the CURRENT
-  // muleId, BEFORE the Draft Source Resync block (below) potentially rebases
-  // them to the incoming mule's source. This must run during render — it
-  // cannot move into effect cleanup, because cleanup fires AFTER the calling
-  // component has already rebased the `mule` prop and our resync has already
-  // overwritten the drafts. By that point the outgoing mule's unblurred edits
-  // are gone.
-  const prevDraftsForMuleRef = useRef<IdentityDrafts>({
-    name: nameDraft,
-    level: levelDraft,
+  const name = useCommittedDraft({
+    entityId: muleId,
+    source: mule?.name ?? '',
+    commit: (id, draft, source) => {
+      if (draft !== source) onUpdate(id, { name: draft });
+    },
   });
-  const muleIdRef = useRef<string | null>(muleId);
-  const muleSwitched = muleIdRef.current !== muleId;
-  if (!muleSwitched) {
-    prevDraftsForMuleRef.current = { name: nameDraft, level: levelDraft };
-  }
 
-  // Draft Source Resync — render-time setState, applied separately to name
-  // and level so an external write to one field doesn't blow away an
-  // unblurred edit on the other.
-  const [lastSourceName, setLastSourceName] = useState<string>(sourceName);
-  if (lastSourceName !== sourceName) {
-    setLastSourceName(sourceName);
-    if (nameDraft !== sourceName) setNameDraft(sourceName);
-  }
-  const [lastSourceLevel, setLastSourceLevel] = useState<string>(sourceLevelStr);
-  if (lastSourceLevel !== sourceLevelStr) {
-    setLastSourceLevel(sourceLevelStr);
-    if (levelDraft !== sourceLevelStr) setLevelDraft(sourceLevelStr);
-  }
+  const level = useCommittedDraft({
+    entityId: muleId,
+    source: mule?.level ? String(mule.level) : '',
+    commit: (id, draft, source) => {
+      if (draft !== source) onUpdate(id, { level: clampLevel(draft) });
+    },
+  });
 
-  // Latest-closure ref for the flush callback. Both the Mule Switch effect
-  // and the unmount cleanup read this ref so they always see the freshest
-  // source comparisons and the freshest `onUpdate` identity. Equality with
-  // source skips no-op writes; level is routed through the same clamp as
-  // onBlur so a switch/close commits the visible value.
-  const flushRef = useRef<(id: string, drafts: IdentityDrafts) => void>(() => {});
-  flushRef.current = (id, drafts) => {
-    const update: Partial<Omit<Mule, 'id'>> = {};
-    if (drafts.name !== sourceName) update.name = drafts.name;
-    if (drafts.level !== sourceLevelStr) update.level = clampLevel(drafts.level);
-    if (Object.keys(update).length > 0) onUpdate(id, update);
-  };
+  const { setDraft: setNameDraft } = name;
+  const onNameChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setNameDraft(sanitizeMuleName(e.currentTarget.value));
+    },
+    [setNameDraft],
+  );
 
-  // Mule Switch flush. Depends only on muleId — adding `nameDraft` /
-  // `levelDraft` to the deps would re-run the effect on every keystroke,
-  // advance muleIdRef on each render, and leave the next true switch with
-  // nothing to flush. The render-time snapshot above is what makes this
-  // single-dep effect safe; this disable protects that pattern.
-  useEffect(() => {
-    const prevId = muleIdRef.current;
-    if (prevId !== null && prevId !== muleId) {
-      flushRef.current(prevId, prevDraftsForMuleRef.current);
-    }
-    prevDraftsForMuleRef.current = { name: nameDraft, level: levelDraft };
-    muleIdRef.current = muleId;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [muleId]);
+  const { setDraft: setLevelDraft, commitNow: commitLevelNow } = level;
+  const onLevelChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setLevelDraft(parseLevelInput(e.currentTarget.value));
+    },
+    [setLevelDraft],
+  );
 
-  // Drawer Close flush.
-  useEffect(() => {
-    return () => {
-      const id = muleIdRef.current;
-      if (id !== null) {
-        flushRef.current(id, prevDraftsForMuleRef.current);
-      }
-    };
-  }, []);
-
-  const onNameChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setNameDraft(sanitizeMuleName(e.currentTarget.value));
-  }, []);
-
-  const onNameBlur = useCallback(() => {
-    if (muleId === null) return;
-    if (nameDraft === sourceName) return;
-    onUpdate(muleId, { name: nameDraft });
-  }, [muleId, nameDraft, sourceName, onUpdate]);
-
-  const onLevelChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setLevelDraft(parseLevelInput(e.currentTarget.value));
-  }, []);
-
+  const levelDraft = level.draft;
   const onLevelBlur = useCallback(() => {
-    if (muleId === null) return;
-    if (levelDraft === sourceLevelStr) return;
-    const clamped = clampLevel(levelDraft);
-    const clampedStr = levelDraft === '' ? '' : String(clamped);
+    // Visible clamp: reflect the committed value back into the input, then
+    // commit (the commit clamps the pre-reflect draft to the same value).
+    const clampedStr = levelDraft === '' ? '' : String(clampLevel(levelDraft));
     if (clampedStr !== levelDraft) setLevelDraft(clampedStr);
-    onUpdate(muleId, { level: clamped });
-  }, [muleId, levelDraft, sourceLevelStr, onUpdate]);
+    commitLevelNow();
+  }, [levelDraft, setLevelDraft, commitLevelNow]);
 
   return {
-    name: { draft: nameDraft, onChange: onNameChange, onBlur: onNameBlur },
+    name: { draft: name.draft, onChange: onNameChange, onBlur: name.commitNow },
     level: { draft: levelDraft, onChange: onLevelChange, onBlur: onLevelBlur },
   };
 }
