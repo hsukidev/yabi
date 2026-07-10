@@ -31,7 +31,7 @@ export function SlateViewToggle({
     <div
       data-testid="slate-view-toggle"
       data-mode={mode}
-      className="d-c-toggle d-c-toggle--icons"
+      className="d-c-toggle"
       role="group"
       aria-label="Slate display mode"
     >

@@ -393,7 +393,7 @@ The grid inside the **Drawer** — rows are **Boss Families**, columns are **Bos
 _Avoid_: Matrix, boss grid
 
 **Slate Display Mode**:
-How the **Drawer** renders the open **Mule's** **Boss Slate** — exactly one of **Boss Matrix** or **Boss Card View**. Persisted per user, global across **Mules**; both modes read and write the same **Boss Slate**.
+How the **Drawer** renders the open **Mule's** **Boss Slate** — exactly one of **Boss Matrix** or **Boss Card View**. Persisted per user, global across **Mules**; defaults to the **Boss Card View** when no preference is stored. Both modes read and write the same **Boss Slate**.
 _Avoid_: Drawer view mode, boss view (unqualified)
 
 **Boss Card View**:
@@ -409,7 +409,7 @@ One (**Boss Difficulty**, **Boss Cadence**) option row on a **Boss Card** — th
 _Avoid_: Mode toggle option, tier row
 
 **Slate View Toggle**:
-The **Drawer** toolbar control, left of the Matrix Reset button, that flips the **Slate Display Mode**.
+The **Drawer** toolbar segmented control, left of the Matrix Reset button, that selects the **Slate Display Mode** — **Boss Card View** segment first, **Boss Matrix** second; clicking a segment selects that mode (clicking the active segment is a no-op).
 _Avoid_: View toggle (unqualified), matrix/card switch
 
 **Add Card**:
