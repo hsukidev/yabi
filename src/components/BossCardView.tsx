@@ -1,7 +1,8 @@
 import { memo } from 'react';
 import type { BossCadence } from '../types';
-import type { SlateFamily } from '../data/muleBossSlate';
+import type { SlateFamily, SlateKey, SlateRow } from '../data/muleBossSlate';
 import { bossImageUrl } from '../data/bosses';
+import { TIER_COLOR, TIER_HEADER_LABEL } from '../constants/tiers';
 import { PartyStepper } from './PartyStepper';
 
 interface BossCardViewProps {
@@ -11,6 +12,13 @@ interface BossCardViewProps {
    * and cadence filtering apply identically across both Slate Display Modes.
    */
   families: SlateFamily[];
+  /**
+   * The SAME shared toggle action the Boss Matrix cells call
+   * (`slateActions.toggleKey`). Routing Difficulty Row clicks through it means
+   * every guard rail — Weekly Crystal Cap toast, Tier Swap, Monthly Radio
+   * Mutex — comes along for free; this component owns none of that logic.
+   */
+  onToggleKey: (key: SlateKey) => void;
   partySizes: Record<string, number>;
   onChangePartySize: (family: string, n: number) => void;
   /** Mirrors the matrix's Solo-fallback logic under an active cadence filter. */
@@ -18,10 +26,71 @@ interface BossCardViewProps {
 }
 
 /**
- * One **Boss Card** per **Boss Family**. This slice renders only the card
- * header — natural-size 66×67 sprite, family name, and the shared PartyStepper
- * (or the matrix's `Solo` fallback for families with no partyable tier).
- * Difficulty Rows and the meso readout land in later slices.
+ * One stacked, full-width **Difficulty Row** per (tier, cadence) the family
+ * offers — tier color pip + tier label on the left, lowercase cadence label on
+ * the right edge. This list is the Boss Card's **only** selection surface.
+ *
+ * Clicks route straight to the shared `onToggleKey`, so the row inherits the
+ * matrix cell's exact selection semantics: a selected row lights up (accent
+ * background), and an unselected row of an already-selected cadence dims to
+ * ~0.4 opacity but stays clickable (**Tier Swap** — tapping it swaps
+ * atomically). Rows are never disabled; a rejected 15th weekly add surfaces
+ * the existing "Weekly cap reached" toast from the handler layer.
+ */
+function DifficultyRow({
+  row,
+  bossId,
+  isDim,
+  onToggleKey,
+}: {
+  row: SlateRow;
+  bossId: string;
+  isDim: boolean;
+  onToggleKey: (key: SlateKey) => void;
+}) {
+  const isSelected = row.selected;
+  return (
+    <button
+      type="button"
+      data-testid={`boss-card-row-${bossId}-${row.tier}`}
+      data-state={isSelected ? 'on' : 'off'}
+      data-dim={isDim ? 'true' : undefined}
+      aria-pressed={isSelected}
+      onClick={() => onToggleKey(row.key)}
+      style={isDim ? { opacity: 0.4 } : undefined}
+      className={[
+        'flex items-center justify-between gap-2 px-3 py-2 text-left border-b border-(--border) last:border-b-0 cursor-pointer transition-colors',
+        isSelected ? 'bg-[var(--accent-soft)] text-[var(--accent)]' : 'hover:bg-(--surface-2)',
+      ].join(' ')}
+    >
+      <span className="flex min-w-0 items-center gap-2">
+        <span
+          aria-hidden
+          data-difficulty-pip={row.tier}
+          className="inline-block size-2 shrink-0 rounded-full"
+          style={{ background: TIER_COLOR[row.tier] }}
+        />
+        <span className="font-display text-[12px] font-medium leading-[1.2]">
+          {TIER_HEADER_LABEL[row.tier]}
+        </span>
+      </span>
+      <span
+        className={[
+          'font-mono-nums text-[10px] lowercase tracking-widest',
+          isSelected ? 'text-[var(--accent)]' : 'text-(--muted-raw,var(--muted-foreground))',
+        ].join(' ')}
+      >
+        {row.cadence}
+      </span>
+    </button>
+  );
+}
+
+/**
+ * One **Boss Card** per **Boss Family**: natural-size 66×67 sprite, family
+ * name, the shared PartyStepper (or the matrix's `Solo` fallback for families
+ * with no partyable tier), and the stacked **Difficulty Rows** that own
+ * selection.
  *
  * Memoized exactly like `FamilyMatrixRow`: a keystroke in a drawer input
  * re-renders `MuleDetailDrawer`, but a card whose `family` / `partySize` /
@@ -30,11 +99,13 @@ interface BossCardViewProps {
 const BossCard = memo(function BossCard({
   family,
   partySize,
+  onToggleKey,
   onChangePartySize,
   activeCadence,
 }: {
   family: SlateFamily;
   partySize: number;
+  onToggleKey: (key: SlateKey) => void;
   onChangePartySize: (family: string, n: number) => void;
   activeCadence?: BossCadence;
 }) {
@@ -49,10 +120,26 @@ const BossCard = memo(function BossCard({
   // Any row carries the bossId we need for stable test ids.
   const bossId = family.rows[0]?.bossId ?? family.family;
 
+  // A row dims iff another tier of the SAME cadence is selected on this boss —
+  // opposite-cadence tiers stay fully lit. Identical rule to the matrix cell.
+  const selectedCadences = new Set(family.rows.filter((r) => r.selected).map((r) => r.cadence));
+  // Card holds ≥1 Slate Key → selected-card styling (accent border + subtle
+  // accent tint), the bulk-delete treatment minus the checkbox.
+  const hasSelection = selectedCadences.size > 0;
+
   return (
     <div
       data-testid={`boss-card-${bossId}`}
-      className="flex flex-col overflow-clip rounded-[10px] border border-(--border) bg-(--surface)"
+      data-selected={hasSelection ? 'true' : undefined}
+      className={[
+        'flex flex-col overflow-clip rounded-[10px] border bg-(--surface)',
+        hasSelection ? 'border-[var(--accent)]' : 'border-(--border)',
+      ].join(' ')}
+      style={
+        hasSelection
+          ? { background: 'color-mix(in srgb, var(--accent) 6%, var(--surface))' }
+          : undefined
+      }
     >
       <div className="flex items-center gap-3 p-3 border-b border-(--border) bg-(--surface-2)">
         <img
@@ -86,12 +173,27 @@ const BossCard = memo(function BossCard({
           )}
         </div>
       </div>
+
+      {/* Difficulty Rows — the card's only selection surface. The card body
+          above is inert; selection happens only here. */}
+      <div data-testid={`boss-card-rows-${bossId}`} className="flex flex-col">
+        {family.rows.map((row) => (
+          <DifficultyRow
+            key={row.key}
+            row={row}
+            bossId={bossId}
+            isDim={!row.selected && selectedCadences.has(row.cadence)}
+            onToggleKey={onToggleKey}
+          />
+        ))}
+      </div>
     </div>
   );
 });
 
 export const BossCardView = memo(function BossCardView({
   families,
+  onToggleKey,
   partySizes,
   onChangePartySize,
   activeCadence,
@@ -109,6 +211,7 @@ export const BossCardView = memo(function BossCardView({
           key={family.family}
           family={family}
           partySize={partySizes[family.family] ?? 1}
+          onToggleKey={onToggleKey}
           onChangePartySize={onChangePartySize}
           activeCadence={activeCadence}
         />
