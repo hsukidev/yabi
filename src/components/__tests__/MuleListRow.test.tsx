@@ -149,16 +149,16 @@ describe('MuleListRow — comfy spec', () => {
     expect(onClick).toHaveBeenCalledWith('row-mule-1');
   });
 
-  it('renders an active mule at opacity 1 and inactive at 0.55', () => {
+  it('renders an active mule without the inactive dim overlay', () => {
     const { container } = renderRow();
     const row = container.querySelector('[data-mule-row]') as HTMLElement;
-    expect(row.style.opacity).toBe('1');
+    expect(row.querySelector('[data-inactive-dim]')).toBeNull();
   });
 
-  it('renders an inactive mule at 0.55 opacity', () => {
+  it('dims an inactive mule with the inactive dim overlay', () => {
     const { container } = renderRow({ mule: { active: false } });
     const row = container.querySelector('[data-mule-row]') as HTMLElement;
-    expect(row.style.opacity).toBe('0.55');
+    expect(row.querySelector('[data-inactive-dim]')).toBeTruthy();
   });
 });
 
@@ -263,6 +263,18 @@ describe('MuleListRow — Roster Active Switch', () => {
     expect(getSwitch().style.opacity).toBe('1');
 
     fireEvent.blur(getSwitch());
+    expect(getSwitch().style.opacity).toBe('0');
+  });
+
+  it('hides again on unhover after a pointer click, even while still focused', () => {
+    const { container } = renderRow();
+    fireEvent.mouseEnter(rowOf(container));
+    fireEvent.pointerDown(getSwitch());
+    fireEvent.focus(getSwitch());
+    fireEvent.click(getSwitch());
+    expect(getSwitch().style.opacity).toBe('1');
+
+    fireEvent.mouseLeave(rowOf(container));
     expect(getSwitch().style.opacity).toBe('0');
   });
 

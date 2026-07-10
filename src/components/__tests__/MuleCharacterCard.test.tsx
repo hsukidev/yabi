@@ -278,32 +278,29 @@ describe('MuleCharacterCard', () => {
     expect(screen.queryByText('4.5B')).toBeNull();
   });
 
-  it('keeps an active mule card at opacity 1 when not dragging', () => {
+  it('renders an active mule card without the inactive dim overlay', () => {
     const { container } = renderCard({ active: true });
     const cardWrapper = container.querySelector('[data-mule-card]') as HTMLElement;
-    // Opacity stays at 1 regardless of hover; only drop during active drag.
-    expect(cardWrapper.style.opacity).toBe('1');
+    expect(cardWrapper.querySelector('[data-inactive-dim]')).toBeNull();
     fireEvent.mouseEnter(cardWrapper);
-    expect(cardWrapper.style.opacity).toBe('1');
-    fireEvent.mouseLeave(cardWrapper);
-    expect(cardWrapper.style.opacity).toBe('1');
+    expect(cardWrapper.querySelector('[data-inactive-dim]')).toBeNull();
   });
 
-  it('renders an inactive mule card at 0.55 opacity', () => {
+  it('dims an inactive mule card with the inactive dim overlay', () => {
     const { container } = renderCard({ active: false });
     const cardWrapper = container.querySelector('[data-mule-card]') as HTMLElement;
-    expect(cardWrapper.style.opacity).toBe('0.55');
+    expect(cardWrapper.querySelector('[data-inactive-dim]')).toBeTruthy();
   });
 
-  it('keeps an inactive mule card at 0.55 opacity on hover', () => {
+  it('keeps an inactive mule card dimmed on hover', () => {
     const { container } = renderCard({ active: false });
     const cardWrapper = container.querySelector('[data-mule-card]') as HTMLElement;
     const panel = cardWrapper.querySelector('.panel') as HTMLElement;
-    expect(cardWrapper.style.opacity).toBe('0.55');
+    expect(cardWrapper.querySelector('[data-inactive-dim]')).toBeTruthy();
     fireEvent.mouseEnter(panel);
-    expect(cardWrapper.style.opacity).toBe('0.55');
+    expect(cardWrapper.querySelector('[data-inactive-dim]')).toBeTruthy();
     fireEvent.mouseLeave(panel);
-    expect(cardWrapper.style.opacity).toBe('0.55');
+    expect(cardWrapper.querySelector('[data-inactive-dim]')).toBeTruthy();
   });
 
   it('renders inactive selected bosses as muted Potential Meso', () => {
@@ -379,6 +376,21 @@ describe('MuleCharacterCard', () => {
       expect(getSwitch().style.opacity).toBe('1');
 
       fireEvent.blur(getSwitch());
+      expect(getSwitch().style.opacity).toBe('0');
+    });
+
+    it('hides again on unhover after a pointer click, even while still focused', () => {
+      // Clicking focuses the switch, but pointer focus must not pin it
+      // visible — only keyboard focus does. Regression: the switch stayed
+      // revealed after unhover until something else stole focus.
+      const { container } = renderCard();
+      fireEvent.mouseEnter(panelOf(container));
+      fireEvent.pointerDown(getSwitch());
+      fireEvent.focus(getSwitch());
+      fireEvent.click(getSwitch());
+      expect(getSwitch().style.opacity).toBe('1');
+
+      fireEvent.mouseLeave(panelOf(container));
       expect(getSwitch().style.opacity).toBe('0');
     });
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Switch } from '@/components/ui/switch';
 
 interface RosterActiveSwitchProps {
@@ -22,11 +22,17 @@ export function RosterActiveSwitch({
   onToggleActive,
 }: RosterActiveSwitchProps) {
   const [focused, setFocused] = useState(false);
-  const visible = revealed || focused;
+  // Only keyboard focus pins the switch visible (the `:focus-visible`
+  // heuristic, tracked manually because Base UI focuses on click too).
+  // Without this, clicking the switch left it revealed after the pointer
+  // moved off the item, until something else stole focus.
+  const pointerDownRef = useRef(false);
 
   function stopPropagation(e: React.SyntheticEvent) {
     e.stopPropagation();
   }
+
+  const visible = revealed || focused;
 
   return (
     // The row/card body is itself click-to-open and (in Card View) the drag
@@ -34,17 +40,25 @@ export function RosterActiveSwitch({
     // opens the drawer or engages drag. The guard must sit ABOVE the switch:
     // Base UI toggles through a hidden <input>, whose re-dispatched click
     // bubbles separately from the visible button's.
+    // zIndex 2 lifts the switch above the InactiveDimOverlay (zIndex 1) so
+    // it stays full-strength on a dimmed inactive item.
     <span
-      style={{ display: 'inline-flex' }}
+      style={{ display: 'inline-flex', position: 'relative', zIndex: 2 }}
       onClick={stopPropagation}
-      onPointerDown={stopPropagation}
+      onPointerDown={(e) => {
+        pointerDownRef.current = true;
+        stopPropagation(e);
+      }}
       onKeyDown={stopPropagation}
     >
       <Switch
         aria-label="Active"
         checked={active}
         onCheckedChange={(checked) => onToggleActive(muleId, checked)}
-        onFocus={() => setFocused(true)}
+        onFocus={() => {
+          setFocused(!pointerDownRef.current);
+          pointerDownRef.current = false;
+        }}
         onBlur={() => setFocused(false)}
         className="data-checked:bg-(--chart-4)"
         style={{

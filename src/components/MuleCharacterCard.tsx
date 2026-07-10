@@ -14,6 +14,7 @@ import { NotesTooltipTrigger } from './RosterItem/NotesTooltipTrigger';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import { SelectionIndicator } from './RosterItem/SelectionIndicator';
 import { RosterActiveSwitch } from './RosterItem/RosterActiveSwitch';
+import { InactiveDimOverlay } from './RosterItem/InactiveDimOverlay';
 import type { RosterRowMetrics } from './rosterRowMetrics';
 
 interface MuleCharacterCardProps {
@@ -273,7 +274,6 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: mule.active ? 1 : 0.55,
     zIndex: isDragging ? 1 : undefined,
   };
 
@@ -359,6 +359,8 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
             <SelectionIndicator selected={selected} />
           </span>
         )}
+
+        {!mule.active && <InactiveDimOverlay />}
 
         {!bulkMode && !isTouch && (
           <span style={{ position: 'absolute', top: 10, right: 10, display: 'flex' }}>

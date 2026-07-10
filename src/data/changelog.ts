@@ -27,9 +27,7 @@ export const releases: Release[] = [
   {
     date: '2026-06-29',
     version: '1.4.2',
-    changes: [
-      { category: 'feature', text: 'Added Malefic Star (Normal and Hard) to the boss matrix.' },
-    ],
+    changes: [{ category: 'feature', text: 'Added Malefic Star (Normal and Hard).' }],
   },
   {
     date: '2026-05-28',

@@ -13,6 +13,7 @@ import { NotesTooltipTrigger } from './RosterItem/NotesTooltipTrigger';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import { SelectionIndicator } from './RosterItem/SelectionIndicator';
 import { RosterActiveSwitch } from './RosterItem/RosterActiveSwitch';
+import { InactiveDimOverlay } from './RosterItem/InactiveDimOverlay';
 import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
 import monthlyCrystalPng from '../assets/monthly-crystal.png';
@@ -128,8 +129,9 @@ export const MuleListRow = memo(function MuleListRow({
     transition: transition
       ? `${transition}, background 200ms ease-out, border-color 200ms ease-out`
       : 'background 200ms ease-out, border-color 200ms ease-out',
-    opacity: mule.active ? 1 : 0.55,
     zIndex: isDragging ? 1 : undefined,
+    // Positioned so the InactiveDimOverlay can cover the row.
+    position: 'relative',
     display: 'grid',
     gridTemplateColumns: 'var(--row-handle, 24px) var(--row-avatar, 64px) auto minmax(0, 1fr)',
     alignItems: 'center',
@@ -357,6 +359,8 @@ export const MuleListRow = memo(function MuleListRow({
           </span>
         </div>
       </div>
+
+      {!mule.active && <InactiveDimOverlay />}
     </div>
   );
 });

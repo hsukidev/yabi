@@ -749,13 +749,14 @@ describe('App DnD interactions', () => {
 
   it('keeps the dragged card visible and lifts its z-index above siblings during drag', async () => {
     // With the DragOverlay removed, the pressed card IS the drag visual — it
-    // must stay opacity:1 and sit above its siblings via z-index so it renders
-    // over other cards it's being dragged across.
+    // must stay undimmed (no inline opacity; inactive dim is a child overlay)
+    // and sit above its siblings via z-index so it renders over other cards
+    // it's being dragged across.
     const { container } = await renderApp();
     const cardA = container.querySelector('[data-mule-card="mule-a"]') as HTMLElement;
 
     fireEvent.mouseEnter(cardA);
-    expect(cardA.style.opacity).toBe('1');
+    expect(cardA.style.opacity).toBe('');
     expect(cardA.style.zIndex).toBe('');
 
     fireEvent.mouseDown(cardA, { clientX: 100, clientY: 150, button: 0, bubbles: true });
@@ -764,14 +765,14 @@ describe('App DnD interactions', () => {
     await waitFor(() => {
       expect(cardA.style.zIndex).toBe('1');
     });
-    expect(cardA.style.opacity).toBe('1');
+    expect(cardA.style.opacity).toBe('');
 
     fireEvent.mouseUp(document, { clientX: 110, clientY: 150, bubbles: true });
 
     await waitFor(() => {
       expect(cardA.style.zIndex).toBe('');
     });
-    expect(cardA.style.opacity).toBe('1');
+    expect(cardA.style.opacity).toBe('');
   });
 
   it('resets isDragging state on drag cancel, removing dotted border', async () => {
