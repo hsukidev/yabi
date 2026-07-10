@@ -24,8 +24,16 @@ server {
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
     add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
 
+    # Emit relative Location headers on any internal redirect. TLS terminates
+    # upstream, so nginx would otherwise build absolute redirects with the
+    # wrong `http://` scheme (a protocol downgrade Googlebot flags).
+    absolute_redirect off;
+
     location / {
-        try_files $uri $uri/ /index.html;
+        # `$uri.html` serves the prerendered flat files (dist/about.html,
+        # dist/changelog.html) for extensionless paths like `/about` with a
+        # 200 and no trailing-slash redirect. Must come before `$uri/`.
+        try_files $uri $uri.html $uri/ /index.html;
     }
 
     # Same-origin proxy to the deployed character-lookup Worker. Keeping the

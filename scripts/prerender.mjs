@@ -7,11 +7,17 @@
 // empty <div id="root">, while the existing client bundle still boots and
 // replaces the DOM with the live React tree on first paint.
 //
-// Output layout (directory-style, served by any static host and by an nginx
-// `try_files $uri $uri/ /index.html` rule):
+// Output layout (flat `.html` files, served by the nginx
+// `try_files $uri $uri.html $uri/ /index.html` rule):
 //   /          -> dist/index.html
-//   /about     -> dist/about/index.html
-//   /changelog -> dist/changelog/index.html
+//   /about     -> dist/about.html
+//   /changelog -> dist/changelog.html
+//
+// Flat files (not `about/index.html`) are deliberate: a directory would make
+// nginx 301-redirect `/about` -> `/about/` to append the trailing slash,
+// which Search Console reports as a "Redirect error" and which also mismatches
+// the trailing-slash-free canonical/sitemap URLs. `$uri.html` serves `/about`
+// directly with a 200 and no redirect.
 
 import { mkdir, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
@@ -33,8 +39,8 @@ const ORIGIN = 'https://yabi.henesys.io';
 // point at `/`.
 const routes = [
   { path: '/', out: 'index.html', canonical: `${ORIGIN}/` },
-  { path: '/about', out: 'about/index.html', canonical: `${ORIGIN}/about` },
-  { path: '/changelog', out: 'changelog/index.html', canonical: `${ORIGIN}/changelog` },
+  { path: '/about', out: 'about.html', canonical: `${ORIGIN}/about` },
+  { path: '/changelog', out: 'changelog.html', canonical: `${ORIGIN}/changelog` },
 ];
 
 // SPA fallback so deep paths still resolve to index.html, mirroring the
