@@ -14,6 +14,7 @@ import { useSlateDisplayMode } from '../hooks/useSlateDisplayMode';
 import type { UserPreset } from '../data/userPresets';
 import { BossMatrix } from './BossMatrix';
 import { BossCardView } from './BossCardView';
+import { BossSlateEmpty } from './BossSlateEmpty';
 import { BossSearch } from './BossSearch';
 import { MatrixToolbar } from './MatrixToolbar';
 import { CharacterAvatar } from './CharacterAvatar';
@@ -391,7 +392,12 @@ export function MuleDetailDrawer({
                 />
                 <div className="mt-2">
                   <BossSearch fused value={matrixFilter.search} onChange={matrixFilter.setSearch} />
-                  {slateDisplayMode === 'cards' ? (
+                  {/* Search + cadence filter can narrow the shared projection to
+                      nothing; both Slate Display Modes then collapse to the one
+                      fused empty panel instead of a bare header / blank grid. */}
+                  {matrixFilter.visibleBosses.length === 0 ? (
+                    <BossSlateEmpty />
+                  ) : slateDisplayMode === 'cards' ? (
                     <BossCardView
                       families={matrixFilter.visibleBosses}
                       onToggleKey={slateActions.toggleKey}
