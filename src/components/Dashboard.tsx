@@ -15,13 +15,13 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
-import { useState, useCallback, useDeferredValue, useEffect, useMemo, useRef } from 'react';
+import { useState, useCallback, useDeferredValue, useMemo } from 'react';
 
 import { useDisplay } from '../context/DisplayProvider';
 import { useWorld } from '../context/WorldProvider';
 import { lensMules } from '../data/worlds';
 import { useMuleActions } from '../hooks/useMuleActions';
-import { useBulkDragPaint } from '../hooks/useBulkDragPaint';
+import { useBulkSelection } from '../hooks/useBulkSelection';
 import { useWorldIncome } from '../modules/worldIncome';
 import { rosterRowMetrics, type RosterRowMetrics } from './rosterRowMetrics';
 import { MuleCharacterCard } from './MuleCharacterCard';
@@ -60,8 +60,6 @@ export function Dashboard() {
   const deferredMulesInWorld = useDeferredValue(mulesInWorld);
   const [selectedMuleId, setSelectedMuleId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [bulkMode, setBulkMode] = useState(false);
-  const [toDelete, setToDelete] = useState<Set<string>>(() => new Set());
   const [showWorldNeededBanner, setShowWorldNeededBanner] = useState(false);
 
   const selectedMule = mules.find((m) => m.id === selectedMuleId) ?? null;
@@ -152,66 +150,19 @@ export function Dashboard() {
     setSelectedMuleId(null);
   }, []);
 
-  const enterBulk = useCallback(() => {
-    setBulkMode(true);
-    setToDelete(new Set());
-  }, []);
-
-  const exitBulk = useCallback(() => {
-    setBulkMode(false);
-    setToDelete(new Set());
-  }, []);
-
-  const toggleDelete = useCallback((id: string) => {
-    setToDelete((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
-
-  // Exact-state setter used by the drag-paint hook. Returning `prev` when
-  // the value already matches keeps React from scheduling a re-render on
-  // every move frame that brushes an already-correct card.
-  const setSelected = useCallback((id: string, shouldBeSelected: boolean) => {
-    setToDelete((prev) => {
-      if (prev.has(id) === shouldBeSelected) return prev;
-      const next = new Set(prev);
-      if (shouldBeSelected) next.add(id);
-      else next.delete(id);
-      return next;
-    });
-  }, []);
-
-  // Live refs for the drag-paint hook: mule order feeds range math, and
-  // `isSelected` drives the Original Snapshot. Routing through refs lets
-  // the hook read current values across multi-frame gestures without
-  // recreating its callbacks on every toggle.
-  const orderRef = useRef<string[]>([]);
-  useEffect(() => {
-    orderRef.current = mulesInWorld.map((m) => m.id);
-  }, [mulesInWorld]);
-
-  const toDeleteRef = useRef(toDelete);
-  useEffect(() => {
-    toDeleteRef.current = toDelete;
-  }, [toDelete]);
-
-  const isSelected = useCallback((id: string) => toDeleteRef.current.has(id), []);
-
-  const { handlers: dragPaintHandlers, isPaintEngaged } = useBulkDragPaint({
-    enabled: bulkMode,
-    orderRef,
-    isSelected,
-    setSelected,
-  });
-
-  const handleBulkDelete = useCallback(() => {
-    if (toDelete.size === 0) return;
-    deleteMules([...toDelete]);
-    exitBulk();
-  }, [toDelete, deleteMules, exitBulk]);
+  // Bulk Delete Mode — selection state, exact-state setter, and the
+  // drag-paint marshalling all live behind useBulkSelection; Dashboard
+  // keeps only the confirm UI wiring (RosterHeader buttons).
+  const {
+    bulkMode,
+    toDelete,
+    enterBulk,
+    exitBulk,
+    toggleDelete,
+    deleteSelected,
+    dragPaintHandlers,
+    isPaintEngaged,
+  } = useBulkSelection(mulesInWorld, deleteMules);
 
   return (
     <>
@@ -238,7 +189,7 @@ export function Dashboard() {
             selectedCount={toDelete.size}
             onEnterBulk={enterBulk}
             onCancel={exitBulk}
-            onDelete={handleBulkDelete}
+            onDelete={deleteSelected}
           />
 
           <div className="mb-4 border-t border-border" aria-hidden />
