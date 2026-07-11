@@ -424,9 +424,9 @@ describe('muleMigrate', () => {
   });
 
   describe('schema lineage constant', () => {
-    it('exports CURRENT_SCHEMA_VERSION = 6', () => {
+    it('exports CURRENT_SCHEMA_VERSION = 7', () => {
       // Sanity: guards against an accidental bump without test updates.
-      expect(CURRENT_SCHEMA_VERSION).toBe(6);
+      expect(CURRENT_SCHEMA_VERSION).toBe(7);
     });
   });
 
@@ -639,6 +639,150 @@ describe('muleMigrate', () => {
       expect(mule.selectedBosses).toEqual([HARD_LUCID]);
       // partySizes survive — they only get wiped under wipe mode.
       expect(mule.partySizes).toEqual({ lucid: 3 });
+    });
+  });
+
+  describe('schemaVersion 7 → Clear Mark fields', () => {
+    it('loads a v6 payload (no mark keys) with all marks undefined', () => {
+      const v6 = {
+        schemaVersion: 6,
+        mules: [
+          {
+            id: 'a',
+            name: 'Legacy v6',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+          },
+        ],
+      };
+      const [mule] = muleMigrate(JSON.stringify(v6));
+      expect(mule.dailyClearMark).toBeUndefined();
+      expect(mule.weeklyClearMark).toBeUndefined();
+      expect(mule.bmClearMark).toBeUndefined();
+    });
+
+    it('round-trips valid daily / weekly / BM Clear Marks on a v7 payload', () => {
+      const mules: Mule[] = [
+        {
+          id: 'a',
+          name: 'Marked',
+          level: 200,
+          muleClass: 'Hero',
+          selectedBosses: [HARD_LUCID],
+          partySizes: {},
+          active: true,
+          dailyClearMark: '2026-07-11',
+          weeklyClearMark: Date.UTC(2026, 6, 9), // Thursday 2026-07-09 00:00 UTC
+          bmClearMark: '2026-07',
+        },
+      ];
+      const raw = JSON.stringify({ schemaVersion: 7, mules });
+      expect(muleMigrate(raw)).toEqual(mules);
+    });
+
+    it('sanitizes a malformed dailyClearMark (non-string / empty) to undefined', () => {
+      const v7 = {
+        schemaVersion: 7,
+        mules: [
+          {
+            id: 'a',
+            name: 'BadDaily',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+            dailyClearMark: 20260711,
+          },
+          {
+            id: 'b',
+            name: 'EmptyDaily',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+            dailyClearMark: '',
+          },
+        ],
+      };
+      const [a, b] = muleMigrate(JSON.stringify(v7));
+      expect(a.dailyClearMark).toBeUndefined();
+      expect(b.dailyClearMark).toBeUndefined();
+    });
+
+    it('sanitizes a malformed weeklyClearMark (non-number / non-finite) to undefined', () => {
+      const v7 = {
+        schemaVersion: 7,
+        mules: [
+          {
+            id: 'a',
+            name: 'StringWeekly',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+            weeklyClearMark: '2026-07-09',
+          },
+          {
+            id: 'b',
+            name: 'NaNWeekly',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+            weeklyClearMark: Number.NaN,
+          },
+        ],
+      };
+      const [a, b] = muleMigrate(JSON.stringify(v7));
+      expect(a.weeklyClearMark).toBeUndefined();
+      expect(b.weeklyClearMark).toBeUndefined();
+    });
+
+    it('sanitizes a malformed bmClearMark (non-string / empty) to undefined', () => {
+      const v7 = {
+        schemaVersion: 7,
+        mules: [
+          {
+            id: 'a',
+            name: 'BadBm',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+            bmClearMark: { month: '2026-07' },
+          },
+        ],
+      };
+      expect(muleMigrate(JSON.stringify(v7))[0].bmClearMark).toBeUndefined();
+    });
+
+    it('preserves a well-typed but stale stamp (validity is derived, not swept)', () => {
+      // A far-past daily stamp survives migration untouched; it is simply
+      // inert until compared against the current cycle at read time.
+      const v7 = {
+        schemaVersion: 7,
+        mules: [
+          {
+            id: 'a',
+            name: 'Stale',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+            dailyClearMark: '2001-01-01',
+          },
+        ],
+      };
+      expect(muleMigrate(JSON.stringify(v7))[0].dailyClearMark).toBe('2001-01-01');
     });
   });
 
