@@ -227,6 +227,7 @@ export function Dashboard() {
                     metricsByMule={metricsByMule}
                     onCardClick={handleCardClick}
                     onToggleActive={handleToggleActive}
+                    onSetMark={handleSetMark}
                     bulkMode={bulkMode}
                     toDelete={toDelete}
                     onToggleSelect={toggleDelete}

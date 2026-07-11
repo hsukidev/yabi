@@ -102,7 +102,13 @@ function renderRow(mule: Mule, metrics: RosterRowMetrics) {
   return render(
     <DndContext>
       <SortableContext items={[mule.id]} strategy={verticalListSortingStrategy}>
-        <MuleListRow mule={mule} metrics={metrics} onClick={() => {}} onToggleActive={() => {}} />
+        <MuleListRow
+          mule={mule}
+          metrics={metrics}
+          onClick={() => {}}
+          onToggleActive={() => {}}
+          onSetMark={() => {}}
+        />
       </SortableContext>
     </DndContext>,
   );

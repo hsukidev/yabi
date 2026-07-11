@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, fireEvent, within } from '@/test/test-utils';
+import { render, screen, fireEvent, waitFor, act, within } from '@/test/test-utils';
 
 import { MuleDetailDrawer } from '../MuleDetailDrawer';
 import type { Mule } from '../../types';
@@ -9,11 +9,23 @@ import { rosterRowMetrics, type RosterRowMetrics } from '../rosterRowMetrics';
 import { formatMeso } from '../../utils/meso';
 import { formatDroppedSlots, MuleBossSlate, type SlateKey } from '../../data/muleBossSlate';
 import { resolveWorldGroup } from '../../data/worlds';
+import { currentDailyStamp, currentWeeklyStamp, currentBmStamp } from '../../utils/cycle';
 
 const LUCID_BOSS = bosses.find((b) => b.family === 'lucid')!;
 const HARD_LUCID = `${LUCID_BOSS.id}:hard:weekly`;
+const HILLA_BOSS = bosses.find((b) => b.family === 'hilla')!;
+const NORMAL_HILLA_DAILY = `${HILLA_BOSS.id}:normal:daily`;
 const BLACK_MAGE_BOSS = bosses.find((b) => b.family === 'black-mage')!;
 const EXTREME_BLACK_MAGE = `${BLACK_MAGE_BOSS.id}:extreme:monthly`;
+const HARD_BLACK_MAGE_MONTHLY = `${BLACK_MAGE_BOSS.id}:hard:monthly`;
+
+// The drawer kebab (touch marking path) is the Mule Actions Menu; open it,
+// then interact with its rows.
+const getDrawerKebab = () => screen.getByRole('button', { name: /mule actions/i });
+const openDrawerMenu = async () => {
+  fireEvent.click(getDrawerKebab());
+  await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+};
 
 function topWeeklyKeys(n: number): { slateKey: SlateKey; value: number }[] {
   const all: { slateKey: SlateKey; value: number }[] = [];
@@ -215,12 +227,13 @@ describe('MuleDetailDrawer (smoke)', () => {
     });
   });
 
-  it('wires the delete button through the two-step confirm flow (delete + close)', () => {
+  it('wires the kebab Delete row through the two-step confirm flow (delete + close)', async () => {
     const onDelete = vi.fn();
     const onClose = vi.fn();
     renderDrawer({ onDelete, onClose });
 
-    fireEvent.click(screen.getByRole('button', { name: /delete/i }));
+    await openDrawerMenu();
+    fireEvent.click(screen.getByText('Delete'));
     expect(screen.getByText('Delete?')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
@@ -228,9 +241,10 @@ describe('MuleDetailDrawer (smoke)', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('Cancel hides the confirm prompt without calling onDelete', () => {
+  it('Cancel hides the confirm prompt without calling onDelete', async () => {
     const { props } = renderDrawer();
-    fireEvent.click(screen.getByRole('button', { name: /delete/i }));
+    await openDrawerMenu();
+    fireEvent.click(screen.getByText('Delete'));
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByText('Delete?')).toBeNull();
     expect(props.onDelete).not.toHaveBeenCalled();
@@ -469,6 +483,145 @@ describe('MuleDetailDrawer (smoke)', () => {
     expect(header.className).not.toContain('@min-[605px]/drawer:flex-row');
     expect(tallySlot.className).toContain('self-stretch');
     expect(tally.className).toContain('flex-row');
+  });
+
+  describe('Mule Actions Menu (touch marking path)', () => {
+    it('renders an always-visible kebab in place of the trash icon', () => {
+      renderDrawer();
+      const kebab = getDrawerKebab();
+      expect(kebab.tagName).toBe('BUTTON');
+      // Always visible — the drawer kebab is not fine-pointer/hover gated.
+      expect(kebab.style.opacity).toBe('1');
+    });
+
+    it('exposes a destructive Delete row', async () => {
+      renderDrawer();
+      await openDrawerMenu();
+      expect(screen.getByText('Delete')).toBeTruthy();
+    });
+
+    it('sets the weekly mark through onUpdate (current cycle stamp)', async () => {
+      const { props } = renderDrawer();
+      await openDrawerMenu();
+      fireEvent.click(screen.getByText('Weekly Complete'));
+      expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, {
+        weeklyClearMark: expect.any(Number),
+      });
+    });
+
+    it('clears the weekly mark when already marked', async () => {
+      const { props } = renderDrawer({
+        mule: { ...baseMule, weeklyClearMark: currentWeeklyStamp(Date.now()) },
+      });
+      await openDrawerMenu();
+      fireEvent.click(screen.getByText('Weekly Incomplete'));
+      expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, { weeklyClearMark: undefined });
+    });
+
+    it('toggles the Active Flag through onUpdate', async () => {
+      const { props } = renderDrawer({ mule: { ...baseMule, active: true } });
+      await openDrawerMenu();
+      fireEvent.click(screen.getByText('Set Inactive'));
+      expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, { active: false });
+    });
+
+    it('shows the Daily row (and hides BM) for a daily-only slate', async () => {
+      renderDrawer({ mule: { ...baseMule, selectedBosses: [NORMAL_HILLA_DAILY] } });
+      await openDrawerMenu();
+      expect(screen.getByText('Daily Complete')).toBeTruthy();
+      expect(screen.queryByText('BM Complete')).toBeNull();
+    });
+
+    it('shows the BM row for a monthly slate', async () => {
+      renderDrawer({ mule: { ...baseMule, selectedBosses: [HARD_BLACK_MAGE_MONTHLY] } });
+      await openDrawerMenu();
+      expect(screen.getByText('BM Complete')).toBeTruthy();
+    });
+
+    it('hides Daily and BM rows for a weekly-only slate (Weekly always shown)', async () => {
+      renderDrawer({ mule: { ...baseMule, selectedBosses: [HARD_LUCID] } });
+      await openDrawerMenu();
+      expect(screen.getByText('Weekly Complete')).toBeTruthy();
+      expect(screen.queryByText('Daily Complete')).toBeNull();
+      expect(screen.queryByText('BM Complete')).toBeNull();
+    });
+  });
+
+  describe('header Completion Checks', () => {
+    const NOW = Date.UTC(2026, 6, 11, 12, 0, 0); // 2026-07-11 12:00 UTC
+
+    it('renders no name-side checks when the mule has no valid marks', () => {
+      renderDrawer();
+      expect(screen.queryByRole('img', { name: /complete/i })).toBeNull();
+    });
+
+    it('renders daily → weekly → BM checks beside the name for valid marks', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(NOW);
+      try {
+        renderDrawer({
+          mule: {
+            ...baseMule,
+            dailyClearMark: currentDailyStamp(NOW),
+            weeklyClearMark: currentWeeklyStamp(NOW),
+            bmClearMark: currentBmStamp(NOW),
+          },
+        });
+        const checks = screen.getAllByRole('img', { name: /complete/i });
+        expect(checks.map((c) => c.getAttribute('aria-label'))).toEqual([
+          'Daily complete',
+          'Weekly complete',
+          'BM complete',
+        ]);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('keeps the checks un-clipped (shrink-0) beside the truncating name', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(NOW);
+      try {
+        renderDrawer({ mule: { ...baseMule, weeklyClearMark: currentWeeklyStamp(NOW) } });
+        const check = screen.getByRole('img', { name: 'Weekly complete' });
+        // The name truncates; the checks live in a shrink-0 wrapper so they
+        // never clip.
+        expect((check.parentElement as HTMLElement).className).toContain('shrink-0');
+        const heading = screen.getByRole('heading', { name: /TestMule/ });
+        expect(heading.querySelector('.truncate')).toBeTruthy();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('expires a name-side check live at the cycle boundary with no reload', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(NOW);
+      try {
+        renderDrawer({ mule: { ...baseMule, dailyClearMark: currentDailyStamp(NOW) } });
+        expect(screen.getByRole('img', { name: 'Daily complete' })).toBeTruthy();
+
+        act(() => {
+          vi.advanceTimersByTime(12 * 60 * 60 * 1000 + 1000);
+        });
+
+        expect(screen.queryByRole('img', { name: 'Daily complete' })).toBeNull();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+  });
+
+  describe('Active pill removal', () => {
+    it('renders no Active Flag pill or switch — the Mule Actions Menu owns the flag', () => {
+      renderDrawer();
+      // No standalone Active toggle/pill: the flag is only reachable through
+      // the Mule Actions Menu (nothing named Set Active/Inactive is on screen
+      // until the kebab menu is opened).
+      expect(screen.queryByRole('switch')).toBeNull();
+      expect(screen.queryByText('Set Active')).toBeNull();
+      expect(screen.queryByText('Set Inactive')).toBeNull();
+    });
   });
 
   describe('Preset click auto-switches Cadence Filter from Daily to All', () => {
