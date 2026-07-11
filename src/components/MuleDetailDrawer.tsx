@@ -27,8 +27,8 @@ import { MuleIdentityFields } from './MuleDetailDrawer/MuleIdentityFields';
 import { MuleNotesField } from './MuleDetailDrawer/MuleNotesField';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import type { RosterRowMetrics } from './rosterRowMetrics';
-// PROTOTYPE — zero-state tone shared with the KPI readout prototype
-import { ZERO_X } from './KpiReadoutPrototype';
+// Zero-state tone shared with the KPI income Progress Readouts.
+import { ZERO_NUMERATOR_TONE } from './KpiProgressReadout';
 // PROTOTYPE — drawer kebab (touch marking path) + name-side completion
 // checks; remove with the prototypes
 import { MarkMenu, MarkChecks, useMarks } from './RosterItem/CardMenuPrototype';
@@ -83,7 +83,7 @@ export function MuleDetailDrawer({
   const weeklyIncomeColor = metrics?.displayedWeeklyMeso.muted
     ? 'var(--dim, var(--surface-dim))'
     : weeklyIncomeRaw === 0
-      ? ZERO_X
+      ? ZERO_NUMERATOR_TONE
       : 'var(--accent-numeric)';
   const droppedKeys = metrics?.droppedKeys ?? EMPTY_DROPPED_KEYS;
   const monthlyIncomeRaw = useMemo(
@@ -251,7 +251,8 @@ export function MuleDetailDrawer({
                       <span
                         className="font-mono-nums text-base"
                         style={{
-                          color: monthlyIncomeRaw === 0 ? ZERO_X : 'var(--accent-numeric)',
+                          color:
+                            monthlyIncomeRaw === 0 ? ZERO_NUMERATOR_TONE : 'var(--accent-numeric)',
                         }}
                       >
                         {monthlyIncome}
