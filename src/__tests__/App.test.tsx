@@ -578,12 +578,14 @@ describe('Bulk Delete Mode', () => {
     expect(screen.queryByText(/Lv\./)).toBeNull();
   });
 
-  it('hides the Roster Active Switch on every card while in bulk mode', async () => {
+  it('hides the Mule Actions Menu on every card while in bulk mode', async () => {
+    // The card's hover control is now the Mule Actions Menu kebab (it replaced
+    // the Roster Active Switch); like the switch before it, bulk mode hides it.
     seedMules(testMules);
-    const { container } = await renderApp();
-    expect(container.querySelectorAll('[role="switch"]').length).toBeGreaterThan(0);
+    await renderApp();
+    expect(screen.getAllByRole('button', { name: /mule actions/i }).length).toBeGreaterThan(0);
     enterBulk();
-    expect(container.querySelectorAll('[role="switch"]')).toHaveLength(0);
+    expect(screen.queryByRole('button', { name: /mule actions/i })).toBeNull();
   });
 
   it('drag-to-reorder does not trigger in bulk mode (dnd sensors suspended)', async () => {

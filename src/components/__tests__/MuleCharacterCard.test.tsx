@@ -3,6 +3,8 @@ import {
   render,
   screen,
   fireEvent,
+  waitFor,
+  act,
   mockMatchMedia,
   restoreMatchMedia,
 } from '../../test/test-utils';
@@ -14,6 +16,8 @@ import { bosses } from '../../data/bosses';
 import type { SlateKey } from '../../data/muleBossSlate';
 import { WorldIncome } from '../../modules/worldIncome';
 import { rosterRowMetrics, type RosterRowMetrics } from '../rosterRowMetrics';
+import type { ClearMarkKind } from '../../utils/clearMark';
+import { currentDailyStamp, currentWeeklyStamp, currentBmStamp } from '../../utils/cycle';
 
 const LUCID = bosses.find((b) => b.family === 'lucid')!.id;
 const HILLA = bosses.find((b) => b.family === 'hilla')!.id;
@@ -71,6 +75,7 @@ const baseMule: Mule = {
 
 interface RenderCardOptions {
   onToggleActive?: (id: string, active: boolean) => void;
+  onSetMark?: (id: string, kind: ClearMarkKind, marked: boolean) => void;
   bulkMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
@@ -86,6 +91,7 @@ interface RenderCardOptions {
 function renderCard(overrides: Partial<Mule> = {}, options?: RenderCardOptions) {
   const onClick = vi.fn();
   const onToggleActive = options?.onToggleActive ?? vi.fn();
+  const onSetMark = options?.onSetMark ?? vi.fn();
   const onToggleSelect = options?.onToggleSelect ?? vi.fn();
   const mule = { ...baseMule, ...overrides };
   localStorage.setItem('density', options?.density ?? 'comfy');
@@ -98,6 +104,7 @@ function renderCard(overrides: Partial<Mule> = {}, options?: RenderCardOptions) 
             mule={mule}
             onClick={onClick}
             onToggleActive={onToggleActive}
+            onSetMark={onSetMark}
             bulkMode={options?.bulkMode ?? false}
             selected={options?.selected ?? false}
             onToggleSelect={onToggleSelect}
@@ -109,6 +116,7 @@ function renderCard(overrides: Partial<Mule> = {}, options?: RenderCardOptions) 
     ),
     onClick,
     onToggleActive,
+    onSetMark,
     onToggleSelect,
   };
 }
@@ -348,93 +356,233 @@ describe('MuleCharacterCard', () => {
     expect(container.querySelector('img[src$="monthly-crystal.png"]')).toBeNull();
   });
 
-  describe('Roster Active Switch', () => {
-    const getSwitch = () => screen.getByRole('switch', { name: /active/i });
+  describe('Mule Actions Menu', () => {
+    const getKebab = () => screen.getByRole('button', { name: /mule actions/i });
     const panelOf = (container: HTMLElement) =>
       container.querySelector('[data-mule-card] .panel') as HTMLElement;
+    const openMenu = async () => {
+      fireEvent.click(getKebab());
+      await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+    };
+    // Daily + monthly cadences present so every menu row is available.
+    const FULL_SLATE = [HARD_LUCID, NORMAL_HILLA, HARD_BLACK_MAGE_MONTHLY];
+
+    it('renders a kebab with an accessible label, not a switch', () => {
+      renderCard();
+      expect(getKebab()).toBeTruthy();
+      expect(getKebab().tagName).toBe('BUTTON');
+      expect(screen.queryByRole('switch')).toBeNull();
+    });
 
     it('renders no per-card delete affordance', () => {
       renderCard();
-      expect(screen.queryByRole('button', { name: /delete/i })).toBeNull();
+      expect(screen.queryByRole('button', { name: /^delete/i })).toBeNull();
       expect(screen.queryByText('Delete?')).toBeNull();
     });
 
     it('is hidden at rest and reveals on card hover', () => {
       const { container } = renderCard();
-      expect(getSwitch().style.opacity).toBe('0');
+      expect(getKebab().style.opacity).toBe('0');
 
       fireEvent.mouseEnter(panelOf(container));
-      expect(getSwitch().style.opacity).toBe('1');
+      expect(getKebab().style.opacity).toBe('1');
 
       fireEvent.mouseLeave(panelOf(container));
-      expect(getSwitch().style.opacity).toBe('0');
+      expect(getKebab().style.opacity).toBe('0');
     });
 
     it('reveals on keyboard focus without hover', () => {
       renderCard();
-      fireEvent.focus(getSwitch());
-      expect(getSwitch().style.opacity).toBe('1');
+      fireEvent.focus(getKebab());
+      expect(getKebab().style.opacity).toBe('1');
 
-      fireEvent.blur(getSwitch());
-      expect(getSwitch().style.opacity).toBe('0');
+      fireEvent.blur(getKebab());
+      expect(getKebab().style.opacity).toBe('0');
     });
 
-    it('hides again on unhover after a pointer click, even while still focused', () => {
-      // Clicking focuses the switch, but pointer focus must not pin it
-      // visible — only keyboard focus does. Regression: the switch stayed
-      // revealed after unhover until something else stole focus.
+    it('stays hover-only (not pinned) after a pointer click without opening', () => {
+      // Pointer focus must not pin the kebab visible — only keyboard focus
+      // does. Same regression the Roster Active Switch guarded against.
       const { container } = renderCard();
       fireEvent.mouseEnter(panelOf(container));
-      fireEvent.pointerDown(getSwitch());
-      fireEvent.focus(getSwitch());
-      fireEvent.click(getSwitch());
-      expect(getSwitch().style.opacity).toBe('1');
+      fireEvent.pointerDown(getKebab());
+      fireEvent.focus(getKebab());
+      expect(getKebab().style.opacity).toBe('1');
 
       fireEvent.mouseLeave(panelOf(container));
-      expect(getSwitch().style.opacity).toBe('0');
+      expect(getKebab().style.opacity).toBe('0');
     });
 
-    it('stays hover-only when the mule is inactive', () => {
+    it('stays operable (reveals on hover) when the mule is inactive', () => {
       const { container } = renderCard({ active: false });
-      expect(getSwitch().style.opacity).toBe('0');
+      expect(getKebab().style.opacity).toBe('0');
       fireEvent.mouseEnter(panelOf(container));
-      expect(getSwitch().style.opacity).toBe('1');
+      expect(getKebab().style.opacity).toBe('1');
     });
 
-    it('reflects the Active Flag via aria-checked', () => {
-      renderCard({ active: true });
-      expect(getSwitch().getAttribute('aria-checked')).toBe('true');
+    it('pins the kebab visible while the menu is open', async () => {
+      renderCard();
+      await openMenu();
+      expect(getKebab().style.opacity).toBe('1');
     });
 
-    it('reflects an inactive mule as unchecked', () => {
-      renderCard({ active: false });
-      expect(getSwitch().getAttribute('aria-checked')).toBe('false');
+    it('leads each row with a color-key dot', async () => {
+      renderCard({ selectedBosses: FULL_SLATE });
+      await openMenu();
+      // Set Active/Inactive + Daily + Weekly + BM = 4 dots (aria-hidden).
+      const items = screen.getAllByRole('menuitem');
+      expect(items).toHaveLength(4);
+      for (const item of items) {
+        expect(item.querySelector('span[aria-hidden]')).toBeTruthy();
+      }
     });
 
-    it('flips an active mule inactive on a single click — no confirmation', () => {
-      const onToggleActive = vi.fn();
-      renderCard({ active: true }, { onToggleActive });
-      fireEvent.click(getSwitch());
-      expect(onToggleActive).toHaveBeenCalledTimes(1);
-      expect(onToggleActive).toHaveBeenCalledWith('test-mule-1', false);
+    describe('row wording (action, inverse of current state)', () => {
+      it('reads "Set Inactive" for an active mule and flips it inactive', async () => {
+        const { onToggleActive } = renderCard({ active: true });
+        await openMenu();
+        expect(screen.queryByText('Set Active')).toBeNull();
+        fireEvent.click(screen.getByText('Set Inactive'));
+        expect(onToggleActive).toHaveBeenCalledTimes(1);
+        expect(onToggleActive).toHaveBeenCalledWith('test-mule-1', false);
+      });
+
+      it('reads "Set Active" for an inactive mule and flips it active', async () => {
+        const { onToggleActive } = renderCard({ active: false });
+        await openMenu();
+        expect(screen.queryByText('Set Inactive')).toBeNull();
+        fireEvent.click(screen.getByText('Set Active'));
+        expect(onToggleActive).toHaveBeenCalledWith('test-mule-1', true);
+      });
+
+      it('reads "Weekly Complete" when unmarked and sets the weekly mark', async () => {
+        const { onSetMark } = renderCard();
+        await openMenu();
+        fireEvent.click(screen.getByText('Weekly Complete'));
+        expect(onSetMark).toHaveBeenCalledWith('test-mule-1', 'weekly', true);
+      });
+
+      it('reads "Weekly Incomplete" when marked and clears the weekly mark', async () => {
+        const { onSetMark } = renderCard({ weeklyClearMark: currentWeeklyStamp(Date.now()) });
+        await openMenu();
+        fireEvent.click(screen.getByText('Weekly Incomplete'));
+        expect(onSetMark).toHaveBeenCalledWith('test-mule-1', 'weekly', false);
+      });
+
+      it('reads "Daily Complete" / sets the daily mark when a daily key exists', async () => {
+        const { onSetMark } = renderCard({ selectedBosses: [NORMAL_HILLA] });
+        await openMenu();
+        fireEvent.click(screen.getByText('Daily Complete'));
+        expect(onSetMark).toHaveBeenCalledWith('test-mule-1', 'daily', true);
+      });
+
+      it('reads "BM Complete" / sets the BM mark when a monthly key exists', async () => {
+        const { onSetMark } = renderCard({ selectedBosses: [HARD_BLACK_MAGE_MONTHLY] });
+        await openMenu();
+        fireEvent.click(screen.getByText('BM Complete'));
+        expect(onSetMark).toHaveBeenCalledWith('test-mule-1', 'bm', true);
+      });
     });
 
-    it('flips an inactive mule active on a single click', () => {
-      const onToggleActive = vi.fn();
-      renderCard({ active: false }, { onToggleActive });
-      fireEvent.click(getSwitch());
-      expect(onToggleActive).toHaveBeenCalledWith('test-mule-1', true);
+    describe('cadence-based row hiding', () => {
+      it('hides the Daily row when the slate has zero daily keys', async () => {
+        renderCard({ selectedBosses: [HARD_LUCID] });
+        await openMenu();
+        expect(screen.queryByText('Daily Complete')).toBeNull();
+        expect(screen.queryByText('Daily Incomplete')).toBeNull();
+        expect(screen.getByText('Weekly Complete')).toBeTruthy();
+      });
+
+      it('shows the Daily row when the slate has a daily key', async () => {
+        renderCard({ selectedBosses: [NORMAL_HILLA] });
+        await openMenu();
+        expect(screen.getByText('Daily Complete')).toBeTruthy();
+      });
+
+      it('hides the BM row when the slate has zero monthly keys', async () => {
+        renderCard({ selectedBosses: [HARD_LUCID] });
+        await openMenu();
+        expect(screen.queryByText('BM Complete')).toBeNull();
+        expect(screen.queryByText('BM Incomplete')).toBeNull();
+      });
+
+      it('shows the BM row when the slate has a monthly key', async () => {
+        renderCard({ selectedBosses: [HARD_BLACK_MAGE_MONTHLY] });
+        await openMenu();
+        expect(screen.getByText('BM Complete')).toBeTruthy();
+      });
+
+      it('always shows the Weekly row even with an empty slate', async () => {
+        renderCard({ selectedBosses: [] });
+        await openMenu();
+        expect(screen.getByText('Weekly Complete')).toBeTruthy();
+        expect(screen.queryByText('Daily Complete')).toBeNull();
+        expect(screen.queryByText('BM Complete')).toBeNull();
+      });
     });
 
-    it('does not open the drawer when clicked', () => {
-      const { onClick } = renderCard();
-      fireEvent.click(getSwitch());
-      expect(onClick).not.toHaveBeenCalled();
+    describe('activation swallowing (drawer / drag)', () => {
+      // Render the card inside an ancestor carrying React (synthetic) handlers
+      // — the same layer the card's own click-to-open and dnd-kit drag
+      // listeners live on. React `stopPropagation` stops the synthetic bubble,
+      // so a guarded event reaches neither the card body nor these spies.
+      function renderGuarded(overrides: Partial<Mule> = {}) {
+        const onAncestorPointerDown = vi.fn();
+        const onAncestorClick = vi.fn();
+        const onClick = vi.fn();
+        const mule = { ...baseMule, ...overrides };
+        render(
+          <div onPointerDown={onAncestorPointerDown} onClick={onAncestorClick}>
+            <DndContext>
+              <SortableContext items={[mule.id]} strategy={rectSortingStrategy}>
+                <MuleCharacterCard
+                  mule={mule}
+                  onClick={onClick}
+                  onToggleActive={vi.fn()}
+                  onSetMark={vi.fn()}
+                  onToggleSelect={vi.fn()}
+                  metrics={metricsFor(mule)}
+                />
+              </SortableContext>
+            </DndContext>
+          </div>,
+        );
+        return { onAncestorPointerDown, onAncestorClick, onClick };
+      }
+
+      it('opening the kebab never opens the drawer', async () => {
+        const { onClick } = renderCard();
+        await openMenu();
+        expect(onClick).not.toHaveBeenCalled();
+      });
+
+      it('selecting a menu item never opens the drawer', async () => {
+        const { onClick } = renderCard();
+        await openMenu();
+        fireEvent.click(screen.getByText('Weekly Complete'));
+        expect(onClick).not.toHaveBeenCalled();
+      });
+
+      it('swallows pointerdown so a dnd-kit drag never starts from the kebab', () => {
+        // dnd-kit's MouseSensor engages on a pointerdown reaching the card
+        // wrapper's (synthetic) listeners; the guard must stop it first.
+        const { onAncestorPointerDown, onClick } = renderGuarded();
+        fireEvent.pointerDown(getKebab());
+        expect(onAncestorPointerDown).not.toHaveBeenCalled();
+        expect(onClick).not.toHaveBeenCalled();
+      });
+
+      it('swallows a click on the kebab so it never reaches the card body', () => {
+        const { onAncestorClick, onClick } = renderGuarded();
+        fireEvent.click(getKebab());
+        expect(onAncestorClick).not.toHaveBeenCalled();
+        expect(onClick).not.toHaveBeenCalled();
+      });
     });
 
     it('is not rendered in bulk mode', () => {
       renderCard({}, { bulkMode: true });
-      expect(screen.queryByRole('switch')).toBeNull();
+      expect(screen.queryByRole('button', { name: /mule actions/i })).toBeNull();
     });
 
     describe('on touch devices', () => {
@@ -442,11 +590,97 @@ describe('MuleCharacterCard', () => {
 
       afterEach(restoreMatchMedia);
 
-      it('does not render when (pointer: coarse) matches', () => {
+      it('does not render the kebab when (pointer: coarse) matches', () => {
         mockCoarsePointer();
         renderCard();
-        expect(screen.queryByRole('switch')).toBeNull();
+        expect(screen.queryByRole('button', { name: /mule actions/i })).toBeNull();
       });
+    });
+  });
+
+  describe('Completion Checks (Lv pill)', () => {
+    const NOW = Date.UTC(2026, 6, 11, 12, 0, 0); // 2026-07-11 12:00 UTC
+
+    it('renders no checks when the mule has no valid marks', () => {
+      renderCard();
+      expect(screen.queryByRole('img', { name: /complete/i })).toBeNull();
+    });
+
+    it('renders the Daily check when the daily mark is valid', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(NOW);
+      try {
+        renderCard({ selectedBosses: [NORMAL_HILLA], dailyClearMark: currentDailyStamp(NOW) });
+        expect(screen.getByRole('img', { name: 'Daily complete' })).toBeTruthy();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('renders all three checks in daily → weekly → BM order when all marks are valid', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(NOW);
+      try {
+        renderCard({
+          selectedBosses: [HARD_LUCID, NORMAL_HILLA, HARD_BLACK_MAGE_MONTHLY],
+          dailyClearMark: currentDailyStamp(NOW),
+          weeklyClearMark: currentWeeklyStamp(NOW),
+          bmClearMark: currentBmStamp(NOW),
+        });
+        const checks = screen.getAllByRole('img', { name: /complete/i });
+        expect(checks.map((c) => c.getAttribute('aria-label'))).toEqual([
+          'Daily complete',
+          'Weekly complete',
+          'BM complete',
+        ]);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('does not render a check for a stale (past-cycle) mark', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(NOW);
+      try {
+        // A daily stamp from yesterday is inert.
+        renderCard({ dailyClearMark: '2026-07-10' });
+        expect(screen.queryByRole('img', { name: 'Daily complete' })).toBeNull();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('expires a check live at the cycle boundary with no reload', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(NOW);
+      try {
+        renderCard({ selectedBosses: [NORMAL_HILLA], dailyClearMark: currentDailyStamp(NOW) });
+        expect(screen.getByRole('img', { name: 'Daily complete' })).toBeTruthy();
+
+        // Cross the next UTC midnight — the daily cycle boundary. The Cycle
+        // Clock's timeout fires and re-derives validity without a remount.
+        act(() => {
+          vi.advanceTimersByTime(12 * 60 * 60 * 1000 + 1000);
+        });
+
+        expect(screen.queryByRole('img', { name: 'Daily complete' })).toBeNull();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('hides checks in bulk mode (no Lv pill)', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(NOW);
+      try {
+        renderCard(
+          { selectedBosses: [NORMAL_HILLA], dailyClearMark: currentDailyStamp(NOW) },
+          { bulkMode: true },
+        );
+        expect(screen.queryByRole('img', { name: 'Daily complete' })).toBeNull();
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 
@@ -558,6 +792,7 @@ describe('MuleCharacterCard', () => {
               mule={baseMule}
               onClick={vi.fn()}
               onToggleActive={vi.fn()}
+              onSetMark={vi.fn()}
               bulkMode={false}
               selected={false}
               onToggleSelect={vi.fn()}

@@ -31,7 +31,8 @@ import type { RosterRowMetrics } from './rosterRowMetrics';
 import { ZERO_NUMERATOR_TONE } from './KpiProgressReadout';
 // PROTOTYPE — drawer kebab (touch marking path) + name-side completion
 // checks; remove with the prototypes
-import { MarkMenu, MarkChecks, useMarks } from './RosterItem/CardMenuPrototype';
+import { MarkMenu, MarkChecks } from './RosterItem/PrototypeMarkMenu';
+import { useMarks } from './RosterItem/prototypeMarks';
 import { useMarkingVariant } from './RosterItem/MarkingSurfacesPrototype';
 
 interface MuleDetailDrawerProps {

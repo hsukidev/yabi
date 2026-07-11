@@ -23,7 +23,8 @@ import { lensMules } from '../data/worlds';
 import { useMuleActions } from '../hooks/useMuleActions';
 import { useBulkSelection } from '../hooks/useBulkSelection';
 import { useWorldIncome } from '../modules/worldIncome';
-import { rosterRowMetrics, type RosterRowMetrics } from './rosterRowMetrics';
+import { useStableRosterMetrics } from './useStableRosterMetrics';
+import { clearMarkUpdate, type ClearMarkKind } from '../utils/clearMark';
 import { MuleCharacterCard } from './MuleCharacterCard';
 import { MuleDetailDrawer } from './MuleDetailDrawer';
 import { RosterListView } from './RosterListView';
@@ -78,19 +79,15 @@ export function Dashboard() {
 
   // Per-mule metrics threaded into both Card and Row from a single source so
   // **Displayed Weekly Meso** amount and tone stay identical across modes.
-  // Memoized on mules + worldIncome so each item's metrics object identity is
-  // stable across drawer-edit / bulk-toggle re-renders, preserving the
-  // MuleCharacterCard / MuleListRow memo barriers.
-  const metricsByMule = useMemo(() => {
-    const m = new Map<string, RosterRowMetrics>();
-    for (const mule of mulesInWorld) {
-      m.set(
-        mule.id,
-        rosterRowMetrics(mule, capPerMule.get(mule.id), worldIncome.totalContributedMeso),
-      );
-    }
-    return m;
-  }, [mulesInWorld, capPerMule, worldIncome.totalContributedMeso]);
+  // `useStableRosterMetrics` reuses each mule's metrics object when the inputs
+  // it derives from are unchanged, so a Clear Mark (which touches none of
+  // them) re-renders only its own card — preserving the MuleCharacterCard /
+  // MuleListRow memo barriers.
+  const metricsByMule = useStableRosterMetrics(
+    mulesInWorld,
+    capPerMule,
+    worldIncome.totalContributedMeso,
+  );
   const selectedMuleMetrics = selectedMule ? (metricsByMule.get(selectedMule.id) ?? null) : null;
 
   // Split sensors so mouse stays instant (distance: 0) while touch gates
@@ -142,6 +139,16 @@ export function Dashboard() {
   const handleToggleActive = useCallback(
     (id: string, active: boolean) => {
       updateMule(id, { active });
+    },
+    [updateMule],
+  );
+
+  // Mule Actions Menu — set/clear a Clear Mark. Writes the current Cycle Stamp
+  // (or `undefined` to clear) through the same `updateMule` path as every
+  // other mule edit. Identity-stable, so it never busts the card memo barrier.
+  const handleSetMark = useCallback(
+    (id: string, kind: ClearMarkKind, marked: boolean) => {
+      updateMule(id, clearMarkUpdate(kind, marked, Date.now()));
     },
     [updateMule],
   );
@@ -242,6 +249,7 @@ export function Dashboard() {
                           mule={mule}
                           onClick={handleCardClick}
                           onToggleActive={handleToggleActive}
+                          onSetMark={handleSetMark}
                           bulkMode={bulkMode}
                           selected={toDelete.has(mule.id)}
                           onToggleSelect={toggleDelete}
