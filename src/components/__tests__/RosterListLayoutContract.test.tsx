@@ -153,6 +153,7 @@ describe('MuleListRow inline styles reference the density-scoped row vars', () =
             metrics={baseMetrics}
             onClick={() => {}}
             onToggleActive={() => {}}
+            onSetMark={() => {}}
           />
         </SortableContext>
       </DndContext>,
@@ -171,6 +172,7 @@ describe('MuleListRow inline styles reference the density-scoped row vars', () =
             metrics={baseMetrics}
             onClick={() => {}}
             onToggleActive={() => {}}
+            onSetMark={() => {}}
           />
         </SortableContext>
       </DndContext>,
@@ -188,6 +190,7 @@ describe('MuleListRow inline styles reference the density-scoped row vars', () =
             metrics={baseMetrics}
             onClick={() => {}}
             onToggleActive={() => {}}
+            onSetMark={() => {}}
           />
         </SortableContext>
       </DndContext>,
@@ -205,6 +208,7 @@ describe('MuleListRow inline styles reference the density-scoped row vars', () =
             metrics={baseMetrics}
             onClick={() => {}}
             onToggleActive={() => {}}
+            onSetMark={() => {}}
           />
         </SortableContext>
       </DndContext>,

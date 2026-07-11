@@ -83,14 +83,14 @@ describe('createMuleStore', () => {
   // debouncedStore.test.ts — this suite covers only the mule adapter's
   // serialize/migrate bindings.
   describe('serialize', () => {
-    it('serializes as { schemaVersion: 6, mules }', () => {
+    it('serializes as { schemaVersion: 7, mules }', () => {
       const port = makeFakePort();
       const store = createMuleStore(port);
       const mules = [muleFixture({ selectedBosses: [HARD_LUCID] })];
       store.save(mules);
       store.flush();
       const saved = JSON.parse(port.writes[0]);
-      expect(saved.schemaVersion).toBe(6);
+      expect(saved.schemaVersion).toBe(7);
       expect(saved.mules).toEqual(mules);
     });
   });

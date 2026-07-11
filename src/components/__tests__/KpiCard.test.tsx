@@ -1,8 +1,9 @@
-import { describe, expect, it, afterEach } from 'vitest';
-import { render, screen, within, mockMatchMedia, restoreMatchMedia } from '@/test/test-utils';
+import { describe, expect, it, afterEach, vi } from 'vitest';
+import { render, screen, within, act, mockMatchMedia, restoreMatchMedia } from '@/test/test-utils';
 import { KpiCard } from '../KpiCard';
 import { WORLD_WEEKLY_CRYSTAL_CAP } from '../../modules/worldIncome';
 import { formatMeso } from '../../utils/meso';
+import { currentBmStamp, currentWeeklyStamp } from '../../utils/cycle';
 import type { Mule } from '../../types';
 import { bosses } from '../../data/bosses';
 
@@ -29,16 +30,48 @@ function topWeeklyKeys(n: number): { slateKey: string; value: number }[] {
   return all.slice(0, n);
 }
 
-// Read the value div paired with a stat-row label. Works for both KpiStat
-// and CrystalKpiStat — `getByText(label)` resolves to the eyebrow node
-// even when CrystalKpiStat tucks an icon next to the text.
-function tileValue(label: string): string {
+// The raw value-div text paired with a stat-row label. `getByText(label)`
+// resolves to the eyebrow node even when CrystalKpiStat tucks an icon beside
+// the text; div[1] is the 28px value below it.
+function tileText(label: string): string {
   const card = screen.getByTestId('income-card') as HTMLElement;
   const labelEl = within(card).getByText(label);
-  const section = labelEl.parentElement!;
-  const button = within(section).queryByRole('button');
-  if (button) return button.textContent ?? '';
-  return section.querySelectorAll('div')[1]!.textContent ?? '';
+  return labelEl.parentElement!.querySelectorAll('div')[1]!.textContent ?? '';
+}
+
+// Plain stat tile (MULES / ACTIVE) — value has no slash.
+function statValue(label: string): string {
+  return tileText(label).trim();
+}
+
+// Crystal tile Progress Readout renders "x / total"; split out each side.
+function tileTotal(label: string): string {
+  return tileText(label).split('/')[1]?.trim() ?? tileText(label).trim();
+}
+function tileNumerator(label: string): string {
+  return tileText(label).split('/')[0]?.trim() ?? '';
+}
+
+// Income Progress Readout exposes one combined aria-label: "<label>: X of Y".
+function incomeAria(label: string): string {
+  return screen.getByLabelText(new RegExp(`^${label}:`, 'i')).getAttribute('aria-label') ?? '';
+}
+function incomeExpected(label: string): string {
+  return / of (.+)$/.exec(incomeAria(label))?.[1] ?? '';
+}
+function incomeNumerator(label: string): string {
+  return /:\s*(.+?)\s+of\s/.exec(incomeAria(label))?.[1] ?? '';
+}
+
+// Inline `color` of the accent/zero-tone numerator span inside a readout.
+function incomeNumeratorColor(label: string): string {
+  const root = screen.getByLabelText(new RegExp(`^${label}:`, 'i'));
+  return (root.querySelector('.bignum') as HTMLElement).style.color;
+}
+function tileNumeratorColor(label: string): string {
+  const card = screen.getByTestId('income-card') as HTMLElement;
+  const valueDiv = within(card).getByText(label).parentElement!.querySelectorAll('div')[1]!;
+  return (valueDiv.querySelector('span > span') as HTMLElement).style.color;
 }
 
 const mule: Mule = {
@@ -51,11 +84,13 @@ const mule: Mule = {
 };
 
 function activeStatValue(): string {
-  return tileValue('ACTIVE');
+  return statValue('ACTIVE');
 }
 
+// Historic name: the "bignum" tests all assert the EXPECTED (denominator)
+// weekly income, which now lives in the readout's combined aria-label.
 function bignumText(): string {
-  return tileValue('EXPECTED WEEKLY INCOME');
+  return incomeExpected('Expected weekly income');
 }
 
 describe('KpiCard', () => {
@@ -79,7 +114,7 @@ describe('KpiCard', () => {
     const card = screen.getByTestId('income-card');
     expect(within(card).getByText('EXPECTED WEEKLY INCOME')).toBeTruthy();
     expect(within(card).getByText('EXPECTED BLACK MAGE INCOME')).toBeTruthy();
-    expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('18B');
+    expect(incomeExpected('Expected Black Mage income')).toBe('18B');
   });
 
   it('excludes inactive mules from Expected Black Mage Income', () => {
@@ -91,7 +126,7 @@ describe('KpiCard', () => {
         ]}
       />,
     );
-    expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('18B');
+    expect(incomeExpected('Expected Black Mage income')).toBe('18B');
   });
 
   it('divides each Expected Black Mage Income value by that mule’s Black Mage Party Size', () => {
@@ -106,7 +141,7 @@ describe('KpiCard', () => {
         ]}
       />,
     );
-    expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('3B');
+    expect(incomeExpected('Expected Black Mage income')).toBe('3B');
   });
 
   it('prices each Expected Black Mage Income value against that mule’s World Group', () => {
@@ -121,19 +156,19 @@ describe('KpiCard', () => {
         ]}
       />,
     );
-    expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('3.6B');
+    expect(incomeExpected('Expected Black Mage income')).toBe('3.6B');
   });
 
   it('always renders Expected Black Mage Income in abbreviated meso format', () => {
     render(<KpiCard mules={[{ ...mule, selectedBosses: [BLACK_MAGE_EXTREME] }]} />);
-    expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('18B');
+    expect(incomeExpected('Expected Black Mage income')).toBe('18B');
     expect(screen.queryByText(formatMeso(18_000_000_000, false))).toBeNull();
   });
 
   it('does not render a tooltip trigger when Expected Black Mage Income is zero', () => {
     render(<KpiCard mules={[{ ...mule, selectedBosses: [HARD_LUCID] }]} />);
     expect(bignumText()).toBe('504M');
-    expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('0');
+    expect(incomeExpected('Expected Black Mage income')).toBe('0');
     expect(screen.queryByLabelText(/expected black mage income 0/i)).toBeNull();
   });
 
@@ -141,9 +176,9 @@ describe('KpiCard', () => {
     render(<KpiCard mules={[{ ...mule, selectedBosses: [HARD_LUCID, BLACK_MAGE_EXTREME] }]} />);
 
     expect(bignumText()).toBe('504M');
-    expect(tileValue('WEEKLY')).toBe('1');
-    expect(tileValue('DAILY')).toBe('0');
-    expect(tileValue('MONTHLY')).toBe('1');
+    expect(tileTotal('WEEKLY')).toBe('1');
+    expect(tileTotal('DAILY')).toBe('0');
+    expect(tileTotal('MONTHLY')).toBe('1');
     expect(
       screen
         .getByRole('progressbar', { name: /weekly crystal cap/i })
@@ -183,7 +218,7 @@ describe('KpiCard', () => {
     ];
     render(<KpiCard mules={mules} />);
     expect(activeStatValue()).toBe('1');
-    expect(tileValue('MONTHLY')).toBe('0');
+    expect(tileTotal('MONTHLY')).toBe('0');
   });
 
   describe('hybrid layout', () => {
@@ -313,9 +348,9 @@ describe('KpiCard', () => {
       }));
       render(<KpiCard mules={mules} />);
       // Pool is 182 weekly slots; clamps to 180 weekly slots contributed.
-      expect(tileValue('WEEKLY')).toBe(String(WORLD_WEEKLY_CRYSTAL_CAP));
-      expect(tileValue('DAILY')).toBe('0');
-      expect(tileValue('MONTHLY')).toBe('0');
+      expect(tileTotal('WEEKLY')).toBe(String(WORLD_WEEKLY_CRYSTAL_CAP));
+      expect(tileTotal('DAILY')).toBe('0');
+      expect(tileTotal('MONTHLY')).toBe('0');
     });
 
     it('DAILY tile shows the post-cap daily slot count (partial daily drop preserves slot granularity)', () => {
@@ -331,18 +366,108 @@ describe('KpiCard', () => {
       mules.push({ ...mule, id: 'm12', selectedBosses: top14.slice(0, 10) });
       mules.push({ ...mule, id: 'mhilla', selectedBosses: [NORMAL_HILLA] });
       render(<KpiCard mules={mules} />);
-      expect(tileValue('WEEKLY')).toBe('178');
-      expect(tileValue('DAILY')).toBe('2');
-      expect(tileValue('MONTHLY')).toBe('0');
+      expect(tileTotal('WEEKLY')).toBe('178');
+      expect(tileTotal('DAILY')).toBe('2');
+      expect(tileTotal('MONTHLY')).toBe('0');
     });
 
     it('WEEKLY/DAILY tiles equal selection counts when the roster is under-cap (no behavior change)', () => {
       // 1 mule, 1 weekly Lucid + 0 daily. Tiles read 1/0.
       const m: Mule = { ...mule, selectedBosses: [HARD_LUCID] };
       render(<KpiCard mules={[m]} />);
-      expect(tileValue('WEEKLY')).toBe('1');
-      expect(tileValue('DAILY')).toBe('0');
-      expect(tileValue('MONTHLY')).toBe('0');
+      expect(tileTotal('WEEKLY')).toBe('1');
+      expect(tileTotal('DAILY')).toBe('0');
+      expect(tileTotal('MONTHLY')).toBe('0');
+    });
+  });
+
+  describe('Progress Readouts (issue #305)', () => {
+    it('orders the stat row MULES · ACTIVE · DAILY · WEEKLY · MONTHLY', () => {
+      render(<KpiCard mules={[mule]} />);
+      const statRow = screen.getByTestId('kpi-stat-row');
+      const labels = Array.from(statRow.querySelectorAll('.eyebrow-plain')).map((el) =>
+        el.textContent?.trim(),
+      );
+      expect(labels).toEqual(['MULES', 'ACTIVE', 'DAILY', 'WEEKLY', 'MONTHLY']);
+    });
+
+    it('renders a zero numerator in the softened foreground tone (income + tiles)', () => {
+      render(<KpiCard mules={[{ ...mule, selectedBosses: [HARD_LUCID] }]} />);
+      expect(incomeNumerator('Expected weekly income')).toBe('0');
+      expect(incomeNumeratorColor('Expected weekly income')).toContain('color-mix');
+      expect(tileNumerator('WEEKLY')).toBe('0');
+      expect(tileNumeratorColor('WEEKLY')).toContain('color-mix');
+    });
+
+    it('fills the weekly readout to its denominator when the weekly mark is valid', () => {
+      const now = Date.now();
+      const m: Mule = {
+        ...mule,
+        selectedBosses: [HARD_LUCID],
+        weeklyClearMark: currentWeeklyStamp(now),
+      };
+      render(<KpiCard mules={[m]} />);
+      expect(incomeNumerator('Expected weekly income')).toBe('504M');
+      expect(bignumText()).toBe('504M');
+      expect(incomeNumeratorColor('Expected weekly income')).toContain('accent');
+      expect(tileNumerator('WEEKLY')).toBe('1');
+    });
+
+    it('fills the BM readout and MONTHLY tile when the BM mark is valid', () => {
+      const now = Date.now();
+      const m: Mule = {
+        ...mule,
+        selectedBosses: [BLACK_MAGE_EXTREME],
+        bmClearMark: currentBmStamp(now),
+      };
+      render(<KpiCard mules={[m]} />);
+      expect(incomeNumerator('Expected Black Mage income')).toBe('18B');
+      expect(incomeExpected('Expected Black Mage income')).toBe('18B');
+      expect(tileNumerator('MONTHLY')).toBe('1');
+    });
+
+    it('leaves both numerators at zero when only an inactive mule is marked', () => {
+      const now = Date.now();
+      const activeM: Mule = {
+        ...mule,
+        id: 'active',
+        selectedBosses: [HARD_LUCID, BLACK_MAGE_EXTREME],
+      };
+      const inactiveMarked: Mule = {
+        ...mule,
+        id: 'inactive',
+        active: false,
+        selectedBosses: [HARD_LUCID, BLACK_MAGE_EXTREME],
+        weeklyClearMark: currentWeeklyStamp(now),
+        bmClearMark: currentBmStamp(now),
+      };
+      render(<KpiCard mules={[activeM, inactiveMarked]} />);
+      // Denominator reflects the active mule only; numerator stays 0.
+      expect(bignumText()).toBe('504M');
+      expect(incomeNumerator('Expected weekly income')).toBe('0');
+      expect(incomeNumerator('Expected Black Mage income')).toBe('0');
+    });
+
+    it('drops the weekly numerator live when the cycle advances past the stamp', () => {
+      vi.useFakeTimers();
+      try {
+        const now = Date.now();
+        const m: Mule = {
+          ...mule,
+          selectedBosses: [HARD_LUCID],
+          weeklyClearMark: currentWeeklyStamp(now),
+        };
+        render(<KpiCard mules={[m]} />);
+        expect(incomeNumerator('Expected weekly income')).toBe('504M');
+        // Advance past the next weekly Reset Anchor (Thursday 00:00 UTC).
+        act(() => {
+          vi.advanceTimersByTime(8 * 24 * 60 * 60 * 1000);
+        });
+        expect(incomeNumerator('Expected weekly income')).toBe('0');
+        expect(incomeNumeratorColor('Expected weekly income')).toContain('color-mix');
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 });

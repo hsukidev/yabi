@@ -373,6 +373,62 @@ describe('WorldIncome.of — full drop (entire mule cut)', () => {
   });
 });
 
+describe('WorldIncome.of — per-cadence post-cut attribution', () => {
+  it('splits contributedMeso and survived slots into weekly and daily buckets', () => {
+    const w = WorldIncome.of([makeMule('a', [HARD_LUCID, NORMAL_HILLA])]);
+    const a = w.perMule.get('a')!;
+    // 1 weekly slot (504M) + 7 daily slots (4M each), all under cap.
+    expect(a.weeklyContributedMeso).toBe(HARD_LUCID_VALUE);
+    expect(a.dailyContributedMeso).toBe(NORMAL_HILLA_VALUE * 7);
+    expect(a.weeklySurvivedSlots).toBe(1);
+    expect(a.dailySurvivedSlots).toBe(7);
+    // The split partitions contributedMeso exactly (monthly contributes none).
+    expect(a.weeklyContributedMeso + a.dailyContributedMeso).toBe(a.contributedMeso);
+    expect(a.weeklySurvivedSlots + a.dailySurvivedSlots).toBe(a.contributedMeso === 0 ? 0 : 8);
+  });
+
+  it('attributes only surviving daily slots after a partial daily drop (post-cut)', () => {
+    // Same 185-slot fixture as the daily-partial-drop test: 5 of 7 daily Hilla
+    // slots drop, 2 survive.
+    const top14 = topWeeklyKeys(14).map((k) => k.slateKey);
+    const mules: Mule[] = [];
+    for (let i = 0; i < 12; i++) mules.push(makeMule(`m${i}`, top14)); // 168 weekly
+    mules.push(makeMule('m12', top14.slice(0, 10))); // +10 = 178 weekly
+    mules.push(makeMule('hilla', [NORMAL_HILLA])); // +7 daily = 185
+    const w = WorldIncome.of(mules);
+    const hilla = w.perMule.get('hilla')!;
+    expect(hilla.dailySurvivedSlots).toBe(2);
+    expect(hilla.dailyContributedMeso).toBe(NORMAL_HILLA_VALUE * 2);
+    expect(hilla.weeklyContributedMeso).toBe(0);
+    expect(hilla.weeklySurvivedSlots).toBe(0);
+    // Weekly-only mules attribute all of their contribution to the weekly bucket.
+    const m0 = w.perMule.get('m0')!;
+    expect(m0.dailyContributedMeso).toBe(0);
+    expect(m0.weeklyContributedMeso).toBe(m0.contributedMeso);
+  });
+
+  it('sums per-cadence contributions back to the aggregate cadence totals', () => {
+    const top14 = topWeeklyKeys(14).map((k) => k.slateKey);
+    const mules: Mule[] = [];
+    for (let i = 0; i < 13; i++) mules.push(makeMule(`m${i}`, top14)); // 182 weekly
+    mules.push(makeMule('hilla', [NORMAL_HILLA, NORMAL_VELLUM])); // +14 daily
+    const w = WorldIncome.of(mules);
+    let weeklyMeso = 0;
+    let dailyMeso = 0;
+    let weeklySlots = 0;
+    let dailySlots = 0;
+    for (const c of w.perMule.values()) {
+      weeklyMeso += c.weeklyContributedMeso;
+      dailyMeso += c.dailyContributedMeso;
+      weeklySlots += c.weeklySurvivedSlots;
+      dailySlots += c.dailySurvivedSlots;
+    }
+    expect(weeklyMeso + dailyMeso).toBe(w.totalContributedMeso);
+    expect(weeklySlots).toBe(w.weeklySlotsContributed);
+    expect(dailySlots).toBe(w.dailySlotsContributed);
+  });
+});
+
 describe('WorldIncome.of — per-mule contribution invariant', () => {
   it('potentialMeso − contributedMeso === droppedMeso for every contributing mule', () => {
     // Over-cap fixture spanning multiple mules and cadences.

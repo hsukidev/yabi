@@ -16,7 +16,7 @@ import type { Mule } from '../../types';
  * barrier: the stand-in re-renders only when the props the drawer passes change
  * identity — exactly what we are guarding.
  */
-const counters = vi.hoisted(() => ({ card: 0, toolbar: 0 }));
+const counters = vi.hoisted(() => ({ card: 0, toolbar: 0, matrix: 0 }));
 
 vi.mock('../BossCardView', async () => {
   const { memo } = await import('react');
@@ -24,6 +24,16 @@ vi.mock('../BossCardView', async () => {
     BossCardView: memo(function BossCardViewStub() {
       counters.card++;
       return <div data-testid="card-grid-stub" />;
+    }),
+  };
+});
+
+vi.mock('../BossMatrix', async () => {
+  const { memo } = await import('react');
+  return {
+    BossMatrix: memo(function BossMatrixStub() {
+      counters.matrix++;
+      return <div data-testid="matrix-stub" />;
     }),
   };
 });
@@ -65,6 +75,7 @@ function renderDrawer() {
 beforeEach(() => {
   counters.card = 0;
   counters.toolbar = 0;
+  counters.matrix = 0;
   // Mount the Boss Card View so the card-grid barrier is exercised.
   localStorage.clear();
   localStorage.setItem('slate-display-mode', 'cards');
@@ -103,5 +114,21 @@ describe('MuleDetailDrawer keystroke perf (memo barrier)', () => {
     renderDrawer();
     expect(screen.getByTestId('card-grid-stub')).toBeTruthy();
     expect(counters.card).toBeGreaterThan(0);
+  });
+
+  it('typing in the Name field does not re-render the Boss Matrix (matrix mode)', () => {
+    localStorage.setItem('slate-display-mode', 'matrix');
+    renderDrawer();
+    expect(screen.getByTestId('matrix-stub')).toBeTruthy();
+    const matrixBase = counters.matrix;
+    const toolbarBase = counters.toolbar;
+
+    const name = screen.getByLabelText('Character Name') as HTMLInputElement;
+    fireEvent.change(name, { target: { value: 'Zephyr' } });
+    fireEvent.change(name, { target: { value: 'Zephyros' } });
+
+    expect(screen.getByRole('heading', { name: 'Zephyros' })).toBeTruthy();
+    expect(counters.matrix).toBe(matrixBase);
+    expect(counters.toolbar).toBe(toolbarBase);
   });
 });

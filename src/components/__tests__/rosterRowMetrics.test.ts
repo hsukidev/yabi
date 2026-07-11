@@ -36,6 +36,10 @@ const baseMule = (overrides: Partial<Mule> = {}): Mule => ({
 const contribution = (overrides: Partial<MuleContribution> = {}): MuleContribution => ({
   potentialMeso: 0,
   contributedMeso: 0,
+  weeklyContributedMeso: 0,
+  dailyContributedMeso: 0,
+  weeklySurvivedSlots: 0,
+  dailySurvivedSlots: 0,
   droppedMeso: 0,
   droppedSlots: 0,
   droppedKeys: new Map<SlateKey, number>(),

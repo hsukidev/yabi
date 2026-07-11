@@ -12,7 +12,7 @@ import { isWorldId } from '../data/worlds';
  * returns `[]` (a **Wipe**).
  */
 
-export const CURRENT_SCHEMA_VERSION = 6;
+export const CURRENT_SCHEMA_VERSION = 7;
 
 /**
  * Which migration path a given **Persisted Root** follows:
@@ -24,12 +24,13 @@ export const CURRENT_SCHEMA_VERSION = 6;
  * - `upgradeV2` — `schemaVersion === 2`. Each `<uuid>:<tier>` key is
  *   resolved against the boss catalog and rewritten as
  *   `<uuid>:<tier>:<cadence>`. Unresolvable entries drop silently.
- * - `asIs` — `schemaVersion === 3 || 4 || 5`. Keys are already in the
- *   native shape; `validateMule` still routes them through
+ * - `asIs` — `schemaVersion === 3 || 4 || 5 || 6 || 7`. Keys are already in
+ *   the native shape; `validateMule` still routes them through
  *   `MuleBossSlate.from(...)` to enforce the **Selection Invariant** and
- *   prune unknown / Legacy Slate Keys. The v4 → v5 migration is purely
- *   additive (optional `avatarUrl`); legacy v4 payloads load unchanged
- *   with `avatarUrl` undefined.
+ *   prune unknown / Legacy Slate Keys. Each additive slice is purely
+ *   additive: v4 → v5 added optional `avatarUrl`, v5 → v6 added `notes`,
+ *   v6 → v7 added the daily / weekly / BM **Clear Mark** fields. Legacy
+ *   payloads load unchanged with the newer fields undefined.
  */
 export type LoadMode = 'wipe' | 'upgradeV2' | 'asIs';
 
@@ -125,6 +126,21 @@ function validateMule(raw: unknown, mode: LoadMode): Mule | null {
     // payloads never carry leading/trailing whitespace; this guard
     // protects against tampered storage.
     ...(typeof obj.notes === 'string' && obj.notes.trim().length > 0 ? { notes: obj.notes } : {}),
+    // Clear Mark Cycle Stamps land in schemaVersion 7 as additive optional
+    // fields. Each carries only its stamp — validity is derived against the
+    // current cycle at read time (see `utils/cycle.ts`), never swept here.
+    // Sanitization is purely type-shaped (matching `avatarUrl`/`notes`): a
+    // malformed value is dropped to undefined = unmarked. A well-typed but
+    // stale stamp survives migration and is simply inert.
+    ...(typeof obj.dailyClearMark === 'string' && obj.dailyClearMark.length > 0
+      ? { dailyClearMark: obj.dailyClearMark }
+      : {}),
+    ...(typeof obj.weeklyClearMark === 'number' && Number.isFinite(obj.weeklyClearMark)
+      ? { weeklyClearMark: obj.weeklyClearMark }
+      : {}),
+    ...(typeof obj.bmClearMark === 'string' && obj.bmClearMark.length > 0
+      ? { bmClearMark: obj.bmClearMark }
+      : {}),
   };
 }
 
@@ -143,8 +159,9 @@ interface PersistedRoot {
  *    selections.
  *  - `upgradeV2` — `schemaVersion === 2` → rewrite `<uuid>:<tier>` keys
  *    to `<uuid>:<tier>:<cadence>` in place.
- *  - `asIs` — `schemaVersion === 3 || 4` → keys already in native shape;
- *    v3 gets the **Active Default** applied inside `validateMule`.
+ *  - `asIs` — `schemaVersion === 3 || 4 || 5 || 6 || 7` → keys already in
+ *    native shape; v3 gets the **Active Default** applied inside
+ *    `validateMule`, and each later additive field defaults to undefined.
  */
 function parsePayload(raw: string): { mules: unknown[]; mode: LoadMode } | null {
   try {
@@ -157,6 +174,7 @@ function parsePayload(raw: string): { mules: unknown[]; mode: LoadMode } | null 
       const root = parsed as Partial<PersistedRoot>;
       if (Array.isArray(root.mules)) {
         const mode: LoadMode =
+          root.schemaVersion === 7 ||
           root.schemaVersion === 6 ||
           root.schemaVersion === 5 ||
           root.schemaVersion === 4 ||

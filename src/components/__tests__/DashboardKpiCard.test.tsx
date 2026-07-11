@@ -28,13 +28,15 @@ function makeMule(overrides: Partial<Mule> = {}): Mule {
   };
 }
 
-function tileValue(label: string): string {
+// The BM income block now wears a Progress Readout ("X / expected"); its
+// combined aria-label carries the expected denominator.
+function incomeExpected(label: string): string {
   const card = screen.getByTestId('income-card') as HTMLElement;
-  const labelEl = within(card).getByText(label);
-  const section = labelEl.parentElement!;
-  const button = within(section).queryByRole('button');
-  if (button) return button.textContent ?? '';
-  return section.querySelectorAll('div')[1]!.textContent ?? '';
+  const aria =
+    within(card)
+      .getByLabelText(new RegExp(`^${label}:`, 'i'))
+      .getAttribute('aria-label') ?? '';
+  return / of (.+)$/.exec(aria)?.[1] ?? '';
 }
 
 beforeEach(() => {
@@ -65,6 +67,6 @@ describe('Dashboard KPI Card', () => {
 
     await renderApp();
 
-    expect(tileValue('EXPECTED BLACK MAGE INCOME')).toBe('18B');
+    expect(incomeExpected('Expected Black Mage income')).toBe('18B');
   });
 });

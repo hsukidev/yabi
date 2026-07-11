@@ -4,6 +4,8 @@ import { CSS } from '@dnd-kit/utilities';
 import type { Mule } from '../types';
 import { useDensity } from '../context/DensityProvider';
 import { useMatchMedia } from '../hooks/useMatchMedia';
+import { useCurrentCycle } from '../hooks/useCurrentCycle';
+import { isMarkValid, type ClearMarkKind } from '../utils/clearMark';
 import { MuleBossSlate, type SlateKey } from '../data/muleBossSlate';
 import { resolveWorldGroup } from '../data/worlds';
 import { CharacterAvatar } from './CharacterAvatar';
@@ -12,16 +14,18 @@ import { ROSTER_CARD_ASPECT, ROSTER_CARD_MIN_HEIGHT } from './rosterCardContract
 import { NotesTooltipTrigger } from './RosterItem/NotesTooltipTrigger';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import { SelectionIndicator } from './RosterItem/SelectionIndicator';
-import { RosterActiveSwitch } from './RosterItem/RosterActiveSwitch';
 import { InactiveDimOverlay } from './RosterItem/InactiveDimOverlay';
-// PROTOTYPE — kebab menu + completion checks; remove with CardMenuPrototype.tsx
-import { PrototypeCardControls, useCardMenuVariant } from './RosterItem/CardMenuPrototype';
+import { MuleActionsMenu } from './RosterItem/MuleActionsMenu';
+import { CompletionChecks } from './RosterItem/CompletionChecks';
 import type { RosterRowMetrics } from './rosterRowMetrics';
 
 interface MuleCharacterCardProps {
   mule: Mule;
   onClick: (id: string) => void;
   onToggleActive: (id: string, active: boolean) => void;
+  // Set (`marked`) or clear a Clear Mark from the Mule Actions Menu. Writes
+  // the current Cycle Stamp through the same `updateMule` path as elsewhere.
+  onSetMark: (id: string, kind: ClearMarkKind, marked: boolean) => void;
   bulkMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
@@ -61,11 +65,20 @@ const MuleCardInner = memo(function MuleCardInner({
   hideLevelBadge = false,
   droppedKeys,
   metrics,
+  dailyValid,
+  weeklyValid,
+  bmValid,
 }: {
   mule: Mule;
   hideLevelBadge?: boolean;
   droppedKeys?: ReadonlyMap<SlateKey, number>;
   metrics: RosterRowMetrics;
+  // Completion Checks rendered inside the Lv pill; each is a valid Clear Mark
+  // for the current cycle. Passed as primitives so the memo barrier only trips
+  // at a cycle boundary or a mark change on this mule.
+  dailyValid: boolean;
+  weeklyValid: boolean;
+  bmValid: boolean;
 }) {
   const { density } = useDensity();
   const displayedWeeklyMeso = metrics.displayedWeeklyMeso;
@@ -94,6 +107,9 @@ const MuleCardInner = memo(function MuleCardInner({
             position: 'absolute',
             top: 12,
             left: 12,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 5,
             fontFamily: 'Geist Mono, monospace',
             fontSize: 'var(--mule-level-size, 11px)',
             letterSpacing: '0.1em',
@@ -104,7 +120,8 @@ const MuleCardInner = memo(function MuleCardInner({
             background: 'var(--surface-2, var(--surface-raised))',
           }}
         >
-          Lv.{mule.level}
+          <span>Lv.{mule.level}</span>
+          <CompletionChecks daily={dailyValid} weekly={weeklyValid} bm={bmValid} />
         </div>
       )}
 
@@ -229,6 +246,7 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
   mule,
   onClick,
   onToggleActive,
+  onSetMark,
   bulkMode = false,
   selected = false,
   onToggleSelect,
@@ -243,8 +261,14 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
   const isTouch = useMatchMedia('(pointer: coarse)');
-  // PROTOTYPE — non-null only in dev with the CardMenuPrototype mounted
-  const cardMenuVariant = useCardMenuVariant();
+
+  // Cycle Clock — a Clear Mark's Completion Check shows iff its stamp is valid
+  // for the current cycle, so checks expire live at the boundary with no
+  // reload. `now` only changes at a boundary, so this doesn't churn the card.
+  const now = useCurrentCycle();
+  const dailyValid = isMarkValid(mule, 'daily', now);
+  const weeklyValid = isMarkValid(mule, 'weekly', now);
+  const bmValid = isMarkValid(mule, 'bm', now);
 
   useEffect(() => {
     if (isPaintEngaged) setIsPressed(false);
@@ -331,6 +355,9 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
           hideLevelBadge={bulkMode}
           droppedKeys={droppedKeys}
           metrics={metrics}
+          dailyValid={dailyValid}
+          weeklyValid={weeklyValid}
+          bmValid={bmValid}
         />
 
         {bulkMode && (
@@ -341,27 +368,23 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
 
         {!mule.active && <InactiveDimOverlay />}
 
-        {!bulkMode &&
-          !isTouch &&
-          (cardMenuVariant ? (
-            // PROTOTYPE — replaces the Roster Active Switch while a variant is active
-            <PrototypeCardControls
+        {!bulkMode && !isTouch && (
+          // zIndex 2 lifts the menu above the InactiveDimOverlay (zIndex 1) so
+          // an inactive (dimmed) mule keeps a fully operable menu.
+          <span style={{ position: 'absolute', top: 10, right: 10, display: 'flex', zIndex: 2 }}>
+            <MuleActionsMenu
               mule={mule}
-              isHovered={isHovered}
-              onToggleActive={onToggleActive}
+              revealed={isHovered}
+              dailyValid={dailyValid}
+              weeklyValid={weeklyValid}
+              bmValid={bmValid}
               dailyCount={metrics.dailyCount}
               monthlyCount={metrics.monthlyCount}
+              onToggleActive={onToggleActive}
+              onSetMark={onSetMark}
             />
-          ) : (
-            <span style={{ position: 'absolute', top: 10, right: 10, display: 'flex' }}>
-              <RosterActiveSwitch
-                muleId={mule.id}
-                active={mule.active}
-                revealed={isHovered}
-                onToggleActive={onToggleActive}
-              />
-            </span>
-          ))}
+          </span>
+        )}
       </div>
     </div>
   );

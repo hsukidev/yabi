@@ -37,6 +37,26 @@ export interface MuleContribution {
   potentialMeso: number;
   /** Sum of slot Values that survived the cut. */
   contributedMeso: number;
+  /**
+   * Post-cut meso attributed to this mule's **Weekly Cadence** slots only —
+   * the survivors whose `cadence === 'weekly'`. Summed with
+   * `dailyContributedMeso` this equals `contributedMeso` (Monthly Cadence
+   * contributes no slots). Feeds the **Cleared Weekly Meso** numerator when
+   * the mule's weekly **Clear Mark** is valid, so the numerator is post-**World
+   * Cap Cut** by construction, not a raw slate value.
+   */
+  weeklyContributedMeso: number;
+  /**
+   * Post-cut meso attributed to this mule's **Daily Cadence** slots only —
+   * each surviving daily slot already carries a per-day crystal value, so the
+   * sum is the ×7 weekly-basis daily contribution after the cut. Feeds the
+   * **Cleared Weekly Meso** numerator when the daily **Clear Mark** is valid.
+   */
+  dailyContributedMeso: number;
+  /** Count of this mule's **Weekly Cadence** slots that survived the cut. */
+  weeklySurvivedSlots: number;
+  /** Count of this mule's **Daily Cadence** slots that survived the cut. */
+  dailySurvivedSlots: number;
   /** `potentialMeso − contributedMeso`. Zero when no drops. */
   droppedMeso: number;
   /** Number of slots dropped to the cap. Zero when no drops. */
@@ -67,6 +87,10 @@ interface PoolSlot {
 interface MuleAccumulator {
   potential: number;
   contributed: number;
+  weeklyContributed: number;
+  dailyContributed: number;
+  weeklySurvivedSlots: number;
+  dailySurvivedSlots: number;
   totalSlots: number;
   survivedSlots: number;
   /** Lazily allocated; `null` until the mule's first drop is recorded so
@@ -130,6 +154,10 @@ export class WorldIncome {
       accumulators.set(mule.id, {
         potential,
         contributed: 0,
+        weeklyContributed: 0,
+        dailyContributed: 0,
+        weeklySurvivedSlots: 0,
+        dailySurvivedSlots: 0,
         totalSlots: slots.length,
         survivedSlots: 0,
         droppedKeys: null,
@@ -153,11 +181,18 @@ export class WorldIncome {
     for (let i = 0; i < cutIndex; i++) {
       const s = pool[i];
       totalContributedMeso += s.value;
-      if (s.cadence === 'weekly') weeklySlotsContributed++;
-      else dailySlotsContributed++;
       const acc = accumulators.get(s.muleId)!;
       acc.contributed += s.value;
       acc.survivedSlots += 1;
+      if (s.cadence === 'weekly') {
+        weeklySlotsContributed++;
+        acc.weeklyContributed += s.value;
+        acc.weeklySurvivedSlots += 1;
+      } else {
+        dailySlotsContributed++;
+        acc.dailyContributed += s.value;
+        acc.dailySurvivedSlots += 1;
+      }
     }
     for (let i = cutIndex; i < pool.length; i++) {
       const s = pool[i];
@@ -172,6 +207,10 @@ export class WorldIncome {
       perMule.set(muleId, {
         potentialMeso: acc.potential,
         contributedMeso: acc.contributed,
+        weeklyContributedMeso: acc.weeklyContributed,
+        dailyContributedMeso: acc.dailyContributed,
+        weeklySurvivedSlots: acc.weeklySurvivedSlots,
+        dailySurvivedSlots: acc.dailySurvivedSlots,
         droppedMeso: acc.potential - acc.contributed,
         droppedSlots: acc.totalSlots - acc.survivedSlots,
         droppedKeys: acc.droppedKeys ?? EMPTY_DROPPED_KEYS,

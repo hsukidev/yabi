@@ -1,4 +1,5 @@
 import type { Mule } from '../types';
+import type { ClearMarkKind } from '../utils/clearMark';
 import type { RosterRowMetrics } from './rosterRowMetrics';
 import { MuleListRow } from './MuleListRow';
 import { AddCard } from './AddCard';
@@ -12,6 +13,7 @@ interface RosterListViewProps {
   metricsByMule: ReadonlyMap<string, RosterRowMetrics>;
   onCardClick: (id: string) => void;
   onToggleActive: (id: string, active: boolean) => void;
+  onSetMark: (id: string, kind: ClearMarkKind, marked: boolean) => void;
   bulkMode: boolean;
   toDelete: ReadonlySet<string>;
   onToggleSelect: (id: string) => void;
@@ -24,6 +26,7 @@ export function RosterListView({
   metricsByMule,
   onCardClick,
   onToggleActive,
+  onSetMark,
   bulkMode,
   toDelete,
   onToggleSelect,
@@ -41,6 +44,7 @@ export function RosterListView({
             metrics={metrics}
             onClick={onCardClick}
             onToggleActive={onToggleActive}
+            onSetMark={onSetMark}
             bulkMode={bulkMode}
             selected={toDelete.has(mule.id)}
             onToggleSelect={onToggleSelect}

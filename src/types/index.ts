@@ -91,4 +91,29 @@ export interface Mule {
    * payloads load with `notes` undefined.
    */
   notes?: string;
+  /**
+   * Daily **Clear Mark** — the **Cycle Stamp** of the UTC day the mule's
+   * daily slate was last marked cleared, as a `"YYYY-MM-DD"` string (e.g.
+   * `"2026-07-11"`). The mark is **valid** iff this equals the current UTC
+   * day (see `isDailyMarkValid` in `utils/cycle.ts`); a stale stamp is
+   * inert, never swept. Lands in schemaVersion 7 as an additive optional
+   * field; legacy payloads load with it undefined (unmarked).
+   */
+  dailyClearMark?: string;
+  /**
+   * Weekly **Clear Mark** — the **Cycle Stamp** of the most recent past
+   * **Reset Anchor** (Thursday 00:00 UTC) at which the weekly slate was
+   * marked cleared, as an absolute ms timestamp. Valid iff it equals the
+   * current weekly anchor (see `isWeeklyMarkValid`). Additive optional
+   * field in schemaVersion 7; undefined = unmarked.
+   */
+  weeklyClearMark?: number;
+  /**
+   * Black Mage (monthly) **Clear Mark** — the **Cycle Stamp** of the UTC
+   * month the mule's BM slate was last marked cleared, as a `"YYYY-MM"`
+   * string (e.g. `"2026-07"`). Valid iff it equals the current UTC month
+   * (see `isBmMarkValid`). Additive optional field in schemaVersion 7;
+   * undefined = unmarked.
+   */
+  bmClearMark?: string;
 }

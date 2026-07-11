@@ -1,23 +1,18 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { useMatchMedia } from '../hooks/useMatchMedia';
+import { useCurrentCycle } from '../hooks/useCurrentCycle';
 import { useWorldIncome, WORLD_WEEKLY_CRYSTAL_CAP } from '../modules/worldIncome';
 import { expectedBlackMageIncomeForRoster } from '../modules/monthlyIncome';
+import { markedProgress } from '../modules/markedIncome';
 import { MuleBossSlate } from '../data/muleBossSlate';
 import { resolveWorldGroup } from '../data/worlds';
 import { ResetCountdown } from './ResetCountdown';
 import { WeeklyCapRail } from './WeeklyCapRail';
-import { MesoMetric } from './MesoDisplay';
+import { IncomeReadout, TileReadout } from './KpiProgressReadout';
 import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
 import monthlyCrystalPng from '../assets/monthly-crystal.png';
 import type { Mule } from '../types';
-// PROTOTYPE — progress readouts; remove with KpiReadoutPrototype.tsx
-import {
-  ProtoIncomeReadout,
-  ProtoTileValue,
-  useKpiReadoutVariant,
-  useMarkedAggregates,
-} from './KpiReadoutPrototype';
 
 interface KpiCardProps {
   mules: Mule[];
@@ -37,12 +32,13 @@ const KPI_BLOCK_CHROME = {
 } satisfies React.CSSProperties;
 
 export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
+  const worldIncome = useWorldIncome(mules);
   const {
     totalContributedMeso: totalRaw,
     weeklySlotsContributed,
     dailySlotsContributed,
     slotsTotalContributed,
-  } = useWorldIncome(mules);
+  } = worldIncome;
   const activeMuleCount = mules.reduce((n, m) => (m.active ? n + 1 : n), 0);
   const monthlySlotsContributed = mules.reduce((total, mule) => {
     if (mule.active === false) return total;
@@ -51,9 +47,16 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
     );
   }, 0);
   const expectedBlackMageIncomeRaw = expectedBlackMageIncomeForRoster(mules);
-  // PROTOTYPE — non-null variant only in dev with the readout prototype on
-  const protoVariant = useKpiReadoutVariant();
-  const marked = useMarkedAggregates(mules);
+
+  // **Cleared Meso** numerators — derived from `mules` + the shared Cycle
+  // Clock so a mark expiring at a cycle boundary drops the numerator live
+  // (no reload, no separate store). Numerators are post-World-Cap-Cut and
+  // ≤ their denominators by construction.
+  const nowMs = useCurrentCycle();
+  const progress = useMemo(
+    () => markedProgress(mules, worldIncome, nowMs),
+    [mules, worldIncome, nowMs],
+  );
 
   // Below 375px the abbreviated value drops decimals (e.g. "504.32M" → "504M")
   // to free up horizontal space in the readout.
@@ -104,21 +107,12 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
               position: 'relative',
             }}
           >
-            {protoVariant ? (
-              <ProtoIncomeReadout
-                x={marked.weeklyX}
-                expected={totalRaw}
-                narrow={isNarrowViewport}
-                label="Expected weekly income"
-              />
-            ) : (
-              <MesoMetric
-                value={totalRaw}
-                narrow={isNarrowViewport}
-                label="Expected weekly income"
-                className="bignum"
-              />
-            )}
+            <IncomeReadout
+              x={progress.clearedWeeklyMeso}
+              expected={totalRaw}
+              narrow={isNarrowViewport}
+              label="Expected weekly income"
+            />
           </div>
         </KpiIncomeBlock>
         <KpiIncomeBlock>
@@ -134,21 +128,12 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
               position: 'relative',
             }}
           >
-            {protoVariant ? (
-              <ProtoIncomeReadout
-                x={marked.bmX}
-                expected={expectedBlackMageIncomeRaw}
-                narrow={isNarrowViewport}
-                label="Expected Black Mage income"
-              />
-            ) : (
-              <MesoMetric
-                value={expectedBlackMageIncomeRaw}
-                narrow={isNarrowViewport}
-                label="Expected Black Mage income"
-                className="bignum"
-              />
-            )}
+            <IncomeReadout
+              x={progress.clearedBmMeso}
+              expected={expectedBlackMageIncomeRaw}
+              narrow={isNarrowViewport}
+              label="Expected Black Mage income"
+            />
           </div>
         </KpiIncomeBlock>
       </div>
@@ -158,35 +143,17 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
         <CrystalKpiStat
           icon={dailyCrystalPng}
           label="DAILY"
-          value={
-            protoVariant ? (
-              <ProtoTileValue x={marked.dailyTileX} total={dailySlotsContributed} />
-            ) : (
-              String(dailySlotsContributed)
-            )
-          }
+          value={<TileReadout x={progress.dailyTileCleared} total={dailySlotsContributed} />}
         />
         <CrystalKpiStat
           icon={weeklyCrystalPng}
           label="WEEKLY"
-          value={
-            protoVariant ? (
-              <ProtoTileValue x={marked.weeklyTileX} total={weeklySlotsContributed} />
-            ) : (
-              String(weeklySlotsContributed)
-            )
-          }
+          value={<TileReadout x={progress.weeklyTileCleared} total={weeklySlotsContributed} />}
         />
         <CrystalKpiStat
           icon={monthlyCrystalPng}
           label="MONTHLY"
-          value={
-            protoVariant ? (
-              <ProtoTileValue x={marked.monthlyTileX} total={monthlySlotsContributed} />
-            ) : (
-              String(monthlySlotsContributed)
-            )
-          }
+          value={<TileReadout x={progress.monthlyTileCleared} total={monthlySlotsContributed} />}
         />
       </div>
       <div style={{ marginTop: 'auto', paddingTop: 18 }}>
@@ -251,7 +218,7 @@ function CrystalKpiStat({
 }: {
   icon: string;
   label: string;
-  // ReactNode (not string) so the PROTOTYPE x/total readout can slot in.
+  // ReactNode (not string) so the `TileReadout` x/total fraction can slot in.
   value: React.ReactNode;
 }) {
   return (

@@ -46,7 +46,20 @@ export function useMules() {
           if (m.id !== id) return m;
           const merged = { ...m, ...updates };
           if (updates.selectedBosses) {
-            merged.selectedBosses = [...MuleBossSlate.from(updates.selectedBosses).keys];
+            // Single chokepoint for every `selectedBosses` write: the slate is
+            // normalized here for *all* callers (toggle, Conform, Apply User
+            // Preset, reset), so Mark Invalidation is enforced here too rather
+            // than per-caller. A slate edit that removes a Clear Mark's income
+            // basis deletes that mark (cycle classification reuses the slate's
+            // own cadence-count getters).
+            const slate = MuleBossSlate.from(updates.selectedBosses);
+            merged.selectedBosses = [...slate.keys];
+            const hasDaily = slate.dailyCount > 0;
+            const hasWeekly = slate.weeklyCount > 0;
+            const hasMonthly = slate.monthlyCount > 0;
+            if (!hasDaily) merged.dailyClearMark = undefined;
+            if (!hasWeekly && !hasDaily) merged.weeklyClearMark = undefined;
+            if (!hasMonthly) merged.bmClearMark = undefined;
           }
           return merged;
         }),
