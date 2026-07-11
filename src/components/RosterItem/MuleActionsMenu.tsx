@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { EllipsisVertical } from 'lucide-react';
+import { EllipsisVertical, Trash2 } from 'lucide-react';
 import type { Mule } from '../../types';
 import type { ClearMarkKind } from '../../utils/clearMark';
 import {
@@ -27,6 +27,11 @@ interface MuleActionsMenuProps {
   monthlyCount: number;
   onToggleActive: (id: string, active: boolean) => void;
   onSetMark: (id: string, kind: ClearMarkKind, marked: boolean) => void;
+  /** Drawer only (the touch marking path): appends a destructive `Delete`
+   *  row that hands off to the existing Delete?/Yes/Cancel confirmation — it
+   *  never deletes directly. Omitted on roster surfaces, which carry no
+   *  per-item delete. */
+  onDelete?: () => void;
   kebabSize?: number;
 }
 
@@ -72,6 +77,7 @@ export function MuleActionsMenu({
   monthlyCount,
   onToggleActive,
   onSetMark,
+  onDelete,
   kebabSize = 26,
 }: MuleActionsMenuProps) {
   const [open, setOpen] = useState(false);
@@ -141,6 +147,15 @@ export function MuleActionsMenu({
               <ColorDot color={BM_GOLD} />
               <span style={{ flex: 1 }}>{bmValid ? 'BM Incomplete' : 'BM Complete'}</span>
             </DropdownMenuItem>
+          )}
+          {onDelete && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onDelete} style={{ color: 'var(--destructive)' }}>
+                <Trash2 size={14} />
+                <span style={{ flex: 1 }}>Delete</span>
+              </DropdownMenuItem>
+            </>
           )}
         </DropdownMenuContent>
       </DropdownMenu>

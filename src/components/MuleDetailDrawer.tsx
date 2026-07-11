@@ -1,9 +1,10 @@
 import { useCallback, useMemo } from 'react';
 import type { CSSProperties } from 'react';
-import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import type { Mule } from '../types';
+import { useCurrentCycle } from '../hooks/useCurrentCycle';
+import { isMarkValid, clearMarkUpdate, type ClearMarkKind } from '../utils/clearMark';
 import { formatMeso } from '../utils/meso';
 import { MuleBossSlate, type SlateKey } from '../data/muleBossSlate';
 import type { PresetKey } from './MatrixToolbar';
@@ -26,14 +27,11 @@ import { CrystalTally } from './MuleDetailDrawer/CrystalTally';
 import { MuleIdentityFields } from './MuleDetailDrawer/MuleIdentityFields';
 import { MuleNotesField } from './MuleDetailDrawer/MuleNotesField';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
+import { MuleActionsMenu } from './RosterItem/MuleActionsMenu';
+import { CompletionChecks } from './RosterItem/CompletionChecks';
 import type { RosterRowMetrics } from './rosterRowMetrics';
 // Zero-state tone shared with the KPI income Progress Readouts.
 import { ZERO_NUMERATOR_TONE } from './KpiProgressReadout';
-// PROTOTYPE — drawer kebab (touch marking path) + name-side completion
-// checks; remove with the prototypes
-import { MarkMenu, MarkChecks } from './RosterItem/PrototypeMarkMenu';
-import { useMarks } from './RosterItem/prototypeMarks';
-import { useMarkingVariant } from './RosterItem/MarkingSurfacesPrototype';
 
 interface MuleDetailDrawerProps {
   mule: Mule | null;
@@ -120,10 +118,25 @@ export function MuleDetailDrawer({
     onDelete,
     onAfterDelete: onClose,
   });
-  // PROTOTYPE — non-null only in dev; swaps the trash icon for the kebab
-  const drawerKebabVariant = useMarkingVariant();
-  // PROTOTYPE — live marks for the name-side checks
-  const drawerMarks = useMarks(muleId ?? '');
+  // Cycle Clock — the name-side Completion Checks and the Mule Actions Menu's
+  // action wording both read live Clear Mark validity. `now` only changes at a
+  // cycle boundary, so this adds no per-keystroke work (CLAUDE.md drawer perf).
+  const now = useCurrentCycle();
+  const dailyValid = mule ? isMarkValid(mule, 'daily', now) : false;
+  const weeklyValid = mule ? isMarkValid(mule, 'weekly', now) : false;
+  const bmValid = mule ? isMarkValid(mule, 'bm', now) : false;
+  // The drawer edits marks through the same `updateMule` (`onUpdate`) path as
+  // every other mule edit — no drawer-level mark state to bust the memo
+  // barriers with. `onUpdate` is identity-stable at the Dashboard level.
+  const handleToggleActive = useCallback(
+    (id: string, active: boolean) => onUpdate(id, { active }),
+    [onUpdate],
+  );
+  const handleSetMark = useCallback(
+    (id: string, kind: ClearMarkKind, marked: boolean) =>
+      onUpdate(id, clearMarkUpdate(kind, marked, Date.now())),
+    [onUpdate],
+  );
   const identity = useMuleIdentityDraft(mule, onUpdate);
   const liveLevel = Number(identity.level.draft) || 0;
   // Slate Display Mode is a `useState`-backed primitive with a stable setter
@@ -179,10 +192,7 @@ export function MuleDetailDrawer({
 
         {mule && (
           <div className="relative @container/drawer">
-            <div
-              data-testid="drawer-header-layout"
-              className="relative p-8 flex flex-col gap-5"
-            >
+            <div data-testid="drawer-header-layout" className="relative p-8 flex flex-col gap-5">
               <div className="flex flex-col items-center gap-3 min-[425px]:flex-row min-[425px]:items-end min-[425px]:gap-5 flex-1 min-w-0">
                 <CharacterAvatar
                   key={mule.id}
@@ -201,12 +211,17 @@ export function MuleDetailDrawer({
                         </span>
                       )}
                     </span>
-                    {drawerKebabVariant && (
-                      // PROTOTYPE — same colored checks as the roster Lv pill
-                      <span className="inline-flex items-center gap-1 shrink-0">
-                        <MarkChecks marks={drawerMarks} size={16} />
-                      </span>
-                    )}
+                    {/* Same colored Completion Checks as the roster Lv pill /
+                        row; the name truncates (min-w-0 above) while these stay
+                        `shrink-0` so the checks never clip. */}
+                    <span className="inline-flex items-center gap-1 shrink-0">
+                      <CompletionChecks
+                        daily={dailyValid}
+                        weekly={weeklyValid}
+                        bm={bmValid}
+                        size={16}
+                      />
+                    </span>
                   </h2>
                   <div className="mt-1 flex items-center justify-center gap-3 text-xs min-[425px]:justify-start">
                     <span className="font-sans uppercase tracking-[0.22em] text-(--accent-secondary) translate-x-0.5">
@@ -263,10 +278,7 @@ export function MuleDetailDrawer({
                 </div>
               </div>
 
-              <div
-                data-testid="drawer-crystal-tally-slot"
-                className="shrink-0 self-stretch"
-              >
+              <div data-testid="drawer-crystal-tally-slot" className="shrink-0 self-stretch">
                 <CrystalTally
                   weeklyCount={slate.weeklyCount}
                   dailyCount={slate.dailyCount}
@@ -286,30 +298,24 @@ export function MuleDetailDrawer({
                 </div>
               ) : (
                 <div className="absolute top-3 right-3 flex items-center gap-1">
-                  {drawerKebabVariant ? (
-                    // PROTOTYPE — touch marking path: kebab in place of the
-                    // trash icon, mirroring the roster card menu + Delete
-                    // (which hands off to the existing confirmation flow).
-                    <MarkMenu
-                      mule={mule}
-                      visible
-                      dailyCount={slate.dailyCount}
-                      monthlyCount={slate.monthlyCount}
-                      onToggleActive={(id, active) => onUpdate(id, { active })}
-                      onDelete={del.request}
-                      kebabSize={30}
-                    />
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 @max-[599.99px]/drawer:size-9 @max-[599.99px]/drawer:[&_svg]:size-5"
-                      onClick={del.request}
-                    >
-                      <Trash2 />
-                      <span className="sr-only">Delete</span>
-                    </Button>
-                  )}
+                  {/* Touch marking path: the Mule Actions Menu kebab in place
+                      of the trash icon, always visible (roster kebabs stay
+                      fine-pointer-only). Same menu as the roster surfaces plus
+                      a destructive Delete row that hands off to the existing
+                      Delete?/Yes/Cancel confirmation flow. */}
+                  <MuleActionsMenu
+                    mule={mule}
+                    revealed
+                    dailyValid={dailyValid}
+                    weeklyValid={weeklyValid}
+                    bmValid={bmValid}
+                    dailyCount={slate.dailyCount}
+                    monthlyCount={slate.monthlyCount}
+                    onToggleActive={handleToggleActive}
+                    onSetMark={handleSetMark}
+                    onDelete={del.request}
+                    kebabSize={30}
+                  />
                 </div>
               )}
             </div>

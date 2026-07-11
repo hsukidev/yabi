@@ -377,7 +377,13 @@ describe('App', () => {
       fireEvent.click(screen.getByText('DeleteMe'));
       expect(screen.getByRole('heading', { name: 'DeleteMe' })).toBeTruthy();
 
-      fireEvent.click(screen.getByRole('button', { name: /delete/i }));
+      // Delete is now the destructive row of the drawer's Mule Actions Menu
+      // (kebab in place of the trash icon). Scope to the drawer since the
+      // roster surfaces carry their own "Mule actions" kebabs.
+      const drawer = document.querySelector('[data-mule-detail-drawer]') as HTMLElement;
+      fireEvent.click(within(drawer).getByRole('button', { name: /mule actions/i }));
+      await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+      fireEvent.click(screen.getByText('Delete'));
       fireEvent.click(screen.getByRole('button', { name: /yes/i }));
 
       await waitFor(() => {
@@ -428,7 +434,13 @@ describe('App', () => {
         expect(screen.getByRole('heading', { name: 'DeleteMe' })).toBeTruthy();
       });
 
-      fireEvent.click(screen.getByRole('button', { name: /delete/i }));
+      // Delete is now the destructive row of the drawer's Mule Actions Menu
+      // (kebab in place of the trash icon). Scope to the drawer since the
+      // roster surfaces carry their own "Mule actions" kebabs.
+      const drawer = document.querySelector('[data-mule-detail-drawer]') as HTMLElement;
+      fireEvent.click(within(drawer).getByRole('button', { name: /mule actions/i }));
+      await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+      fireEvent.click(screen.getByText('Delete'));
       fireEvent.click(screen.getByRole('button', { name: /yes/i }));
 
       await waitFor(() => {

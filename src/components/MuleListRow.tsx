@@ -3,6 +3,8 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
 import { useMatchMedia } from '../hooks/useMatchMedia';
+import { useCurrentCycle } from '../hooks/useCurrentCycle';
+import { isMarkValid, type ClearMarkKind } from '../utils/clearMark';
 import type { SlateKey } from '../data/muleBossSlate';
 import type { Mule } from '../types';
 import type { RosterRowMetrics } from './rosterRowMetrics';
@@ -11,10 +13,9 @@ import { MesoMetric } from './MesoDisplay';
 import { NotesTooltipTrigger } from './RosterItem/NotesTooltipTrigger';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import { SelectionIndicator } from './RosterItem/SelectionIndicator';
-import { RosterActiveSwitch } from './RosterItem/RosterActiveSwitch';
 import { InactiveDimOverlay } from './RosterItem/InactiveDimOverlay';
-// PROTOTYPE — marking affordances; remove with MarkingSurfacesPrototype.tsx
-import { RowMarkingControls, useMarkingVariant } from './RosterItem/MarkingSurfacesPrototype';
+import { MuleActionsMenu } from './RosterItem/MuleActionsMenu';
+import { CompletionChecks } from './RosterItem/CompletionChecks';
 import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
 import monthlyCrystalPng from '../assets/monthly-crystal.png';
@@ -24,6 +25,9 @@ interface MuleListRowProps {
   metrics: RosterRowMetrics;
   onClick: (id: string) => void;
   onToggleActive: (id: string, active: boolean) => void;
+  // Set (`marked`) or clear a Clear Mark from the row's Mule Actions Menu.
+  // Same `updateMule`-backed handler the Character Card menu uses.
+  onSetMark: (id: string, kind: ClearMarkKind, marked: boolean) => void;
   bulkMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
@@ -75,6 +79,7 @@ export const MuleListRow = memo(function MuleListRow({
   metrics,
   onClick,
   onToggleActive,
+  onSetMark,
   bulkMode = false,
   selected = false,
   onToggleSelect,
@@ -83,8 +88,13 @@ export const MuleListRow = memo(function MuleListRow({
   const [isPressed, setIsPressed] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const isTouch = useMatchMedia('(pointer: coarse)');
-  // PROTOTYPE — non-null only in dev with MarkingSurfacesPrototype mounted
-  const markingVariant = useMarkingVariant();
+  // Cycle Clock — a Clear Mark's Completion Check shows iff its stamp is valid
+  // for the current cycle; `now` only changes at a boundary, so this doesn't
+  // churn the row. Mirrors MuleCharacterCard.
+  const now = useCurrentCycle();
+  const dailyValid = isMarkValid(mule, 'daily', now);
+  const weeklyValid = isMarkValid(mule, 'weekly', now);
+  const bmValid = isMarkValid(mule, 'bm', now);
   const handlePressStart = () => setIsPressed(true);
   const handlePressEnd = () => setIsPressed(false);
 
@@ -240,27 +250,31 @@ export const MuleListRow = memo(function MuleListRow({
             </span>
           )}
           {!bulkMode && !isTouch && (
-            <>
-              {/* PROTOTYPE — variants a/c replace the switch with the kebab;
-                  variant b keeps the switch and adds chips */}
-              {(markingVariant === null || markingVariant === 'b') && (
-                <RosterActiveSwitch
-                  muleId={mule.id}
-                  active={mule.active}
-                  revealed={isHovered}
-                  onToggleActive={onToggleActive}
-                />
-              )}
-              {markingVariant !== null && (
-                <RowMarkingControls
-                  mule={mule}
-                  isHovered={isHovered}
-                  onToggleActive={onToggleActive}
-                  dailyCount={metrics.dailyCount}
-                  monthlyCount={metrics.monthlyCount}
-                />
-              )}
-            </>
+            // Hover kebab (Mule Actions Menu) in the row's control slot, with
+            // inline Completion Checks after it. The menu swallows its own
+            // activation paths; the guard here keeps a click on the bare
+            // checks from opening the drawer or starting a dnd-kit drag.
+            <span
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 5, zIndex: 2 }}
+              onClick={stopBubble}
+              onPointerDown={stopBubble}
+              onKeyDown={stopBubble}
+              onTouchStart={stopBubble}
+            >
+              <MuleActionsMenu
+                mule={mule}
+                revealed={isHovered}
+                dailyValid={dailyValid}
+                weeklyValid={weeklyValid}
+                bmValid={bmValid}
+                dailyCount={metrics.dailyCount}
+                monthlyCount={metrics.monthlyCount}
+                onToggleActive={onToggleActive}
+                onSetMark={onSetMark}
+                kebabSize={22}
+              />
+              <CompletionChecks daily={dailyValid} weekly={weeklyValid} bm={bmValid} size={13} />
+            </span>
           )}
           <NotesTooltipTrigger notes={notes} iconSize="md" />
         </div>
