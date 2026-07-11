@@ -33,6 +33,8 @@ import { PieChartCard } from './PieChartCard';
 import { RosterHeader } from './RosterHeader';
 import { WorldMissingBanner } from './WorldMissingBanner';
 import { ChangelogNotificationBanner } from './ChangelogNotificationBanner';
+// PROTOTYPE — KPI readout variants; remove with KpiReadoutPrototype.tsx
+import { KpiReadoutPrototypeProvider } from './KpiReadoutPrototype';
 
 const dragBoundaryBaseStyle: React.CSSProperties = {
   borderRadius: '1rem',
@@ -165,7 +167,7 @@ export function Dashboard() {
   } = useBulkSelection(mulesInWorld, deleteMules);
 
   return (
-    <>
+    <KpiReadoutPrototypeProvider>
       <main className="container mx-auto max-w-352 px-4 sm:px-6 py-8">
         <ChangelogNotificationBanner />
         <section className="grid grid-cols-1 min-[1100px]:grid-cols-12 gap-6 mb-10">
@@ -268,6 +270,6 @@ export function Dashboard() {
         onUpdate={updateMule}
         onDelete={deleteMule}
       />
-    </>
+    </KpiReadoutPrototypeProvider>
   );
 }

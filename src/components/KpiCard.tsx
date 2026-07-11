@@ -11,6 +11,13 @@ import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
 import monthlyCrystalPng from '../assets/monthly-crystal.png';
 import type { Mule } from '../types';
+// PROTOTYPE — progress readouts; remove with KpiReadoutPrototype.tsx
+import {
+  ProtoIncomeReadout,
+  ProtoTileValue,
+  useKpiReadoutVariant,
+  useMarkedAggregates,
+} from './KpiReadoutPrototype';
 
 interface KpiCardProps {
   mules: Mule[];
@@ -44,6 +51,9 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
     );
   }, 0);
   const expectedBlackMageIncomeRaw = expectedBlackMageIncomeForRoster(mules);
+  // PROTOTYPE — non-null variant only in dev with the readout prototype on
+  const protoVariant = useKpiReadoutVariant();
+  const marked = useMarkedAggregates(mules);
 
   // Below 375px the abbreviated value drops decimals (e.g. "504.32M" → "504M")
   // to free up horizontal space in the readout.
@@ -94,12 +104,21 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
               position: 'relative',
             }}
           >
-            <MesoMetric
-              value={totalRaw}
-              narrow={isNarrowViewport}
-              label="Expected weekly income"
-              className="bignum"
-            />
+            {protoVariant ? (
+              <ProtoIncomeReadout
+                x={marked.weeklyX}
+                expected={totalRaw}
+                narrow={isNarrowViewport}
+                label="Expected weekly income"
+              />
+            ) : (
+              <MesoMetric
+                value={totalRaw}
+                narrow={isNarrowViewport}
+                label="Expected weekly income"
+                className="bignum"
+              />
+            )}
           </div>
         </KpiIncomeBlock>
         <KpiIncomeBlock>
@@ -115,12 +134,21 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
               position: 'relative',
             }}
           >
-            <MesoMetric
-              value={expectedBlackMageIncomeRaw}
-              narrow={isNarrowViewport}
-              label="Expected Black Mage income"
-              className="bignum"
-            />
+            {protoVariant ? (
+              <ProtoIncomeReadout
+                x={marked.bmX}
+                expected={expectedBlackMageIncomeRaw}
+                narrow={isNarrowViewport}
+                label="Expected Black Mage income"
+              />
+            ) : (
+              <MesoMetric
+                value={expectedBlackMageIncomeRaw}
+                narrow={isNarrowViewport}
+                label="Expected Black Mage income"
+                className="bignum"
+              />
+            )}
           </div>
         </KpiIncomeBlock>
       </div>
@@ -128,19 +156,37 @@ export const KpiCard = memo(function KpiCard({ mules }: KpiCardProps) {
         <KpiStat label="MULES" value={String(mules.length)} />
         <KpiStat label="ACTIVE" value={String(activeMuleCount)} accent />
         <CrystalKpiStat
-          icon={weeklyCrystalPng}
-          label="WEEKLY"
-          value={String(weeklySlotsContributed)}
-        />
-        <CrystalKpiStat
           icon={dailyCrystalPng}
           label="DAILY"
-          value={String(dailySlotsContributed)}
+          value={
+            protoVariant ? (
+              <ProtoTileValue x={marked.dailyTileX} total={dailySlotsContributed} />
+            ) : (
+              String(dailySlotsContributed)
+            )
+          }
+        />
+        <CrystalKpiStat
+          icon={weeklyCrystalPng}
+          label="WEEKLY"
+          value={
+            protoVariant ? (
+              <ProtoTileValue x={marked.weeklyTileX} total={weeklySlotsContributed} />
+            ) : (
+              String(weeklySlotsContributed)
+            )
+          }
         />
         <CrystalKpiStat
           icon={monthlyCrystalPng}
           label="MONTHLY"
-          value={String(monthlySlotsContributed)}
+          value={
+            protoVariant ? (
+              <ProtoTileValue x={marked.monthlyTileX} total={monthlySlotsContributed} />
+            ) : (
+              String(monthlySlotsContributed)
+            )
+          }
         />
       </div>
       <div style={{ marginTop: 'auto', paddingTop: 18 }}>
@@ -198,7 +244,16 @@ function KpiIncomeTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-function CrystalKpiStat({ icon, label, value }: { icon: string; label: string; value: string }) {
+function CrystalKpiStat({
+  icon,
+  label,
+  value,
+}: {
+  icon: string;
+  label: string;
+  // ReactNode (not string) so the PROTOTYPE x/total readout can slot in.
+  value: React.ReactNode;
+}) {
   return (
     <div
       style={{

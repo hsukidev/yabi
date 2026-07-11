@@ -1,9 +1,8 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import type { CSSProperties } from 'react';
-import { Info, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { Mule } from '../types';
 import { formatMeso } from '../utils/meso';
 import { MuleBossSlate, type SlateKey } from '../data/muleBossSlate';
@@ -28,6 +27,12 @@ import { MuleIdentityFields } from './MuleDetailDrawer/MuleIdentityFields';
 import { MuleNotesField } from './MuleDetailDrawer/MuleNotesField';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import type { RosterRowMetrics } from './rosterRowMetrics';
+// PROTOTYPE — zero-state tone shared with the KPI readout prototype
+import { ZERO_X } from './KpiReadoutPrototype';
+// PROTOTYPE — drawer kebab (touch marking path) + name-side completion
+// checks; remove with the prototypes
+import { MarkMenu, MarkChecks, useMarks } from './RosterItem/CardMenuPrototype';
+import { useMarkingVariant } from './RosterItem/MarkingSurfacesPrototype';
 
 interface MuleDetailDrawerProps {
   mule: Mule | null;
@@ -73,9 +78,13 @@ export function MuleDetailDrawer({
   );
   const weeklyIncomeRaw = metrics?.displayedWeeklyMeso.meso ?? potentialIncomeRaw;
   const weeklyIncome = formatMeso(weeklyIncomeRaw, true);
+  // Muted (fully dropped) keeps its dim tone; a plain 0 takes the KPI
+  // card's zero tone (PROTOTYPE styling).
   const weeklyIncomeColor = metrics?.displayedWeeklyMeso.muted
     ? 'var(--dim, var(--surface-dim))'
-    : 'var(--accent-numeric)';
+    : weeklyIncomeRaw === 0
+      ? ZERO_X
+      : 'var(--accent-numeric)';
   const droppedKeys = metrics?.droppedKeys ?? EMPTY_DROPPED_KEYS;
   const monthlyIncomeRaw = useMemo(
     () => slate.monthlyCrystalValue(mule?.partySizes),
@@ -110,9 +119,12 @@ export function MuleDetailDrawer({
     onDelete,
     onAfterDelete: onClose,
   });
+  // PROTOTYPE — non-null only in dev; swaps the trash icon for the kebab
+  const drawerKebabVariant = useMarkingVariant();
+  // PROTOTYPE — live marks for the name-side checks
+  const drawerMarks = useMarks(muleId ?? '');
   const identity = useMuleIdentityDraft(mule, onUpdate);
   const liveLevel = Number(identity.level.draft) || 0;
-  const [activeInfoOpen, setActiveInfoOpen] = useState(false);
   // Slate Display Mode is a `useState`-backed primitive with a stable setter
   // callback, so threading it through the memoized MatrixToolbar / grids never
   // busts their memo barriers on keystrokes. See CLAUDE.md (drawer perf).
@@ -168,7 +180,7 @@ export function MuleDetailDrawer({
           <div className="relative @container/drawer">
             <div
               data-testid="drawer-header-layout"
-              className="relative p-8 flex flex-col gap-5 @min-[605px]/drawer:flex-row @min-[605px]/drawer:items-center"
+              className="relative p-8 flex flex-col gap-5"
             >
               <div className="flex flex-col items-center gap-3 min-[425px]:flex-row min-[425px]:items-end min-[425px]:gap-5 flex-1 min-w-0">
                 <CharacterAvatar
@@ -180,9 +192,19 @@ export function MuleDetailDrawer({
                   data-testid="drawer-avatar"
                 />
                 <div className="min-w-0 w-full text-center min-[425px]:w-auto min-[425px]:flex-1 min-[425px]:text-left">
-                  <h2 className="mt-1 font-display text-2xl/tight font-bold  truncate">
-                    {identity.name.draft || (
-                      <span className="text-muted-foreground italic font-normal">Unnamed Mule</span>
+                  <h2 className="mt-1 font-display text-2xl/tight font-bold flex items-center justify-center gap-2 min-w-0 min-[425px]:justify-start">
+                    <span className="truncate min-w-0">
+                      {identity.name.draft || (
+                        <span className="text-muted-foreground italic font-normal">
+                          Unnamed Mule
+                        </span>
+                      )}
+                    </span>
+                    {drawerKebabVariant && (
+                      // PROTOTYPE — same colored checks as the roster Lv pill
+                      <span className="inline-flex items-center gap-1 shrink-0">
+                        <MarkChecks marks={drawerMarks} size={16} />
+                      </span>
                     )}
                   </h2>
                   <div className="mt-1 flex items-center justify-center gap-3 text-xs min-[425px]:justify-start">
@@ -226,65 +248,22 @@ export function MuleDetailDrawer({
                       <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
                         BM MONTHLY
                       </span>
-                      <span className="font-mono-nums text-base text-(--accent-numeric)">
+                      <span
+                        className="font-mono-nums text-base"
+                        style={{
+                          color: monthlyIncomeRaw === 0 ? ZERO_X : 'var(--accent-numeric)',
+                        }}
+                      >
                         {monthlyIncome}
                       </span>
                     </MesoMetric>
-                    <div className="inline-flex items-center">
-                      <button
-                        type="button"
-                        data-testid="active-toggle"
-                        aria-pressed={mule.active}
-                        onClick={() => onUpdate(mule.id, { active: !mule.active })}
-                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-sans uppercase tracking-[0.18em] transition-colors"
-                        style={{
-                          background: 'color-mix(in srgb, var(--surface-2) 92%, transparent)',
-                          boxShadow:
-                            'inset 0 1px 0 color-mix(in srgb, white 6%, transparent), 0 1px 2px color-mix(in srgb, black 8%, transparent)',
-                          border: '1px solid color-mix(in srgb, var(--border) 60%, transparent)',
-                          color: mule.active ? 'var(--chart-4)' : 'var(--muted-foreground)',
-                          minWidth: 96,
-                          minHeight: 38,
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        {mule.active && (
-                          <span
-                            data-active-dot
-                            aria-hidden
-                            style={{
-                              display: 'inline-block',
-                              width: 8,
-                              height: 8,
-                              borderRadius: '50%',
-                              background: 'var(--chart-4)',
-                            }}
-                          />
-                        )}
-                        <span>{mule.active ? 'Active' : 'Inactive'}</span>
-                      </button>
-                      <Tooltip open={activeInfoOpen} onOpenChange={setActiveInfoOpen}>
-                        <TooltipTrigger
-                          aria-label="Active toggle info"
-                          closeOnClick={false}
-                          onClick={() => setActiveInfoOpen(true)}
-                          className="ml-1.5 inline-flex size-5 cursor-pointer items-center justify-center rounded-full text-muted-foreground/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                        >
-                          <Info className="size-3.5" aria-hidden />
-                        </TooltipTrigger>
-                        <TooltipContent className="px-3.5 py-2.5">
-                          TOGGLE ACTIVE/INACTIVE
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
                   </div>
                 </div>
               </div>
 
               <div
                 data-testid="drawer-crystal-tally-slot"
-                className="shrink-0 self-stretch @min-[605px]/drawer:self-end @min-[605px]/drawer:mr-6"
+                className="shrink-0 self-stretch"
               >
                 <CrystalTally
                   weeklyCount={slate.weeklyCount}
@@ -305,15 +284,30 @@ export function MuleDetailDrawer({
                 </div>
               ) : (
                 <div className="absolute top-3 right-3 flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 @max-[599.99px]/drawer:size-9 @max-[599.99px]/drawer:[&_svg]:size-5"
-                    onClick={del.request}
-                  >
-                    <Trash2 />
-                    <span className="sr-only">Delete</span>
-                  </Button>
+                  {drawerKebabVariant ? (
+                    // PROTOTYPE — touch marking path: kebab in place of the
+                    // trash icon, mirroring the roster card menu + Delete
+                    // (which hands off to the existing confirmation flow).
+                    <MarkMenu
+                      mule={mule}
+                      visible
+                      dailyCount={slate.dailyCount}
+                      monthlyCount={slate.monthlyCount}
+                      onToggleActive={(id, active) => onUpdate(id, { active })}
+                      onDelete={del.request}
+                      kebabSize={30}
+                    />
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 @max-[599.99px]/drawer:size-9 @max-[599.99px]/drawer:[&_svg]:size-5"
+                      onClick={del.request}
+                    >
+                      <Trash2 />
+                      <span className="sr-only">Delete</span>
+                    </Button>
+                  )}
                 </div>
               )}
             </div>

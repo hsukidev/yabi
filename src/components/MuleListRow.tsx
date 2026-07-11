@@ -13,6 +13,8 @@ import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import { SelectionIndicator } from './RosterItem/SelectionIndicator';
 import { RosterActiveSwitch } from './RosterItem/RosterActiveSwitch';
 import { InactiveDimOverlay } from './RosterItem/InactiveDimOverlay';
+// PROTOTYPE — marking affordances; remove with MarkingSurfacesPrototype.tsx
+import { RowMarkingControls, useMarkingVariant } from './RosterItem/MarkingSurfacesPrototype';
 import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
 import monthlyCrystalPng from '../assets/monthly-crystal.png';
@@ -81,6 +83,8 @@ export const MuleListRow = memo(function MuleListRow({
   const [isPressed, setIsPressed] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const isTouch = useMatchMedia('(pointer: coarse)');
+  // PROTOTYPE — non-null only in dev with MarkingSurfacesPrototype mounted
+  const markingVariant = useMarkingVariant();
   const handlePressStart = () => setIsPressed(true);
   const handlePressEnd = () => setIsPressed(false);
 
@@ -236,12 +240,27 @@ export const MuleListRow = memo(function MuleListRow({
             </span>
           )}
           {!bulkMode && !isTouch && (
-            <RosterActiveSwitch
-              muleId={mule.id}
-              active={mule.active}
-              revealed={isHovered}
-              onToggleActive={onToggleActive}
-            />
+            <>
+              {/* PROTOTYPE — variants a/c replace the switch with the kebab;
+                  variant b keeps the switch and adds chips */}
+              {(markingVariant === null || markingVariant === 'b') && (
+                <RosterActiveSwitch
+                  muleId={mule.id}
+                  active={mule.active}
+                  revealed={isHovered}
+                  onToggleActive={onToggleActive}
+                />
+              )}
+              {markingVariant !== null && (
+                <RowMarkingControls
+                  mule={mule}
+                  isHovered={isHovered}
+                  onToggleActive={onToggleActive}
+                  dailyCount={metrics.dailyCount}
+                  monthlyCount={metrics.monthlyCount}
+                />
+              )}
+            </>
           )}
           <NotesTooltipTrigger notes={notes} iconSize="md" />
         </div>

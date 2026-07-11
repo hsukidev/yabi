@@ -460,15 +460,15 @@ describe('MuleDetailDrawer (smoke)', () => {
     expect(img.src).toMatch(/blank-character/);
   });
 
-  it('flips CrystalTally horizontal at the drawer header stack handoff', () => {
+  it('renders CrystalTally permanently horizontal under the header (no responsive handoff)', () => {
     renderDrawer();
     const header = screen.getByTestId('drawer-header-layout');
     const tallySlot = screen.getByTestId('drawer-crystal-tally-slot');
     const tally = screen.getByRole('group', { name: /crystal tally/i });
 
-    expect(header.className).toContain('@min-[605px]/drawer:flex-row');
-    expect(tallySlot.className).toContain('@min-[605px]/drawer:self-end');
-    expect(tally.className).toContain('@max-[604.99px]/drawer:flex-row');
+    expect(header.className).not.toContain('@min-[605px]/drawer:flex-row');
+    expect(tallySlot.className).toContain('self-stretch');
+    expect(tally.className).toContain('flex-row');
   });
 
   describe('Preset click auto-switches Cadence Filter from Daily to All', () => {

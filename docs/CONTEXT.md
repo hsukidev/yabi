@@ -330,6 +330,40 @@ The accepted-by-design behaviour where selecting a **Monthly Cadence** **Slate K
 The standalone monthly meso amount from selected Black Mage **Monthly Cadence** **Slate Keys**, divided by the **Mule's** Black Mage **Party Size**. It is source-specific monthly income, not a monthly rollup of **Total Weekly Income**, and appears per-**Mule** as BM Income on **Character Cards** when space allows.
 _Avoid_: Black Mage Monthly
 
+### Completion tracking
+
+**Clear Mark**:
+A per-**Mule**, per-cadence completion fact — the user's claim that the mule's clears of that cadence are done for the current cycle. Exactly three kinds: **Daily Clear Mark**, **Weekly Clear Mark**, **BM Clear Mark**. Always carries a **Cycle Stamp**; never a bare boolean.
+_Avoid_: completion flag, done flag, marked complete
+
+**Cycle Stamp**:
+The identity of the cycle a **Clear Mark** was made in — the UTC day for daily, the most recent **Reset Anchor** timestamp for weekly, the `YYYY-MM` UTC month for BM. A mark counts only while its stamp equals the current cycle; rollover invalidates it by definition — nothing is ever swept or cleared.
+_Avoid_: expiry, clearedAt, last-seen cycle
+
+**Daily Reset**:
+The UTC-midnight boundary (00:00 UTC) that ends a **Daily Clear Mark**'s cycle. Distinct from the **Weekly Reset**.
+_Avoid_: midnight, day rollover
+
+**Mark Invalidation**:
+Deletion of a **Clear Mark** by a slate edit that removes its income basis — zero daily keys deletes the daily mark; zero weekly and zero daily keys deletes the weekly mark; zero **Monthly Cadence** keys deletes the BM mark. Enforced at the single slate-write chokepoint, so **Conform** and **Apply User Preset** trigger it like any matrix toggle.
+_Avoid_: mark cleanup, cascade delete
+
+**Mule Actions Menu**:
+The kebab (⋮) menu on roster items and in the Drawer — a Set Active/Set Inactive row plus one action-worded row per available **Clear Mark** kind (labels name the action: "Weekly Complete" / "Weekly Incomplete"), each led by an always-lit color-key dot. Cadence rows hide when the **Boss Slate** holds no keys of that cadence; the Drawer instance appends a destructive Delete row.
+_Avoid_: kebab menu, three-dot menu, context menu
+
+**Completion Check**:
+The colored check glyph rendering a currently valid **Clear Mark** — cyan daily, purple weekly, gold BM (colors sampled from the crystal sprites). Shown inside the **Character Card**'s Lv pill, beside the **List View** row's **Mule Actions Menu**, and beside the Drawer's mule name.
+_Avoid_: checkmark, tick, badge
+
+**Progress Readout**:
+An inline-slash "x / total" rendering of cleared-versus-expected — accent numerator, smaller muted denominator, softened foreground tone at zero. Worn by the two KPI income blocks (**Cleared Meso** / expected income) and the DAILY / WEEKLY / MONTHLY crystal tiles.
+_Avoid_: progress bar, fraction display
+
+**Cleared Meso**:
+The numerator of an income **Progress Readout** — the sum of post-**World Cap Cut** contributions, split by **Boss Cadence**, over **Active Mules** whose corresponding **Clear Mark** is currently valid. Inactive mules' marks contribute nothing.
+_Avoid_: earned meso, X, completed income
+
 ### UI surfaces
 
 **Roster**:

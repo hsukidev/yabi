@@ -14,6 +14,8 @@ import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import { SelectionIndicator } from './RosterItem/SelectionIndicator';
 import { RosterActiveSwitch } from './RosterItem/RosterActiveSwitch';
 import { InactiveDimOverlay } from './RosterItem/InactiveDimOverlay';
+// PROTOTYPE — kebab menu + completion checks; remove with CardMenuPrototype.tsx
+import { PrototypeCardControls, useCardMenuVariant } from './RosterItem/CardMenuPrototype';
 import type { RosterRowMetrics } from './rosterRowMetrics';
 
 interface MuleCharacterCardProps {
@@ -241,6 +243,8 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
   const isTouch = useMatchMedia('(pointer: coarse)');
+  // PROTOTYPE — non-null only in dev with the CardMenuPrototype mounted
+  const cardMenuVariant = useCardMenuVariant();
 
   useEffect(() => {
     if (isPaintEngaged) setIsPressed(false);
@@ -337,16 +341,27 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
 
         {!mule.active && <InactiveDimOverlay />}
 
-        {!bulkMode && !isTouch && (
-          <span style={{ position: 'absolute', top: 10, right: 10, display: 'flex' }}>
-            <RosterActiveSwitch
-              muleId={mule.id}
-              active={mule.active}
-              revealed={isHovered}
+        {!bulkMode &&
+          !isTouch &&
+          (cardMenuVariant ? (
+            // PROTOTYPE — replaces the Roster Active Switch while a variant is active
+            <PrototypeCardControls
+              mule={mule}
+              isHovered={isHovered}
               onToggleActive={onToggleActive}
+              dailyCount={metrics.dailyCount}
+              monthlyCount={metrics.monthlyCount}
             />
-          </span>
-        )}
+          ) : (
+            <span style={{ position: 'absolute', top: 10, right: 10, display: 'flex' }}>
+              <RosterActiveSwitch
+                muleId={mule.id}
+                active={mule.active}
+                revealed={isHovered}
+                onToggleActive={onToggleActive}
+              />
+            </span>
+          ))}
       </div>
     </div>
   );
