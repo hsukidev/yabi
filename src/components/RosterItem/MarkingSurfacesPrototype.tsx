@@ -7,8 +7,8 @@
  *
  * The ?variant= URL param + floating bar moved on to KpiReadoutPrototype.tsx.
  *
- * Shares the in-memory marks store with CardMenuPrototype so card checks,
- * row controls, and drawer controls stay in sync. Dev builds only.
+ * Shares the in-memory marks store in `prototypeMarks.ts` so the row and
+ * drawer prototype controls stay in sync. Dev builds only.
  */
 import { Check } from 'lucide-react';
 import type { Mule } from '../../types';
@@ -17,12 +17,11 @@ import {
   DAILY_CYAN,
   WEEKLY_PURPLE,
   guardProps,
-  MarkMenu,
-  MarkChecks,
   toggleMark,
   useMarks,
   type Marks,
-} from './CardMenuPrototype';
+} from './prototypeMarks';
+import { MarkMenu, MarkChecks } from './PrototypeMarkMenu';
 
 export type MarkingVariant = 'a' | 'b' | 'c';
 

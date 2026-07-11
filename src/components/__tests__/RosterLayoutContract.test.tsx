@@ -72,6 +72,7 @@ function renderMuleCard(mule: Mule = makeMule()) {
           mule={mule}
           onClick={() => {}}
           onToggleActive={() => {}}
+          onSetMark={() => {}}
           metrics={emptyMetrics}
         />
       </SortableContext>

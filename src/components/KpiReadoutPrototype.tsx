@@ -24,7 +24,7 @@ import type { Mule } from '../types';
 import { MuleBossSlate } from '../data/muleBossSlate';
 import { resolveWorldGroup } from '../data/worlds';
 import { formatMeso } from '../utils/meso';
-import { useMarksVersion, getMarks } from './RosterItem/CardMenuPrototype';
+import { useMarksVersion, getMarks } from './RosterItem/prototypeMarks';
 
 export const KPI_READOUT_VARIANTS = ['a', 'b', 'c'] as const;
 export type KpiReadoutVariant = (typeof KPI_READOUT_VARIANTS)[number];

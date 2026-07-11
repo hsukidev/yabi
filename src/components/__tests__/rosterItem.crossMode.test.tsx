@@ -90,6 +90,7 @@ function renderCard(mule: Mule, metrics: RosterRowMetrics) {
           mule={mule}
           onClick={() => {}}
           onToggleActive={() => {}}
+          onSetMark={() => {}}
           metrics={metrics}
         />
       </SortableContext>
