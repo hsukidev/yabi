@@ -29,6 +29,7 @@ function renderHeader(
     onSelectAll: vi.fn(),
     onClearSelection: vi.fn(),
     onMarkAs: vi.fn(),
+    onSetActive: vi.fn(),
     ...overrides,
   };
   return {
@@ -260,6 +261,79 @@ describe('RosterHeader', () => {
         fireEvent.click(link);
         expect(props.onClearSelection).toHaveBeenCalled();
         expect(props.onSelectAll).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('Set Active / Set Inactive', () => {
+      const openActiveMenu = () =>
+        fireEvent.click(screen.getByRole('button', { name: /set active flag/i }));
+
+      it('renders the Active trigger in the bar', () => {
+        const { container } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        const bar = container.querySelector('[data-bulk-action-bar]') as HTMLElement;
+        expect(within(bar).getByRole('button', { name: /set active flag/i })).toBeTruthy();
+      });
+
+      it('disables the trigger at 0 selected', () => {
+        renderHeader({ bulkMode: true, selectedCount: 0 });
+        const btn = screen.getByRole('button', { name: /set active flag/i }) as HTMLButtonElement;
+        expect(btn.disabled).toBe(true);
+      });
+
+      it('enables the trigger when N > 0', () => {
+        renderHeader({ bulkMode: true, selectedCount: 3 });
+        const btn = screen.getByRole('button', { name: /set active flag/i }) as HTMLButtonElement;
+        expect(btn.disabled).toBe(false);
+      });
+
+      it('opens to Set Active and Set Inactive rows', async () => {
+        renderHeader({ bulkMode: true, selectedCount: 2 });
+        openActiveMenu();
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: /set active/i })).toBeTruthy();
+        });
+        expect(screen.getByRole('menuitem', { name: /set inactive/i })).toBeTruthy();
+      });
+
+      it('Set Active converges the selection to active (onSetActive(true))', async () => {
+        const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        openActiveMenu();
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: /set active/i })).toBeTruthy();
+        });
+        fireEvent.click(screen.getByRole('menuitem', { name: /set active/i }));
+        expect(props.onSetActive).toHaveBeenCalledWith(true);
+      });
+
+      it('Set Inactive converges the selection to inactive (onSetActive(false))', async () => {
+        const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        openActiveMenu();
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: /set inactive/i })).toBeTruthy();
+        });
+        fireEvent.click(screen.getByRole('menuitem', { name: /set inactive/i }));
+        expect(props.onSetActive).toHaveBeenCalledWith(false);
+      });
+
+      it('applying an Active action never exits the mode (no onCancel)', async () => {
+        const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        openActiveMenu();
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: /set active/i })).toBeTruthy();
+        });
+        fireEvent.click(screen.getByRole('menuitem', { name: /set active/i }));
+        expect(props.onCancel).not.toHaveBeenCalled();
+      });
+
+      it('stays in the bar on touch (available on all pointer types)', () => {
+        mockCoarsePointer();
+        try {
+          const { container } = renderHeader({ bulkMode: true, selectedCount: 2 });
+          const bar = container.querySelector('[data-bulk-action-bar]') as HTMLElement;
+          expect(within(bar).getByRole('button', { name: /set active flag/i })).toBeTruthy();
+        } finally {
+          restoreMatchMedia();
+        }
       });
     });
 
