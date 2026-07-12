@@ -899,9 +899,10 @@ body:has([data-bulk-delete-pill]) {
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
- * Bulk Delete Mode — animation keyframes read by RosterHeader's Bulk Action
- * Bar (bulk-slide) and Bulk Pulse Dot (bulk-pulse). All reds resolve through
- * --destructive so theme toggle carries them into light/dark automatically.
+ * Bulk Select Mode — entrance keyframe read by RosterHeader's Bulk Action Bar
+ * (bulk-slide) and shared with the World Missing banner. The bar's own chrome
+ * is neutral/accent; only its destructive Delete/Yes controls resolve through
+ * --destructive so the theme toggle carries them into light/dark automatically.
  * ────────────────────────────────────────────────────────────────────────── */
 @keyframes bulk-slide {
   from {
@@ -911,15 +912,6 @@ body:has([data-bulk-delete-pill]) {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-@keyframes bulk-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
   }
 }
 

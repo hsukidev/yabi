@@ -3,12 +3,16 @@ import type { Mule } from '../types';
 import { useBulkDragPaint } from './useBulkDragPaint';
 
 /**
- * **Bulk Delete Mode** lifecycle for the Dashboard: the mode flag, the
- * **Deletion-Marked** set, and all the marshalling `useBulkDragPaint`
+ * **Bulk Select Mode** lifecycle for the Dashboard: the mode flag, the
+ * **Bulk-Selected Mule** set, and all the marshalling `useBulkDragPaint`
  * needs (live order/selection refs, exact-state setter). The gesture hook
  * itself stays surface-agnostic per ADR-0008 — this hook is the
- * delete-workflow side of that seam. The confirm UI (Roster Header
+ * selection-workflow side of that seam. The confirm UI (Bulk Action Bar
  * buttons) stays with the caller.
+ *
+ * The mode is **persistent**: no action exits it or clears the selection.
+ * Cancel (`exitBulk`) is the only exit. Deleting prunes the deleted mules
+ * from the selection and keeps the mode.
  */
 export function useBulkSelection(
   mulesInWorld: readonly Mule[],
@@ -16,10 +20,19 @@ export function useBulkSelection(
 ): {
   bulkMode: boolean;
   toDelete: ReadonlySet<string>;
+  /** Whether the whole World-Lens roster is currently selected (false when empty). */
+  allSelected: boolean;
   enterBulk: () => void;
   exitBulk: () => void;
   toggleDelete: (id: string) => void;
-  /** Delete every Deletion-Marked mule and exit bulk mode. No-op when nothing is marked. */
+  /** Select every mule in the World-Lens roster. */
+  selectAll: () => void;
+  /** Clear the selection without leaving Bulk Select Mode. */
+  clearSelection: () => void;
+  /**
+   * Delete every Bulk-Selected mule, prune them from the selection, and
+   * stay in Bulk Select Mode. No-op when nothing is selected.
+   */
   deleteSelected: () => void;
   dragPaintHandlers: ReturnType<typeof useBulkDragPaint>['handlers'];
   isPaintEngaged: boolean;
@@ -82,18 +95,41 @@ export function useBulkSelection(
     setSelected,
   });
 
+  // Select-all / clear read the live roster off `orderRef`, so both keep a
+  // stable identity across selection and roster changes.
+  const selectAll = useCallback(() => {
+    setToDelete(new Set(orderRef.current));
+  }, []);
+
+  const clearSelection = useCallback(() => {
+    setToDelete(new Set());
+  }, []);
+
+  // Persistent mode: deleting prunes the deleted mules from the selection and
+  // keeps Bulk Select Mode. Cancel (`exitBulk`) is the only exit.
   const deleteSelected = useCallback(() => {
     if (toDelete.size === 0) return;
-    deleteMules([...toDelete]);
-    exitBulk();
-  }, [toDelete, deleteMules, exitBulk]);
+    const ids = [...toDelete];
+    deleteMules(ids);
+    setToDelete((prev) => {
+      const next = new Set(prev);
+      for (const id of ids) next.delete(id);
+      return next;
+    });
+  }, [toDelete, deleteMules]);
+
+  const allSelected =
+    mulesInWorld.length > 0 && mulesInWorld.every((mule) => toDelete.has(mule.id));
 
   return {
     bulkMode,
     toDelete,
+    allSelected,
     enterBulk,
     exitBulk,
     toggleDelete,
+    selectAll,
+    clearSelection,
     deleteSelected,
     dragPaintHandlers,
     isPaintEngaged,
