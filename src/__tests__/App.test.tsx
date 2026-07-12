@@ -455,27 +455,33 @@ describe('App', () => {
   });
 });
 
-describe('Bulk Delete Mode', () => {
+describe('Bulk Select Mode', () => {
   beforeEach(() => {
     resetTestEnvironment();
   });
 
   function enterBulk() {
-    const btn = screen.getByRole('button', { name: /bulk.*delete|bulk.*trash/i });
+    const btn = screen.getByRole('button', { name: /bulk select mode/i });
     fireEvent.click(btn);
   }
 
-  it('renders the Bulk Trash Icon in the roster header', async () => {
+  // Delete is a two-step inline confirm now (Delete → Yes). Helper drives it.
+  function confirmDelete() {
+    fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^yes$/i }));
+  }
+
+  it('renders the Select Button in the roster header', async () => {
     seedMules(testMules);
     await renderApp();
-    expect(screen.getByRole('button', { name: /bulk.*delete|bulk.*trash/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /bulk select mode/i })).toBeTruthy();
   });
 
-  it('clicking the Bulk Trash Icon swaps the header to the Bulk Action Bar', async () => {
+  it('clicking the Select Button swaps the header to the Bulk Action Bar', async () => {
     seedMules(testMules);
-    await renderApp();
+    const { container } = await renderApp();
     enterBulk();
-    expect(screen.getByText(/select or drag to delete/i)).toBeTruthy();
+    expect(container.querySelector('[data-bulk-action-bar]')).toBeTruthy();
     expect(screen.getByText(/0\s*SELECTED/i)).toBeTruthy();
   });
 
@@ -521,14 +527,14 @@ describe('Bulk Delete Mode', () => {
     expect(confirm.disabled).toBe(false);
   });
 
-  it('Bulk Confirm removes marked mules from the Roster and exits bulk mode', async () => {
+  it('Bulk delete removes marked mules and stays in Bulk Select Mode (persistent)', async () => {
     seedMules(testMules);
     const { container } = await renderApp();
     enterBulk();
 
     fireEvent.click(container.querySelector('[data-mule-card="mule-a"] .panel') as HTMLElement);
     fireEvent.click(container.querySelector('[data-mule-card="mule-b"] .panel') as HTMLElement);
-    fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+    confirmDelete();
 
     await waitFor(() => {
       expect(container.querySelector('[data-mule-card="mule-a"]')).toBeNull();
@@ -536,8 +542,10 @@ describe('Bulk Delete Mode', () => {
       expect(container.querySelector('[data-mule-card="mule-c"]')).toBeTruthy();
     });
 
-    // Mode exited — header returns to default
-    expect(screen.queryByText(/select or drag to delete/i)).toBeNull();
+    // Persistent mode: the bar remains, selection pruned to 0. Cancel is the
+    // only exit.
+    expect(container.querySelector('[data-bulk-action-bar]')).toBeTruthy();
+    expect(screen.getByText(/0\s*SELECTED/i)).toBeTruthy();
   });
 
   it('persists bulk deletion to localStorage', async () => {
@@ -546,7 +554,7 @@ describe('Bulk Delete Mode', () => {
     enterBulk();
 
     fireEvent.click(container.querySelector('[data-mule-card="mule-a"] .panel') as HTMLElement);
-    fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+    confirmDelete();
 
     await waitFor(() => {
       expect(container.querySelector('[data-mule-card="mule-a"]')).toBeNull();
@@ -574,7 +582,7 @@ describe('Bulk Delete Mode', () => {
     fireEvent.click(screen.getByRole('button', { name: /^cancel$/i }));
 
     await waitFor(() => {
-      expect(screen.queryByText(/select or drag to delete/i)).toBeNull();
+      expect(container.querySelector('[data-bulk-action-bar]')).toBeNull();
     });
 
     // All three mules still in DOM

@@ -157,15 +157,18 @@ export function Dashboard() {
     setSelectedMuleId(null);
   }, []);
 
-  // Bulk Delete Mode — selection state, exact-state setter, and the
+  // Bulk Select Mode — selection state, exact-state setter, and the
   // drag-paint marshalling all live behind useBulkSelection; Dashboard
-  // keeps only the confirm UI wiring (RosterHeader buttons).
+  // keeps only the confirm UI wiring (Bulk Action Bar buttons).
   const {
     bulkMode,
     toDelete,
+    allSelected,
     enterBulk,
     exitBulk,
     toggleDelete,
+    selectAll,
+    clearSelection,
     deleteSelected,
     dragPaintHandlers,
     isPaintEngaged,
@@ -194,9 +197,12 @@ export function Dashboard() {
             muleCount={mulesInWorld.length}
             bulkMode={bulkMode}
             selectedCount={toDelete.size}
+            allSelected={allSelected}
             onEnterBulk={enterBulk}
             onCancel={exitBulk}
             onDelete={deleteSelected}
+            onSelectAll={selectAll}
+            onClearSelection={clearSelection}
           />
 
           <div className="mb-4 border-t border-border" aria-hidden />

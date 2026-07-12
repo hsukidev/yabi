@@ -25,7 +25,7 @@ export function resetBulkPaintEnvironment({ display }: ResetOpts = {}) {
 }
 
 export function enterBulk() {
-  fireEvent.click(screen.getByRole('button', { name: /bulk.*delete|bulk.*trash/i }));
+  fireEvent.click(screen.getByRole('button', { name: /bulk select mode/i }));
 }
 
 type PointerKind = 'mouse' | 'touch' | 'pen';
