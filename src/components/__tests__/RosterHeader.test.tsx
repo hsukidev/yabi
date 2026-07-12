@@ -22,11 +22,13 @@ function renderHeader(
     bulkMode: false,
     selectedCount: 0,
     allSelected: false,
+    markEligibleCounts: { daily: 0, weekly: 0, bm: 0 },
     onEnterBulk: vi.fn(),
     onCancel: vi.fn(),
     onDelete: vi.fn(),
     onSelectAll: vi.fn(),
     onClearSelection: vi.fn(),
+    onMarkAs: vi.fn(),
     ...overrides,
   };
   return {
@@ -382,6 +384,76 @@ describe('RosterHeader', () => {
     it('does not render the Delete Pill on non-touch (default jsdom)', () => {
       renderHeader({ bulkMode: true, selectedCount: 2 });
       expect(document.body.querySelector('[data-bulk-delete-pill]')).toBeNull();
+    });
+
+    describe('Mark As Menu', () => {
+      const openMenu = () => {
+        fireEvent.click(screen.getByRole('button', { name: /mark as/i }));
+      };
+
+      it('renders the Mark as trigger in the bar', () => {
+        renderHeader({ bulkMode: true, selectedCount: 2 });
+        expect(screen.getByRole('button', { name: /mark as/i })).toBeTruthy();
+      });
+
+      it('disables the trigger at 0 selected', () => {
+        renderHeader({ bulkMode: true, selectedCount: 0 });
+        const trigger = screen.getByRole('button', { name: /mark as/i }) as HTMLButtonElement;
+        expect(trigger.disabled).toBe(true);
+      });
+
+      it('enables the trigger when N > 0', () => {
+        renderHeader({ bulkMode: true, selectedCount: 2 });
+        const trigger = screen.getByRole('button', { name: /mark as/i }) as HTMLButtonElement;
+        expect(trigger.disabled).toBe(false);
+      });
+
+      it('renders Daily / Weekly / BM rows with their eligible counts', async () => {
+        renderHeader({
+          bulkMode: true,
+          selectedCount: 5,
+          markEligibleCounts: { daily: 2, weekly: 5, bm: 1 },
+        });
+        openMenu();
+        await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+        const daily = screen.getByRole('menuitem', { name: /daily/i });
+        const weekly = screen.getByRole('menuitem', { name: /weekly/i });
+        const bm = screen.getByRole('menuitem', { name: /bm/i });
+        expect(daily.textContent).toMatch(/2/);
+        expect(weekly.textContent).toMatch(/5/);
+        expect(bm.textContent).toMatch(/1/);
+      });
+
+      it('disables a row at zero eligible', async () => {
+        renderHeader({
+          bulkMode: true,
+          selectedCount: 5,
+          markEligibleCounts: { daily: 0, weekly: 5, bm: 0 },
+        });
+        openMenu();
+        await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+        expect(
+          screen.getByRole('menuitem', { name: /daily/i }).getAttribute('data-disabled'),
+        ).not.toBeNull();
+        expect(
+          screen.getByRole('menuitem', { name: /^weekly/i }).getAttribute('data-disabled'),
+        ).toBeNull();
+        expect(
+          screen.getByRole('menuitem', { name: /bm/i }).getAttribute('data-disabled'),
+        ).not.toBeNull();
+      });
+
+      it('calls onMarkAs with the cadence when an eligible row is chosen', async () => {
+        const { props } = renderHeader({
+          bulkMode: true,
+          selectedCount: 5,
+          markEligibleCounts: { daily: 2, weekly: 5, bm: 1 },
+        });
+        openMenu();
+        await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+        fireEvent.click(screen.getByRole('menuitem', { name: /^weekly/i }));
+        expect(props.onMarkAs).toHaveBeenCalledWith('weekly');
+      });
     });
   });
 });

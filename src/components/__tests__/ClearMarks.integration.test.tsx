@@ -7,10 +7,20 @@ import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { MuleCharacterCard } from '../MuleCharacterCard';
 import { MuleListRow } from '../MuleListRow';
 import { MuleDetailDrawer } from '../MuleDetailDrawer';
+import { MarkAsMenu } from '../MarkAsMenu';
 import { WorldIncome } from '../../modules/worldIncome';
 import { rosterRowMetrics, type RosterRowMetrics } from '../rosterRowMetrics';
-import { clearMarkUpdate, type ClearMarkKind } from '../../utils/clearMark';
+import {
+  clearMarkUpdate,
+  isMarkEligible,
+  isMarkValid,
+  type ClearMarkKind,
+} from '../../utils/clearMark';
+import { bosses } from '../../data/bosses';
 import type { Mule } from '../../types';
+
+const LUCID = bosses.find((b) => b.family === 'lucid')!.id;
+const HARD_LUCID_WEEKLY = `${LUCID}:hard:weekly`;
 
 // End-to-end integration sweep for Clear Marks (issue #306): the merged slices
 // meeting across surfaces. Per-surface behavior is covered in the
@@ -92,6 +102,69 @@ function AllSurfaces({ initial }: { initial: Mule }) {
   );
 }
 
+// The Bulk Action Bar's Mark As Menu writer, meeting the same three surfaces.
+// A single selected mule stands in for the Bulk-Selected set; `onMarkAs`
+// mirrors Dashboard's `handleBulkMarkAs` (per-mule toggle across eligible
+// selected mules), proving the seam extends to the bulk writer, not just the
+// drawer kebab.
+function AllSurfacesWithMarkAsMenu({ initial }: { initial: Mule }) {
+  const [mule, setMule] = useState(initial);
+
+  const onUpdate = useCallback((id: string, patch: Partial<Mule>) => {
+    setMule((prev) => (prev.id === id ? { ...prev, ...patch } : prev));
+  }, []);
+
+  const noop = useCallback(() => {}, []);
+  const metrics = metricsFor(mule);
+
+  const eligibleCounts = {
+    daily: isMarkEligible(metrics, 'daily') ? 1 : 0,
+    weekly: isMarkEligible(metrics, 'weekly') ? 1 : 0,
+    bm: isMarkEligible(metrics, 'bm') ? 1 : 0,
+  };
+
+  const onMarkAs = useCallback((kind: ClearMarkKind) => {
+    setMule((prev) => {
+      const m = metricsFor(prev);
+      if (!isMarkEligible(m, kind)) return prev;
+      const now = Date.now();
+      return { ...prev, ...clearMarkUpdate(kind, !isMarkValid(prev, kind, now), now) };
+    });
+  }, []);
+
+  return (
+    <>
+      <MarkAsMenu selectedCount={1} eligibleCounts={eligibleCounts} onMarkAs={onMarkAs} />
+      <DndContext>
+        <SortableContext items={[mule.id]} strategy={rectSortingStrategy}>
+          <MuleCharacterCard
+            mule={mule}
+            onClick={noop}
+            onToggleActive={noop}
+            onSetMark={noop}
+            metrics={metrics}
+          />
+          <MuleListRow
+            mule={mule}
+            metrics={metrics}
+            onClick={noop}
+            onToggleActive={noop}
+            onSetMark={noop}
+          />
+        </SortableContext>
+      </DndContext>
+      <MuleDetailDrawer
+        mule={mule}
+        metrics={metrics}
+        open
+        onClose={noop}
+        onUpdate={onUpdate}
+        onDelete={noop}
+      />
+    </>
+  );
+}
+
 async function openDrawerMenu() {
   const sheet = document.querySelector('[data-slot="sheet-content"]') as HTMLElement;
   const kebab = within(sheet).getByRole('button', { name: /mule actions/i });
@@ -125,6 +198,49 @@ describe('Clear Marks — cross-surface sync (Card · Row · Drawer)', () => {
 
     await openDrawerMenu();
     fireEvent.click(screen.getByText('Weekly Incomplete'));
+    await waitFor(() => expect(weeklyChecks()).toHaveLength(0));
+  });
+});
+
+describe('Clear Marks — Mark As Menu writer cross-surface sync', () => {
+  // The Mark As Menu (and its portalled popup) sit outside the modal Drawer's
+  // active layer, so they render behind its inert / aria-hidden veil. Drive
+  // them by data-attribute off the document (bypassing the a11y-tree veil) and
+  // with fireEvent (inert blocks user pointer interaction, not programmatic
+  // events) — the menu's keyboard-reachability is covered in the RosterHeader
+  // suite, which renders it outside any modal.
+  async function chooseWeekly() {
+    fireEvent.click(document.querySelector('[data-mark-as-trigger]') as HTMLElement);
+    await waitFor(() => expect(document.querySelector('[data-mark-as-row="weekly"]')).toBeTruthy());
+    fireEvent.click(document.querySelector('[data-mark-as-row="weekly"]') as HTMLElement);
+  }
+
+  it('a weekly mark applied via the Mark As Menu lights the check on all three surfaces', async () => {
+    render(
+      <AllSurfacesWithMarkAsMenu
+        initial={makeMule('bulk-1', { selectedBosses: [HARD_LUCID_WEEKLY] })}
+      />,
+    );
+
+    expect(weeklyChecks()).toHaveLength(0);
+
+    await chooseWeekly();
+
+    // Card Lv pill · List View row · Drawer header — all from the same `mule`.
+    await waitFor(() => expect(weeklyChecks()).toHaveLength(3));
+  });
+
+  it('re-choosing the same row toggles the mark back off across all surfaces', async () => {
+    render(
+      <AllSurfacesWithMarkAsMenu
+        initial={makeMule('bulk-2', { selectedBosses: [HARD_LUCID_WEEKLY] })}
+      />,
+    );
+
+    await chooseWeekly();
+    await waitFor(() => expect(weeklyChecks()).toHaveLength(3));
+
+    await chooseWeekly();
     await waitFor(() => expect(weeklyChecks()).toHaveLength(0));
   });
 });

@@ -6,6 +6,8 @@ import { useMatchMedia } from '../hooks/useMatchMedia';
 import { DensityToggle } from './DensityToggle';
 import { DisplayToggle } from './DisplayToggle';
 import { WorldSelect } from './WorldSelect';
+import { MarkAsMenu, type MarkEligibleCounts } from './MarkAsMenu';
+import type { ClearMarkKind } from '../utils/clearMark';
 
 export interface RosterHeaderProps {
   muleCount: number;
@@ -13,11 +15,15 @@ export interface RosterHeaderProps {
   selectedCount: number;
   /** Whole World-Lens roster is selected — flips the Select all link to Clear selection. */
   allSelected: boolean;
+  /** Eligible Bulk-Selected Mule counts per cadence, for the Mark As Menu rows. */
+  markEligibleCounts: MarkEligibleCounts;
   onEnterBulk: () => void;
   onCancel: () => void;
   onDelete: () => void;
   onSelectAll: () => void;
   onClearSelection: () => void;
+  /** Toggle a Clear Mark across the eligible Bulk-Selected Mules. */
+  onMarkAs: (kind: ClearMarkKind) => void;
 }
 
 // `--destructive` is stored as a full `hsl(...)` call, not a raw triplet, so
@@ -40,11 +46,13 @@ export function RosterHeader({
   bulkMode,
   selectedCount,
   allSelected,
+  markEligibleCounts,
   onEnterBulk,
   onCancel,
   onDelete,
   onSelectAll,
   onClearSelection,
+  onMarkAs,
 }: RosterHeaderProps) {
   const isTouch = useMatchMedia('(pointer: coarse)');
 
@@ -152,6 +160,13 @@ export function RosterHeader({
             </button>
           </div>
           <div className="flex items-center gap-2">
+            {/* Mark As Menu lives in the bar on all pointer types (a sibling
+                ticket adds Set Active/Inactive alongside it here). */}
+            <MarkAsMenu
+              selectedCount={selectedCount}
+              eligibleCounts={markEligibleCounts}
+              onMarkAs={onMarkAs}
+            />
             {isTouch ? (
               // Touch: Delete lives in the Delete Pill; the bar keeps only the
               // mode-exit Cancel.
