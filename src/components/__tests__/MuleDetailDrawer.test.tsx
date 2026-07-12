@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor, act, within } from '@/test/test-utils';
+import { render, screen, fireEvent, waitFor, within } from '@/test/test-utils';
 
 import { MuleDetailDrawer } from '../MuleDetailDrawer';
 import type { Mule } from '../../types';
@@ -553,68 +553,110 @@ describe('MuleDetailDrawer (smoke)', () => {
     });
   });
 
-  describe('header Completion Checks', () => {
+  describe('header Completion Checks removed (mark state lives on the tally)', () => {
     const NOW = Date.UTC(2026, 6, 11, 12, 0, 0); // 2026-07-11 12:00 UTC
 
-    it('renders no name-side checks when the mule has no valid marks', () => {
-      renderDrawer();
-      expect(screen.queryByRole('img', { name: /complete/i })).toBeNull();
-    });
-
-    it('renders daily → weekly → BM checks beside the name for valid marks', () => {
+    it('renders no beside-name Completion Check img even when every mark is valid', () => {
       vi.useFakeTimers();
       vi.setSystemTime(NOW);
       try {
         renderDrawer({
           mule: {
             ...baseMule,
+            selectedBosses: [HARD_LUCID, NORMAL_HILLA_DAILY, HARD_BLACK_MAGE_MONTHLY],
             dailyClearMark: currentDailyStamp(NOW),
             weeklyClearMark: currentWeeklyStamp(NOW),
             bmClearMark: currentBmStamp(NOW),
           },
         });
-        const checks = screen.getAllByRole('img', { name: /complete/i });
-        expect(checks.map((c) => c.getAttribute('aria-label'))).toEqual([
-          'Daily complete',
-          'Weekly complete',
-          'BM complete',
-        ]);
+        // The name-side `role="img"` Completion Checks are gone; mark state is
+        // carried by the tally's Mark Toggle buttons (aria-pressed), not imgs.
+        expect(screen.queryByRole('img', { name: /complete/i })).toBeNull();
       } finally {
         vi.useRealTimers();
       }
     });
+  });
 
-    it('keeps the checks un-clipped (shrink-0) beside the truncating name', () => {
-      vi.useFakeTimers();
-      vi.setSystemTime(NOW);
-      try {
-        renderDrawer({ mule: { ...baseMule, weeklyClearMark: currentWeeklyStamp(NOW) } });
-        const check = screen.getByRole('img', { name: 'Weekly complete' });
-        // The name truncates; the checks live in a shrink-0 wrapper so they
-        // never clip.
-        expect((check.parentElement as HTMLElement).className).toContain('shrink-0');
-        const heading = screen.getByRole('heading', { name: /TestMule/ });
-        expect(heading.querySelector('.truncate')).toBeTruthy();
-      } finally {
-        vi.useRealTimers();
-      }
+  describe('Crystal Tally Mark Toggles', () => {
+    const NOW = Date.UTC(2026, 6, 11, 12, 0, 0); // 2026-07-11 12:00 UTC
+
+    const markToggle = (name: RegExp) => screen.getByRole('button', { name });
+    const queryMarkToggle = (name: RegExp) => screen.queryByRole('button', { name });
+
+    it('shows no Mark Toggle on an empty slate (no eligible cadence)', () => {
+      renderDrawer();
+      expect(queryMarkToggle(/daily (in)?complete/i)).toBeNull();
+      expect(queryMarkToggle(/weekly (in)?complete/i)).toBeNull();
+      expect(queryMarkToggle(/bm (in)?complete/i)).toBeNull();
     });
 
-    it('expires a name-side check live at the cycle boundary with no reload', () => {
+    it('shows the weekly toggle (and no daily/bm) for a weekly-only slate', () => {
+      renderDrawer({ mule: { ...baseMule, selectedBosses: [HARD_LUCID] } });
+      expect(markToggle(/weekly incomplete — click to mark complete/i)).toBeTruthy();
+      expect(queryMarkToggle(/daily (in)?complete/i)).toBeNull();
+      expect(queryMarkToggle(/bm (in)?complete/i)).toBeNull();
+    });
+
+    it('shows both daily and weekly toggles for a daily-only slate (weekly rides on daily keys)', () => {
+      renderDrawer({ mule: { ...baseMule, selectedBosses: [NORMAL_HILLA_DAILY] } });
+      expect(markToggle(/daily incomplete — click to mark complete/i)).toBeTruthy();
+      expect(markToggle(/weekly incomplete — click to mark complete/i)).toBeTruthy();
+      expect(queryMarkToggle(/bm (in)?complete/i)).toBeNull();
+    });
+
+    it('shows the BM toggle for a monthly slate', () => {
+      renderDrawer({ mule: { ...baseMule, selectedBosses: [HARD_BLACK_MAGE_MONTHLY] } });
+      expect(markToggle(/bm incomplete — click to mark complete/i)).toBeTruthy();
+    });
+
+    it('is a real <button> with aria-pressed reflecting mark state', () => {
       vi.useFakeTimers();
       vi.setSystemTime(NOW);
       try {
-        renderDrawer({ mule: { ...baseMule, dailyClearMark: currentDailyStamp(NOW) } });
-        expect(screen.getByRole('img', { name: 'Daily complete' })).toBeTruthy();
-
-        act(() => {
-          vi.advanceTimersByTime(12 * 60 * 60 * 1000 + 1000);
+        renderDrawer({
+          mule: {
+            ...baseMule,
+            selectedBosses: [HARD_LUCID],
+            weeklyClearMark: currentWeeklyStamp(NOW),
+          },
         });
-
-        expect(screen.queryByRole('img', { name: 'Daily complete' })).toBeNull();
+        const toggle = markToggle(/weekly complete — click to unmark/i);
+        expect(toggle.tagName).toBe('BUTTON');
+        expect(toggle.getAttribute('aria-pressed')).toBe('true');
       } finally {
         vi.useRealTimers();
       }
+    });
+
+    it('sets the weekly mark through onUpdate (current cycle stamp)', () => {
+      const { props } = renderDrawer({ mule: { ...baseMule, selectedBosses: [HARD_LUCID] } });
+      fireEvent.click(markToggle(/weekly incomplete — click to mark complete/i));
+      expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, {
+        weeklyClearMark: expect.any(Number),
+      });
+    });
+
+    it('clears the weekly mark when already marked', () => {
+      const { props } = renderDrawer({
+        mule: {
+          ...baseMule,
+          selectedBosses: [HARD_LUCID],
+          weeklyClearMark: currentWeeklyStamp(Date.now()),
+        },
+      });
+      fireEvent.click(markToggle(/weekly complete — click to unmark/i));
+      expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, { weeklyClearMark: undefined });
+    });
+
+    it('sets the BM mark through onUpdate for a monthly slate', () => {
+      const { props } = renderDrawer({
+        mule: { ...baseMule, selectedBosses: [HARD_BLACK_MAGE_MONTHLY] },
+      });
+      fireEvent.click(markToggle(/bm incomplete — click to mark complete/i));
+      expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, {
+        bmClearMark: expect.any(String),
+      });
     });
   });
 

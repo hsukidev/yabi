@@ -28,7 +28,6 @@ import { MuleIdentityFields } from './MuleDetailDrawer/MuleIdentityFields';
 import { MuleNotesField } from './MuleDetailDrawer/MuleNotesField';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import { MuleActionsMenu } from './RosterItem/MuleActionsMenu';
-import { CompletionChecks } from './RosterItem/CompletionChecks';
 import type { RosterRowMetrics } from './rosterRowMetrics';
 // Zero-state tone shared with the KPI income Progress Readouts.
 import { ZERO_NUMERATOR_TONE } from './KpiProgressReadout';
@@ -137,6 +136,16 @@ export function MuleDetailDrawer({
       onUpdate(id, clearMarkUpdate(kind, marked, Date.now())),
     [onUpdate],
   );
+  // The Crystal Tally's Mark Toggles close the mule id in here so the tally's
+  // prop shape stays counts + three validity booleans + one stable handler
+  // (CLAUDE.md drawer perf). `muleId` and `onUpdate` are both stable across
+  // keystrokes, so this never busts the tally's memo barrier.
+  const handleTallySetMark = useCallback(
+    (kind: ClearMarkKind, marked: boolean) => {
+      if (muleId) onUpdate(muleId, clearMarkUpdate(kind, marked, Date.now()));
+    },
+    [muleId, onUpdate],
+  );
   const identity = useMuleIdentityDraft(mule, onUpdate);
   const liveLevel = Number(identity.level.draft) || 0;
   // Slate Display Mode is a `useState`-backed primitive with a stable setter
@@ -206,6 +215,8 @@ export function MuleDetailDrawer({
                   data-testid="drawer-avatar"
                 />
                 <div className="min-w-0 w-full text-center min-[425px]:w-auto min-[425px]:flex-1 min-[425px]:text-left">
+                  {/* Mark state now lives on the Crystal Tally's Mark Toggles,
+                      so the beside-name Completion Checks are gone (#316). */}
                   <h2 className="mt-1 font-display text-2xl/tight font-bold flex items-center justify-center gap-2 min-w-0 min-[425px]:justify-start">
                     <span className="truncate min-w-0">
                       {identity.name.draft || (
@@ -213,17 +224,6 @@ export function MuleDetailDrawer({
                           Unnamed Mule
                         </span>
                       )}
-                    </span>
-                    {/* Same colored Completion Checks as the roster Lv pill /
-                        row; the name truncates (min-w-0 above) while these stay
-                        `shrink-0` so the checks never clip. */}
-                    <span className="inline-flex items-center gap-1 shrink-0">
-                      <CompletionChecks
-                        daily={dailyValid}
-                        weekly={weeklyValid}
-                        bm={bmValid}
-                        size={16}
-                      />
                     </span>
                   </h2>
                   <div className="mt-1 flex items-center justify-center gap-3 text-xs min-[425px]:justify-start">
@@ -289,6 +289,10 @@ export function MuleDetailDrawer({
                   weeklyCount={slate.weeklyCount}
                   dailyCount={slate.dailyCount}
                   monthlyCount={slate.monthlyCount}
+                  weeklyMarked={weeklyValid}
+                  dailyMarked={dailyValid}
+                  bmMarked={bmValid}
+                  onSetMark={handleTallySetMark}
                 />
               </div>
 

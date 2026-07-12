@@ -16,7 +16,17 @@ import type { Mule } from '../../types';
  * barrier: the stand-in re-renders only when the props the drawer passes change
  * identity — exactly what we are guarding.
  */
-const counters = vi.hoisted(() => ({ card: 0, toolbar: 0, matrix: 0 }));
+const counters = vi.hoisted(() => ({ card: 0, toolbar: 0, matrix: 0, tally: 0 }));
+
+vi.mock('../MuleDetailDrawer/CrystalTally', async () => {
+  const { memo } = await import('react');
+  return {
+    CrystalTally: memo(function CrystalTallyStub() {
+      counters.tally++;
+      return <div data-testid="tally-stub" />;
+    }),
+  };
+});
 
 vi.mock('../BossCardView', async () => {
   const { memo } = await import('react');
@@ -76,6 +86,7 @@ beforeEach(() => {
   counters.card = 0;
   counters.toolbar = 0;
   counters.matrix = 0;
+  counters.tally = 0;
   // Mount the Boss Card View so the card-grid barrier is exercised.
   localStorage.clear();
   localStorage.setItem('slate-display-mode', 'cards');
@@ -87,6 +98,8 @@ describe('MuleDetailDrawer keystroke perf (memo barrier)', () => {
     const cardBase = counters.card;
     const toolbarBase = counters.toolbar;
 
+    const tallyBase = counters.tally;
+
     const name = screen.getByLabelText('Character Name') as HTMLInputElement;
     fireEvent.change(name, { target: { value: 'Zephyr' } });
     fireEvent.change(name, { target: { value: 'Zephyros' } });
@@ -96,6 +109,10 @@ describe('MuleDetailDrawer keystroke perf (memo barrier)', () => {
     // …but the memoized Slate Display Mode children stayed behind their barrier.
     expect(counters.card).toBe(cardBase);
     expect(counters.toolbar).toBe(toolbarBase);
+    // The interactive Crystal Tally is also behind its memo barrier — its props
+    // are counts + three validity booleans + the stable Mark Toggle handler, so
+    // a keystroke's fresh drawer render never reaches it (#316, CLAUDE.md perf).
+    expect(counters.tally).toBe(tallyBase);
   });
 
   it('typing in the Notes field re-renders neither the card grid nor the toolbar', () => {
