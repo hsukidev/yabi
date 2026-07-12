@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { ListChecks } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useMatchMedia } from '../hooks/useMatchMedia';
+import { BulkActiveMenu } from './BulkActiveMenu';
 import { DensityToggle } from './DensityToggle';
 import { DisplayToggle } from './DisplayToggle';
 import { WorldSelect } from './WorldSelect';
@@ -18,6 +19,12 @@ export interface RosterHeaderProps {
   onDelete: () => void;
   onSelectAll: () => void;
   onClearSelection: () => void;
+  /**
+   * Converge every Bulk-Selected Mule to the given Active Flag state
+   * (`true` = Set Active, `false` = Set Inactive). Applied to the whole
+   * selection; matching mules no-op. Never exits the mode or clears selection.
+   */
+  onSetActive: (active: boolean) => void;
 }
 
 // `--destructive` is stored as a full `hsl(...)` call, not a raw triplet, so
@@ -45,6 +52,7 @@ export function RosterHeader({
   onDelete,
   onSelectAll,
   onClearSelection,
+  onSetActive,
 }: RosterHeaderProps) {
   const isTouch = useMatchMedia('(pointer: coarse)');
 
@@ -152,6 +160,10 @@ export function RosterHeader({
             </button>
           </div>
           <div className="flex items-center gap-2">
+            {/* Set Active / Set Inactive — available on all pointer types and
+                persistent across the Delete confirm swap (only the Delete
+                controls morph). Disabled at zero selected. */}
+            <BulkActiveMenu onSetActive={onSetActive} disabled={selectedCount === 0} />
             {isTouch ? (
               // Touch: Delete lives in the Delete Pill; the bar keeps only the
               // mode-exit Cancel.

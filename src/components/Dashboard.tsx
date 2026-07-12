@@ -174,6 +174,22 @@ export function Dashboard() {
     isPaintEngaged,
   } = useBulkSelection(mulesInWorld, deleteMules);
 
+  // Bulk Action Bar — Set Active / Set Inactive. Directional: converge every
+  // Bulk-Selected Mule to `active`, skipping already-matching mules so they
+  // no-op. Writes through the identity-stable `updateMule`, so a flip
+  // re-renders only the affected cards/rows (memo barriers intact). Never
+  // exits Bulk Select Mode or clears the selection.
+  const handleBulkSetActive = useCallback(
+    (active: boolean) => {
+      for (const mule of mulesInWorld) {
+        if (toDelete.has(mule.id) && mule.active !== active) {
+          updateMule(mule.id, { active });
+        }
+      }
+    },
+    [mulesInWorld, toDelete, updateMule],
+  );
+
   return (
     <>
       <main className="container mx-auto max-w-352 px-4 sm:px-6 py-8">
@@ -203,6 +219,7 @@ export function Dashboard() {
             onDelete={deleteSelected}
             onSelectAll={selectAll}
             onClearSelection={clearSelection}
+            onSetActive={handleBulkSetActive}
           />
 
           <div className="mb-4 border-t border-border" aria-hidden />
