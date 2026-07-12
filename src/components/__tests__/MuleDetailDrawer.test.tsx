@@ -474,15 +474,21 @@ describe('MuleDetailDrawer (smoke)', () => {
     expect(img.src).toMatch(/blank-character/);
   });
 
-  it('renders CrystalTally permanently horizontal under the header (no responsive handoff)', () => {
+  it('renders CrystalTally vertically beside the identity block on wide drawers, horizontal below on narrow', () => {
     renderDrawer();
     const header = screen.getByTestId('drawer-header-layout');
     const tallySlot = screen.getByTestId('drawer-crystal-tally-slot');
     const tally = screen.getByRole('group', { name: /crystal tally/i });
 
-    expect(header.className).not.toContain('@min-[605px]/drawer:flex-row');
-    expect(tallySlot.className).toContain('self-stretch');
-    expect(tally.className).toContain('flex-row');
+    // Wide drawer (≥605px): header turns to a row so the tally sits to the
+    // right of the identity block, pinned to the block's baseline.
+    expect(header.className).toContain('@min-[605px]/drawer:flex-row');
+    expect(tallySlot.className).toContain('@min-[605px]/drawer:self-end');
+
+    // Base tally is vertical; the horizontal three-cell strip is a
+    // narrow-drawer (<605px) fallback gated behind the container query.
+    expect(tally.className).toContain('@max-[604.99px]/drawer:flex-row');
+    expect(tally.className).not.toContain('flex-row items-stretch');
   });
 
   describe('Mule Actions Menu (touch marking path)', () => {
