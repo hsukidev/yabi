@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Mule } from '../../types';
-import { clearMarkUpdate, isMarkValid } from '../clearMark';
+import { clearMarkUpdate, isMarkEligible, isMarkValid } from '../clearMark';
 import { currentBmStamp, currentDailyStamp, currentWeeklyStamp } from '../cycle';
 
 const NOW = Date.UTC(2026, 6, 11, 12, 0, 0); // 2026-07-11 12:00 UTC
@@ -36,6 +36,28 @@ describe('clearMarkUpdate', () => {
     expect(clearMarkUpdate('daily', false, NOW)).toEqual({ dailyClearMark: undefined });
     expect(clearMarkUpdate('weekly', false, NOW)).toEqual({ weeklyClearMark: undefined });
     expect(clearMarkUpdate('bm', false, NOW)).toEqual({ bmClearMark: undefined });
+  });
+});
+
+describe('isMarkEligible', () => {
+  it('daily needs at least one daily key', () => {
+    expect(isMarkEligible({ dailyCount: 1, weeklyCount: 0, monthlyCount: 0 }, 'daily')).toBe(true);
+    expect(isMarkEligible({ dailyCount: 0, weeklyCount: 9, monthlyCount: 9 }, 'daily')).toBe(false);
+  });
+
+  it('weekly needs at least one weekly-or-daily key', () => {
+    expect(isMarkEligible({ dailyCount: 0, weeklyCount: 1, monthlyCount: 0 }, 'weekly')).toBe(true);
+    // A daily-only slate still makes the weekly mark eligible (mirrors Mark
+    // Invalidation: a weekly mark survives while any daily key remains).
+    expect(isMarkEligible({ dailyCount: 1, weeklyCount: 0, monthlyCount: 0 }, 'weekly')).toBe(true);
+    expect(isMarkEligible({ dailyCount: 0, weeklyCount: 0, monthlyCount: 5 }, 'weekly')).toBe(
+      false,
+    );
+  });
+
+  it('bm needs at least one Monthly Cadence key', () => {
+    expect(isMarkEligible({ dailyCount: 0, weeklyCount: 0, monthlyCount: 1 }, 'bm')).toBe(true);
+    expect(isMarkEligible({ dailyCount: 9, weeklyCount: 9, monthlyCount: 0 }, 'bm')).toBe(false);
   });
 });
 
