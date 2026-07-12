@@ -1,19 +1,10 @@
-import { describe, expect, it, vi, afterEach } from 'vitest';
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-  mockMatchMedia,
-  restoreMatchMedia,
-} from '../../test/test-utils';
+import { describe, expect, it, vi } from 'vitest';
+import { render, screen, fireEvent, act } from '../../test/test-utils';
 import { DndContext } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { MuleListRow } from '../MuleListRow';
 import { bosses } from '../../data/bosses';
 import type { Mule } from '../../types';
-import type { ClearMarkKind } from '../../utils/clearMark';
 import { currentDailyStamp, currentWeeklyStamp, currentBmStamp } from '../../utils/cycle';
 import { rosterRowMetrics, type RosterRowMetrics } from '../rosterRowMetrics';
 
@@ -45,8 +36,6 @@ interface RenderRowOpts {
   mule?: Partial<Mule>;
   metrics?: Partial<RosterRowMetrics>;
   onClick?: (id: string) => void;
-  onToggleActive?: (id: string, active: boolean) => void;
-  onSetMark?: (id: string, kind: ClearMarkKind, marked: boolean) => void;
   bulkMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
@@ -54,8 +43,6 @@ interface RenderRowOpts {
 
 function renderRow(opts: RenderRowOpts = {}) {
   const onClick = opts.onClick ?? vi.fn();
-  const onToggleActive = opts.onToggleActive ?? vi.fn();
-  const onSetMark = opts.onSetMark ?? vi.fn();
   const onToggleSelect = opts.onToggleSelect ?? vi.fn();
   const mule: Mule = { ...baseMule, ...opts.mule };
   const metrics: RosterRowMetrics = { ...baseMetrics, ...opts.metrics };
@@ -67,8 +54,6 @@ function renderRow(opts: RenderRowOpts = {}) {
             mule={mule}
             metrics={metrics}
             onClick={onClick}
-            onToggleActive={onToggleActive}
-            onSetMark={onSetMark}
             bulkMode={opts.bulkMode ?? false}
             selected={opts.selected ?? false}
             onToggleSelect={onToggleSelect}
@@ -77,8 +62,6 @@ function renderRow(opts: RenderRowOpts = {}) {
       </DndContext>,
     ),
     onClick,
-    onToggleActive,
-    onSetMark,
     onToggleSelect,
     mule,
   };
@@ -249,177 +232,6 @@ describe('MuleListRow — bulk mode', () => {
   });
 });
 
-describe('MuleListRow — Mule Actions Menu', () => {
-  const getKebab = () => screen.getByRole('button', { name: /mule actions/i });
-  const rowOf = (container: HTMLElement) =>
-    container.querySelector('[data-mule-row]') as HTMLElement;
-  const openMenu = async () => {
-    fireEvent.click(getKebab());
-    await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
-  };
-
-  it('renders a kebab with an accessible label, not a switch', () => {
-    renderRow();
-    expect(getKebab()).toBeTruthy();
-    expect(getKebab().tagName).toBe('BUTTON');
-    expect(screen.queryByRole('switch')).toBeNull();
-  });
-
-  it('is hidden at rest and reveals on row hover', () => {
-    const { container } = renderRow();
-    expect(getKebab().style.opacity).toBe('0');
-
-    fireEvent.mouseEnter(rowOf(container));
-    expect(getKebab().style.opacity).toBe('1');
-
-    fireEvent.mouseLeave(rowOf(container));
-    expect(getKebab().style.opacity).toBe('0');
-  });
-
-  it('reveals on keyboard focus without hover', () => {
-    renderRow();
-    fireEvent.focus(getKebab());
-    expect(getKebab().style.opacity).toBe('1');
-
-    fireEvent.blur(getKebab());
-    expect(getKebab().style.opacity).toBe('0');
-  });
-
-  it('stays hover-only (not pinned) after a pointer click without opening', () => {
-    const { container } = renderRow();
-    fireEvent.mouseEnter(rowOf(container));
-    fireEvent.pointerDown(getKebab());
-    fireEvent.focus(getKebab());
-    expect(getKebab().style.opacity).toBe('1');
-
-    fireEvent.mouseLeave(rowOf(container));
-    expect(getKebab().style.opacity).toBe('0');
-  });
-
-  it('pins the kebab visible while the menu is open', async () => {
-    renderRow();
-    await openMenu();
-    expect(getKebab().style.opacity).toBe('1');
-  });
-
-  it('renders in the identity cluster alongside the Lv.X pill', () => {
-    const { container } = renderRow();
-    const level = container.querySelector('[data-row-level]') as HTMLElement;
-    expect(level.parentElement!.contains(getKebab())).toBe(true);
-  });
-
-  it('renders no per-row delete affordance', () => {
-    renderRow();
-    expect(screen.queryByRole('button', { name: /^delete/i })).toBeNull();
-  });
-
-  describe('row wording (action, inverse of current state)', () => {
-    it('reads "Set Inactive" for an active mule and flips it inactive', async () => {
-      const { onToggleActive } = renderRow({ mule: { active: true } });
-      await openMenu();
-      expect(screen.queryByText('Set Active')).toBeNull();
-      fireEvent.click(screen.getByText('Set Inactive'));
-      expect(onToggleActive).toHaveBeenCalledWith('row-mule-1', false);
-    });
-
-    it('reads "Set Active" for an inactive mule and flips it active', async () => {
-      const { onToggleActive } = renderRow({ mule: { active: false } });
-      await openMenu();
-      fireEvent.click(screen.getByText('Set Active'));
-      expect(onToggleActive).toHaveBeenCalledWith('row-mule-1', true);
-    });
-
-    it('reads "Weekly Complete" when unmarked and sets the weekly mark', async () => {
-      const { onSetMark } = renderRow();
-      await openMenu();
-      fireEvent.click(screen.getByText('Weekly Complete'));
-      expect(onSetMark).toHaveBeenCalledWith('row-mule-1', 'weekly', true);
-    });
-
-    it('reads "Weekly Incomplete" when marked and clears the weekly mark', async () => {
-      const { onSetMark } = renderRow({
-        mule: { weeklyClearMark: currentWeeklyStamp(Date.now()) },
-      });
-      await openMenu();
-      fireEvent.click(screen.getByText('Weekly Incomplete'));
-      expect(onSetMark).toHaveBeenCalledWith('row-mule-1', 'weekly', false);
-    });
-
-    it('sets the daily mark when a daily key exists', async () => {
-      const { onSetMark } = renderRow({ metrics: { dailyCount: 3 } });
-      await openMenu();
-      fireEvent.click(screen.getByText('Daily Complete'));
-      expect(onSetMark).toHaveBeenCalledWith('row-mule-1', 'daily', true);
-    });
-
-    it('sets the BM mark when a monthly key exists', async () => {
-      const { onSetMark } = renderRow({ metrics: { monthlyCount: 1 } });
-      await openMenu();
-      fireEvent.click(screen.getByText('BM Complete'));
-      expect(onSetMark).toHaveBeenCalledWith('row-mule-1', 'bm', true);
-    });
-  });
-
-  describe('cadence-based row hiding', () => {
-    it('hides the Daily row when the slate has zero daily keys', async () => {
-      renderRow({ metrics: { dailyCount: 0 } });
-      await openMenu();
-      expect(screen.queryByText('Daily Complete')).toBeNull();
-      expect(screen.getByText('Weekly Complete')).toBeTruthy();
-    });
-
-    it('hides the BM row when the slate has zero monthly keys', async () => {
-      renderRow({ metrics: { monthlyCount: 0 } });
-      await openMenu();
-      expect(screen.queryByText('BM Complete')).toBeNull();
-    });
-
-    it('always shows the Weekly row', async () => {
-      renderRow({ metrics: { dailyCount: 0, monthlyCount: 0 } });
-      await openMenu();
-      expect(screen.getByText('Weekly Complete')).toBeTruthy();
-      expect(screen.queryByText('Daily Complete')).toBeNull();
-      expect(screen.queryByText('BM Complete')).toBeNull();
-    });
-  });
-
-  describe('activation swallowing (drawer / drag)', () => {
-    it('opening the kebab never opens the drawer', async () => {
-      const { onClick } = renderRow();
-      await openMenu();
-      expect(onClick).not.toHaveBeenCalled();
-    });
-
-    it('selecting a menu item never opens the drawer', async () => {
-      const { onClick } = renderRow();
-      await openMenu();
-      fireEvent.click(screen.getByText('Weekly Complete'));
-      expect(onClick).not.toHaveBeenCalled();
-    });
-
-    it('swallows a click on the kebab so it never reaches the row body', () => {
-      const { onClick } = renderRow();
-      fireEvent.click(getKebab());
-      expect(onClick).not.toHaveBeenCalled();
-    });
-  });
-
-  it('is not rendered in bulk mode', () => {
-    renderRow({ bulkMode: true });
-    expect(screen.queryByRole('button', { name: /mule actions/i })).toBeNull();
-  });
-
-  describe('on touch devices', () => {
-    afterEach(restoreMatchMedia);
-
-    it('does not render the kebab when (pointer: coarse) matches', () => {
-      mockMatchMedia((q) => q.includes('pointer: coarse'));
-      renderRow();
-      expect(screen.queryByRole('button', { name: /mule actions/i })).toBeNull();
-    });
-  });
-});
-
 describe('MuleListRow — inline Completion Checks', () => {
   const NOW = Date.UTC(2026, 6, 11, 12, 0, 0); // 2026-07-11 12:00 UTC
 
@@ -445,6 +257,20 @@ describe('MuleListRow — inline Completion Checks', () => {
         'Weekly complete',
         'BM complete',
       ]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('renders the checks inside the Lv.X pill (identity cluster), mirroring the Card', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    try {
+      const { container } = renderRow({ mule: { dailyClearMark: currentDailyStamp(NOW) } });
+      const pill = container.querySelector('[data-row-level]') as HTMLElement;
+      expect(pill.textContent).toMatch(/Lv\./);
+      const check = screen.getByRole('img', { name: 'Daily complete' });
+      expect(pill.contains(check)).toBe(true);
     } finally {
       vi.useRealTimers();
     }

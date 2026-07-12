@@ -29,14 +29,24 @@ predecessor-slice changes that aren't yet in main.
 
 `git worktree list` will show the full path for the current agent's worktree.
 
-## Base UI Switch — clicks re-bubble from a hidden input
+## Guarding controls inside a click-to-activate roster surface
 
-`@base-ui/react` Switch toggles through a hidden `<input>`, so a click on the
-visible switch button dispatches a **second** click event from that input.
-`stopPropagation` on the Switch element itself does not stop it. If a Switch
-sits inside a click-to-activate surface (roster row/card body), wrap it in a
-guard element that calls `stopPropagation` for click/pointerdown/keydown —
-see `RosterItem/RosterActiveSwitch.tsx`.
+Roster Character Cards and List View rows are themselves click-to-activate
+(open the Drawer) **and** dnd-kit drag surfaces, so any interactive child must
+swallow its own activation paths or a tap on it will also open the Drawer /
+start a drag. The live pattern is a guard element that calls `stopPropagation`
+for click/pointerdown/keydown/touchstart — see
+`RosterItem/NotesTooltipTrigger.tsx` and `RosterItem/CapDropTooltipTrigger.tsx`
+(the row's drag handle guards the same way via `onClick={stopBubble}`).
+
+Extra caveat if the guarded child is a `@base-ui/react` **Switch** (see
+`ui/switch.tsx`): the Switch toggles through a hidden `<input>`, so a click on
+the visible switch button dispatches a **second** click event from that input.
+`stopPropagation` on the Switch element itself does not stop it — the guard
+**wrapper** is what stops both. (No roster item currently mounts a Switch —
+the per-item Roster Active Switch was retired; roster-side Active flips live in
+the Bulk Action Bar and single-mule flips in the Drawer's Active Toggle — but
+keep this in mind before dropping one into a click-to-activate surface.)
 
 ## MuleDetailDrawer — keystroke perf invariants
 

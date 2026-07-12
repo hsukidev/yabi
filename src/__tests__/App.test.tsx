@@ -379,7 +379,7 @@ describe('App', () => {
 
       // Delete is the drawer's top-right trash icon (the Mule Actions Menu
       // kebab retired in #318), arming the two-step Delete?/Yes confirm. Scope
-      // to the drawer since the roster surfaces carry their own kebabs.
+      // to the drawer to disambiguate from any other delete affordance.
       const drawer = document.querySelector('[data-mule-detail-drawer]') as HTMLElement;
       fireEvent.click(within(drawer).getByRole('button', { name: /delete mule/i }));
       fireEvent.click(screen.getByRole('button', { name: /yes/i }));
@@ -434,7 +434,7 @@ describe('App', () => {
 
       // Delete is the drawer's top-right trash icon (the Mule Actions Menu
       // kebab retired in #318), arming the two-step Delete?/Yes confirm. Scope
-      // to the drawer since the roster surfaces carry their own kebabs.
+      // to the drawer to disambiguate from any other delete affordance.
       const drawer = document.querySelector('[data-mule-detail-drawer]') as HTMLElement;
       fireEvent.click(within(drawer).getByRole('button', { name: /delete mule/i }));
       fireEvent.click(screen.getByRole('button', { name: /yes/i }));
@@ -594,12 +594,14 @@ describe('Bulk Select Mode', () => {
     expect(screen.queryByText(/Lv\./)).toBeNull();
   });
 
-  it('hides the Mule Actions Menu on every card while in bulk mode', async () => {
-    // The card's hover control is now the Mule Actions Menu kebab (it replaced
-    // the Roster Active Switch); like the switch before it, bulk mode hides it.
+  it('never renders a Mule Actions Menu kebab on roster items (retired #320)', async () => {
+    // The kebab retired everywhere: roster-side marking lives in the Bulk
+    // Action Bar's Mark As Menu and active flips in Set Active / Set Inactive;
+    // single-mule marking/active/delete live in the Drawer. No roster item
+    // carries a per-item kebab in either mode.
     seedMules(testMules);
     await renderApp();
-    expect(screen.getAllByRole('button', { name: /mule actions/i }).length).toBeGreaterThan(0);
+    expect(screen.queryByRole('button', { name: /mule actions/i })).toBeNull();
     enterBulk();
     expect(screen.queryByRole('button', { name: /mule actions/i })).toBeNull();
   });

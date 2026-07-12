@@ -63,13 +63,6 @@ function AllSurfaces({ initial }: { initial: Mule }) {
     setMule((prev) => (prev.id === id ? { ...prev, ...patch } : prev));
   }, []);
 
-  // Mirrors Dashboard's `handleSetMark` (the roster kebabs' mark path).
-  const onSetMark = useCallback((id: string, kind: ClearMarkKind, marked: boolean) => {
-    setMule((prev) =>
-      prev.id === id ? { ...prev, ...clearMarkUpdate(kind, marked, Date.now()) } : prev,
-    );
-  }, []);
-
   const noop = useCallback(() => {}, []);
   const metrics = metricsFor(mule);
 
@@ -77,20 +70,8 @@ function AllSurfaces({ initial }: { initial: Mule }) {
     <>
       <DndContext>
         <SortableContext items={[mule.id]} strategy={rectSortingStrategy}>
-          <MuleCharacterCard
-            mule={mule}
-            onClick={noop}
-            onToggleActive={noop}
-            onSetMark={onSetMark}
-            metrics={metrics}
-          />
-          <MuleListRow
-            mule={mule}
-            metrics={metrics}
-            onClick={noop}
-            onToggleActive={noop}
-            onSetMark={onSetMark}
-          />
+          <MuleCharacterCard mule={mule} onClick={noop} metrics={metrics} />
+          <MuleListRow mule={mule} metrics={metrics} onClick={noop} />
         </SortableContext>
       </DndContext>
       <MuleDetailDrawer
@@ -140,20 +121,8 @@ function AllSurfacesWithMarkAsMenu({ initial }: { initial: Mule }) {
       <MarkAsMenu selectedCount={1} eligibleCounts={eligibleCounts} onMarkAs={onMarkAs} />
       <DndContext>
         <SortableContext items={[mule.id]} strategy={rectSortingStrategy}>
-          <MuleCharacterCard
-            mule={mule}
-            onClick={noop}
-            onToggleActive={noop}
-            onSetMark={noop}
-            metrics={metrics}
-          />
-          <MuleListRow
-            mule={mule}
-            metrics={metrics}
-            onClick={noop}
-            onToggleActive={noop}
-            onSetMark={noop}
-          />
+          <MuleCharacterCard mule={mule} onClick={noop} metrics={metrics} />
+          <MuleListRow mule={mule} metrics={metrics} onClick={noop} />
         </SortableContext>
       </DndContext>
       <MuleDetailDrawer

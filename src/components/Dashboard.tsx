@@ -138,26 +138,6 @@ export function Dashboard() {
     setSelectedMuleId(muleId);
   }, []);
 
-  // Roster Active Switch — same Active Flag write as the Drawer's Active
-  // Toggle. `updateMule` is identity-stable, so this never busts the
-  // card/row memo barriers.
-  const handleToggleActive = useCallback(
-    (id: string, active: boolean) => {
-      updateMule(id, { active });
-    },
-    [updateMule],
-  );
-
-  // Mule Actions Menu — set/clear a Clear Mark. Writes the current Cycle Stamp
-  // (or `undefined` to clear) through the same `updateMule` path as every
-  // other mule edit. Identity-stable, so it never busts the card memo barrier.
-  const handleSetMark = useCallback(
-    (id: string, kind: ClearMarkKind, marked: boolean) => {
-      updateMule(id, clearMarkUpdate(kind, marked, Date.now()));
-    },
-    [updateMule],
-  );
-
   const handleCloseDrawer = useCallback(() => {
     setSelectedMuleId(null);
   }, []);
@@ -292,8 +272,6 @@ export function Dashboard() {
                     mules={mulesInWorld}
                     metricsByMule={metricsByMule}
                     onCardClick={handleCardClick}
-                    onToggleActive={handleToggleActive}
-                    onSetMark={handleSetMark}
                     bulkMode={bulkMode}
                     toDelete={toDelete}
                     onToggleSelect={toggleDelete}
@@ -315,8 +293,6 @@ export function Dashboard() {
                           key={mule.id}
                           mule={mule}
                           onClick={handleCardClick}
-                          onToggleActive={handleToggleActive}
-                          onSetMark={handleSetMark}
                           bulkMode={bulkMode}
                           selected={toDelete.has(mule.id)}
                           onToggleSelect={toggleDelete}
