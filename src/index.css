@@ -726,6 +726,63 @@ html[data-theme-swap] *::after {
     opacity: 0.6;
   }
 
+  /* Mark Toggle — a ~16px circular badge overlapping the crystal art's
+   * bottom-right corner. The badge itself (icon + halo) is the click target,
+   * a real <button> with aria-pressed. Unmarked: surface fill, muted outline,
+   * muted check glyph. Marked (aria-pressed): cadence-color fill, white check,
+   * soft glow. The cadence color keys off the plate's data-kind. */
+  .crystal-tally__mark {
+    position: absolute;
+    right: 0;
+    bottom: 2px;
+    display: grid;
+    place-items: center;
+    width: 17px;
+    height: 17px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+    background: color-mix(in srgb, var(--surface-2) 96%, var(--surface));
+    color: color-mix(in srgb, var(--muted-foreground) 65%, transparent);
+    cursor: pointer;
+    z-index: 2;
+    transition:
+      background 0.18s ease,
+      color 0.18s ease,
+      border-color 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+  .crystal-tally__mark:hover {
+    color: var(--foreground);
+    border-color: color-mix(in srgb, var(--border) 100%, transparent);
+  }
+  .crystal-tally__mark:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 70%, transparent);
+  }
+  .crystal-tally__mark[aria-pressed='true'] {
+    color: #fff;
+    border-color: transparent;
+  }
+  .crystal-tally__mark[data-kind='weekly'][aria-pressed='true'] {
+    background: #a855f7;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, #a855f7 45%, transparent),
+      0 0 7px color-mix(in srgb, #a855f7 55%, transparent);
+  }
+  .crystal-tally__mark[data-kind='daily'][aria-pressed='true'] {
+    background: #3fb6f5;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, #3fb6f5 45%, transparent),
+      0 0 7px color-mix(in srgb, #3fb6f5 55%, transparent);
+  }
+  .crystal-tally__mark[data-kind='monthly'][aria-pressed='true'] {
+    background: #f5b02e;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, #f5b02e 45%, transparent),
+      0 0 7px color-mix(in srgb, #f5b02e 55%, transparent);
+  }
+
   .crystal-tally__readout {
     display: flex;
     flex-direction: column;
