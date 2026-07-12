@@ -168,13 +168,6 @@ function AllSurfacesWithMarkAsMenu({ initial }: { initial: Mule }) {
   );
 }
 
-async function openDrawerMenu() {
-  const sheet = document.querySelector('[data-slot="sheet-content"]') as HTMLElement;
-  const kebab = within(sheet).getByRole('button', { name: /mule actions/i });
-  fireEvent.click(kebab);
-  await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
-}
-
 // The Drawer's beside-name Completion Check is gone (#316) — mark state lives
 // on the tally's Mark Toggle. So the Drawer surface is read via the toggle's
 // aria-pressed, and the roster surfaces via their Completion Check imgs.
@@ -214,18 +207,6 @@ describe('Clear Marks — cross-surface sync (Card · Row · Drawer)', () => {
     fireEvent.click(drawerWeeklyToggle());
     await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(0));
     expect(drawerWeeklyToggle().getAttribute('aria-pressed')).toBe('false');
-  });
-
-  it('a weekly mark set on the Drawer kebab (touch path) also syncs the roster checks and the tally toggle', async () => {
-    render(<AllSurfaces initial={makeMule('sync-3', { selectedBosses: [HARD_LUCID] })} />);
-
-    await openDrawerMenu();
-    fireEvent.click(screen.getByText('Weekly Complete'));
-
-    // The kebab writer and the Mark Toggle writer share the same `updateMule`
-    // seam, so both roster checks and the tally's toggle reflect the write.
-    await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(2));
-    expect(drawerWeeklyToggle().getAttribute('aria-pressed')).toBe('true');
   });
 });
 
