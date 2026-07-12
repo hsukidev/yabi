@@ -349,11 +349,15 @@ Deletion of a **Clear Mark** by a slate edit that removes its income basis — z
 _Avoid_: mark cleanup, cascade delete
 
 **Mule Actions Menu**:
-The kebab (⋮) menu on roster items and in the Drawer — a Set Active/Set Inactive row plus one action-worded row per available **Clear Mark** kind (labels name the action: "Weekly Complete" / "Weekly Incomplete"), each led by an always-lit color-key dot. Cadence rows hide when the **Boss Slate** holds no keys of that cadence; the Drawer instance appends a destructive Delete row.
+_[Retired by the Clear Mark flow rework — marking moves to the **Mark Toggle** (Drawer) and the **Mark As Menu** (**Bulk Select Mode**); the Drawer's delete reverts to a trash icon.]_ The kebab (⋮) menu on roster items and in the Drawer — a Set Active/Set Inactive row plus one action-worded row per available **Clear Mark** kind (labels name the action: "Weekly Complete" / "Weekly Incomplete"), each led by an always-lit color-key dot. Cadence rows hide when the **Boss Slate** holds no keys of that cadence; the Drawer instance appends a destructive Delete row.
 _Avoid_: kebab menu, three-dot menu, context menu
 
 **Completion Check**:
-The colored check glyph rendering a currently valid **Clear Mark** — cyan daily, purple weekly, gold BM (colors sampled from the crystal sprites). Shown inside the **Character Card**'s Lv pill, beside the **List View** row's **Mule Actions Menu**, and beside the Drawer's mule name.
+The colored check glyph rendering a currently valid **Clear Mark** — cyan daily, purple weekly, gold BM (colors sampled from the crystal sprites). Shown inside the **Character Card**'s Lv pill and in the **List View** row's identity cluster next to the Lv.X chip. Read-only — the writers are the **Mark Toggle** and the **Mark As Menu**. _[The rework relocates the row instance from beside the retired **Mule Actions Menu** and drops the Drawer's beside-name instance — in the Drawer, mark state lives on the **Crystal Tally**'s **Mark Toggles**.]_
+
+**Mark Toggle**:
+The interactive circular control on a **Crystal Tally** plate that sets or clears that cadence's **Clear Mark** — a small badge on the crystal icon's corner; the icon is the click target. Muted outline when unmarked; fills with the cadence's **Completion Check** color when marked. Rendered only while the cadence has an income basis (the same predicate as **Mark Invalidation**). The writer counterpart to the read-only **Completion Check**. _[Ships with the Clear Mark flow rework.]_
+_Avoid_: mark badge, check button, checkmark icon, completion toggle
 _Avoid_: checkmark, tick, badge
 
 **Progress Readout**:
@@ -403,7 +407,7 @@ The user-facing rendering of meso amounts. Meso values always render abbreviated
 _Avoid_: Format preference, abbreviated/full toggle, number format toggle
 
 **Drag Handle**:
-The leftmost column of a **List View** row — a full-row-height grab strip (24px wide regardless of **Density**) holding a vertical-grip glyph. The sole drag-activator for reorder in **List View**: pointer drag engages from the handle only, the rest of the row is click-to-open. **Card View** has no **Drag Handle** — its full card is the drag surface. Replaced by the **Selection Indicator** in **Bulk Delete Mode** (drag is suspended). Subject to **Mouse Sensor**, **Touch Sensor**, and **Keyboard Sensor** identically to the **Character Card**.
+The leftmost column of a **List View** row — a full-row-height grab strip (24px wide regardless of **Density**) holding a vertical-grip glyph. The sole drag-activator for reorder in **List View**: pointer drag engages from the handle only, the rest of the row is click-to-open. **Card View** has no **Drag Handle** — its full card is the drag surface. Replaced by the **Selection Indicator** in **Bulk Select Mode** (drag is suspended). Subject to **Mouse Sensor**, **Touch Sensor**, and **Keyboard Sensor** identically to the **Character Card**.
 _Avoid_: Grip, row grip, reorder handle
 
 **Character Card**:
@@ -460,15 +464,39 @@ The header control for choosing the **Selected World** — grouped by **World Gr
 _Avoid_: World dropdown, world picker
 
 **Active Toggle**:
-The pill in the **Drawer's** identity section that flips a **Mule's** **Active Flag**.
+The pill in the **Drawer's** identity section that flips a **Mule's** **Active Flag**. _[Removed when the **Mule Actions Menu** took over the **Active Flag**; restored by the Clear Mark flow rework as the Drawer's sole Active writer.]_
 _Avoid_: Active switch (that's the **Roster Active Switch**)
 
 **Roster Active Switch**:
-The hover-revealed switch (track + thumb) on roster items that flips a **Mule's** **Active Flag** in place, without opening the **Drawer** — top-right corner on a **Character Card**, in the identity cluster after the Lv.X pill on a **List View** row. Revealed on pointer hover or keyboard focus only, in both states; absent on touch devices and in bulk-delete mode. Flips instantly — no confirmation. Distinct from the **Active Toggle** (the **Drawer** pill); both write the same **Active Flag**.
+_[Retired — superseded by the **Mule Actions Menu**, and not restored by the Clear Mark flow rework: roster-side Active flips live in the **Bulk Action Bar**; single-mule flips use the Drawer's **Active Toggle**.]_ The hover-revealed switch (track + thumb) on roster items that flips a **Mule's** **Active Flag** in place, without opening the **Drawer** — top-right corner on a **Character Card**, in the identity cluster after the Lv.X pill on a **List View** row. Revealed on pointer hover or keyboard focus only, in both states; absent on touch devices and in **Bulk Select Mode**. Flips instantly — no confirmation. Distinct from the **Active Toggle** (the **Drawer** pill); both write the same **Active Flag**.
 _Avoid_: Card toggle, hover toggle, active toggle (unqualified), park switch
 
 **Crystal Tally**:
-The horizontal three-cell readout in the **Drawer** showing **Weekly Count** (`X/14`), **Daily Count** (`X`), and **Monthly Count** (`X`).
+The vertical three-plate readout to the right of the **Drawer**'s identity block showing **Weekly Count** (`X/14`), **Daily Count** (`X`), and **Monthly Count** (`X`); each plate hosts its cadence's **Mark Toggle**. Falls back to a horizontal strip on narrow drawers. _[Vertical + Mark Toggles ship with the Clear Mark flow rework; the shipped UI is horizontal and read-only.]_
+
+**Bulk Select Mode**:
+The **Roster** mode for acting on many **Mules** at once — entered via the **Select Button**, exited only by Cancel. Selection persists through every action: marking and deleting never exit the mode or clear the selection; deleted **Mules** simply leave it. Replaces **Bulk Delete Mode**, which was delete-scoped. _[Ships with the Clear Mark flow rework.]_
+_Avoid_: bulk delete mode, bulk mode (unqualified), select mode
+
+**Bulk-Selected Mule**:
+A **Mule** in the **Bulk Select Mode** selection set — the target of **Mark As Menu** and Delete actions. Replaces **Deletion-Marked Mule** now that selection feeds marking as well as deletion.
+_Avoid_: deletion-marked mule, selected mule (unqualified)
+
+**Select Button**:
+The **Roster** header button that enters **Bulk Select Mode** — replaces the header's bulk-delete trash icon.
+_Avoid_: bulk delete button, edit button
+
+**Bulk Action Bar**:
+The toolbar shown in **Bulk Select Mode** — count pill, Select all link, **Mark As Menu**, Set Active / Set Inactive, Delete, Cancel — in neutral/accent chrome; only Delete is destructive-styled. Set Active / Set Inactive are explicit directional actions applying one state to every **Bulk-Selected Mule** (no per-mule toggle). Delete swaps its cluster in place to an inline Delete?/Yes/Cancel confirm. On touch, Delete lives in the **Delete Pill** instead.
+_Avoid_: bulk toolbar, bulk delete bar, action bar (unqualified)
+
+**Mark As Menu**:
+The **Bulk Action Bar** dropdown with one toggle row per **Clear Mark** kind (Daily / Weekly / BM), each showing its eligible count. A row toggles each eligible **Bulk-Selected Mule**'s **Clear Mark** per mule (marked→unmarked, unmarked→marked); **Mules** without that cadence's income basis are silently skipped.
+_Avoid_: mark dropdown, mark-as dropdown, bulk mark menu
+
+**Delete Pill**:
+The fixed bottom pill on touch devices in **Bulk Select Mode** — the sole touch Delete surface (the **Bulk Action Bar** hides its Delete on touch). Tapping morphs it in place into its own Delete?/Yes/Cancel confirm.
+_Avoid_: bottom pill, floating delete button
 
 **Notes Field**:
 The textarea in the **Drawer** body that edits **Mule Notes**.
@@ -498,7 +526,7 @@ _Avoid_: Character fetch, name search
 - A **Mule's** **Potential Income** equals its **Total Crystal Value** under its **World Group** — `Income.of` resolves each **Mule** individually, so a **Roster** mixing **Heroic** and **Interactive** **Mules** prices each one against its own **Crystal Value** component.
 - A **Mule** is an **Active Mule** iff its **Active Flag** is `true` — independent of whether it has any bosses selected.
 - The **Active Flag** has exactly two writers — the **Active Toggle** (**Drawer**) and the **Roster Active Switch** (**Character Card** and **List View** row) — and they are always in agreement because there is one flag.
-- Deleting a **Mule** has exactly two paths: bulk delete from the **Roster** header, or the **Drawer's** delete action. Roster items (**Character Card**, **List View** row) carry no per-item delete.
+- Deleting a **Mule** has exactly two paths: bulk delete from the **Bulk Action Bar** (or the **Delete Pill** on touch), or the **Drawer's** delete action. Roster items (**Character Card**, **List View** row) carry no per-item delete.
 - **Total Weekly Income** = sum of **Active Mules'** **Contributed Meso** in the **Selected World** — diverges from the sum of **Potential Meso** whenever the **World Cap Cut** drops at least one slot.
 - An **Inactive Mule** contributes zero to **Total Weekly Income** regardless of selection; its **Character Card** and **List View** row still show its **Potential Meso** in muted styling.
 - **Displayed Weekly Meso** is the roster readout bridge: **Active Mules** show **Contributed Meso**, including muted `0` when fully dropped; **Inactive Mules** show muted **Potential Meso** for planning without affecting **Total Weekly Income** or share.
@@ -571,10 +599,11 @@ _Avoid_: Character fetch, name search
 - "Region" vs "World Group" are orthogonal axes. Solis (Heroic, EU) and Kronos (Heroic, NA) share an economy but live on different upstream URLs; Solis (Heroic, EU) and Luna (Interactive, EU) share a datacenter but have different economies. Don't conflate.
 - "World Id" is polysemous across the **Character Lookup** boundary. **Our** **World Id** is the slug like `heroic-kronos`. **Nexon's** **worldID** is a numeric integer in their ranking response. Prefer **World Id** for ours; explicitly say "numeric **worldID**" for theirs.
 - "Hash" appears in user-language for the data-export artefact. This is the **wrong word** — a hash is one-way. Canonical: **Transfer Code**. Treat user-side "hash" as a synonym to translate, never a thing to ship.
-- "Snapshot" is polysemous. The drag-to-select snapshot (per-mule **Deletion-Marked** state captured at gesture start, the **Original Snapshot** the hook reverts to on `pointercancel` or backtrack) and the data-import snapshot (localStorage reads captured before write) are unrelated. Always qualify.
+- "Snapshot" is polysemous. The drag-to-select snapshot (per-mule **Bulk-Selected** state captured at gesture start, the **Original Snapshot** the hook reverts to on `pointercancel` or backtrack) and the data-import snapshot (localStorage reads captured before write) are unrelated. Always qualify.
 - "Avatar" alone is now imprecise — a **Character Card's** rendering surface shows either a **Real Avatar** (when the **Mule** has been looked up) or the placeholder fallback. Prefer **Real Avatar** vs placeholder when the distinction matters.
 - "Family" is overloaded with **Boss Family** (the domain entity) and **Slate Family** (a UI projection wrapper). The bare term means **Boss Family**.
-- "Selected" can mean a **Deletion-Marked Mule** (in bulk-delete mode) or "the open **Mule** in the **Drawer**". Prefer **Deletion-Marked Mule** vs "the open **Mule**".
+- "Selected" can mean a **Bulk-Selected Mule** (in **Bulk Select Mode**) or "the open **Mule** in the **Drawer**". Prefer **Bulk-Selected Mule** vs "the open **Mule**".
+- "Bulk Delete Mode" and "Deletion-Marked" are retired era terms — the mode is general (mark + delete), not delete-scoped. Canonical: **Bulk Select Mode**, **Bulk-Selected Mule**.
 - "Monthly" always means the **Boss Cadence** value, never a calendar-month qualifier. Until another family flips, it means Black Mage Hard or Extreme specifically.
 - "Top-14 Weekly Cut" is **retired**. The cap is now a **Boss Slate** invariant on construction; **Total Crystal Value** is a plain sum, not a sort-and-slice.
 - "WEEKLY CAP" as a literal label appears on the **Weekly Cap Rail**; it is no longer a stat-row cell. Old screenshots showing a `WEEKLY CAP` cell in the **KPI Card** stat row are stale.
