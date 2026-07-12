@@ -148,13 +148,7 @@ describe('MuleListRow inline styles reference the density-scoped row vars', () =
     const { container } = render(
       <DndContext>
         <SortableContext items={[baseMule.id]} strategy={verticalListSortingStrategy}>
-          <MuleListRow
-            mule={baseMule}
-            metrics={baseMetrics}
-            onClick={() => {}}
-            onToggleActive={() => {}}
-            onSetMark={() => {}}
-          />
+          <MuleListRow mule={baseMule} metrics={baseMetrics} onClick={() => {}} />
         </SortableContext>
       </DndContext>,
     );
@@ -167,13 +161,7 @@ describe('MuleListRow inline styles reference the density-scoped row vars', () =
     const { container } = render(
       <DndContext>
         <SortableContext items={[baseMule.id]} strategy={verticalListSortingStrategy}>
-          <MuleListRow
-            mule={baseMule}
-            metrics={baseMetrics}
-            onClick={() => {}}
-            onToggleActive={() => {}}
-            onSetMark={() => {}}
-          />
+          <MuleListRow mule={baseMule} metrics={baseMetrics} onClick={() => {}} />
         </SortableContext>
       </DndContext>,
     );
@@ -185,13 +173,7 @@ describe('MuleListRow inline styles reference the density-scoped row vars', () =
     const { container } = render(
       <DndContext>
         <SortableContext items={[baseMule.id]} strategy={verticalListSortingStrategy}>
-          <MuleListRow
-            mule={baseMule}
-            metrics={baseMetrics}
-            onClick={() => {}}
-            onToggleActive={() => {}}
-            onSetMark={() => {}}
-          />
+          <MuleListRow mule={baseMule} metrics={baseMetrics} onClick={() => {}} />
         </SortableContext>
       </DndContext>,
     );
@@ -203,13 +185,7 @@ describe('MuleListRow inline styles reference the density-scoped row vars', () =
     const { container } = render(
       <DndContext>
         <SortableContext items={[baseMule.id]} strategy={verticalListSortingStrategy}>
-          <MuleListRow
-            mule={baseMule}
-            metrics={baseMetrics}
-            onClick={() => {}}
-            onToggleActive={() => {}}
-            onSetMark={() => {}}
-          />
+          <MuleListRow mule={baseMule} metrics={baseMetrics} onClick={() => {}} />
         </SortableContext>
       </DndContext>,
     );

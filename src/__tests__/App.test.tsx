@@ -377,13 +377,11 @@ describe('App', () => {
       fireEvent.click(screen.getByText('DeleteMe'));
       expect(screen.getByRole('heading', { name: 'DeleteMe' })).toBeTruthy();
 
-      // Delete is now the destructive row of the drawer's Mule Actions Menu
-      // (kebab in place of the trash icon). Scope to the drawer since the
-      // roster surfaces carry their own "Mule actions" kebabs.
+      // Delete is the drawer's top-right trash icon (the Mule Actions Menu
+      // kebab retired in #318), arming the two-step Delete?/Yes confirm. Scope
+      // to the drawer to disambiguate from any other delete affordance.
       const drawer = document.querySelector('[data-mule-detail-drawer]') as HTMLElement;
-      fireEvent.click(within(drawer).getByRole('button', { name: /mule actions/i }));
-      await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
-      fireEvent.click(screen.getByText('Delete'));
+      fireEvent.click(within(drawer).getByRole('button', { name: /delete mule/i }));
       fireEvent.click(screen.getByRole('button', { name: /yes/i }));
 
       await waitFor(() => {
@@ -434,13 +432,11 @@ describe('App', () => {
         expect(screen.getByRole('heading', { name: 'DeleteMe' })).toBeTruthy();
       });
 
-      // Delete is now the destructive row of the drawer's Mule Actions Menu
-      // (kebab in place of the trash icon). Scope to the drawer since the
-      // roster surfaces carry their own "Mule actions" kebabs.
+      // Delete is the drawer's top-right trash icon (the Mule Actions Menu
+      // kebab retired in #318), arming the two-step Delete?/Yes confirm. Scope
+      // to the drawer to disambiguate from any other delete affordance.
       const drawer = document.querySelector('[data-mule-detail-drawer]') as HTMLElement;
-      fireEvent.click(within(drawer).getByRole('button', { name: /mule actions/i }));
-      await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
-      fireEvent.click(screen.getByText('Delete'));
+      fireEvent.click(within(drawer).getByRole('button', { name: /delete mule/i }));
       fireEvent.click(screen.getByRole('button', { name: /yes/i }));
 
       await waitFor(() => {
@@ -455,27 +451,33 @@ describe('App', () => {
   });
 });
 
-describe('Bulk Delete Mode', () => {
+describe('Bulk Select Mode', () => {
   beforeEach(() => {
     resetTestEnvironment();
   });
 
   function enterBulk() {
-    const btn = screen.getByRole('button', { name: /bulk.*delete|bulk.*trash/i });
+    const btn = screen.getByRole('button', { name: /bulk select mode/i });
     fireEvent.click(btn);
   }
 
-  it('renders the Bulk Trash Icon in the roster header', async () => {
+  // Delete is a two-step inline confirm now (Delete → Yes). Helper drives it.
+  function confirmDelete() {
+    fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^yes$/i }));
+  }
+
+  it('renders the Select Button in the roster header', async () => {
     seedMules(testMules);
     await renderApp();
-    expect(screen.getByRole('button', { name: /bulk.*delete|bulk.*trash/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /bulk select mode/i })).toBeTruthy();
   });
 
-  it('clicking the Bulk Trash Icon swaps the header to the Bulk Action Bar', async () => {
+  it('clicking the Select Button swaps the header to the Bulk Action Bar', async () => {
     seedMules(testMules);
-    await renderApp();
+    const { container } = await renderApp();
     enterBulk();
-    expect(screen.getByText(/select or drag to delete/i)).toBeTruthy();
+    expect(container.querySelector('[data-bulk-action-bar]')).toBeTruthy();
     expect(screen.getByText(/0\s*SELECTED/i)).toBeTruthy();
   });
 
@@ -521,14 +523,14 @@ describe('Bulk Delete Mode', () => {
     expect(confirm.disabled).toBe(false);
   });
 
-  it('Bulk Confirm removes marked mules from the Roster and exits bulk mode', async () => {
+  it('Bulk delete removes marked mules and stays in Bulk Select Mode (persistent)', async () => {
     seedMules(testMules);
     const { container } = await renderApp();
     enterBulk();
 
     fireEvent.click(container.querySelector('[data-mule-card="mule-a"] .panel') as HTMLElement);
     fireEvent.click(container.querySelector('[data-mule-card="mule-b"] .panel') as HTMLElement);
-    fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+    confirmDelete();
 
     await waitFor(() => {
       expect(container.querySelector('[data-mule-card="mule-a"]')).toBeNull();
@@ -536,8 +538,10 @@ describe('Bulk Delete Mode', () => {
       expect(container.querySelector('[data-mule-card="mule-c"]')).toBeTruthy();
     });
 
-    // Mode exited — header returns to default
-    expect(screen.queryByText(/select or drag to delete/i)).toBeNull();
+    // Persistent mode: the bar remains, selection pruned to 0. Cancel is the
+    // only exit.
+    expect(container.querySelector('[data-bulk-action-bar]')).toBeTruthy();
+    expect(screen.getByText(/0\s*SELECTED/i)).toBeTruthy();
   });
 
   it('persists bulk deletion to localStorage', async () => {
@@ -546,7 +550,7 @@ describe('Bulk Delete Mode', () => {
     enterBulk();
 
     fireEvent.click(container.querySelector('[data-mule-card="mule-a"] .panel') as HTMLElement);
-    fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+    confirmDelete();
 
     await waitFor(() => {
       expect(container.querySelector('[data-mule-card="mule-a"]')).toBeNull();
@@ -574,7 +578,7 @@ describe('Bulk Delete Mode', () => {
     fireEvent.click(screen.getByRole('button', { name: /^cancel$/i }));
 
     await waitFor(() => {
-      expect(screen.queryByText(/select or drag to delete/i)).toBeNull();
+      expect(container.querySelector('[data-bulk-action-bar]')).toBeNull();
     });
 
     // All three mules still in DOM
@@ -590,12 +594,14 @@ describe('Bulk Delete Mode', () => {
     expect(screen.queryByText(/Lv\./)).toBeNull();
   });
 
-  it('hides the Mule Actions Menu on every card while in bulk mode', async () => {
-    // The card's hover control is now the Mule Actions Menu kebab (it replaced
-    // the Roster Active Switch); like the switch before it, bulk mode hides it.
+  it('never renders a Mule Actions Menu kebab on roster items (retired #320)', async () => {
+    // The kebab retired everywhere: roster-side marking lives in the Bulk
+    // Action Bar's Mark As Menu and active flips in Set Active / Set Inactive;
+    // single-mule marking/active/delete live in the Drawer. No roster item
+    // carries a per-item kebab in either mode.
     seedMules(testMules);
     await renderApp();
-    expect(screen.getAllByRole('button', { name: /mule actions/i }).length).toBeGreaterThan(0);
+    expect(screen.queryByRole('button', { name: /mule actions/i })).toBeNull();
     enterBulk();
     expect(screen.queryByRole('button', { name: /mule actions/i })).toBeNull();
   });

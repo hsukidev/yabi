@@ -7,10 +7,23 @@ import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { MuleCharacterCard } from '../MuleCharacterCard';
 import { MuleListRow } from '../MuleListRow';
 import { MuleDetailDrawer } from '../MuleDetailDrawer';
+import { MarkAsMenu } from '../MarkAsMenu';
 import { WorldIncome } from '../../modules/worldIncome';
 import { rosterRowMetrics, type RosterRowMetrics } from '../rosterRowMetrics';
-import { clearMarkUpdate, type ClearMarkKind } from '../../utils/clearMark';
+import {
+  clearMarkUpdate,
+  isMarkEligible,
+  isMarkValid,
+  type ClearMarkKind,
+} from '../../utils/clearMark';
+import { bosses } from '../../data/bosses';
 import type { Mule } from '../../types';
+
+// A weekly Slate Key so the Drawer's weekly Mark Toggle is eligible (the tally
+// hides the toggle on an empty slate — same predicate as Mark Invalidation).
+const LUCID_BOSS = bosses.find((b) => b.family === 'lucid')!;
+const HARD_LUCID = `${LUCID_BOSS.id}:hard:weekly`;
+const HARD_LUCID_WEEKLY = HARD_LUCID;
 
 // End-to-end integration sweep for Clear Marks (issue #306): the merged slices
 // meeting across surfaces. Per-surface behavior is covered in the
@@ -50,13 +63,6 @@ function AllSurfaces({ initial }: { initial: Mule }) {
     setMule((prev) => (prev.id === id ? { ...prev, ...patch } : prev));
   }, []);
 
-  // Mirrors Dashboard's `handleSetMark` (the roster kebabs' mark path).
-  const onSetMark = useCallback((id: string, kind: ClearMarkKind, marked: boolean) => {
-    setMule((prev) =>
-      prev.id === id ? { ...prev, ...clearMarkUpdate(kind, marked, Date.now()) } : prev,
-    );
-  }, []);
-
   const noop = useCallback(() => {}, []);
   const metrics = metricsFor(mule);
 
@@ -64,20 +70,8 @@ function AllSurfaces({ initial }: { initial: Mule }) {
     <>
       <DndContext>
         <SortableContext items={[mule.id]} strategy={rectSortingStrategy}>
-          <MuleCharacterCard
-            mule={mule}
-            onClick={noop}
-            onToggleActive={noop}
-            onSetMark={onSetMark}
-            metrics={metrics}
-          />
-          <MuleListRow
-            mule={mule}
-            metrics={metrics}
-            onClick={noop}
-            onToggleActive={noop}
-            onSetMark={onSetMark}
-          />
+          <MuleCharacterCard mule={mule} onClick={noop} metrics={metrics} />
+          <MuleListRow mule={mule} metrics={metrics} onClick={noop} />
         </SortableContext>
       </DndContext>
       <MuleDetailDrawer
@@ -92,39 +86,143 @@ function AllSurfaces({ initial }: { initial: Mule }) {
   );
 }
 
-async function openDrawerMenu() {
-  const sheet = document.querySelector('[data-slot="sheet-content"]') as HTMLElement;
-  const kebab = within(sheet).getByRole('button', { name: /mule actions/i });
-  fireEvent.click(kebab);
-  await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+// The Bulk Action Bar's Mark As Menu writer, meeting the same three surfaces.
+// A single selected mule stands in for the Bulk-Selected set; `onMarkAs`
+// mirrors Dashboard's `handleBulkMarkAs` (per-mule toggle across eligible
+// selected mules), proving the seam extends to the bulk writer, not just the
+// drawer kebab.
+function AllSurfacesWithMarkAsMenu({ initial }: { initial: Mule }) {
+  const [mule, setMule] = useState(initial);
+
+  const onUpdate = useCallback((id: string, patch: Partial<Mule>) => {
+    setMule((prev) => (prev.id === id ? { ...prev, ...patch } : prev));
+  }, []);
+
+  const noop = useCallback(() => {}, []);
+  const metrics = metricsFor(mule);
+
+  const eligibleCounts = {
+    daily: isMarkEligible(metrics, 'daily') ? 1 : 0,
+    weekly: isMarkEligible(metrics, 'weekly') ? 1 : 0,
+    bm: isMarkEligible(metrics, 'bm') ? 1 : 0,
+  };
+
+  const onMarkAs = useCallback((kind: ClearMarkKind) => {
+    setMule((prev) => {
+      const m = metricsFor(prev);
+      if (!isMarkEligible(m, kind)) return prev;
+      const now = Date.now();
+      return { ...prev, ...clearMarkUpdate(kind, !isMarkValid(prev, kind, now), now) };
+    });
+  }, []);
+
+  return (
+    <>
+      <MarkAsMenu selectedCount={1} eligibleCounts={eligibleCounts} onMarkAs={onMarkAs} />
+      <DndContext>
+        <SortableContext items={[mule.id]} strategy={rectSortingStrategy}>
+          <MuleCharacterCard mule={mule} onClick={noop} metrics={metrics} />
+          <MuleListRow mule={mule} metrics={metrics} onClick={noop} />
+        </SortableContext>
+      </DndContext>
+      <MuleDetailDrawer
+        mule={mule}
+        metrics={metrics}
+        open
+        onClose={noop}
+        onUpdate={onUpdate}
+        onDelete={noop}
+      />
+    </>
+  );
 }
 
-const weeklyChecks = () => screen.queryAllByRole('img', { name: 'Weekly complete', hidden: true });
+// The Drawer's beside-name Completion Check is gone (#316) — mark state lives
+// on the tally's Mark Toggle. So the Drawer surface is read via the toggle's
+// aria-pressed, and the roster surfaces via their Completion Check imgs.
+function drawerWeeklyToggle() {
+  const sheet = document.querySelector('[data-slot="sheet-content"]') as HTMLElement;
+  return within(sheet).getByRole('button', { name: /weekly (in)?complete/i });
+}
+
+// Card Lv pill + List View row = two roster Completion Check imgs when marked
+// (the Drawer no longer contributes an img). Both background surfaces are inert
+// behind the modal, hence `hidden: true`.
+const weeklyRosterChecks = () =>
+  screen.queryAllByRole('img', { name: 'Weekly complete', hidden: true });
 
 describe('Clear Marks — cross-surface sync (Card · Row · Drawer)', () => {
-  it('a weekly mark set on the Drawer lights the Completion Check on all three surfaces at once', async () => {
-    render(<AllSurfaces initial={makeMule('sync-1')} />);
+  it('a weekly mark set on the Drawer Mark Toggle lights the roster checks and presses the toggle', async () => {
+    render(<AllSurfaces initial={makeMule('sync-1', { selectedBosses: [HARD_LUCID] })} />);
 
-    // Nothing marked yet — no Completion Check on any surface.
-    expect(weeklyChecks()).toHaveLength(0);
+    // Nothing marked yet — no roster check, toggle un-pressed.
+    expect(weeklyRosterChecks()).toHaveLength(0);
+    expect(drawerWeeklyToggle().getAttribute('aria-pressed')).toBe('false');
 
-    await openDrawerMenu();
-    fireEvent.click(screen.getByText('Weekly Complete'));
+    fireEvent.click(drawerWeeklyToggle());
 
-    // One check per surface — Card Lv pill, List View row, Drawer header — all
-    // derived from the same updated `mule`, no reload.
-    await waitFor(() => expect(weeklyChecks()).toHaveLength(3));
+    // Both roster surfaces (Card Lv pill + List View row) light their check and
+    // the Drawer toggle flips to pressed — all from the same updated `mule`.
+    await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(2));
+    expect(drawerWeeklyToggle().getAttribute('aria-pressed')).toBe('true');
   });
 
-  it('clearing the mark on the Drawer removes the check from all three surfaces', async () => {
-    render(<AllSurfaces initial={makeMule('sync-2')} />);
+  it('clearing the mark on the Drawer Mark Toggle removes the roster checks and un-presses the toggle', async () => {
+    render(<AllSurfaces initial={makeMule('sync-2', { selectedBosses: [HARD_LUCID] })} />);
 
-    await openDrawerMenu();
-    fireEvent.click(screen.getByText('Weekly Complete'));
-    await waitFor(() => expect(weeklyChecks()).toHaveLength(3));
+    fireEvent.click(drawerWeeklyToggle());
+    await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(2));
 
-    await openDrawerMenu();
-    fireEvent.click(screen.getByText('Weekly Incomplete'));
-    await waitFor(() => expect(weeklyChecks()).toHaveLength(0));
+    fireEvent.click(drawerWeeklyToggle());
+    await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(0));
+    expect(drawerWeeklyToggle().getAttribute('aria-pressed')).toBe('false');
+  });
+});
+
+describe('Clear Marks — Mark As Menu writer cross-surface sync', () => {
+  // The Mark As Menu (and its portalled popup) sit outside the modal Drawer's
+  // active layer, so they render behind its inert / aria-hidden veil. Drive
+  // them by data-attribute off the document (bypassing the a11y-tree veil) and
+  // with fireEvent (inert blocks user pointer interaction, not programmatic
+  // events) — the menu's keyboard-reachability is covered in the RosterHeader
+  // suite, which renders it outside any modal.
+  async function chooseWeekly() {
+    fireEvent.click(document.querySelector('[data-mark-as-trigger]') as HTMLElement);
+    await waitFor(() => expect(document.querySelector('[data-mark-as-row="weekly"]')).toBeTruthy());
+    fireEvent.click(document.querySelector('[data-mark-as-row="weekly"]') as HTMLElement);
+  }
+
+  it('a weekly mark applied via the Mark As Menu lights the check on all three surfaces', async () => {
+    render(
+      <AllSurfacesWithMarkAsMenu
+        initial={makeMule('bulk-1', { selectedBosses: [HARD_LUCID_WEEKLY] })}
+      />,
+    );
+
+    expect(weeklyRosterChecks()).toHaveLength(0);
+
+    await chooseWeekly();
+
+    // Card Lv pill · List View row light up, and the Drawer's tally toggle
+    // presses — all from the same `mule` (#316 replaced the Drawer's
+    // beside-name check with the tally Mark Toggle).
+    await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(2));
+    expect(drawerWeeklyToggle().getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('re-choosing the same row toggles the mark back off across all surfaces', async () => {
+    render(
+      <AllSurfacesWithMarkAsMenu
+        initial={makeMule('bulk-2', { selectedBosses: [HARD_LUCID_WEEKLY] })}
+      />,
+    );
+
+    await chooseWeekly();
+    await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(2));
+    expect(drawerWeeklyToggle().getAttribute('aria-pressed')).toBe('true');
+
+    await chooseWeekly();
+    await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(0));
+    expect(drawerWeeklyToggle().getAttribute('aria-pressed')).toBe('false');
   });
 });

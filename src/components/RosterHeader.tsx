@@ -1,38 +1,108 @@
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Trash2 } from 'lucide-react';
+import { ListChecks } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useMatchMedia } from '../hooks/useMatchMedia';
+import { BulkActiveMenu } from './BulkActiveMenu';
 import { DensityToggle } from './DensityToggle';
 import { DisplayToggle } from './DisplayToggle';
 import { WorldSelect } from './WorldSelect';
+import { MarkAsMenu, type MarkEligibleCounts } from './MarkAsMenu';
+import type { ClearMarkKind } from '../utils/clearMark';
 
 export interface RosterHeaderProps {
   muleCount: number;
   bulkMode: boolean;
   selectedCount: number;
+  /** Whole World-Lens roster is selected — flips the Select all link to Clear selection. */
+  allSelected: boolean;
+  /** Eligible Bulk-Selected Mule counts per cadence, for the Mark As Menu rows. */
+  markEligibleCounts: MarkEligibleCounts;
   onEnterBulk: () => void;
   onCancel: () => void;
   onDelete: () => void;
+  onSelectAll: () => void;
+  onClearSelection: () => void;
+  /** Toggle a Clear Mark across the eligible Bulk-Selected Mules. */
+  onMarkAs: (kind: ClearMarkKind) => void;
+  /**
+   * Converge every Bulk-Selected Mule to the given Active Flag state
+   * (`true` = Set Active, `false` = Set Inactive). Applied to the whole
+   * selection; matching mules no-op. Never exits the mode or clears selection.
+   */
+  onSetActive: (active: boolean) => void;
 }
 
 // `--destructive` is stored as a full `hsl(...)` call, not a raw triplet, so
 // we can't use `hsl(var(--destructive) / <alpha>)`. `color-mix` lets us blend
 // the theme token with transparent to produce the same alpha variants while
-// keeping all reds theme-token-driven (no #e05040 literals).
+// keeping all reds theme-token-driven (no #e05040 literals). The Bulk Action
+// Bar's own chrome is neutral/accent; only the destructive Delete/Yes controls
+// reach for these.
 const destructive = 'var(--destructive)';
 const destructiveAlpha = (pct: number) =>
   `color-mix(in oklab, var(--destructive) ${pct}%, transparent)`;
+
+// Accent chrome for the Bulk Action Bar frame, dot, and count pill.
+const accent = 'var(--accent-raw, var(--accent))';
+const accentAlpha = (pct: number) =>
+  `color-mix(in oklab, var(--accent-raw, var(--accent)) ${pct}%, transparent)`;
 
 export function RosterHeader({
   muleCount,
   bulkMode,
   selectedCount,
+  allSelected,
+  markEligibleCounts,
   onEnterBulk,
   onCancel,
   onDelete,
+  onSelectAll,
+  onClearSelection,
+  onMarkAs,
+  onSetActive,
 }: RosterHeaderProps) {
   const isTouch = useMatchMedia('(pointer: coarse)');
+
+  // Inline Delete confirmation. The Delete trigger (in-bar on pointer, in the
+  // Delete Pill on touch) swaps its cluster in place to `Delete N? [Yes]
+  // [Cancel]` — no bar-wide takeover. Confirming never exits the mode; the
+  // confirm's Cancel just backs out to the normal cluster.
+  const [confirming, setConfirming] = useState(false);
+  const showConfirm = confirming && selectedCount > 0;
+
+  // Leaving Bulk Select Mode resets the confirm so re-entry starts clean.
+  useEffect(() => {
+    if (!bulkMode) setConfirming(false);
+  }, [bulkMode]);
+
+  // Keep focus inside the cluster the confirm replaced (a11y).
+  const yesRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (showConfirm) yesRef.current?.focus();
+  }, [showConfirm]);
+
+  const handleConfirmDelete = () => {
+    onDelete();
+    setConfirming(false);
+  };
+
   if (bulkMode) {
+    // Right-cluster confirm UI, shared by the in-bar (pointer) surface.
+    const inlineConfirm = (
+      <div data-bulk-delete-confirm className="flex items-center gap-2">
+        <span style={{ color: destructive, fontWeight: 500, fontSize: 13, whiteSpace: 'nowrap' }}>
+          Delete {selectedCount}?
+        </span>
+        <Button ref={yesRef} size="sm" variant="destructive" onClick={handleConfirmDelete}>
+          Yes
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => setConfirming(false)}>
+          Cancel
+        </Button>
+      </div>
+    );
+
     return (
       <>
         <div
@@ -41,67 +111,95 @@ export function RosterHeader({
           style={{
             padding: '10px 14px',
             borderRadius: 10,
-            border: `1px solid ${destructiveAlpha(35)}`,
-            background: destructiveAlpha(10),
+            border: `1px solid ${accentAlpha(35)}`,
+            background: accentAlpha(8),
             animation: 'bulk-slide 0.22s ease-out',
           }}
         >
           <div className="flex items-center gap-3 min-w-0">
             <span
               aria-hidden
-              data-bulk-pulse-dot
+              data-bulk-accent-dot
               style={{
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                background: destructive,
-                boxShadow: `0 0 10px ${destructive}`,
-                animation: 'bulk-pulse 1.5s ease-in-out infinite',
+                background: accent,
+                boxShadow: `0 0 10px ${accentAlpha(60)}`,
                 flexShrink: 0,
               }}
             />
             <span
-              className={isTouch ? '' : 'max-[524.99px]:hidden'}
-              style={{
-                color: destructive,
-                fontWeight: 500,
-                fontSize: 14,
-                letterSpacing: '-0.01em',
-              }}
-            >
-              Select or drag to delete
-            </span>
-            <span
               data-bulk-selection-pill
-              className={isTouch ? 'max-[524.99px]:hidden' : ''}
               style={{
                 padding: '3px 9px',
                 borderRadius: 999,
-                background: destructiveAlpha(20),
-                border: `1px solid ${destructiveAlpha(40)}`,
-                color: destructive,
+                background: accentAlpha(18),
+                border: `1px solid ${accentAlpha(40)}`,
+                color: accent,
                 fontFamily: 'Geist Mono, monospace',
                 fontSize: 10,
                 letterSpacing: '0.12em',
                 fontWeight: 500,
+                whiteSpace: 'nowrap',
               }}
             >
               {selectedCount} SELECTED
             </span>
+            <button
+              type="button"
+              data-bulk-select-all
+              onClick={allSelected ? onClearSelection : onSelectAll}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                padding: 0,
+                color: accent,
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: 'pointer',
+                textDecorationLine: 'underline',
+                textUnderlineOffset: 3,
+                textDecorationColor: accentAlpha(40),
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {allSelected ? 'Clear selection' : 'Select all'}
+            </button>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-            {!isTouch && (
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={onDelete}
-                disabled={selectedCount === 0}
-              >
-                Delete
+            {/* Mark As Menu lives in the bar on all pointer types. */}
+            <MarkAsMenu
+              selectedCount={selectedCount}
+              eligibleCounts={markEligibleCounts}
+              onMarkAs={onMarkAs}
+            />
+            {/* Set Active / Set Inactive — available on all pointer types and
+                persistent across the Delete confirm swap (only the Delete
+                controls morph). Disabled at zero selected. */}
+            <BulkActiveMenu onSetActive={onSetActive} disabled={selectedCount === 0} />
+            {isTouch ? (
+              // Touch: Delete lives in the Delete Pill; the bar keeps only the
+              // mode-exit Cancel.
+              <Button size="sm" variant="outline" onClick={onCancel}>
+                Cancel
               </Button>
+            ) : showConfirm ? (
+              inlineConfirm
+            ) : (
+              <>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => setConfirming(true)}
+                  disabled={selectedCount === 0}
+                >
+                  Delete
+                </Button>
+                <Button size="sm" variant="outline" onClick={onCancel}>
+                  Cancel
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -116,15 +214,50 @@ export function RosterHeader({
               data-bulk-delete-pill
               className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-10 px-6"
             >
-              <Button
-                variant="destructive"
-                size="lg"
-                className="w-full h-10 rounded-full shadow-lg"
-                style={{ background: destructive, color: 'white' }}
-                onClick={onDelete}
+              {/* Surface-colored pill with a destructive border. Tapping the
+                  trigger morphs it in place into its own Delete?/Yes/Cancel. */}
+              <div
+                className="mx-auto flex h-10 w-full max-w-md items-center justify-center gap-2 rounded-full px-4 shadow-lg"
+                style={{
+                  background: 'var(--surface)',
+                  border: `1px solid ${destructiveAlpha(45)}`,
+                }}
               >
-                Delete {selectedCount}
-              </Button>
+                {showConfirm ? (
+                  <div data-bulk-delete-pill-confirm className="flex items-center gap-2">
+                    <span style={{ color: destructive, fontWeight: 500, fontSize: 14 }}>
+                      Delete {selectedCount}?
+                    </span>
+                    <Button
+                      ref={yesRef}
+                      size="sm"
+                      variant="destructive"
+                      onClick={handleConfirmDelete}
+                    >
+                      Yes
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setConfirming(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setConfirming(true)}
+                    className="flex size-full  items-center justify-center"
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: destructive,
+                      fontWeight: 600,
+                      fontSize: 15,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Delete {selectedCount}
+                  </button>
+                )}
+              </div>
             </div>,
             document.body,
           )}
@@ -159,36 +292,16 @@ export function RosterHeader({
         <DisplayToggle />
         <DensityToggle />
         {muleCount > 0 && (
-          <button
+          <Button
             type="button"
-            aria-label="Bulk delete mules"
+            size="sm"
+            variant="outline"
+            aria-label="Enter bulk select mode"
             onClick={onEnterBulk}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              background: 'var(--surface)',
-              border: '1px solid var(--border)',
-              color: 'var(--muted-raw, var(--muted-foreground))',
-              cursor: 'pointer',
-              transition: 'color 150ms, border-color 150ms, background 150ms',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = destructive;
-              e.currentTarget.style.borderColor = destructiveAlpha(40);
-              e.currentTarget.style.background = destructiveAlpha(8);
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = 'var(--muted-raw, var(--muted-foreground))';
-              e.currentTarget.style.borderColor = 'var(--border)';
-              e.currentTarget.style.background = 'var(--surface)';
-            }}
           >
-            <Trash2 style={{ width: 16, height: 16 }} />
-          </button>
+            <ListChecks data-icon="inline-start" />
+            Select
+          </Button>
         )}
       </div>
     </div>

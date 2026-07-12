@@ -24,7 +24,12 @@ import { useMuleActions } from '../hooks/useMuleActions';
 import { useBulkSelection } from '../hooks/useBulkSelection';
 import { useWorldIncome } from '../modules/worldIncome';
 import { useStableRosterMetrics } from './useStableRosterMetrics';
-import { clearMarkUpdate, type ClearMarkKind } from '../utils/clearMark';
+import {
+  clearMarkUpdate,
+  isMarkEligible,
+  isMarkValid,
+  type ClearMarkKind,
+} from '../utils/clearMark';
 import { MuleCharacterCard } from './MuleCharacterCard';
 import { MuleDetailDrawer } from './MuleDetailDrawer';
 import { RosterListView } from './RosterListView';
@@ -133,43 +138,78 @@ export function Dashboard() {
     setSelectedMuleId(muleId);
   }, []);
 
-  // Roster Active Switch — same Active Flag write as the Drawer's Active
-  // Toggle. `updateMule` is identity-stable, so this never busts the
-  // card/row memo barriers.
-  const handleToggleActive = useCallback(
-    (id: string, active: boolean) => {
-      updateMule(id, { active });
-    },
-    [updateMule],
-  );
-
-  // Mule Actions Menu — set/clear a Clear Mark. Writes the current Cycle Stamp
-  // (or `undefined` to clear) through the same `updateMule` path as every
-  // other mule edit. Identity-stable, so it never busts the card memo barrier.
-  const handleSetMark = useCallback(
-    (id: string, kind: ClearMarkKind, marked: boolean) => {
-      updateMule(id, clearMarkUpdate(kind, marked, Date.now()));
-    },
-    [updateMule],
-  );
-
   const handleCloseDrawer = useCallback(() => {
     setSelectedMuleId(null);
   }, []);
 
-  // Bulk Delete Mode — selection state, exact-state setter, and the
+  // Bulk Select Mode — selection state, exact-state setter, and the
   // drag-paint marshalling all live behind useBulkSelection; Dashboard
-  // keeps only the confirm UI wiring (RosterHeader buttons).
+  // keeps only the confirm UI wiring (Bulk Action Bar buttons).
   const {
     bulkMode,
     toDelete,
+    allSelected,
     enterBulk,
     exitBulk,
     toggleDelete,
+    selectAll,
+    clearSelection,
     deleteSelected,
     dragPaintHandlers,
     isPaintEngaged,
   } = useBulkSelection(mulesInWorld, deleteMules);
+
+  // Mark As Menu — eligible Bulk-Selected Mule count per cadence. Eligibility
+  // reuses the Mark Invalidation predicate off each mule's cadence key counts
+  // (already memoized in `metricsByMule`), so a mark is never offered for a
+  // mule that would immediately invalidate it.
+  const markEligibleCounts = useMemo(() => {
+    let daily = 0;
+    let weekly = 0;
+    let bm = 0;
+    for (const mule of mulesInWorld) {
+      if (!toDelete.has(mule.id)) continue;
+      const metrics = metricsByMule.get(mule.id);
+      if (!metrics) continue;
+      if (isMarkEligible(metrics, 'daily')) daily += 1;
+      if (isMarkEligible(metrics, 'weekly')) weekly += 1;
+      if (isMarkEligible(metrics, 'bm')) bm += 1;
+    }
+    return { daily, weekly, bm };
+  }, [mulesInWorld, toDelete, metricsByMule]);
+
+  // Mark As Menu writer — a per-mule toggle across the eligible Bulk-Selected
+  // Mules: each flips its own current state; ineligible mules silently skip.
+  // Writes ride the identity-stable `updateMule`, so a mark re-renders only the
+  // affected card (MuleCharacterCard / MuleListRow memo barriers intact).
+  const handleBulkMarkAs = useCallback(
+    (kind: ClearMarkKind) => {
+      const now = Date.now();
+      for (const mule of mulesInWorld) {
+        if (!toDelete.has(mule.id)) continue;
+        const metrics = metricsByMule.get(mule.id);
+        if (!metrics || !isMarkEligible(metrics, kind)) continue;
+        updateMule(mule.id, clearMarkUpdate(kind, !isMarkValid(mule, kind, now), now));
+      }
+    },
+    [mulesInWorld, toDelete, metricsByMule, updateMule],
+  );
+
+  // Bulk Action Bar — Set Active / Set Inactive. Directional: converge every
+  // Bulk-Selected Mule to `active`, skipping already-matching mules so they
+  // no-op. Writes through the identity-stable `updateMule`, so a flip
+  // re-renders only the affected cards/rows (memo barriers intact). Never
+  // exits Bulk Select Mode or clears the selection.
+  const handleBulkSetActive = useCallback(
+    (active: boolean) => {
+      for (const mule of mulesInWorld) {
+        if (toDelete.has(mule.id) && mule.active !== active) {
+          updateMule(mule.id, { active });
+        }
+      }
+    },
+    [mulesInWorld, toDelete, updateMule],
+  );
 
   return (
     <>
@@ -194,9 +234,15 @@ export function Dashboard() {
             muleCount={mulesInWorld.length}
             bulkMode={bulkMode}
             selectedCount={toDelete.size}
+            allSelected={allSelected}
+            markEligibleCounts={markEligibleCounts}
             onEnterBulk={enterBulk}
             onCancel={exitBulk}
             onDelete={deleteSelected}
+            onSelectAll={selectAll}
+            onClearSelection={clearSelection}
+            onMarkAs={handleBulkMarkAs}
+            onSetActive={handleBulkSetActive}
           />
 
           <div className="mb-4 border-t border-border" aria-hidden />
@@ -226,8 +272,6 @@ export function Dashboard() {
                     mules={mulesInWorld}
                     metricsByMule={metricsByMule}
                     onCardClick={handleCardClick}
-                    onToggleActive={handleToggleActive}
-                    onSetMark={handleSetMark}
                     bulkMode={bulkMode}
                     toDelete={toDelete}
                     onToggleSelect={toggleDelete}
@@ -249,8 +293,6 @@ export function Dashboard() {
                           key={mule.id}
                           mule={mule}
                           onClick={handleCardClick}
-                          onToggleActive={handleToggleActive}
-                          onSetMark={handleSetMark}
                           bulkMode={bulkMode}
                           selected={toDelete.has(mule.id)}
                           onToggleSelect={toggleDelete}

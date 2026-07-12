@@ -3,9 +3,8 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { Mule } from '../types';
 import { useDensity } from '../context/DensityProvider';
-import { useMatchMedia } from '../hooks/useMatchMedia';
 import { useCurrentCycle } from '../hooks/useCurrentCycle';
-import { isMarkValid, type ClearMarkKind } from '../utils/clearMark';
+import { isMarkValid } from '../utils/clearMark';
 import { MuleBossSlate, type SlateKey } from '../data/muleBossSlate';
 import { resolveWorldGroup } from '../data/worlds';
 import { CharacterAvatar } from './CharacterAvatar';
@@ -15,17 +14,12 @@ import { NotesTooltipTrigger } from './RosterItem/NotesTooltipTrigger';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import { SelectionIndicator } from './RosterItem/SelectionIndicator';
 import { InactiveDimOverlay } from './RosterItem/InactiveDimOverlay';
-import { MuleActionsMenu } from './RosterItem/MuleActionsMenu';
 import { CompletionChecks } from './RosterItem/CompletionChecks';
 import type { RosterRowMetrics } from './rosterRowMetrics';
 
 interface MuleCharacterCardProps {
   mule: Mule;
   onClick: (id: string) => void;
-  onToggleActive: (id: string, active: boolean) => void;
-  // Set (`marked`) or clear a Clear Mark from the Mule Actions Menu. Writes
-  // the current Cycle Stamp through the same `updateMule` path as elsewhere.
-  onSetMark: (id: string, kind: ClearMarkKind, marked: boolean) => void;
   bulkMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
@@ -245,8 +239,6 @@ function IncomeLine({
 export const MuleCharacterCard = memo(function MuleCharacterCard({
   mule,
   onClick,
-  onToggleActive,
-  onSetMark,
   bulkMode = false,
   selected = false,
   onToggleSelect,
@@ -260,7 +252,6 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
   });
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
-  const isTouch = useMatchMedia('(pointer: coarse)');
 
   // Cycle Clock — a Clear Mark's Completion Check shows iff its stamp is valid
   // for the current cycle, so checks expire live at the boundary with no
@@ -296,7 +287,7 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
   }
   // In bulk mode we suppress hover-lift on unselected cards AND the selected
   // visual treatment overrides any hover shadow. Outside bulk, `isHovered`
-  // still drives the normal hover state (and the Roster Active Switch reveal).
+  // still drives the normal hover-lift state.
   const hoverActive = !bulkMode && isHovered;
   const panelBoxShadow =
     bulkMode && selected
@@ -367,24 +358,6 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
         )}
 
         {!mule.active && <InactiveDimOverlay />}
-
-        {!bulkMode && !isTouch && (
-          // zIndex 2 lifts the menu above the InactiveDimOverlay (zIndex 1) so
-          // an inactive (dimmed) mule keeps a fully operable menu.
-          <span style={{ position: 'absolute', top: 10, right: 10, display: 'flex', zIndex: 2 }}>
-            <MuleActionsMenu
-              mule={mule}
-              revealed={isHovered}
-              dailyValid={dailyValid}
-              weeklyValid={weeklyValid}
-              bmValid={bmValid}
-              dailyCount={metrics.dailyCount}
-              monthlyCount={metrics.monthlyCount}
-              onToggleActive={onToggleActive}
-              onSetMark={onSetMark}
-            />
-          </span>
-        )}
       </div>
     </div>
   );

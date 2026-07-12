@@ -24,6 +24,32 @@ const FIELD: Record<ClearMarkKind, 'dailyClearMark' | 'weeklyClearMark' | 'bmCle
   bm: 'bmClearMark',
 };
 
+/** Per-cadence slate key counts a mule carries — the eligibility inputs. */
+export interface MarkEligibilityCounts {
+  weeklyCount: number;
+  dailyCount: number;
+  monthlyCount: number;
+}
+
+/**
+ * Whether a mule is **eligible** to hold a Clear Mark of `kind`, from its
+ * cadence key counts. This is the same predicate as Mark Invalidation (see
+ * `useMules`, which wipes a mark when its cadence's key count drops to zero):
+ * daily needs ≥1 daily key; weekly needs ≥1 weekly-or-daily key; BM needs ≥1
+ * Monthly Cadence key. The Mark As Menu counts and skips ineligible mules with
+ * this, so a mark is never written to a mule that would immediately invalidate it.
+ */
+export function isMarkEligible(counts: MarkEligibilityCounts, kind: ClearMarkKind): boolean {
+  switch (kind) {
+    case 'daily':
+      return counts.dailyCount > 0;
+    case 'weekly':
+      return counts.weeklyCount > 0 || counts.dailyCount > 0;
+    case 'bm':
+      return counts.monthlyCount > 0;
+  }
+}
+
 /** Whether a mule's Clear Mark of `kind` is valid for the cycle at `nowMs`. */
 export function isMarkValid(mule: Mule, kind: ClearMarkKind, nowMs: number): boolean {
   switch (kind) {

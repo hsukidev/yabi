@@ -21,9 +21,15 @@ function renderHeader(
     muleCount: 3,
     bulkMode: false,
     selectedCount: 0,
+    allSelected: false,
+    markEligibleCounts: { daily: 0, weekly: 0, bm: 0 },
     onEnterBulk: vi.fn(),
     onCancel: vi.fn(),
     onDelete: vi.fn(),
+    onSelectAll: vi.fn(),
+    onClearSelection: vi.fn(),
+    onMarkAs: vi.fn(),
+    onSetActive: vi.fn(),
     ...overrides,
   };
   return {
@@ -39,31 +45,39 @@ describe('RosterHeader', () => {
       expect(screen.getByRole('heading', { name: /roster/i })).toBeTruthy();
     });
 
-    it('renders the Bulk Trash Icon button (visible at every breakpoint)', () => {
+    it('renders the Select Button (visible at every breakpoint)', () => {
       renderHeader();
-      const btn = screen.getByRole('button', { name: /bulk.*delete|delete.*mode|bulk.*trash/i });
+      const btn = screen.getByRole('button', { name: /bulk select mode/i });
       expect(btn).toBeTruthy();
+      expect(btn.textContent).toMatch(/select/i);
       // Should not carry a responsive-hidden class like hidden/sm:hidden
       expect(btn.className).not.toMatch(/\bhidden\b/);
     });
 
-    it('calls onEnterBulk when the Bulk Trash Icon is clicked', () => {
+    it('calls onEnterBulk when the Select Button is clicked', () => {
       const { props } = renderHeader();
-      const btn = screen.getByRole('button', { name: /bulk.*delete|delete.*mode|bulk.*trash/i });
-      fireEvent.click(btn);
+      fireEvent.click(screen.getByRole('button', { name: /bulk select mode/i }));
       expect(props.onEnterBulk).toHaveBeenCalled();
     });
 
-    it('does not render the Bulk Trash Icon when there are no mules', () => {
+    it('does not render the Select Button when there are no mules', () => {
       renderHeader({ muleCount: 0 });
+      expect(screen.queryByRole('button', { name: /bulk select mode/i })).toBeNull();
+    });
+
+    it('renders the Select Button after the DensityToggle', () => {
+      renderHeader();
+      const densityToggle = screen.getByTestId('density-toggle');
+      const selectBtn = screen.getByRole('button', { name: /bulk select mode/i });
       expect(
-        screen.queryByRole('button', { name: /bulk.*delete|delete.*mode|bulk.*trash/i }),
-      ).toBeNull();
+        densityToggle.compareDocumentPosition(selectBtn) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+      expect(densityToggle.parentElement).toBe(selectBtn.parentElement);
     });
 
     it('does not render the Bulk Action Bar in default state', () => {
-      renderHeader();
-      expect(screen.queryByText(/select or drag to delete/i)).toBeNull();
+      const { container } = renderHeader();
+      expect(container.querySelector('[data-bulk-action-bar]')).toBeNull();
       expect(screen.queryByRole('button', { name: /^cancel$/i })).toBeNull();
     });
 
@@ -186,32 +200,8 @@ describe('RosterHeader', () => {
     });
   });
 
-  describe('bulk state', () => {
-    it('renders the bulk title "Select or drag to delete"', () => {
-      renderHeader({ bulkMode: true });
-      expect(screen.getByText(/select or drag to delete/i)).toBeTruthy();
-    });
-
-    it('renders the Bulk Selection Pill with 0 SELECTED when no cards marked', () => {
-      renderHeader({ bulkMode: true, selectedCount: 0 });
-      expect(screen.getByText(/0\s*SELECTED/i)).toBeTruthy();
-    });
-
-    it('updates the Bulk Selection Pill to reflect the selected count', () => {
-      renderHeader({ bulkMode: true, selectedCount: 5 });
-      expect(screen.getByText(/5\s*SELECTED/i)).toBeTruthy();
-    });
-
-    it('renders a Bulk Pulse Dot using the bulk-pulse animation', () => {
-      const { container } = renderHeader({ bulkMode: true });
-      const dot = container.querySelector('[data-bulk-pulse-dot]') as HTMLElement;
-      expect(dot).toBeTruthy();
-      // bulk-pulse keyframe is configured via inline animation or class
-      const animation = dot.style.animation || getComputedStyle(dot).animation;
-      expect(animation).toContain('bulk-pulse');
-    });
-
-    it('applies the bulk-slide animation to the Bulk Action Bar wrapper', () => {
+  describe('Bulk Action Bar', () => {
+    it('applies the bulk-slide entrance animation to the bar wrapper', () => {
       const { container } = renderHeader({ bulkMode: true });
       const bar = container.querySelector('[data-bulk-action-bar]') as HTMLElement;
       expect(bar).toBeTruthy();
@@ -219,54 +209,30 @@ describe('RosterHeader', () => {
       expect(animation).toContain('bulk-slide');
     });
 
-    it('renders a Bulk Cancel button', () => {
-      renderHeader({ bulkMode: true });
-      expect(screen.getByRole('button', { name: /^cancel$/i })).toBeTruthy();
-    });
-
-    it('calls onCancel when Bulk Cancel is clicked', () => {
-      const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
-      fireEvent.click(screen.getByRole('button', { name: /^cancel$/i }));
-      expect(props.onCancel).toHaveBeenCalled();
-    });
-
-    it('renders a disabled Bulk Confirm reading "Delete" at 0 selected', () => {
-      renderHeader({ bulkMode: true, selectedCount: 0 });
-      const btn = screen.getByRole('button', { name: /^delete$/i }) as HTMLButtonElement;
-      expect(btn.disabled).toBe(true);
-    });
-
-    it('renders an enabled Bulk Confirm reading "Delete" when N > 0', () => {
-      renderHeader({ bulkMode: true, selectedCount: 3 });
-      const btn = screen.getByRole('button', { name: /^delete$/i }) as HTMLButtonElement;
-      expect(btn.disabled).toBe(false);
-    });
-
-    it('calls onDelete when Bulk Confirm is clicked with a selection', () => {
-      const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
-      fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
-      expect(props.onDelete).toHaveBeenCalled();
-    });
-
-    it('does not render a count inside the Delete button', () => {
-      renderHeader({ bulkMode: true, selectedCount: 3 });
-      const btn = screen.getByRole('button', { name: /^delete$/i }) as HTMLButtonElement;
-      expect(btn.textContent?.trim()).toBe('Delete');
-    });
-
-    it('hides "Select or drag to delete" text on small screens via max-[524.99px]:hidden', () => {
+    it('renders a static accent dot (no bulk-pulse animation)', () => {
       const { container } = renderHeader({ bulkMode: true });
-      const textSpan = Array.from(container.querySelectorAll('span')).find(
-        (el) => el.textContent?.trim() === 'Select or drag to delete',
-      );
-      expect(textSpan).toBeTruthy();
-      expect(textSpan!.className).toContain('max-[524.99px]:hidden');
+      const dot = container.querySelector('[data-bulk-accent-dot]') as HTMLElement;
+      expect(dot).toBeTruthy();
+      const animation = dot.style.animation || '';
+      expect(animation).not.toContain('bulk-pulse');
+      // Accent chrome, not destructive red.
+      expect(dot.style.background).toContain('accent');
+      expect(dot.style.background.toLowerCase()).not.toContain('#e05040');
     });
 
-    it('shows the Bulk Selection Pill at all screen sizes (no responsive-hidden class)', () => {
-      const { container } = renderHeader({ bulkMode: true });
+    it('renders the N SELECTED pill in accent chrome (no #e05040)', () => {
+      const { container } = renderHeader({ bulkMode: true, selectedCount: 0 });
       const pill = container.querySelector('[data-bulk-selection-pill]') as HTMLElement;
       expect(pill).toBeTruthy();
+      expect(pill.textContent).toMatch(/0\s*SELECTED/i);
+      expect(pill.style.color).toContain('accent');
+      expect(pill.style.background.toLowerCase()).not.toContain('#e05040');
+    });
+
+    it('shows the N SELECTED pill at all screen sizes (no responsive-hidden class)', () => {
+      const { container } = renderHeader({ bulkMode: true, selectedCount: 5 });
+      const pill = container.querySelector('[data-bulk-selection-pill]') as HTMLElement;
+      expect(pill.textContent).toMatch(/5\s*SELECTED/i);
       expect(pill.className).not.toContain('hidden');
     });
 
@@ -275,16 +241,158 @@ describe('RosterHeader', () => {
       expect(screen.queryByRole('heading', { name: /roster/i })).toBeNull();
     });
 
-    it('does not render the Bulk Trash Icon in bulk mode', () => {
-      renderHeader({ bulkMode: true });
-      expect(screen.queryByRole('button', { name: /bulk.*trash/i })).toBeNull();
+    describe('Select all / Clear selection link', () => {
+      it('reads "Select all" and calls onSelectAll when not all selected', () => {
+        const { props } = renderHeader({ bulkMode: true, allSelected: false });
+        const link = screen.getByRole('button', { name: /select all/i });
+        fireEvent.click(link);
+        expect(props.onSelectAll).toHaveBeenCalled();
+        expect(props.onClearSelection).not.toHaveBeenCalled();
+      });
+
+      it('flips to "Clear selection" and calls onClearSelection when all selected', () => {
+        const { props } = renderHeader({
+          bulkMode: true,
+          allSelected: true,
+          selectedCount: 3,
+        });
+        expect(screen.queryByRole('button', { name: /select all/i })).toBeNull();
+        const link = screen.getByRole('button', { name: /clear selection/i });
+        fireEvent.click(link);
+        expect(props.onClearSelection).toHaveBeenCalled();
+        expect(props.onSelectAll).not.toHaveBeenCalled();
+      });
     });
 
-    it('uses the --destructive token for the pulse dot background (no #e05040)', () => {
-      const { container } = renderHeader({ bulkMode: true });
-      const dot = container.querySelector('[data-bulk-pulse-dot]') as HTMLElement;
-      expect(dot.style.background.toLowerCase()).not.toContain('#e05040');
-      expect(dot.style.background).toContain('destructive');
+    describe('Set Active / Set Inactive', () => {
+      const openActiveMenu = () =>
+        fireEvent.click(screen.getByRole('button', { name: /set active flag/i }));
+
+      it('renders the Active trigger in the bar', () => {
+        const { container } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        const bar = container.querySelector('[data-bulk-action-bar]') as HTMLElement;
+        expect(within(bar).getByRole('button', { name: /set active flag/i })).toBeTruthy();
+      });
+
+      it('disables the trigger at 0 selected', () => {
+        renderHeader({ bulkMode: true, selectedCount: 0 });
+        const btn = screen.getByRole('button', { name: /set active flag/i }) as HTMLButtonElement;
+        expect(btn.disabled).toBe(true);
+      });
+
+      it('enables the trigger when N > 0', () => {
+        renderHeader({ bulkMode: true, selectedCount: 3 });
+        const btn = screen.getByRole('button', { name: /set active flag/i }) as HTMLButtonElement;
+        expect(btn.disabled).toBe(false);
+      });
+
+      it('opens to Set Active and Set Inactive rows', async () => {
+        renderHeader({ bulkMode: true, selectedCount: 2 });
+        openActiveMenu();
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: /set active/i })).toBeTruthy();
+        });
+        expect(screen.getByRole('menuitem', { name: /set inactive/i })).toBeTruthy();
+      });
+
+      it('Set Active converges the selection to active (onSetActive(true))', async () => {
+        const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        openActiveMenu();
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: /set active/i })).toBeTruthy();
+        });
+        fireEvent.click(screen.getByRole('menuitem', { name: /set active/i }));
+        expect(props.onSetActive).toHaveBeenCalledWith(true);
+      });
+
+      it('Set Inactive converges the selection to inactive (onSetActive(false))', async () => {
+        const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        openActiveMenu();
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: /set inactive/i })).toBeTruthy();
+        });
+        fireEvent.click(screen.getByRole('menuitem', { name: /set inactive/i }));
+        expect(props.onSetActive).toHaveBeenCalledWith(false);
+      });
+
+      it('applying an Active action never exits the mode (no onCancel)', async () => {
+        const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        openActiveMenu();
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: /set active/i })).toBeTruthy();
+        });
+        fireEvent.click(screen.getByRole('menuitem', { name: /set active/i }));
+        expect(props.onCancel).not.toHaveBeenCalled();
+      });
+
+      it('stays in the bar on touch (available on all pointer types)', () => {
+        mockCoarsePointer();
+        try {
+          const { container } = renderHeader({ bulkMode: true, selectedCount: 2 });
+          const bar = container.querySelector('[data-bulk-action-bar]') as HTMLElement;
+          expect(within(bar).getByRole('button', { name: /set active flag/i })).toBeTruthy();
+        } finally {
+          restoreMatchMedia();
+        }
+      });
+    });
+
+    describe('Delete + inline confirm (pointer)', () => {
+      it('renders a disabled Delete at 0 selected', () => {
+        renderHeader({ bulkMode: true, selectedCount: 0 });
+        const btn = screen.getByRole('button', { name: /^delete$/i }) as HTMLButtonElement;
+        expect(btn.disabled).toBe(true);
+      });
+
+      it('renders an enabled Delete when N > 0', () => {
+        renderHeader({ bulkMode: true, selectedCount: 3 });
+        const btn = screen.getByRole('button', { name: /^delete$/i }) as HTMLButtonElement;
+        expect(btn.disabled).toBe(false);
+      });
+
+      it('clicking Delete swaps the right cluster to "Delete N? [Yes] [Cancel]" in place', () => {
+        const { container } = renderHeader({ bulkMode: true, selectedCount: 3 });
+        fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+        // Confirm cluster replaces the Delete trigger.
+        expect(screen.getByText(/delete 3\?/i)).toBeTruthy();
+        expect(screen.getByRole('button', { name: /^yes$/i })).toBeTruthy();
+        expect(screen.queryByRole('button', { name: /^delete$/i })).toBeNull();
+        // Still inside the same bar — no bar-wide takeover.
+        const bar = container.querySelector('[data-bulk-action-bar]') as HTMLElement;
+        expect(within(bar).getByText(/delete 3\?/i)).toBeTruthy();
+      });
+
+      it('only Yes is destructive-styled in the confirm', () => {
+        renderHeader({ bulkMode: true, selectedCount: 2 });
+        fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+        const yes = screen.getByRole('button', { name: /^yes$/i });
+        const cancel = screen.getByRole('button', { name: /^cancel$/i });
+        expect(yes.className).toMatch(/text-destructive/);
+        expect(cancel.className).not.toMatch(/text-destructive/);
+      });
+
+      it('clicking Yes calls onDelete', () => {
+        const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+        fireEvent.click(screen.getByRole('button', { name: /^yes$/i }));
+        expect(props.onDelete).toHaveBeenCalled();
+      });
+
+      it('confirm Cancel backs out to the Delete cluster without exiting the mode', () => {
+        const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+        fireEvent.click(screen.getByRole('button', { name: /^cancel$/i }));
+        expect(props.onCancel).not.toHaveBeenCalled();
+        // Delete trigger is back.
+        expect(screen.getByRole('button', { name: /^delete$/i })).toBeTruthy();
+        expect(screen.queryByText(/delete 2\?/i)).toBeNull();
+      });
+
+      it('the bar Cancel (not confirming) calls onCancel to exit the mode', () => {
+        const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        fireEvent.click(screen.getByRole('button', { name: /^cancel$/i }));
+        expect(props.onCancel).toHaveBeenCalled();
+      });
     });
 
     describe('on touch devices', () => {
@@ -296,7 +404,7 @@ describe('RosterHeader', () => {
       const queryPill = () =>
         document.body.querySelector('[data-bulk-delete-pill]') as HTMLElement | null;
 
-      it('moves Delete out of the action bar into a floating pill', () => {
+      it('hides Delete in the toolbar (moved to the Delete Pill)', () => {
         mockCoarsePointer();
         const { container } = renderHeader({ bulkMode: true, selectedCount: 2 });
         const bar = container.querySelector('[data-bulk-action-bar]') as HTMLElement;
@@ -304,52 +412,122 @@ describe('RosterHeader', () => {
         expect(queryPill()).toBeTruthy();
       });
 
-      it('floating pill reads "Delete N" when count > 0', () => {
+      it('keeps the mode-exit Cancel in the toolbar and calls onCancel', () => {
+        mockCoarsePointer();
+        const { container, props } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        const bar = container.querySelector('[data-bulk-action-bar]') as HTMLElement;
+        const cancel = within(bar).getByRole('button', { name: /^cancel$/i });
+        fireEvent.click(cancel);
+        expect(props.onCancel).toHaveBeenCalled();
+      });
+
+      it('Delete Pill reads "Delete N" when count > 0', () => {
         mockCoarsePointer();
         renderHeader({ bulkMode: true, selectedCount: 3 });
         const btn = within(queryPill()!).getByRole('button') as HTMLButtonElement;
         expect(btn.textContent?.trim()).toBe('Delete 3');
-        expect(btn.disabled).toBe(false);
       });
 
-      it('does not render the pill at count 0 (in-bar chip and text remain the only affordances)', () => {
+      it('does not render the Delete Pill at count 0', () => {
         mockCoarsePointer();
         renderHeader({ bulkMode: true, selectedCount: 0 });
         expect(queryPill()).toBeNull();
       });
 
-      it('clicking the floating pill calls onDelete', () => {
+      it('tapping the pill morphs it into its own "Delete N? [Yes] [Cancel]" confirm', () => {
+        mockCoarsePointer();
+        renderHeader({ bulkMode: true, selectedCount: 3 });
+        fireEvent.click(within(queryPill()!).getByRole('button'));
+        const pill = queryPill()!;
+        expect(within(pill).getByText(/delete 3\?/i)).toBeTruthy();
+        const yes = within(pill).getByRole('button', { name: /^yes$/i });
+        const cancel = within(pill).getByRole('button', { name: /^cancel$/i });
+        expect(yes.className).toMatch(/text-destructive/);
+        expect(cancel.className).not.toMatch(/text-destructive/);
+      });
+
+      it('tapping Yes in the pill confirm calls onDelete', () => {
         mockCoarsePointer();
         const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
         fireEvent.click(within(queryPill()!).getByRole('button'));
+        fireEvent.click(within(queryPill()!).getByRole('button', { name: /^yes$/i }));
         expect(props.onDelete).toHaveBeenCalled();
-      });
-
-      // The instructional text + count-chip swap roles on touch: at narrow
-      // widths the chip hides (count is on the floating pill instead) and the
-      // text remains visible.
-      it('shows the instructional text at every width (no max-[524.99px]:hidden)', () => {
-        mockCoarsePointer();
-        const { container } = renderHeader({ bulkMode: true });
-        const textSpan = Array.from(container.querySelectorAll('span')).find(
-          (el) => el.textContent?.trim() === 'Select or drag to delete',
-        );
-        expect(textSpan).toBeTruthy();
-        expect(textSpan!.className).not.toContain('max-[524.99px]:hidden');
-      });
-
-      it('hides the count chip at narrow widths via max-[524.99px]:hidden', () => {
-        mockCoarsePointer();
-        const { container } = renderHeader({ bulkMode: true, selectedCount: 4 });
-        const chip = container.querySelector('[data-bulk-selection-pill]') as HTMLElement;
-        expect(chip).toBeTruthy();
-        expect(chip.className).toContain('max-[524.99px]:hidden');
       });
     });
 
-    it('does not render the floating Delete pill on non-touch (default jsdom)', () => {
+    it('does not render the Delete Pill on non-touch (default jsdom)', () => {
       renderHeader({ bulkMode: true, selectedCount: 2 });
       expect(document.body.querySelector('[data-bulk-delete-pill]')).toBeNull();
+    });
+
+    describe('Mark As Menu', () => {
+      const openMenu = () => {
+        fireEvent.click(screen.getByRole('button', { name: /mark as/i }));
+      };
+
+      it('renders the Mark as trigger in the bar', () => {
+        renderHeader({ bulkMode: true, selectedCount: 2 });
+        expect(screen.getByRole('button', { name: /mark as/i })).toBeTruthy();
+      });
+
+      it('disables the trigger at 0 selected', () => {
+        renderHeader({ bulkMode: true, selectedCount: 0 });
+        const trigger = screen.getByRole('button', { name: /mark as/i }) as HTMLButtonElement;
+        expect(trigger.disabled).toBe(true);
+      });
+
+      it('enables the trigger when N > 0', () => {
+        renderHeader({ bulkMode: true, selectedCount: 2 });
+        const trigger = screen.getByRole('button', { name: /mark as/i }) as HTMLButtonElement;
+        expect(trigger.disabled).toBe(false);
+      });
+
+      it('renders Daily / Weekly / BM rows with their eligible counts', async () => {
+        renderHeader({
+          bulkMode: true,
+          selectedCount: 5,
+          markEligibleCounts: { daily: 2, weekly: 5, bm: 1 },
+        });
+        openMenu();
+        await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+        const daily = screen.getByRole('menuitem', { name: /daily/i });
+        const weekly = screen.getByRole('menuitem', { name: /weekly/i });
+        const bm = screen.getByRole('menuitem', { name: /bm/i });
+        expect(daily.textContent).toMatch(/2/);
+        expect(weekly.textContent).toMatch(/5/);
+        expect(bm.textContent).toMatch(/1/);
+      });
+
+      it('disables a row at zero eligible', async () => {
+        renderHeader({
+          bulkMode: true,
+          selectedCount: 5,
+          markEligibleCounts: { daily: 0, weekly: 5, bm: 0 },
+        });
+        openMenu();
+        await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+        expect(
+          screen.getByRole('menuitem', { name: /daily/i }).getAttribute('data-disabled'),
+        ).not.toBeNull();
+        expect(
+          screen.getByRole('menuitem', { name: /^weekly/i }).getAttribute('data-disabled'),
+        ).toBeNull();
+        expect(
+          screen.getByRole('menuitem', { name: /bm/i }).getAttribute('data-disabled'),
+        ).not.toBeNull();
+      });
+
+      it('calls onMarkAs with the cadence when an eligible row is chosen', async () => {
+        const { props } = renderHeader({
+          bulkMode: true,
+          selectedCount: 5,
+          markEligibleCounts: { daily: 2, weekly: 5, bm: 1 },
+        });
+        openMenu();
+        await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+        fireEvent.click(screen.getByRole('menuitem', { name: /^weekly/i }));
+        expect(props.onMarkAs).toHaveBeenCalledWith('weekly');
+      });
     });
   });
 });

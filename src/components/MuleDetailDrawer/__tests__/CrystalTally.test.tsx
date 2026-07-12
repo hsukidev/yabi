@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { render, screen } from '@/test/test-utils';
+import { describe, expect, it, vi } from 'vitest';
+import { render, screen, fireEvent } from '@/test/test-utils';
 
 import { CrystalTally } from '../CrystalTally';
 
@@ -68,6 +68,74 @@ describe('CrystalTally', () => {
   it('exposes a labelled group wrapper so screen readers announce the tally together', () => {
     render(<CrystalTally weeklyCount={1} dailyCount={1} monthlyCount={1} />);
     expect(screen.getByRole('group', { name: /crystal tally/i })).toBeTruthy();
+  });
+
+  describe('Mark Toggles', () => {
+    const queryToggle = (name: RegExp) => screen.queryByRole('button', { name });
+
+    it('renders no Mark Toggle when onSetMark is omitted (read-only tally)', () => {
+      render(<CrystalTally weeklyCount={5} dailyCount={7} monthlyCount={1} />);
+      expect(screen.queryByRole('button')).toBeNull();
+    });
+
+    it('renders a toggle only on eligible plates (daily needs a daily key)', () => {
+      render(<CrystalTally weeklyCount={5} dailyCount={0} monthlyCount={0} onSetMark={vi.fn()} />);
+      expect(queryToggle(/weekly (in)?complete/i)).toBeTruthy();
+      expect(queryToggle(/daily (in)?complete/i)).toBeNull();
+      expect(queryToggle(/bm (in)?complete/i)).toBeNull();
+    });
+
+    it('treats a daily key as making the weekly plate eligible (weekly-or-daily)', () => {
+      render(<CrystalTally weeklyCount={0} dailyCount={7} monthlyCount={0} onSetMark={vi.fn()} />);
+      expect(queryToggle(/weekly (in)?complete/i)).toBeTruthy();
+      expect(queryToggle(/daily (in)?complete/i)).toBeTruthy();
+    });
+
+    it('renders the BM toggle only when a Monthly Cadence key is present', () => {
+      render(<CrystalTally weeklyCount={0} dailyCount={0} monthlyCount={1} onSetMark={vi.fn()} />);
+      expect(queryToggle(/bm (in)?complete/i)).toBeTruthy();
+    });
+
+    it('is a real <button> with aria-pressed reflecting the marked prop', () => {
+      render(
+        <CrystalTally
+          weeklyCount={5}
+          dailyCount={0}
+          monthlyCount={0}
+          weeklyMarked
+          onSetMark={vi.fn()}
+        />,
+      );
+      const toggle = screen.getByRole('button', { name: /weekly complete — click to unmark/i });
+      expect(toggle.tagName).toBe('BUTTON');
+      expect(toggle.getAttribute('aria-pressed')).toBe('true');
+    });
+
+    it('calls onSetMark with the cadence and the inverted mark on click', () => {
+      const onSetMark = vi.fn();
+      render(
+        <CrystalTally weeklyCount={5} dailyCount={0} monthlyCount={0} onSetMark={onSetMark} />,
+      );
+      fireEvent.click(
+        screen.getByRole('button', { name: /weekly incomplete — click to mark complete/i }),
+      );
+      expect(onSetMark).toHaveBeenCalledWith('weekly', true);
+    });
+
+    it('inverts a marked plate to clear it (monthly plate → bm kind)', () => {
+      const onSetMark = vi.fn();
+      render(
+        <CrystalTally
+          weeklyCount={0}
+          dailyCount={0}
+          monthlyCount={1}
+          bmMarked
+          onSetMark={onSetMark}
+        />,
+      );
+      fireEvent.click(screen.getByRole('button', { name: /bm complete — click to unmark/i }));
+      expect(onSetMark).toHaveBeenCalledWith('bm', false);
+    });
   });
 
   it('uses font-mono-nums for the counts (tabular numerals)', () => {
