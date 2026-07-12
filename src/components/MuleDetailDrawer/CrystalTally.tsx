@@ -33,7 +33,7 @@ export const CrystalTally = memo(function CrystalTally({
 }: CrystalTallyProps) {
   return (
     <div
-      className="crystal-tally flex-row items-stretch min-w-0 px-1 py-2"
+      className="crystal-tally @max-[604.99px]/drawer:flex-row @max-[604.99px]/drawer:items-stretch @max-[604.99px]/drawer:min-w-0 @max-[604.99px]/drawer:px-1 @max-[604.99px]/drawer:py-2"
       role="group"
       aria-label="Crystal tally"
     >
@@ -77,7 +77,7 @@ interface CrystalCellProps {
 function CrystalDivider() {
   return (
     <div
-      className="crystal-tally__divider mx-0 my-0.5 h-auto w-px bg-[linear-gradient(180deg,transparent,color-mix(in_srgb,var(--border)_90%,transparent),transparent)]"
+      className="crystal-tally__divider @max-[604.99px]/drawer:mx-0 @max-[604.99px]/drawer:my-0.5 @max-[604.99px]/drawer:h-auto @max-[604.99px]/drawer:w-px @max-[604.99px]/drawer:bg-[linear-gradient(180deg,transparent,color-mix(in_srgb,var(--border)_90%,transparent),transparent)]"
       aria-hidden
     />
   );
@@ -87,14 +87,14 @@ function CrystalCell({ kind, icon, label, count, cap, ariaLabel }: CrystalCellPr
   const empty = count === 0;
   return (
     <div
-      className={`crystal-tally__row flex-1 basis-0 justify-center gap-1.5 px-2 py-1 ${empty ? 'is-empty' : 'is-filled'}`}
+      className={`crystal-tally__row @max-[604.99px]/drawer:flex-1 @max-[604.99px]/drawer:basis-0 @max-[604.99px]/drawer:justify-center @max-[604.99px]/drawer:gap-1.5 @max-[604.99px]/drawer:px-2 @max-[604.99px]/drawer:py-1 ${empty ? 'is-empty' : 'is-filled'}`}
       data-kind={kind}
     >
       <span className="crystal-tally__icon" aria-hidden>
         <img src={icon} alt="" draggable={false} className={`crystal-tally__crystal is-${kind}`} />
       </span>
       <div className="crystal-tally__readout">
-        <span className="crystal-tally__label hidden">{label}</span>
+        <span className="crystal-tally__label @max-[604.99px]/drawer:hidden">{label}</span>
         <span className="crystal-tally__count font-mono-nums" aria-label={ariaLabel}>
           {count}
           {cap !== undefined && <span className="crystal-tally__cap">/{cap}</span>}
