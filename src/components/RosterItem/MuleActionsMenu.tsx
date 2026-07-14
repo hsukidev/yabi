@@ -97,13 +97,12 @@ export function MuleActionsMenu({
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger
           aria-label="Mule actions"
-          className="inline-flex items-center justify-center rounded-md cursor-pointer"
+          // Chromeless — just the glyph; the square keeps the hit target. The
+          // muted-to-foreground hover mirrors the row drag handle's affordance.
+          className="inline-flex items-center justify-center rounded-md cursor-pointer bg-transparent border-0 p-0 transition-colors text-muted-foreground hover:text-foreground"
           style={{
             width: kebabSize,
             height: kebabSize,
-            border: '1px solid var(--border)',
-            background: 'var(--surface-2, var(--surface-raised))',
-            color: 'var(--muted-raw, var(--muted-foreground))',
           }}
         >
           <EllipsisVertical size={Math.round(kebabSize * 0.58)} />
