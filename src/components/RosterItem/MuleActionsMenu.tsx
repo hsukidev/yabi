@@ -108,7 +108,7 @@ export function MuleActionsMenu({
         >
           <EllipsisVertical size={Math.round(kebabSize * 0.58)} />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" sideOffset={6} className="min-w-48">
+        <DropdownMenuContent align="end" sideOffset={6} className="min-w-48 rounded-md">
           {/* Toggle rows stay open on selection (closeOnClick={false}) — the
               wording flips in place so repeated toggles read live. Only Delete
               closes, since its anchor unmounts with the mule. */}
