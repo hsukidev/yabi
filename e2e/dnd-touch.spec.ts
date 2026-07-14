@@ -37,7 +37,11 @@ test.describe('touch roster drag-and-drop', () => {
   }
 
   async function cardCenter(page: Page, id: string) {
-    const box = await page.locator(`[data-mule-card="${id}"]`).boundingBox();
+    const locator = page.locator(`[data-mule-card="${id}"]`);
+    // At 390px the roster sits below the fold (KPI card above it) —
+    // boundingBox() coords outside the viewport can't receive CDP touches.
+    await locator.scrollIntoViewIfNeeded();
+    const box = await locator.boundingBox();
     if (!box) throw new Error(`card ${id} has no bounding box`);
     return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
   }
@@ -47,8 +51,11 @@ test.describe('touch roster drag-and-drop', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    const a = await cardCenter(page, 'mule-a');
+    // Scroll the bottom-most card into view first — the whole grid then fits
+    // the viewport, so the later cardCenter calls don't move the page and
+    // invalidate earlier coordinates.
     const c = await cardCenter(page, 'mule-c');
+    const a = await cardCenter(page, 'mule-a');
 
     await touchStart(a.x, a.y);
     // Hold past the 250ms long-press gate.
@@ -84,6 +91,8 @@ test.describe('touch roster drag-and-drop', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
+    // Capture the baseline after cardCenter's scroll-into-view, not before —
+    // otherwise the swipe's own scroll reads as a delta against page-top.
     const a = await cardCenter(page, 'mule-a');
     const startScroll = await page.evaluate(() => window.scrollY);
 
@@ -102,9 +111,10 @@ test.describe('touch roster drag-and-drop', () => {
       .locator('[data-mule-card]')
       .evaluateAll((els) => els.map((el) => el.getAttribute('data-mule-card')));
     expect(ids).toEqual(['mule-a', 'mule-b', 'mule-c']);
-    // Page scroll may or may not have changed depending on content height, but
-    // no drag engaged — that's the load-bearing assertion here.
-    expect(await page.evaluate(() => window.scrollY)).toBeGreaterThanOrEqual(startScroll);
+    // A downward swipe scrolls the page up (scrollY decreases) or not at all —
+    // it must never scroll the wrong way; no drag engaged is the load-bearing
+    // assertion above.
+    expect(await page.evaluate(() => window.scrollY)).toBeLessThanOrEqual(startScroll);
   });
 
   test('bulk mode: long-press then drag paints across cards', async ({ page }) => {
@@ -112,11 +122,15 @@ test.describe('touch roster drag-and-drop', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    await page.getByRole('button', { name: /bulk.*delete|bulk.*trash/i }).click();
+    // Bulk Select Mode is entered via the Select Button (the header's
+    // bulk-delete trash icon it replaced is retired).
+    await page.getByRole('button', { name: /enter bulk select mode/i }).click();
 
-    const a = await cardCenter(page, 'mule-a');
-    const b = await cardCenter(page, 'mule-b');
+    // Bottom-most card first — one scroll brings the whole grid into view, so
+    // the remaining centers are computed against a stable scroll position.
     const c = await cardCenter(page, 'mule-c');
+    const b = await cardCenter(page, 'mule-b');
+    const a = await cardCenter(page, 'mule-a');
 
     await touchStart(a.x, a.y);
     await page.waitForTimeout(320); // past the 250ms gate
@@ -138,7 +152,9 @@ test.describe('touch roster drag-and-drop', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    await page.getByRole('button', { name: /bulk.*delete|bulk.*trash/i }).click();
+    // Bulk Select Mode is entered via the Select Button (the header's
+    // bulk-delete trash icon it replaced is retired).
+    await page.getByRole('button', { name: /enter bulk select mode/i }).click();
 
     const a = await cardCenter(page, 'mule-a');
     const boundary = page.locator('[data-drag-boundary]');

@@ -17,6 +17,11 @@ test('toggling density updates data-density attribute live', async ({ page }) =>
   await page.goto('/');
   await expect(page.locator('html')).toHaveAttribute('data-density', 'comfy');
 
-  await page.getByRole('radio', { name: /compact/i }).click();
+  // Both Density Toggle segments carry the same "Switch to <next> density"
+  // label (it names the action, not the segment) — either one flips it.
+  await page
+    .getByRole('button', { name: /switch to compact density/i })
+    .first()
+    .click();
   await expect(page.locator('html')).toHaveAttribute('data-density', 'compact');
 });
