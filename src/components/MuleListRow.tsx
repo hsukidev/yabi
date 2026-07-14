@@ -3,7 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
 import { useCurrentCycle } from '../hooks/useCurrentCycle';
-import { isMarkValid } from '../utils/clearMark';
+import { isMarkEligible, isMarkValid } from '../utils/clearMark';
 import type { SlateKey } from '../data/muleBossSlate';
 import type { Mule } from '../types';
 import type { RosterRowMetrics } from './rosterRowMetrics';
@@ -13,6 +13,7 @@ import { NotesTooltipTrigger } from './RosterItem/NotesTooltipTrigger';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import { SelectionIndicator } from './RosterItem/SelectionIndicator';
 import { InactiveDimOverlay } from './RosterItem/InactiveDimOverlay';
+import { MuleActionsMenu } from './RosterItem/MuleActionsMenu';
 import { CompletionChecks } from './RosterItem/CompletionChecks';
 import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
@@ -22,6 +23,13 @@ interface MuleListRowProps {
   mule: Mule;
   metrics: RosterRowMetrics;
   onClick: (id: string) => void;
+  // Identity-stable Clear Mark / Active Flag writer, threaded to the Mule
+  // Actions Menu which builds its own patches. Must be referentially stable
+  // (memoize at the Dashboard level) to preserve the outer memo barrier.
+  updateMule: (id: string, patch: Partial<Mule>) => void;
+  // Deletes this mule (fires the undo toast). Identity-stable; the row wraps
+  // it as `() => onDelete(mule.id)` for the menu's `onDelete`.
+  onDelete: (id: string) => void;
   bulkMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
@@ -75,6 +83,8 @@ export const MuleListRow = memo(function MuleListRow({
   mule,
   metrics,
   onClick,
+  updateMule,
+  onDelete,
   bulkMode = false,
   selected = false,
   onToggleSelect,
@@ -88,6 +98,12 @@ export const MuleListRow = memo(function MuleListRow({
   const dailyValid = isMarkValid(mule, 'daily', now);
   const weeklyValid = isMarkValid(mule, 'weekly', now);
   const bmValid = isMarkValid(mule, 'bm', now);
+
+  // Canonical Mark-eligibility — each cadence row appears only when the mule
+  // could hold that mark (same predicate as Mark Invalidation). Mirrors the Card.
+  const dailyEligible = isMarkEligible(metrics, 'daily');
+  const weeklyEligible = isMarkEligible(metrics, 'weekly');
+  const bmEligible = isMarkEligible(metrics, 'bm');
   const handlePressStart = () => setIsPressed(true);
   const handlePressEnd = () => setIsPressed(false);
 
@@ -136,7 +152,8 @@ export const MuleListRow = memo(function MuleListRow({
     // Positioned so the InactiveDimOverlay can cover the row.
     position: 'relative',
     display: 'grid',
-    gridTemplateColumns: 'var(--row-handle, 24px) var(--row-avatar, 64px) auto minmax(0, 1fr)',
+    gridTemplateColumns:
+      'var(--row-handle, 24px) var(--row-avatar, 64px) auto minmax(0, 1fr) var(--row-kebab, auto)',
     alignItems: 'center',
     gap: 'var(--row-gap, 10px)',
     padding: 'var(--row-pad, 14px 18px)',
@@ -341,6 +358,34 @@ export const MuleListRow = memo(function MuleListRow({
           </span>
         </div>
       </div>
+
+      {!bulkMode && (
+        // Trailing grid column — the Mule Actions Menu. zIndex 2 lifts it above
+        // the InactiveDimOverlay (zIndex 1) so an inactive (dimmed) row keeps a
+        // fully operable menu. The menu owns its own activation guard, so a tap
+        // opens neither the Drawer nor a drag. Hidden in Bulk Select Mode,
+        // matching the row's other per-item chrome.
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            position: 'relative',
+            zIndex: 2,
+          }}
+        >
+          <MuleActionsMenu
+            mule={mule}
+            updateMule={updateMule}
+            onDelete={() => onDelete(mule.id)}
+            dailyValid={dailyValid}
+            weeklyValid={weeklyValid}
+            bmValid={bmValid}
+            dailyEligible={dailyEligible}
+            weeklyEligible={weeklyEligible}
+            bmEligible={bmEligible}
+          />
+        </div>
+      )}
 
       {!mule.active && <InactiveDimOverlay />}
     </div>

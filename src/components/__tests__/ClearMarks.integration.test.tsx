@@ -77,7 +77,13 @@ function AllSurfaces({ initial }: { initial: Mule }) {
             onDelete={noop}
             metrics={metrics}
           />
-          <MuleListRow mule={mule} metrics={metrics} onClick={noop} />
+          <MuleListRow
+            mule={mule}
+            metrics={metrics}
+            onClick={noop}
+            updateMule={onUpdate}
+            onDelete={noop}
+          />
         </SortableContext>
       </DndContext>
       <MuleDetailDrawer
@@ -134,7 +140,13 @@ function AllSurfacesWithMarkAsMenu({ initial }: { initial: Mule }) {
             onDelete={noop}
             metrics={metrics}
           />
-          <MuleListRow mule={mule} metrics={metrics} onClick={noop} />
+          <MuleListRow
+            mule={mule}
+            metrics={metrics}
+            onClick={noop}
+            updateMule={onUpdate}
+            onDelete={noop}
+          />
         </SortableContext>
       </DndContext>
       <MuleDetailDrawer
