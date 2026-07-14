@@ -281,6 +281,7 @@ html[data-theme-swap] *::after {
   --row-vgap: 12px;
   --row-handle: 24px;
   --row-handle-icon: 18px;
+  --row-kebab: 30px;
 }
 [data-density='compact'] {
   --card-pad: 12px;
@@ -305,6 +306,7 @@ html[data-theme-swap] *::after {
   --row-vgap: 8px;
   --row-handle: 24px;
   --row-handle-icon: 16px;
+  --row-kebab: 28px;
 }
 
 /* Responsive roster column counts:

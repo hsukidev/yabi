@@ -86,7 +86,13 @@ function renderCard(mule: Mule, metrics: RosterRowMetrics) {
   return render(
     <DndContext>
       <SortableContext items={[mule.id]} strategy={rectSortingStrategy}>
-        <MuleCharacterCard mule={mule} onClick={() => {}} metrics={metrics} />
+        <MuleCharacterCard
+          mule={mule}
+          onClick={() => {}}
+          updateMule={() => {}}
+          onDelete={() => {}}
+          metrics={metrics}
+        />
       </SortableContext>
     </DndContext>,
   );
@@ -96,7 +102,13 @@ function renderRow(mule: Mule, metrics: RosterRowMetrics) {
   return render(
     <DndContext>
       <SortableContext items={[mule.id]} strategy={verticalListSortingStrategy}>
-        <MuleListRow mule={mule} metrics={metrics} onClick={() => {}} />
+        <MuleListRow
+          mule={mule}
+          metrics={metrics}
+          onClick={() => {}}
+          updateMule={() => {}}
+          onDelete={() => {}}
+        />
       </SortableContext>
     </DndContext>,
   );

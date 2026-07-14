@@ -377,12 +377,12 @@ describe('App', () => {
       fireEvent.click(screen.getByText('DeleteMe'));
       expect(screen.getByRole('heading', { name: 'DeleteMe' })).toBeTruthy();
 
-      // Delete is the drawer's top-right trash icon (the Mule Actions Menu
-      // kebab retired in #318), arming the two-step Delete?/Yes confirm. Scope
-      // to the drawer to disambiguate from any other delete affordance.
+      // Delete lives on the drawer's Mule Actions Menu kebab (#324) — instant,
+      // no confirm (recovery is the undo toast). Scope the trigger to the drawer
+      // to disambiguate from the roster Character Card kebabs.
       const drawer = document.querySelector('[data-mule-detail-drawer]') as HTMLElement;
-      fireEvent.click(within(drawer).getByRole('button', { name: /delete mule/i }));
-      fireEvent.click(screen.getByRole('button', { name: /yes/i }));
+      fireEvent.click(within(drawer).getByRole('button', { name: /mule actions/i }));
+      fireEvent.click(await screen.findByRole('menuitem', { name: 'Delete', hidden: true }));
 
       await waitFor(() => {
         expect(screen.queryByRole('heading', { name: 'DeleteMe' })).toBeNull();
@@ -432,12 +432,12 @@ describe('App', () => {
         expect(screen.getByRole('heading', { name: 'DeleteMe' })).toBeTruthy();
       });
 
-      // Delete is the drawer's top-right trash icon (the Mule Actions Menu
-      // kebab retired in #318), arming the two-step Delete?/Yes confirm. Scope
-      // to the drawer to disambiguate from any other delete affordance.
+      // Delete lives on the drawer's Mule Actions Menu kebab (#324) — instant,
+      // no confirm (recovery is the undo toast). Scope the trigger to the drawer
+      // to disambiguate from the roster Character Card kebabs.
       const drawer = document.querySelector('[data-mule-detail-drawer]') as HTMLElement;
-      fireEvent.click(within(drawer).getByRole('button', { name: /delete mule/i }));
-      fireEvent.click(screen.getByRole('button', { name: /yes/i }));
+      fireEvent.click(within(drawer).getByRole('button', { name: /mule actions/i }));
+      fireEvent.click(await screen.findByRole('menuitem', { name: 'Delete', hidden: true }));
 
       await waitFor(() => {
         expect(screen.queryByRole('heading', { name: 'DeleteMe' })).toBeNull();
@@ -594,14 +594,14 @@ describe('Bulk Select Mode', () => {
     expect(screen.queryByText(/Lv\./)).toBeNull();
   });
 
-  it('never renders a Mule Actions Menu kebab on roster items (retired #320)', async () => {
-    // The kebab retired everywhere: roster-side marking lives in the Bulk
-    // Action Bar's Mark As Menu and active flips in Set Active / Set Inactive;
-    // single-mule marking/active/delete live in the Drawer. No roster item
-    // carries a per-item kebab in either mode.
+  it('renders a Mule Actions Menu kebab on each Character Card, hidden in Bulk Select Mode (#322)', async () => {
+    // The kebab is restored on the Character Card (top-right, always visible)
+    // as the per-mule quick-action surface. It hides in Bulk Select Mode,
+    // matching all other per-item chrome so the Bulk Action Bar is the only
+    // action surface while selecting.
     seedMules(testMules);
     await renderApp();
-    expect(screen.queryByRole('button', { name: /mule actions/i })).toBeNull();
+    expect(screen.getAllByRole('button', { name: /mule actions/i }).length).toBeGreaterThan(0);
     enterBulk();
     expect(screen.queryByRole('button', { name: /mule actions/i })).toBeNull();
   });
