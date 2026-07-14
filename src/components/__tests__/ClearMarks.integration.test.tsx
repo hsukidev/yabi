@@ -149,45 +149,63 @@ function AllSurfacesWithMarkAsMenu({ initial }: { initial: Mule }) {
   );
 }
 
-// The Drawer's beside-name Completion Check is gone (#316) — mark state lives
-// on the tally's Mark Toggle. So the Drawer surface is read via the toggle's
-// aria-pressed, and the roster surfaces via their Completion Check imgs.
-function drawerWeeklyToggle() {
-  const sheet = document.querySelector('[data-slot="sheet-content"]') as HTMLElement;
-  return within(sheet).getByRole('button', { name: /weekly (in)?complete/i });
+function drawerSheet() {
+  return document.querySelector('[data-slot="sheet-content"]') as HTMLElement;
 }
 
-// Card Lv pill + List View row = two roster Completion Check imgs when marked
-// (the Drawer no longer contributes an img). Both background surfaces are inert
+// The Drawer's per-mule writes now ride the Mule Actions Menu kebab (#324) —
+// its Mark Toggles were retired. Drive the weekly mark by opening the kebab and
+// clicking its weekly row (Complete / Incomplete, worded as the action).
+async function clickDrawerWeekly() {
+  const kebab = within(drawerSheet()).getByRole('button', { name: /mule actions/i });
+  fireEvent.click(kebab);
+  const row = await screen.findByRole('menuitem', {
+    name: /weekly (in)?complete/i,
+    hidden: true,
+  });
+  fireEvent.click(row);
+}
+
+// The Drawer surface's mark state is now read via its restored read-only
+// beside-name Completion Check img (#324), scoped to the sheet.
+function drawerWeeklyCheck() {
+  return within(drawerSheet()).queryByRole('img', { name: 'Weekly complete' });
+}
+
+// Card Lv pill + List View row = two roster Completion Check imgs when marked.
+// The Drawer now contributes a third (its beside-name check), so filter it out
+// to keep counting only the two roster surfaces. Both roster surfaces are inert
 // behind the modal, hence `hidden: true`.
 const weeklyRosterChecks = () =>
-  screen.queryAllByRole('img', { name: 'Weekly complete', hidden: true });
+  screen
+    .queryAllByRole('img', { name: 'Weekly complete', hidden: true })
+    .filter((el) => !drawerSheet().contains(el));
 
 describe('Clear Marks — cross-surface sync (Card · Row · Drawer)', () => {
-  it('a weekly mark set on the Drawer Mark Toggle lights the roster checks and presses the toggle', async () => {
+  it('a weekly mark set on the Drawer kebab lights the roster checks and the drawer check', async () => {
     render(<AllSurfaces initial={makeMule('sync-1', { selectedBosses: [HARD_LUCID] })} />);
 
-    // Nothing marked yet — no roster check, toggle un-pressed.
+    // Nothing marked yet — no roster check, no drawer beside-name check.
     expect(weeklyRosterChecks()).toHaveLength(0);
-    expect(drawerWeeklyToggle().getAttribute('aria-pressed')).toBe('false');
+    expect(drawerWeeklyCheck()).toBeNull();
 
-    fireEvent.click(drawerWeeklyToggle());
+    await clickDrawerWeekly();
 
     // Both roster surfaces (Card Lv pill + List View row) light their check and
-    // the Drawer toggle flips to pressed — all from the same updated `mule`.
+    // the Drawer's beside-name check appears — all from the same updated `mule`.
     await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(2));
-    expect(drawerWeeklyToggle().getAttribute('aria-pressed')).toBe('true');
+    expect(drawerWeeklyCheck()).toBeTruthy();
   });
 
-  it('clearing the mark on the Drawer Mark Toggle removes the roster checks and un-presses the toggle', async () => {
+  it('clearing the mark on the Drawer kebab removes the roster checks and the drawer check', async () => {
     render(<AllSurfaces initial={makeMule('sync-2', { selectedBosses: [HARD_LUCID] })} />);
 
-    fireEvent.click(drawerWeeklyToggle());
+    await clickDrawerWeekly();
     await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(2));
 
-    fireEvent.click(drawerWeeklyToggle());
+    await clickDrawerWeekly();
     await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(0));
-    expect(drawerWeeklyToggle().getAttribute('aria-pressed')).toBe('false');
+    expect(drawerWeeklyCheck()).toBeNull();
   });
 });
 
@@ -215,11 +233,11 @@ describe('Clear Marks — Mark As Menu writer cross-surface sync', () => {
 
     await chooseWeekly();
 
-    // Card Lv pill · List View row light up, and the Drawer's tally toggle
-    // presses — all from the same `mule` (#316 replaced the Drawer's
-    // beside-name check with the tally Mark Toggle).
+    // Card Lv pill · List View row light up, and the Drawer's beside-name check
+    // appears — all from the same `mule` (#324 restored the read-only drawer
+    // check and made the Mule Actions Menu the drawer's sole writer).
     await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(2));
-    expect(drawerWeeklyToggle().getAttribute('aria-pressed')).toBe('true');
+    expect(drawerWeeklyCheck()).toBeTruthy();
   });
 
   it('re-choosing the same row toggles the mark back off across all surfaces', async () => {
@@ -231,10 +249,10 @@ describe('Clear Marks — Mark As Menu writer cross-surface sync', () => {
 
     await chooseWeekly();
     await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(2));
-    expect(drawerWeeklyToggle().getAttribute('aria-pressed')).toBe('true');
+    expect(drawerWeeklyCheck()).toBeTruthy();
 
     await chooseWeekly();
     await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(0));
-    expect(drawerWeeklyToggle().getAttribute('aria-pressed')).toBe('false');
+    expect(drawerWeeklyCheck()).toBeNull();
   });
 });

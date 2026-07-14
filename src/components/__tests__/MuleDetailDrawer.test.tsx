@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, fireEvent, within } from '@/test/test-utils';
+import { render, screen, fireEvent, waitFor, within } from '@/test/test-utils';
 
 import { MuleDetailDrawer } from '../MuleDetailDrawer';
 import type { Mule } from '../../types';
@@ -19,10 +19,13 @@ const BLACK_MAGE_BOSS = bosses.find((b) => b.family === 'black-mage')!;
 const EXTREME_BLACK_MAGE = `${BLACK_MAGE_BOSS.id}:extreme:monthly`;
 const HARD_BLACK_MAGE_MONTHLY = `${BLACK_MAGE_BOSS.id}:hard:monthly`;
 
-// The drawer's delete entry point is a top-right trash icon (the Mule Actions
-// Menu kebab was retired in #318 — marking moved to the Crystal Tally's Mark
-// Toggles, the Active Flag to the Active Toggle pill).
-const getTrashIcon = () => screen.getByRole('button', { name: /delete mule/i });
+// The drawer's per-mule actions all live on the Mule Actions Menu kebab in the
+// header (#324 consolidation): Active Flag, the three Clear Marks, and delete.
+const getKebab = () => screen.getByRole('button', { name: /mule actions/i });
+const openMenu = async () => {
+  fireEvent.click(getKebab());
+  await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+};
 
 function topWeeklyKeys(n: number): { slateKey: SlateKey; value: number }[] {
   const all: { slateKey: SlateKey; value: number }[] = [];
@@ -152,12 +155,11 @@ function fullyDroppedWorld(
  *   - MuleDetailDrawer/hooks/__tests__/usePartySizes.test.tsx
  *   - MuleDetailDrawer/hooks/__tests__/usePresetPill.test.ts
  *   - MuleDetailDrawer/hooks/__tests__/useSlateActions.test.tsx
- *   - MuleDetailDrawer/hooks/__tests__/useDeleteConfirm.test.tsx
  *   - MuleDetailDrawer/hooks/__tests__/useMuleIdentityDraft.test.tsx
  *
  * This file only asserts the drawer renders and wires those hooks into the
  * JSX correctly: name draft bound to the input, matrix toolbar + reset, boss
- * matrix toggle, delete-confirm two-step flow, close button.
+ * matrix toggle, Mule Actions Menu delete (delete + close), close button.
  */
 describe('MuleDetailDrawer (smoke)', () => {
   it('renders content when open with a mule', () => {
@@ -224,25 +226,18 @@ describe('MuleDetailDrawer (smoke)', () => {
     });
   });
 
-  it('wires the trash icon through the two-step confirm flow (delete + close)', () => {
+  it('wires the kebab Delete to delete instantly and close the drawer (no confirm step)', async () => {
     const onDelete = vi.fn();
     const onClose = vi.fn();
     renderDrawer({ onDelete, onClose });
 
-    fireEvent.click(getTrashIcon());
-    expect(screen.getByText('Delete?')).toBeTruthy();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
+    await openMenu();
+    // No Delete?/Yes/Cancel confirmation — the row deletes on click (recovery
+    // is the undo toast) and closes the drawer.
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Delete' }));
+    expect(screen.queryByText('Delete?')).toBeNull();
     expect(onDelete).toHaveBeenCalledWith(baseMule.id);
     expect(onClose).toHaveBeenCalled();
-  });
-
-  it('Cancel hides the confirm prompt without calling onDelete', () => {
-    const { props } = renderDrawer();
-    fireEvent.click(getTrashIcon());
-    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-    expect(screen.queryByText('Delete?')).toBeNull();
-    expect(props.onDelete).not.toHaveBeenCalled();
   });
 
   // Regression: the drawer used to build its IncomeSource without `worldId`,
@@ -486,27 +481,85 @@ describe('MuleDetailDrawer (smoke)', () => {
     expect(tally.className).not.toContain('flex-row items-stretch');
   });
 
-  describe('drawer delete control (trash icon, kebab retired)', () => {
-    it('renders a top-right trash icon, not a Mule Actions Menu kebab', () => {
+  describe('drawer per-mule actions live on the Mule Actions Menu kebab', () => {
+    it('renders a header kebab, not a trash icon or Active Toggle button', () => {
       renderDrawer();
-      expect(getTrashIcon().tagName).toBe('BUTTON');
-      // The drawer kebab retired in #318 — marking moved to the tally Mark
-      // Toggles, the Active Flag to the Active Toggle pill.
-      expect(screen.queryByRole('button', { name: /mule actions/i })).toBeNull();
+      expect(getKebab().tagName).toBe('BUTTON');
+      // The trash icon and its Delete?/Yes/Cancel flow are retired (#324).
+      expect(screen.queryByRole('button', { name: /delete mule/i })).toBeNull();
     });
 
-    it('opens the delete confirmation on click (no menu)', () => {
+    it('flips the Active Flag off through the kebab (Set Inactive)', async () => {
+      const { props } = renderDrawer({ mule: { ...baseMule, active: true } });
+      await openMenu();
+      expect(screen.queryByText('Set Active')).toBeNull();
+      fireEvent.click(screen.getByText('Set Inactive'));
+      expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, { active: false });
+    });
+
+    it('flips the Active Flag on through the kebab (Set Active)', async () => {
+      const { props } = renderDrawer({ mule: { ...baseMule, active: false } });
+      await openMenu();
+      expect(screen.queryByText('Set Inactive')).toBeNull();
+      fireEvent.click(screen.getByText('Set Active'));
+      expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, { active: true });
+    });
+
+    it('sets the weekly mark through the kebab for a weekly-eligible slate', async () => {
+      const { props } = renderDrawer({ mule: { ...baseMule, selectedBosses: [HARD_LUCID] } });
+      await openMenu();
+      fireEvent.click(screen.getByText('Weekly Complete'));
+      expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, {
+        weeklyClearMark: expect.any(Number),
+      });
+    });
+
+    it('clears the weekly mark through the kebab when already marked', async () => {
+      const { props } = renderDrawer({
+        mule: {
+          ...baseMule,
+          selectedBosses: [HARD_LUCID],
+          weeklyClearMark: currentWeeklyStamp(Date.now()),
+        },
+      });
+      await openMenu();
+      fireEvent.click(screen.getByText('Weekly Incomplete'));
+      expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, { weeklyClearMark: undefined });
+    });
+
+    it('sets the BM mark through the kebab for a monthly slate', async () => {
+      const { props } = renderDrawer({
+        mule: { ...baseMule, selectedBosses: [HARD_BLACK_MAGE_MONTHLY] },
+      });
+      await openMenu();
+      fireEvent.click(screen.getByText('BM Complete'));
+      expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, {
+        bmClearMark: expect.any(String),
+      });
+    });
+
+    it('hides ineligible cadence rows — a boss-less mule offers only Set + Delete', async () => {
       renderDrawer();
-      fireEvent.click(getTrashIcon());
-      expect(screen.getByText('Delete?')).toBeTruthy();
-      expect(screen.queryByRole('menu')).toBeNull();
+      await openMenu();
+      expect(screen.queryByText('Weekly Complete')).toBeNull();
+      expect(screen.queryByText('Daily Complete')).toBeNull();
+      expect(screen.queryByText('BM Complete')).toBeNull();
+      expect(screen.getByText('Delete')).toBeTruthy();
+    });
+
+    it('shows both daily and weekly rows for a daily-only slate (weekly rides on daily keys)', async () => {
+      renderDrawer({ mule: { ...baseMule, selectedBosses: [NORMAL_HILLA_DAILY] } });
+      await openMenu();
+      expect(screen.getByText('Daily Complete')).toBeTruthy();
+      expect(screen.getByText('Weekly Complete')).toBeTruthy();
+      expect(screen.queryByText('BM Complete')).toBeNull();
     });
   });
 
-  describe('header Completion Checks removed (mark state lives on the tally)', () => {
+  describe('header beside-name Completion Checks (read-only, restored #324)', () => {
     const NOW = Date.UTC(2026, 6, 11, 12, 0, 0); // 2026-07-11 12:00 UTC
 
-    it('renders no beside-name Completion Check img even when every mark is valid', () => {
+    it('renders one read-only Completion Check img per valid mark beside the name', () => {
       vi.useFakeTimers();
       vi.setSystemTime(NOW);
       try {
@@ -519,125 +572,42 @@ describe('MuleDetailDrawer (smoke)', () => {
             bmClearMark: currentBmStamp(NOW),
           },
         });
-        // The name-side `role="img"` Completion Checks are gone; mark state is
-        // carried by the tally's Mark Toggle buttons (aria-pressed), not imgs.
-        expect(screen.queryByRole('img', { name: /complete/i })).toBeNull();
+        expect(screen.getByRole('img', { name: 'Daily complete' })).toBeTruthy();
+        expect(screen.getByRole('img', { name: 'Weekly complete' })).toBeTruthy();
+        expect(screen.getByRole('img', { name: 'BM complete' })).toBeTruthy();
       } finally {
         vi.useRealTimers();
       }
     });
-  });
 
-  describe('Crystal Tally Mark Toggles', () => {
-    const NOW = Date.UTC(2026, 6, 11, 12, 0, 0); // 2026-07-11 12:00 UTC
-
-    const markToggle = (name: RegExp) => screen.getByRole('button', { name });
-    const queryMarkToggle = (name: RegExp) => screen.queryByRole('button', { name });
-
-    it('shows no Mark Toggle on an empty slate (no eligible cadence)', () => {
+    it('renders no Completion Check img when no mark is valid', () => {
       renderDrawer();
-      expect(queryMarkToggle(/daily (in)?complete/i)).toBeNull();
-      expect(queryMarkToggle(/weekly (in)?complete/i)).toBeNull();
-      expect(queryMarkToggle(/bm (in)?complete/i)).toBeNull();
-    });
-
-    it('shows the weekly toggle (and no daily/bm) for a weekly-only slate', () => {
-      renderDrawer({ mule: { ...baseMule, selectedBosses: [HARD_LUCID] } });
-      expect(markToggle(/weekly incomplete — click to mark complete/i)).toBeTruthy();
-      expect(queryMarkToggle(/daily (in)?complete/i)).toBeNull();
-      expect(queryMarkToggle(/bm (in)?complete/i)).toBeNull();
-    });
-
-    it('shows both daily and weekly toggles for a daily-only slate (weekly rides on daily keys)', () => {
-      renderDrawer({ mule: { ...baseMule, selectedBosses: [NORMAL_HILLA_DAILY] } });
-      expect(markToggle(/daily incomplete — click to mark complete/i)).toBeTruthy();
-      expect(markToggle(/weekly incomplete — click to mark complete/i)).toBeTruthy();
-      expect(queryMarkToggle(/bm (in)?complete/i)).toBeNull();
-    });
-
-    it('shows the BM toggle for a monthly slate', () => {
-      renderDrawer({ mule: { ...baseMule, selectedBosses: [HARD_BLACK_MAGE_MONTHLY] } });
-      expect(markToggle(/bm incomplete — click to mark complete/i)).toBeTruthy();
-    });
-
-    it('is a real <button> with aria-pressed reflecting mark state', () => {
-      vi.useFakeTimers();
-      vi.setSystemTime(NOW);
-      try {
-        renderDrawer({
-          mule: {
-            ...baseMule,
-            selectedBosses: [HARD_LUCID],
-            weeklyClearMark: currentWeeklyStamp(NOW),
-          },
-        });
-        const toggle = markToggle(/weekly complete — click to unmark/i);
-        expect(toggle.tagName).toBe('BUTTON');
-        expect(toggle.getAttribute('aria-pressed')).toBe('true');
-      } finally {
-        vi.useRealTimers();
-      }
-    });
-
-    it('sets the weekly mark through onUpdate (current cycle stamp)', () => {
-      const { props } = renderDrawer({ mule: { ...baseMule, selectedBosses: [HARD_LUCID] } });
-      fireEvent.click(markToggle(/weekly incomplete — click to mark complete/i));
-      expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, {
-        weeklyClearMark: expect.any(Number),
-      });
-    });
-
-    it('clears the weekly mark when already marked', () => {
-      const { props } = renderDrawer({
-        mule: {
-          ...baseMule,
-          selectedBosses: [HARD_LUCID],
-          weeklyClearMark: currentWeeklyStamp(Date.now()),
-        },
-      });
-      fireEvent.click(markToggle(/weekly complete — click to unmark/i));
-      expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, { weeklyClearMark: undefined });
-    });
-
-    it('sets the BM mark through onUpdate for a monthly slate', () => {
-      const { props } = renderDrawer({
-        mule: { ...baseMule, selectedBosses: [HARD_BLACK_MAGE_MONTHLY] },
-      });
-      fireEvent.click(markToggle(/bm incomplete — click to mark complete/i));
-      expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, {
-        bmClearMark: expect.any(String),
-      });
+      expect(screen.queryByRole('img', { name: /complete/i })).toBeNull();
     });
   });
 
-  describe('Active Toggle pill', () => {
-    it('renders the pill reflecting an active mule (aria-pressed true)', () => {
+  describe('Active status chip (read-only, replaces the Active Toggle #324)', () => {
+    it('renders the chip reflecting an active mule (no button semantics)', () => {
       renderDrawer({ mule: { ...baseMule, active: true } });
-      const pill = screen.getByTestId('active-toggle');
-      expect(pill.getAttribute('aria-pressed')).toBe('true');
-      expect(within(pill).getByText('Active')).toBeTruthy();
+      const chip = screen.getByTestId('active-status-chip');
+      expect(chip.tagName).not.toBe('BUTTON');
+      expect(chip.getAttribute('aria-pressed')).toBeNull();
+      expect(within(chip).getByText('Active')).toBeTruthy();
     });
 
-    it('renders an inactive pill for a parked mule (aria-pressed false)', () => {
+    it('renders an inactive chip for a parked mule', () => {
       renderDrawer({ mule: { ...baseMule, active: false } });
-      const pill = screen.getByTestId('active-toggle');
-      expect(pill.getAttribute('aria-pressed')).toBe('false');
-      expect(within(pill).getByText('Inactive')).toBeTruthy();
+      const chip = screen.getByTestId('active-status-chip');
+      expect(within(chip).getByText('Inactive')).toBeTruthy();
     });
 
-    it('flips the Active Flag off through onUpdate', () => {
+    it('does not write when clicked — it is a status display, not a control', () => {
       const { props } = renderDrawer({ mule: { ...baseMule, active: true } });
-      fireEvent.click(screen.getByTestId('active-toggle'));
-      expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, { active: false });
+      fireEvent.click(screen.getByTestId('active-status-chip'));
+      expect(props.onUpdate).not.toHaveBeenCalled();
     });
 
-    it('flips the Active Flag on through onUpdate', () => {
-      const { props } = renderDrawer({ mule: { ...baseMule, active: false } });
-      fireEvent.click(screen.getByTestId('active-toggle'));
-      expect(props.onUpdate).toHaveBeenCalledWith(baseMule.id, { active: true });
-    });
-
-    it('is the Drawer’s sole standalone Active writer — no roster switch', () => {
+    it('mounts no roster switch', () => {
       renderDrawer();
       expect(screen.queryByRole('switch')).toBeNull();
     });

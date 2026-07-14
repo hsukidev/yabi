@@ -1,11 +1,10 @@
 import { useCallback, useMemo } from 'react';
 import type { CSSProperties } from 'react';
-import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import type { Mule } from '../types';
 import { useCurrentCycle } from '../hooks/useCurrentCycle';
-import { isMarkValid, clearMarkUpdate, type ClearMarkKind } from '../utils/clearMark';
+import { isMarkValid, isMarkEligible } from '../utils/clearMark';
 import { formatMeso } from '../utils/meso';
 import { MuleBossSlate, type SlateKey } from '../data/muleBossSlate';
 import type { PresetKey } from './MatrixToolbar';
@@ -19,7 +18,6 @@ import { BossSearch } from './BossSearch';
 import { MatrixToolbar } from './MatrixToolbar';
 import { CharacterAvatar } from './CharacterAvatar';
 import { MesoMetric } from './MesoDisplay';
-import { useDeleteConfirm } from './MuleDetailDrawer/hooks/useDeleteConfirm';
 import { useMuleIdentityDraft } from './MuleDetailDrawer/hooks/useMuleIdentityDraft';
 import { useMatrixFilter } from './MuleDetailDrawer/hooks/useMatrixFilter';
 import { usePartySizes } from './MuleDetailDrawer/hooks/usePartySizes';
@@ -27,6 +25,8 @@ import { useSlateActions } from './MuleDetailDrawer/hooks/useSlateActions';
 import { CrystalTally } from './MuleDetailDrawer/CrystalTally';
 import { MuleIdentityFields } from './MuleDetailDrawer/MuleIdentityFields';
 import { MuleNotesField } from './MuleDetailDrawer/MuleNotesField';
+import { MuleActionsMenu } from './RosterItem/MuleActionsMenu';
+import { CompletionChecks } from './RosterItem/CompletionChecks';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import type { RosterRowMetrics } from './rosterRowMetrics';
 // Zero-state tone shared with the KPI income Progress Readouts.
@@ -112,33 +112,33 @@ export function MuleDetailDrawer({
     onUpdate,
   });
 
-  const del = useDeleteConfirm({
-    muleId,
-    onDelete,
-    onAfterDelete: onClose,
-  });
-  // Cycle Clock — the Crystal Tally's Mark Toggles read live Clear Mark
-  // validity to drive their pressed state and set/clear direction. `now` only
-  // changes at a cycle boundary, so this adds no per-keystroke work (CLAUDE.md
-  // drawer perf).
+  // Cycle Clock — the Mule Actions Menu reads live Clear Mark validity to drive
+  // each cadence row's wording / set-clear direction, and the beside-name
+  // Completion Checks light iff their mark is valid. `now` only changes at a
+  // cycle boundary, so this adds no per-keystroke work (CLAUDE.md drawer perf).
   const now = useCurrentCycle();
   const dailyValid = mule ? isMarkValid(mule, 'daily', now) : false;
   const weeklyValid = mule ? isMarkValid(mule, 'weekly', now) : false;
   const bmValid = mule ? isMarkValid(mule, 'bm', now) : false;
-  // The drawer edits marks and the Active Flag through the same `updateMule`
-  // (`onUpdate`) path as every other mule edit — no drawer-level mark state to
-  // bust the memo barriers with. `onUpdate` is identity-stable at the Dashboard
-  // level.
-  // The Crystal Tally's Mark Toggles close the mule id in here so the tally's
-  // prop shape stays counts + three validity booleans + one stable handler
-  // (CLAUDE.md drawer perf). `muleId` and `onUpdate` are both stable across
-  // keystrokes, so this never busts the tally's memo barrier.
-  const handleTallySetMark = useCallback(
-    (kind: ClearMarkKind, marked: boolean) => {
-      if (muleId) onUpdate(muleId, clearMarkUpdate(kind, marked, Date.now()));
-    },
-    [muleId, onUpdate],
-  );
+  // Canonical Mark-eligibility per cadence (same predicate as Mark Invalidation)
+  // — an ineligible cadence hides its Mule Actions Menu row so a mark is never
+  // written that would immediately invalidate. Derived straight off the slate's
+  // cadence key counts, so it costs nothing per keystroke.
+  const dailyEligible = isMarkEligible(slate, 'daily');
+  const weeklyEligible = isMarkEligible(slate, 'weekly');
+  const bmEligible = isMarkEligible(slate, 'bm');
+  // The drawer's Mule Actions Menu writes marks and the Active Flag through the
+  // same identity-stable `updateMule` (`onUpdate`) path as every other mule
+  // edit — no drawer-level mark state to bust the memo barriers with. Delete
+  // fires the undo-toast delete and then closes the drawer, so the user is
+  // never left looking at a drawer for a mule that no longer exists. `muleId`,
+  // `onDelete`, and `onClose` are all stable across keystrokes.
+  const handleDelete = useCallback(() => {
+    if (muleId) {
+      onDelete(muleId);
+      onClose();
+    }
+  }, [muleId, onDelete, onClose]);
   const identity = useMuleIdentityDraft(mule, onUpdate);
   const liveLevel = Number(identity.level.draft) || 0;
   // Slate Display Mode is a `useState`-backed primitive with a stable setter
@@ -208,8 +208,11 @@ export function MuleDetailDrawer({
                   data-testid="drawer-avatar"
                 />
                 <div className="min-w-0 w-full text-center min-[425px]:w-auto min-[425px]:flex-1 min-[425px]:text-left">
-                  {/* Mark state now lives on the Crystal Tally's Mark Toggles,
-                      so the beside-name Completion Checks are gone (#316). */}
+                  {/* Read-only beside-name Completion Checks — one colored check
+                      per currently-valid Clear Mark, matching the roster Lv-pill
+                      treatment. Restored (#324) now the Crystal Tally's Mark
+                      Toggles are retired; the Mule Actions Menu kebab is the sole
+                      writer, and these keep mark state visible at a glance. */}
                   <h2 className="mt-1 font-display text-2xl/tight font-bold flex items-center justify-center gap-2 min-w-0 min-[425px]:justify-start">
                     <span className="truncate min-w-0">
                       {identity.name.draft || (
@@ -218,6 +221,7 @@ export function MuleDetailDrawer({
                         </span>
                       )}
                     </span>
+                    <CompletionChecks daily={dailyValid} weekly={weeklyValid} bm={bmValid} />
                   </h2>
                   <div className="mt-1 flex items-center justify-center gap-3 text-xs min-[425px]:justify-start">
                     <span className="font-sans uppercase tracking-[0.22em] text-(--accent-secondary) translate-x-0.5">
@@ -270,21 +274,16 @@ export function MuleDetailDrawer({
                         {monthlyIncome}
                       </span>
                     </MesoMetric>
-                    {/* Active Toggle — the Drawer's sole Active Flag writer,
-                        restored now the kebab is gone (#318). Writes through the
-                        same identity-stable `onUpdate` path as every other edit;
-                        the fixed min-width keeps it from jittering as it flips. */}
-                    <button
-                      type="button"
-                      data-testid="active-toggle"
-                      aria-pressed={mule.active}
-                      aria-label={
-                        mule.active
-                          ? 'Active — click to set inactive'
-                          : 'Inactive — click to set active'
-                      }
-                      onClick={() => onUpdate(mule.id, { active: !mule.active })}
-                      className="mt-0.5 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-sans uppercase tracking-[0.18em] transition-colors cursor-pointer"
+                    {/* Active status chip — read-only (#324). The Active Toggle
+                        pill kept its visual but lost its button semantics; the
+                        Active Flag is now flipped only through the Mule Actions
+                        Menu kebab. The fixed min-width keeps it from jittering as
+                        it flips. */}
+                    <div
+                      data-testid="active-status-chip"
+                      role="status"
+                      aria-label={mule.active ? 'Active' : 'Inactive'}
+                      className="mt-0.5 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-sans uppercase tracking-[0.18em]"
                       style={{
                         background: 'var(--surface-2)',
                         border: `1px solid ${mule.active ? 'var(--accent-soft, var(--border))' : 'var(--border)'}`,
@@ -309,7 +308,7 @@ export function MuleDetailDrawer({
                         />
                       )}
                       <span>{mule.active ? 'Active' : 'Inactive'}</span>
-                    </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -322,41 +321,29 @@ export function MuleDetailDrawer({
                   weeklyCount={slate.weeklyCount}
                   dailyCount={slate.dailyCount}
                   monthlyCount={slate.monthlyCount}
-                  weeklyMarked={weeklyValid}
-                  dailyMarked={dailyValid}
-                  bmMarked={bmValid}
-                  onSetMark={handleTallySetMark}
                 />
               </div>
 
-              {del.confirming ? (
-                <div className="absolute top-3 right-3 flex items-center gap-2 rounded-lg bg-popover p-3 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10">
-                  <span>Delete?</span>
-                  <Button size="sm" variant="destructive" onClick={del.confirm}>
-                    Yes
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={del.cancel}>
-                    Cancel
-                  </Button>
-                </div>
-              ) : (
-                <div className="absolute top-3 right-3 flex items-center gap-1">
-                  {/* Trash icon — the drawer's delete entry point now the
-                      Mule Actions Menu kebab is retired (#318). Marking moved
-                      to the Crystal Tally's Mark Toggles and the Active Flag to
-                      the Active Toggle pill, so the trash icon's one job is to
-                      arm the existing Delete?/Yes/Cancel confirmation flow. */}
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Delete mule"
-                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 @max-[599.99px]/drawer:size-9 @max-[599.99px]/drawer:[&_svg]:size-5"
-                    onClick={del.request}
-                  >
-                    <Trash2 />
-                  </Button>
-                </div>
-              )}
+              {/* Mule Actions Menu — the Drawer's sole per-mule action surface
+                  (#324). The kebab flips the Active Flag, sets/clears the three
+                  Clear Marks, and deletes the mule (instant + undo toast, then
+                  closes the drawer). It replaces the trash icon's slot; the
+                  Active Toggle pill and the tally's Mark Toggles are retired in
+                  favor of read-only status displays. Writes ride the
+                  identity-stable `onUpdate`, so no memo barrier is busted. */}
+              <div className="absolute top-3 right-3 flex items-center gap-1">
+                <MuleActionsMenu
+                  mule={mule}
+                  updateMule={onUpdate}
+                  onDelete={handleDelete}
+                  dailyValid={dailyValid}
+                  weeklyValid={weeklyValid}
+                  bmValid={bmValid}
+                  dailyEligible={dailyEligible}
+                  weeklyEligible={weeklyEligible}
+                  bmEligible={bmEligible}
+                />
+              </div>
             </div>
 
             <div className="mx-6 border-t border-border/50" />
