@@ -109,9 +109,9 @@ describe('MuleDetailDrawer keystroke perf (memo barrier)', () => {
     // …but the memoized Slate Display Mode children stayed behind their barrier.
     expect(counters.card).toBe(cardBase);
     expect(counters.toolbar).toBe(toolbarBase);
-    // The interactive Crystal Tally is also behind its memo barrier — its props
-    // are counts + three validity booleans + the stable Mark Toggle handler, so
-    // a keystroke's fresh drawer render never reaches it (#316, CLAUDE.md perf).
+    // The read-only Crystal Tally is also behind its memo barrier — its props
+    // are just the three slate counts (all derived from the memoized slate), so
+    // a keystroke's fresh drawer render never reaches it (#324, CLAUDE.md perf).
     expect(counters.tally).toBe(tallyBase);
   });
 
