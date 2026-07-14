@@ -4,7 +4,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { Mule } from '../types';
 import { useDensity } from '../context/DensityProvider';
 import { useCurrentCycle } from '../hooks/useCurrentCycle';
-import { isMarkValid } from '../utils/clearMark';
+import { isMarkEligible, isMarkValid } from '../utils/clearMark';
 import { MuleBossSlate, type SlateKey } from '../data/muleBossSlate';
 import { resolveWorldGroup } from '../data/worlds';
 import { CharacterAvatar } from './CharacterAvatar';
@@ -14,12 +14,20 @@ import { NotesTooltipTrigger } from './RosterItem/NotesTooltipTrigger';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import { SelectionIndicator } from './RosterItem/SelectionIndicator';
 import { InactiveDimOverlay } from './RosterItem/InactiveDimOverlay';
+import { MuleActionsMenu } from './RosterItem/MuleActionsMenu';
 import { CompletionChecks } from './RosterItem/CompletionChecks';
 import type { RosterRowMetrics } from './rosterRowMetrics';
 
 interface MuleCharacterCardProps {
   mule: Mule;
   onClick: (id: string) => void;
+  // Identity-stable Clear Mark / Active Flag writer, threaded to the Mule
+  // Actions Menu which builds its own patches. Must be referentially stable
+  // (memoize at the Dashboard level) to preserve the outer memo barrier.
+  updateMule: (id: string, patch: Partial<Mule>) => void;
+  // Deletes this mule (fires the undo toast). Identity-stable; the card wraps
+  // it as `() => onDelete(mule.id)` for the menu's `onDelete`.
+  onDelete: (id: string) => void;
   bulkMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
@@ -239,6 +247,8 @@ function IncomeLine({
 export const MuleCharacterCard = memo(function MuleCharacterCard({
   mule,
   onClick,
+  updateMule,
+  onDelete,
   bulkMode = false,
   selected = false,
   onToggleSelect,
@@ -260,6 +270,12 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
   const dailyValid = isMarkValid(mule, 'daily', now);
   const weeklyValid = isMarkValid(mule, 'weekly', now);
   const bmValid = isMarkValid(mule, 'bm', now);
+
+  // Canonical Mark-eligibility — each cadence row appears only when the mule
+  // could hold that mark (same predicate as Mark Invalidation).
+  const dailyEligible = isMarkEligible(metrics, 'daily');
+  const weeklyEligible = isMarkEligible(metrics, 'weekly');
+  const bmEligible = isMarkEligible(metrics, 'bm');
 
   useEffect(() => {
     if (isPaintEngaged) setIsPressed(false);
@@ -358,6 +374,24 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
         )}
 
         {!mule.active && <InactiveDimOverlay />}
+
+        {!bulkMode && (
+          // zIndex 2 lifts the menu above the InactiveDimOverlay (zIndex 1) so
+          // an inactive (dimmed) mule keeps a fully operable menu.
+          <span style={{ position: 'absolute', top: 10, right: 10, display: 'flex', zIndex: 2 }}>
+            <MuleActionsMenu
+              mule={mule}
+              updateMule={updateMule}
+              onDelete={() => onDelete(mule.id)}
+              dailyValid={dailyValid}
+              weeklyValid={weeklyValid}
+              bmValid={bmValid}
+              dailyEligible={dailyEligible}
+              weeklyEligible={weeklyEligible}
+              bmEligible={bmEligible}
+            />
+          </span>
+        )}
       </div>
     </div>
   );

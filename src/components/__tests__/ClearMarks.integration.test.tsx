@@ -70,7 +70,13 @@ function AllSurfaces({ initial }: { initial: Mule }) {
     <>
       <DndContext>
         <SortableContext items={[mule.id]} strategy={rectSortingStrategy}>
-          <MuleCharacterCard mule={mule} onClick={noop} metrics={metrics} />
+          <MuleCharacterCard
+            mule={mule}
+            onClick={noop}
+            updateMule={onUpdate}
+            onDelete={noop}
+            metrics={metrics}
+          />
           <MuleListRow mule={mule} metrics={metrics} onClick={noop} />
         </SortableContext>
       </DndContext>
@@ -121,7 +127,13 @@ function AllSurfacesWithMarkAsMenu({ initial }: { initial: Mule }) {
       <MarkAsMenu selectedCount={1} eligibleCounts={eligibleCounts} onMarkAs={onMarkAs} />
       <DndContext>
         <SortableContext items={[mule.id]} strategy={rectSortingStrategy}>
-          <MuleCharacterCard mule={mule} onClick={noop} metrics={metrics} />
+          <MuleCharacterCard
+            mule={mule}
+            onClick={noop}
+            updateMule={onUpdate}
+            onDelete={noop}
+            metrics={metrics}
+          />
           <MuleListRow mule={mule} metrics={metrics} onClick={noop} />
         </SortableContext>
       </DndContext>
