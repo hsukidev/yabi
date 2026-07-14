@@ -293,6 +293,8 @@ export function Dashboard() {
                           key={mule.id}
                           mule={mule}
                           onClick={handleCardClick}
+                          updateMule={updateMule}
+                          onDelete={deleteMule}
                           bulkMode={bulkMode}
                           selected={toDelete.has(mule.id)}
                           onToggleSelect={toggleDelete}

@@ -86,7 +86,13 @@ function renderCard(mule: Mule, metrics: RosterRowMetrics) {
   return render(
     <DndContext>
       <SortableContext items={[mule.id]} strategy={rectSortingStrategy}>
-        <MuleCharacterCard mule={mule} onClick={() => {}} metrics={metrics} />
+        <MuleCharacterCard
+          mule={mule}
+          onClick={() => {}}
+          updateMule={() => {}}
+          onDelete={() => {}}
+          metrics={metrics}
+        />
       </SortableContext>
     </DndContext>,
   );

@@ -68,7 +68,13 @@ function renderMuleCard(mule: Mule = makeMule()) {
   return render(
     <DndContext>
       <SortableContext items={[mule.id]} strategy={rectSortingStrategy}>
-        <MuleCharacterCard mule={mule} onClick={() => {}} metrics={emptyMetrics} />
+        <MuleCharacterCard
+          mule={mule}
+          onClick={() => {}}
+          updateMule={() => {}}
+          onDelete={() => {}}
+          metrics={emptyMetrics}
+        />
       </SortableContext>
     </DndContext>,
   );
