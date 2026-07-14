@@ -528,6 +528,23 @@ describe('RosterHeader', () => {
         fireEvent.click(screen.getByRole('menuitem', { name: /^weekly/i }));
         expect(props.onMarkAs).toHaveBeenCalledWith('weekly');
       });
+
+      it('keeps the menu open after choosing a row (stay-open, closes on dismiss only)', async () => {
+        const { props } = renderHeader({
+          bulkMode: true,
+          selectedCount: 5,
+          markEligibleCounts: { daily: 2, weekly: 5, bm: 1 },
+        });
+        openMenu();
+        await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+        fireEvent.click(screen.getByRole('menuitem', { name: /^daily/i }));
+        expect(props.onMarkAs).toHaveBeenCalledWith('daily');
+        // Still open — a second cadence can be toggled in the same visit.
+        expect(screen.getByRole('menu')).toBeTruthy();
+        fireEvent.click(screen.getByRole('menuitem', { name: /^weekly/i }));
+        expect(props.onMarkAs).toHaveBeenCalledWith('weekly');
+        expect(screen.getByRole('menu')).toBeTruthy();
+      });
     });
   });
 });

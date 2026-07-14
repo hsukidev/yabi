@@ -618,6 +618,53 @@ describe('MuleCharacterCard', () => {
       expect(screen.getByText('Set Active')).toBeTruthy();
     });
 
+    describe('stay-open on selection (closes only on dismiss / Delete)', () => {
+      it('keeps the menu open and flips wording in place after a mark row selection', async () => {
+        render(<StatefulCard initial={{ ...baseMule, selectedBosses: [HARD_LUCID] }} />);
+        await openMenu();
+        fireEvent.click(screen.getByText('Weekly Complete'));
+        await waitFor(() => expect(screen.getByText('Weekly Incomplete')).toBeTruthy());
+        expect(screen.getByRole('menu')).toBeTruthy();
+      });
+
+      it('keeps the menu open and flips wording in place after Set Inactive', async () => {
+        render(<StatefulCard initial={{ ...baseMule, active: true }} />);
+        await openMenu();
+        fireEvent.click(screen.getByText('Set Inactive'));
+        await waitFor(() => expect(screen.getByText('Set Active')).toBeTruthy());
+        expect(screen.getByRole('menu')).toBeTruthy();
+      });
+
+      it('closes the menu on Delete (its anchor unmounts)', async () => {
+        renderCard();
+        await openMenu();
+        fireEvent.click(screen.getByText('Delete'));
+        await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
+      });
+
+      it('closes on Escape', async () => {
+        renderCard();
+        await openMenu();
+        fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' });
+        await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
+      });
+
+      it('closes on outside press', async () => {
+        renderCard();
+        await openMenu();
+        fireEvent.pointerDown(document.body);
+        fireEvent.mouseDown(document.body);
+        await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
+      });
+
+      it('closes on trigger re-click', async () => {
+        renderCard();
+        await openMenu();
+        fireEvent.click(getKebab());
+        await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
+      });
+    });
+
     describe('live reflection on the card (write-through updateMule)', () => {
       it('setting the weekly mark lights the Lv-pill Completion Check immediately', async () => {
         render(<StatefulCard initial={{ ...baseMule, selectedBosses: [HARD_LUCID] }} />);
@@ -724,6 +771,52 @@ describe('MuleCharacterCard', () => {
           { bulkMode: true },
         );
         expect(screen.queryByRole('img', { name: 'Daily complete' })).toBeNull();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+  });
+
+  describe('Compact density: checks-only Lv pill', () => {
+    const NOW = Date.UTC(2026, 6, 11, 12, 0, 0); // 2026-07-11 12:00 UTC
+
+    it('hides the Lv.X text but keeps valid Completion Checks in compact', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(NOW);
+      try {
+        renderCard(
+          { selectedBosses: [NORMAL_HILLA], dailyClearMark: currentDailyStamp(NOW) },
+          { density: 'compact' },
+        );
+        expect(screen.queryByText(/Lv\./)).toBeNull();
+        expect(screen.getByRole('img', { name: 'Daily complete' })).toBeTruthy();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('unmounts the pill entirely in compact when no mark is valid', () => {
+      const { container } = renderCard({}, { density: 'compact' });
+      expect(screen.queryByText(/Lv\./)).toBeNull();
+      expect(container.querySelector('[data-card-level]')).toBeNull();
+    });
+
+    it('keeps the full Lv.X pill in comfy density', () => {
+      const { container } = renderCard({}, { density: 'comfy' });
+      expect(screen.getByText('Lv.200')).toBeTruthy();
+      expect(container.querySelector('[data-card-level]')).toBeTruthy();
+    });
+
+    it('shows the checks-only pill in compact even when level is 0', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(NOW);
+      try {
+        const { container } = renderCard(
+          { level: 0, selectedBosses: [NORMAL_HILLA], dailyClearMark: currentDailyStamp(NOW) },
+          { density: 'compact' },
+        );
+        expect(screen.getByRole('img', { name: 'Daily complete' })).toBeTruthy();
+        expect(container.querySelector('[data-card-level]')).toBeTruthy();
       } finally {
         vi.useRealTimers();
       }

@@ -82,6 +82,9 @@ export function MarkAsMenu({ selectedCount, eligibleCounts, onMarkAs }: MarkAsMe
               key={kind}
               data-mark-as-row={kind}
               disabled={count === 0}
+              // Stay open on selection so several cadences can be toggled in
+              // one visit; the menu closes on click-away / Esc only.
+              closeOnClick={false}
               onClick={() => onMarkAs(kind)}
             >
               <ColorDot color={color} />

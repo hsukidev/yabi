@@ -109,19 +109,28 @@ export function MuleActionsMenu({
           <EllipsisVertical size={Math.round(kebabSize * 0.58)} />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" sideOffset={6} className="min-w-48">
-          <DropdownMenuItem onClick={() => updateMule(mule.id, { active: !mule.active })}>
-            <ColorDot color="var(--chart-4, #4ade80)" />
+          {/* Toggle rows stay open on selection (closeOnClick={false}) — the
+              wording flips in place so repeated toggles read live. Only Delete
+              closes, since its anchor unmounts with the mule. */}
+          <DropdownMenuItem
+            closeOnClick={false}
+            onClick={() => updateMule(mule.id, { active: !mule.active })}
+          >
+            <ColorDot color="var(--success, #4ade80)" />
             <span style={{ flex: 1 }}>{mule.active ? 'Set Inactive' : 'Set Active'}</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           {dailyEligible && (
-            <DropdownMenuItem onClick={() => toggleMark('daily', dailyValid)}>
+            <DropdownMenuItem closeOnClick={false} onClick={() => toggleMark('daily', dailyValid)}>
               <ColorDot color={DAILY_CYAN} />
               <span style={{ flex: 1 }}>{dailyValid ? 'Daily Incomplete' : 'Daily Complete'}</span>
             </DropdownMenuItem>
           )}
           {weeklyEligible && (
-            <DropdownMenuItem onClick={() => toggleMark('weekly', weeklyValid)}>
+            <DropdownMenuItem
+              closeOnClick={false}
+              onClick={() => toggleMark('weekly', weeklyValid)}
+            >
               <ColorDot color={WEEKLY_PURPLE} />
               <span style={{ flex: 1 }}>
                 {weeklyValid ? 'Weekly Incomplete' : 'Weekly Complete'}
@@ -129,7 +138,7 @@ export function MuleActionsMenu({
             </DropdownMenuItem>
           )}
           {bmEligible && (
-            <DropdownMenuItem onClick={() => toggleMark('bm', bmValid)}>
+            <DropdownMenuItem closeOnClick={false} onClick={() => toggleMark('bm', bmValid)}>
               <ColorDot color={BM_GOLD} />
               <span style={{ flex: 1 }}>{bmValid ? 'BM Incomplete' : 'BM Complete'}</span>
             </DropdownMenuItem>

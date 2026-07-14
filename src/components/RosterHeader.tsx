@@ -292,16 +292,44 @@ export function RosterHeader({
         <DisplayToggle />
         <DensityToggle />
         {muleCount > 0 && (
-          <Button
+          // Select Button — a sibling of the Display/Density Toggles, wearing
+          // their exact chrome (bordered surface wrapper + one inner segment)
+          // so the roster toolbar reads as one family. Still a momentary
+          // action, so the segment stays in the muted "inactive" tint.
+          <button
             type="button"
-            size="sm"
-            variant="outline"
             aria-label="Enter bulk select mode"
             onClick={onEnterBulk}
+            style={{
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+              padding: 4,
+              background: 'var(--surface)',
+              display: 'inline-flex',
+              cursor: 'pointer',
+            }}
           >
-            <ListChecks data-icon="inline-start" />
-            Select
-          </Button>
+            <span
+              style={{
+                padding: '4px 10px',
+                borderRadius: 6,
+                fontFamily: 'Geist Mono, monospace',
+                fontSize: 11,
+                lineHeight: '14px',
+                letterSpacing: '0.14em',
+                fontWeight: 500,
+                background: 'transparent',
+                color: 'var(--muted-raw, var(--muted-foreground))',
+                transition: 'background 120ms, color 120ms',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <ListChecks size={14} strokeWidth={1.75} />
+              SELECT
+            </span>
+          </button>
         )}
       </div>
     </div>

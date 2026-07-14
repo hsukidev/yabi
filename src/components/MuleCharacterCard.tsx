@@ -101,10 +101,17 @@ const MuleCardInner = memo(function MuleCardInner({
     ? EMPTY_DROPPED
     : (droppedKeys ?? EMPTY_DROPPED);
 
+  // Compact cards trade the level for check room: the pill drops its "Lv.X"
+  // text, renders as a checks-only badge, and unmounts with zero valid marks.
+  const compact = density === 'compact';
+  const anyCheckValid = dailyValid || weeklyValid || bmValid;
+  const showLevelPill = compact ? anyCheckValid : mule.level > 0;
+
   return (
     <>
-      {!hideLevelBadge && mule.level > 0 && (
+      {!hideLevelBadge && showLevelPill && (
         <div
+          data-card-level
           style={{
             position: 'absolute',
             top: 12,
@@ -122,7 +129,7 @@ const MuleCardInner = memo(function MuleCardInner({
             background: 'var(--surface-2, var(--surface-raised))',
           }}
         >
-          <span>Lv.{mule.level}</span>
+          {!compact && <span>Lv.{mule.level}</span>}
           <CompletionChecks daily={dailyValid} weekly={weeklyValid} bm={bmValid} />
         </div>
       )}

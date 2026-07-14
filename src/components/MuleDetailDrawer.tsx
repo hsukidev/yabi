@@ -286,10 +286,13 @@ export function MuleDetailDrawer({
                       className="mt-0.5 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-sans uppercase tracking-[0.18em]"
                       style={{
                         background: 'var(--surface-2)',
-                        border: `1px solid ${mule.active ? 'var(--accent-soft, var(--border))' : 'var(--border)'}`,
-                        color: mule.active
-                          ? 'var(--accent-raw, var(--accent))'
-                          : 'var(--muted-foreground)',
+                        // Success-green when active (the semantic token, not
+                        // accent) — green = in rotation, matching the kebab's
+                        // Set Active color key. Inactive stays muted.
+                        border: `1px solid ${
+                          mule.active ? 'var(--success-soft, var(--border))' : 'var(--border)'
+                        }`,
+                        color: mule.active ? 'var(--success)' : 'var(--muted-foreground)',
                         minWidth: 96,
                         justifyContent: 'center',
                       }}
@@ -303,7 +306,7 @@ export function MuleDetailDrawer({
                             width: 8,
                             height: 8,
                             borderRadius: '50%',
-                            background: 'var(--accent-raw, var(--accent))',
+                            background: 'var(--success)',
                           }}
                         />
                       )}

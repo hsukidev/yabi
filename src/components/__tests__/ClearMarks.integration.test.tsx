@@ -217,7 +217,14 @@ describe('Clear Marks — cross-surface sync (Card · Row · Drawer)', () => {
     await clickDrawerWeekly();
     await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(2));
 
-    await clickDrawerWeekly();
+    // The menu stays open after a selection (stay-open) with the row re-worded
+    // in place as the inverse action — clear by clicking it directly, no
+    // re-open.
+    const row = await screen.findByRole('menuitem', {
+      name: /weekly incomplete/i,
+      hidden: true,
+    });
+    fireEvent.click(row);
     await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(0));
     expect(drawerWeeklyCheck()).toBeNull();
   });
@@ -230,10 +237,14 @@ describe('Clear Marks — Mark As Menu writer cross-surface sync', () => {
   // with fireEvent (inert blocks user pointer interaction, not programmatic
   // events) — the menu's keyboard-reachability is covered in the RosterHeader
   // suite, which renders it outside any modal.
+  function clickWeeklyRow() {
+    fireEvent.click(document.querySelector('[data-mark-as-row="weekly"]') as HTMLElement);
+  }
+
   async function chooseWeekly() {
     fireEvent.click(document.querySelector('[data-mark-as-trigger]') as HTMLElement);
     await waitFor(() => expect(document.querySelector('[data-mark-as-row="weekly"]')).toBeTruthy());
-    fireEvent.click(document.querySelector('[data-mark-as-row="weekly"]') as HTMLElement);
+    clickWeeklyRow();
   }
 
   it('a weekly mark applied via the Mark As Menu lights the check on all three surfaces', async () => {
@@ -265,7 +276,9 @@ describe('Clear Marks — Mark As Menu writer cross-surface sync', () => {
     await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(2));
     expect(drawerWeeklyCheck()).toBeTruthy();
 
-    await chooseWeekly();
+    // The Mark As Menu stays open after a selection — re-choose the same row
+    // directly without re-clicking the trigger (which would just close it).
+    clickWeeklyRow();
     await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(0));
     expect(drawerWeeklyCheck()).toBeNull();
   });
@@ -336,8 +349,8 @@ describe('Mule Actions Menu — Clear Mark cross-surface sync (Card kebab)', () 
     await clickMenuItem(/weekly complete/i);
     await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(2));
 
-    // Re-open: the row is now worded as the inverse action (Incomplete).
-    openKebab(cardEl('kebab-mark-2'));
+    // The menu stays open after a selection (stay-open), its row re-worded in
+    // place as the inverse action (Incomplete) — click it without re-opening.
     await clickMenuItem(/weekly incomplete/i);
     await waitFor(() => expect(weeklyRosterChecks()).toHaveLength(0));
     expect(drawerWeeklyCheck()).toBeNull();

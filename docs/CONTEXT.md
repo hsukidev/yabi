@@ -349,14 +349,14 @@ Deletion of a **Clear Mark** by a slate edit that removes its income basis — z
 _Avoid_: mark cleanup, cascade delete
 
 **Mule Actions Menu**:
-The always-visible kebab (⋮) menu mounted on all three per-**Mule** surfaces — the **Character Card** (top-right), the **List View** row (trailing column), and the **Drawer** header. It carries five actions, each worded as the action to be taken (the inverse of the current state): a Set Active / Set Inactive row, one action-worded **Clear Mark** row per cadence ("Weekly Complete" / "Weekly Incomplete"), each led by an always-lit color-key dot, and a destructive Delete row. Cadence rows appear only when the **Mule** is **Mark**-eligible for that cadence (the same predicate as **Mark Invalidation**). Delete is instant — no confirmation; recovery is the undo toast — and from the **Drawer** it also closes the **Drawer**. Hidden on roster items in **Bulk Select Mode**, where the **Bulk Action Bar** is the sole action surface.
+The always-visible kebab (⋮) menu mounted on all three per-**Mule** surfaces — the **Character Card** (top-right), the **List View** row (trailing column), and the **Drawer** header. It carries five actions, each worded as the action to be taken (the inverse of the current state): a Set Active / Set Inactive row, one action-worded **Clear Mark** row per cadence ("Weekly Complete" / "Weekly Incomplete"), each led by an always-lit color-key dot, and a destructive Delete row. Cadence rows appear only when the **Mule** is **Mark**-eligible for that cadence (the same predicate as **Mark Invalidation**). Selecting the Active row or a **Clear Mark** row keeps the menu open — the wording flips in place so repeated toggles read live; the menu closes only on click-away, Esc, trigger re-click, or Delete. The dismissing click is swallowed — it never doubles as roster-item activation. Delete is instant — no confirmation; recovery is the undo toast — and from the **Drawer** it also closes the **Drawer**. Hidden on roster items in **Bulk Select Mode**, where the **Bulk Action Bar** is the sole action surface.
 _Avoid_: kebab menu, three-dot menu, context menu
 
 **Completion Check**:
-The colored check glyph rendering a currently valid **Clear Mark** — cyan daily, purple weekly, gold BM (colors sampled from the crystal sprites). Read-only. Shown inside the **Character Card**'s Lv pill, in the **List View** row's identity cluster next to the Lv.X chip, and beside the **Mule's** name in the **Drawer** header. The writers are the **Mule Actions Menu** and the **Mark As Menu**.
+The colored check glyph rendering a currently valid **Clear Mark** — cyan daily, purple weekly, gold BM (colors sampled from the crystal sprites). Read-only. Shown inside the **Character Card**'s Lv pill (which, under **Compact** **Density**, becomes a checks-only badge with no `Lv.X` text), in the **List View** row's identity cluster next to the Lv.X chip, and beside the **Mule's** name in the **Drawer** header. The writers are the **Mule Actions Menu** and the **Mark As Menu**.
 
 **Active Status Chip**:
-The read-only pill in the **Drawer's** identity section showing whether a **Mule** is active — an accent dot plus "Active", or a muted "Inactive". No button semantics; the **Active Flag** is flipped through the **Mule Actions Menu**. _[Replaces the retired interactive **Active Toggle**, keeping its visual.]_
+The read-only pill in the **Drawer's** identity section showing whether a **Mule** is active — a success-green dot plus green "Active", or a muted "Inactive". No button semantics; the **Active Flag** is flipped through the **Mule Actions Menu**. _[Replaces the retired interactive **Active Toggle**; green = in rotation, matching the kebab's Set Active color key.]_
 
 **Progress Readout**:
 An inline-slash "x / total" rendering of cleared-versus-expected — accent numerator, smaller muted denominator, softened foreground tone at zero. Worn by the two KPI income blocks (**Cleared Meso** / expected income) and the DAILY / WEEKLY / MONTHLY crystal tiles.
@@ -385,15 +385,15 @@ The **Roster Display Mode** that renders each **Mule** as one horizontal row —
 _Avoid_: List, table view, row view
 
 **Density**:
-The **List View** size mode — exactly one of **Comfy** or **Compact** — driving row padding, avatar size, in-row gap, and inter-row gap. Persisted per user. The **Density Toggle** is hidden below 768px; in that range **Comfy**'s row dimensions tighten via override so the user isn't stranded with a chunkier-than-fits layout.
-_Avoid_: Row size, list size
+The **Roster** size mode — exactly one of **Comfy** or **Compact** — applied in both **Roster Display Modes**: in **List View** it drives row padding, avatar size, in-row gap, and inter-row gap; in **Card View** it drives card padding, the Lv-pill treatment, and whether the BM Income line renders. Persisted per user. The **Density Toggle** is hidden below 768px; in that range **Comfy**'s row dimensions tighten via override so the user isn't stranded with a chunkier-than-fits layout.
+_Avoid_: Row size, list size, list-view-only density
 
 **Comfy**:
 The looser **Density** — taller rows, larger avatar, more inter-row gap; the default for new users. Below 768px, **Comfy**'s row dimensions are tightened via override (the **Density Toggle** is hidden in that range).
 _Avoid_: Comfortable, spacious, large
 
 **Compact**:
-The tighter **Density** — shorter rows, smaller avatar, less inter-row gap; favored when scanning many **Mules** at once.
+The tighter **Density** — shorter rows, smaller avatar, less inter-row gap; favored when scanning many **Mules** at once. On a **Character Card**, **Compact** also drops the BM Income line and reduces the Lv pill to a checks-only badge (no `Lv.X` text; unmounted entirely when no **Clear Mark** is valid).
 _Avoid_: Dense, small, tight
 
 **Density Toggle**:
@@ -489,7 +489,7 @@ The toolbar shown in **Bulk Select Mode** — count pill, Select all link, **Mar
 _Avoid_: bulk toolbar, bulk delete bar, action bar (unqualified)
 
 **Mark As Menu**:
-The **Bulk Action Bar** dropdown with one toggle row per **Clear Mark** kind (Daily / Weekly / BM), each showing its eligible count. A row toggles each eligible **Bulk-Selected Mule**'s **Clear Mark** per mule (marked→unmarked, unmarked→marked); **Mules** without that cadence's income basis are silently skipped.
+The **Bulk Action Bar** dropdown with one toggle row per **Clear Mark** kind (Daily / Weekly / BM), each showing its eligible count. A row toggles each eligible **Bulk-Selected Mule**'s **Clear Mark** per mule (marked→unmarked, unmarked→marked); **Mules** without that cadence's income basis are silently skipped. Choosing a row keeps the menu open so several cadences can be toggled in one visit; the menu closes on click-away, Esc, or trigger re-click.
 _Avoid_: mark dropdown, mark-as dropdown, bulk mark menu
 
 **Delete Pill**:
