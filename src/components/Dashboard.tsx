@@ -272,6 +272,8 @@ export function Dashboard() {
                     mules={mulesInWorld}
                     metricsByMule={metricsByMule}
                     onCardClick={handleCardClick}
+                    updateMule={updateMule}
+                    onDelete={deleteMule}
                     bulkMode={bulkMode}
                     toDelete={toDelete}
                     onToggleSelect={toggleDelete}

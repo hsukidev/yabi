@@ -148,7 +148,13 @@ describe('MuleListRow inline styles reference the density-scoped row vars', () =
     const { container } = render(
       <DndContext>
         <SortableContext items={[baseMule.id]} strategy={verticalListSortingStrategy}>
-          <MuleListRow mule={baseMule} metrics={baseMetrics} onClick={() => {}} />
+          <MuleListRow
+            mule={baseMule}
+            metrics={baseMetrics}
+            onClick={() => {}}
+            updateMule={() => {}}
+            onDelete={() => {}}
+          />
         </SortableContext>
       </DndContext>,
     );
@@ -161,7 +167,13 @@ describe('MuleListRow inline styles reference the density-scoped row vars', () =
     const { container } = render(
       <DndContext>
         <SortableContext items={[baseMule.id]} strategy={verticalListSortingStrategy}>
-          <MuleListRow mule={baseMule} metrics={baseMetrics} onClick={() => {}} />
+          <MuleListRow
+            mule={baseMule}
+            metrics={baseMetrics}
+            onClick={() => {}}
+            updateMule={() => {}}
+            onDelete={() => {}}
+          />
         </SortableContext>
       </DndContext>,
     );
@@ -173,7 +185,13 @@ describe('MuleListRow inline styles reference the density-scoped row vars', () =
     const { container } = render(
       <DndContext>
         <SortableContext items={[baseMule.id]} strategy={verticalListSortingStrategy}>
-          <MuleListRow mule={baseMule} metrics={baseMetrics} onClick={() => {}} />
+          <MuleListRow
+            mule={baseMule}
+            metrics={baseMetrics}
+            onClick={() => {}}
+            updateMule={() => {}}
+            onDelete={() => {}}
+          />
         </SortableContext>
       </DndContext>,
     );
@@ -185,12 +203,39 @@ describe('MuleListRow inline styles reference the density-scoped row vars', () =
     const { container } = render(
       <DndContext>
         <SortableContext items={[baseMule.id]} strategy={verticalListSortingStrategy}>
-          <MuleListRow mule={baseMule} metrics={baseMetrics} onClick={() => {}} />
+          <MuleListRow
+            mule={baseMule}
+            metrics={baseMetrics}
+            onClick={() => {}}
+            updateMule={() => {}}
+            onDelete={() => {}}
+          />
         </SortableContext>
       </DndContext>,
     );
     const row = container.querySelector('[data-mule-row]') as HTMLElement;
     expect(row.style.gridTemplateColumns).toContain('var(--row-handle');
+  });
+
+  it('row grid template uses var(--row-kebab) for the trailing Mule Actions Menu column', () => {
+    const { container } = render(
+      <DndContext>
+        <SortableContext items={[baseMule.id]} strategy={verticalListSortingStrategy}>
+          <MuleListRow
+            mule={baseMule}
+            metrics={baseMetrics}
+            onClick={() => {}}
+            updateMule={() => {}}
+            onDelete={() => {}}
+          />
+        </SortableContext>
+      </DndContext>,
+    );
+    const row = container.querySelector('[data-mule-row]') as HTMLElement;
+    expect(row.style.gridTemplateColumns).toContain('var(--row-kebab');
+    // Trailing column: the kebab var comes after the meso/share 1fr column.
+    const cols = row.style.gridTemplateColumns;
+    expect(cols.indexOf('var(--row-kebab')).toBeGreaterThan(cols.indexOf('minmax'));
   });
 });
 
@@ -209,5 +254,15 @@ describe('Roster list layout contract — drag handle column width by density', 
 
   it('compact declares --row-handle-icon: 16px', () => {
     expect(rowVarFor('compact', 'row-handle-icon')).toBe('16px');
+  });
+});
+
+describe('Roster list layout contract — trailing Mule Actions Menu column by density', () => {
+  it('comfy declares --row-kebab: 30px (the trailing kebab column width)', () => {
+    expect(rowVarFor('comfy', 'row-kebab')).toBe('30px');
+  });
+
+  it('compact declares --row-kebab: 28px', () => {
+    expect(rowVarFor('compact', 'row-kebab')).toBe('28px');
   });
 });

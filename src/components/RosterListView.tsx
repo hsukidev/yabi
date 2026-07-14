@@ -11,6 +11,11 @@ interface RosterListViewProps {
    * have a corresponding entry. */
   metricsByMule: ReadonlyMap<string, RosterRowMetrics>;
   onCardClick: (id: string) => void;
+  // Identity-stable Clear Mark / Active Flag writer and single-mule delete,
+  // threaded to each row's Mule Actions Menu. Memoize at the Dashboard level
+  // to preserve the row memo barrier.
+  updateMule: (id: string, patch: Partial<Mule>) => void;
+  onDelete: (id: string) => void;
   bulkMode: boolean;
   toDelete: ReadonlySet<string>;
   onToggleSelect: (id: string) => void;
@@ -22,6 +27,8 @@ export function RosterListView({
   mules,
   metricsByMule,
   onCardClick,
+  updateMule,
+  onDelete,
   bulkMode,
   toDelete,
   onToggleSelect,
@@ -38,6 +45,8 @@ export function RosterListView({
             mule={mule}
             metrics={metrics}
             onClick={onCardClick}
+            updateMule={updateMule}
+            onDelete={onDelete}
             bulkMode={bulkMode}
             selected={toDelete.has(mule.id)}
             onToggleSelect={onToggleSelect}
