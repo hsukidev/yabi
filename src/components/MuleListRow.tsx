@@ -3,6 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
 import { useCurrentCycle } from '../hooks/useCurrentCycle';
+import { useDensity } from '../context/DensityProvider';
 import { isMarkEligible, isMarkValid } from '../utils/clearMark';
 import type { SlateKey } from '../data/muleBossSlate';
 import type { Mule } from '../types';
@@ -15,6 +16,7 @@ import { SelectionIndicator } from './RosterItem/SelectionIndicator';
 import { InactiveDimOverlay } from './RosterItem/InactiveDimOverlay';
 import { MuleActionsMenu } from './RosterItem/MuleActionsMenu';
 import { CompletionChecks } from './RosterItem/CompletionChecks';
+import { RowCpMetric } from './RosterItem/RowCpMetric';
 import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
 import monthlyCrystalPng from '../assets/monthly-crystal.png';
@@ -91,6 +93,15 @@ export const MuleListRow = memo(function MuleListRow({
   isPaintEngaged = false,
 }: MuleListRowProps) {
   const [isPressed, setIsPressed] = useState(false);
+  const { density } = useDensity();
+  // Combat Power pill: shown whenever set (0 ≡ unset), in both densities.
+  // Comfy pairs the Lv pill up to the CP pill's size; Compact reverts both to
+  // the original smaller metrics. Absent CP leaves the Lv pill at its original
+  // size. Accent applies whenever CP > 0; the row-wide inactive dim overlay is
+  // what dims it, so no active state is threaded here.
+  const cp = mule.combatPower ?? 0;
+  const showCp = cp > 0;
+  const pairEnlarged = showCp && density !== 'compact';
   // Cycle Clock — a Clear Mark's Completion Check shows iff its stamp is valid
   // for the current cycle; `now` only changes at a boundary, so this doesn't
   // churn the row. Mirrors MuleCharacterCard.
@@ -257,13 +268,21 @@ export const MuleListRow = memo(function MuleListRow({
             // Character Card's Lv-pill treatment. Non-interactive status
             // glyphs (role="img"), so no activation guard is needed. Hidden in
             // Bulk Select Mode, matching the roster's other per-item chrome.
-            <span data-row-level style={LEVEL_PILL_STYLE}>
+            <span
+              data-row-level
+              style={
+                pairEnlarged
+                  ? { ...LEVEL_PILL_STYLE, padding: '3px 8px', fontSize: 11 }
+                  : LEVEL_PILL_STYLE
+              }
+            >
               <span>Lv.{mule.level}</span>
               {!bulkMode && (
                 <CompletionChecks daily={dailyValid} weekly={weeklyValid} bm={bmValid} size={13} />
               )}
             </span>
           )}
+          {showCp && <RowCpMetric value={cp} enlarged={pairEnlarged} />}
           <NotesTooltipTrigger notes={notes} iconSize="md" />
         </div>
 

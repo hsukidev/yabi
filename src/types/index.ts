@@ -116,4 +116,15 @@ export interface Mule {
    * undefined = unmarked.
    */
   bmClearMark?: string;
+  /**
+   * **Combat Power** — the optional whole-number combat stat, entered
+   * manually in the **Drawer** next to the Level input (no Character Lookup
+   * autofill). `0` ≡ unset: the field is present only when > 0; committing
+   * `0` or clearing the input removes it. Rendered full-precision in the
+   * Drawer header and abbreviated (`CP 410M`) on roster surfaces. Never an
+   * input to income math. Lands in schemaVersion 8 as an additive optional
+   * field, floored on read; legacy payloads load with it undefined. The
+   * 10-digit input bound (≤ 9,999,999,999) is the only cap.
+   */
+  combatPower?: number;
 }

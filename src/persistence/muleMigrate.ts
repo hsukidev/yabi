@@ -12,7 +12,7 @@ import { isWorldId } from '../data/worlds';
  * returns `[]` (a **Wipe**).
  */
 
-export const CURRENT_SCHEMA_VERSION = 7;
+export const CURRENT_SCHEMA_VERSION = 8;
 
 /**
  * Which migration path a given **Persisted Root** follows:
@@ -24,13 +24,14 @@ export const CURRENT_SCHEMA_VERSION = 7;
  * - `upgradeV2` — `schemaVersion === 2`. Each `<uuid>:<tier>` key is
  *   resolved against the boss catalog and rewritten as
  *   `<uuid>:<tier>:<cadence>`. Unresolvable entries drop silently.
- * - `asIs` — `schemaVersion === 3 || 4 || 5 || 6 || 7`. Keys are already in
- *   the native shape; `validateMule` still routes them through
+ * - `asIs` — `schemaVersion === 3 || 4 || 5 || 6 || 7 || 8`. Keys are
+ *   already in the native shape; `validateMule` still routes them through
  *   `MuleBossSlate.from(...)` to enforce the **Selection Invariant** and
  *   prune unknown / Legacy Slate Keys. Each additive slice is purely
  *   additive: v4 → v5 added optional `avatarUrl`, v5 → v6 added `notes`,
- *   v6 → v7 added the daily / weekly / BM **Clear Mark** fields. Legacy
- *   payloads load unchanged with the newer fields undefined.
+ *   v6 → v7 added the daily / weekly / BM **Clear Mark** fields, v7 → v8
+ *   added the optional `combatPower` stat. Legacy payloads load unchanged
+ *   with the newer fields undefined.
  */
 export type LoadMode = 'wipe' | 'upgradeV2' | 'asIs';
 
@@ -141,6 +142,17 @@ function validateMule(raw: unknown, mode: LoadMode): Mule | null {
     ...(typeof obj.bmClearMark === 'string' && obj.bmClearMark.length > 0
       ? { bmClearMark: obj.bmClearMark }
       : {}),
+    // `combatPower` lands in schemaVersion 8 as an additive optional field.
+    // 0 ≡ unset, so it is included only when a finite number > 0; a
+    // hand-edited fractional payload is FLOORED on read (matching the
+    // digits-only input). Non-number / non-finite / ≤ 0 → omit so every
+    // surface can rely on a single `mule.combatPower && mule.combatPower > 0`
+    // predicate. No max clamp — the 10-digit input bound is the only cap.
+    ...(typeof obj.combatPower === 'number' &&
+    Number.isFinite(obj.combatPower) &&
+    Math.floor(obj.combatPower) > 0
+      ? { combatPower: Math.floor(obj.combatPower) }
+      : {}),
   };
 }
 
@@ -159,8 +171,8 @@ interface PersistedRoot {
  *    selections.
  *  - `upgradeV2` — `schemaVersion === 2` → rewrite `<uuid>:<tier>` keys
  *    to `<uuid>:<tier>:<cadence>` in place.
- *  - `asIs` — `schemaVersion === 3 || 4 || 5 || 6 || 7` → keys already in
- *    native shape; v3 gets the **Active Default** applied inside
+ *  - `asIs` — `schemaVersion === 3 || 4 || 5 || 6 || 7 || 8` → keys already
+ *    in native shape; v3 gets the **Active Default** applied inside
  *    `validateMule`, and each later additive field defaults to undefined.
  */
 function parsePayload(raw: string): { mules: unknown[]; mode: LoadMode } | null {
@@ -174,6 +186,7 @@ function parsePayload(raw: string): { mules: unknown[]; mode: LoadMode } | null 
       const root = parsed as Partial<PersistedRoot>;
       if (Array.isArray(root.mules)) {
         const mode: LoadMode =
+          root.schemaVersion === 8 ||
           root.schemaVersion === 7 ||
           root.schemaVersion === 6 ||
           root.schemaVersion === 5 ||
