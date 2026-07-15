@@ -424,9 +424,9 @@ describe('muleMigrate', () => {
   });
 
   describe('schema lineage constant', () => {
-    it('exports CURRENT_SCHEMA_VERSION = 7', () => {
+    it('exports CURRENT_SCHEMA_VERSION = 8', () => {
       // Sanity: guards against an accidental bump without test updates.
-      expect(CURRENT_SCHEMA_VERSION).toBe(7);
+      expect(CURRENT_SCHEMA_VERSION).toBe(8);
     });
   });
 
@@ -805,6 +805,167 @@ describe('muleMigrate', () => {
       const [mule] = muleMigrate(JSON.stringify(v4));
       expect(mule.name).toBe('Legacy v4');
       expect(mule.avatarUrl).toBeUndefined();
+    });
+  });
+
+  describe('schemaVersion 8 → Combat Power field', () => {
+    it('loads a v7 payload (no combatPower key) with combatPower undefined', () => {
+      const v7 = {
+        schemaVersion: 7,
+        mules: [
+          {
+            id: 'a',
+            name: 'Legacy v7',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+          },
+        ],
+      };
+      expect(muleMigrate(JSON.stringify(v7))[0].combatPower).toBeUndefined();
+    });
+
+    it('round-trips a positive integer combatPower on a v8 payload', () => {
+      const mules: Mule[] = [
+        {
+          id: 'a',
+          name: 'CP',
+          level: 200,
+          muleClass: 'Hero',
+          selectedBosses: [HARD_LUCID],
+          partySizes: {},
+          active: true,
+          combatPower: 410042525,
+        },
+      ];
+      const raw = JSON.stringify({ schemaVersion: 8, mules });
+      expect(muleMigrate(raw)).toEqual(mules);
+    });
+
+    it('floors a hand-edited fractional combatPower on read', () => {
+      const v8 = {
+        schemaVersion: 8,
+        mules: [
+          {
+            id: 'a',
+            name: 'Fractional',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+            combatPower: 410042525.9,
+          },
+        ],
+      };
+      expect(muleMigrate(JSON.stringify(v8))[0].combatPower).toBe(410042525);
+    });
+
+    it('drops a non-numeric combatPower to undefined', () => {
+      const v8 = {
+        schemaVersion: 8,
+        mules: [
+          {
+            id: 'a',
+            name: 'StringCp',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+            combatPower: '410042525',
+          },
+          {
+            id: 'b',
+            name: 'NaNCp',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+            combatPower: Number.NaN,
+          },
+        ],
+      };
+      const [a, b] = muleMigrate(JSON.stringify(v8));
+      expect(a.combatPower).toBeUndefined();
+      expect(b.combatPower).toBeUndefined();
+    });
+
+    it('drops a combatPower of 0 (0 ≡ unset)', () => {
+      const v8 = {
+        schemaVersion: 8,
+        mules: [
+          {
+            id: 'a',
+            name: 'ZeroCp',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+            combatPower: 0,
+          },
+        ],
+      };
+      const [mule] = muleMigrate(JSON.stringify(v8));
+      expect(mule.combatPower).toBeUndefined();
+      expect('combatPower' in mule).toBe(false);
+    });
+
+    it('drops a negative combatPower (floors below 1)', () => {
+      const v8 = {
+        schemaVersion: 8,
+        mules: [
+          {
+            id: 'a',
+            name: 'NegCp',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+            combatPower: -5,
+          },
+          {
+            id: 'b',
+            name: 'SubOneCp',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [],
+            partySizes: {},
+            active: true,
+            combatPower: 0.6,
+          },
+        ],
+      };
+      const [a, b] = muleMigrate(JSON.stringify(v8));
+      expect(a.combatPower).toBeUndefined();
+      expect(b.combatPower).toBeUndefined();
+    });
+
+    it('treats v8 as asIs (mixed legacy + native keys → prune, not wipe)', () => {
+      const v8 = {
+        schemaVersion: 8,
+        mules: [
+          {
+            id: 'a',
+            name: 'V8',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [HARD_LUCID, 'hard-lucid'],
+            partySizes: { lucid: 3 },
+            active: true,
+            combatPower: 12345,
+          },
+        ],
+      };
+      const [mule] = muleMigrate(JSON.stringify(v8));
+      expect(mule.selectedBosses).toEqual([HARD_LUCID]);
+      expect(mule.partySizes).toEqual({ lucid: 3 });
+      expect(mule.combatPower).toBe(12345);
     });
   });
 

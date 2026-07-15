@@ -115,6 +115,39 @@ describe('MuleDetailDrawer keystroke perf (memo barrier)', () => {
     expect(counters.tally).toBe(tallyBase);
   });
 
+  it('typing in the CP field re-renders neither the card grid nor the toolbar', () => {
+    renderDrawer();
+    const cardBase = counters.card;
+    const toolbarBase = counters.toolbar;
+    const tallyBase = counters.tally;
+
+    const cp = screen.getByLabelText('CP') as HTMLInputElement;
+    fireEvent.change(cp, { target: { value: '41004' } });
+    fireEvent.change(cp, { target: { value: '410042525' } });
+
+    // The lifted CP draft re-renders the drawer AND drives the live header
+    // readout, but the memoized Slate Display Mode children stay barriered.
+    expect(screen.getByTestId('drawer-cp-readout').textContent).toContain('410,042,525');
+    expect(counters.card).toBe(cardBase);
+    expect(counters.toolbar).toBe(toolbarBase);
+    expect(counters.tally).toBe(tallyBase);
+  });
+
+  it('typing in the CP field does not re-render the Boss Matrix (matrix mode)', () => {
+    localStorage.setItem('slate-display-mode', 'matrix');
+    renderDrawer();
+    expect(screen.getByTestId('matrix-stub')).toBeTruthy();
+    const matrixBase = counters.matrix;
+    const toolbarBase = counters.toolbar;
+
+    const cp = screen.getByLabelText('CP') as HTMLInputElement;
+    fireEvent.change(cp, { target: { value: '410042525' } });
+
+    expect(screen.getByTestId('drawer-cp-readout').textContent).toContain('410,042,525');
+    expect(counters.matrix).toBe(matrixBase);
+    expect(counters.toolbar).toBe(toolbarBase);
+  });
+
   it('typing in the Notes field re-renders neither the card grid nor the toolbar', () => {
     renderDrawer();
     const cardBase = counters.card;

@@ -72,6 +72,10 @@ _Avoid_: Earning mule (overloaded with Active Flag wording)
 Optional freeform text attached to a **Mule** (≤500 characters); trimmed-empty is equivalent to absent.
 _Avoid_: Comments, description, memo
 
+**Combat Power**:
+The optional whole-number combat stat on a **Mule**, entered manually in the **Drawer** (no **Character Lookup** autofill). `0` ≡ unset — persisted only when positive; every surface hides CP entirely when absent. Rendered full-precision in the **Drawer** header and abbreviated (whole-unit, e.g. `410M`) with the label `CP` on roster surfaces. Never an input to income math.
+_Avoid_: power level, combat level
+
 ### Worlds & regions
 
 **World**:
