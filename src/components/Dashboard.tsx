@@ -178,18 +178,20 @@ export function Dashboard() {
     return { daily, weekly, bm };
   }, [mulesInWorld, toDelete, metricsByMule]);
 
-  // Mark As Menu writer — a per-mule toggle across the eligible Bulk-Selected
-  // Mules: each flips its own current state; ineligible mules silently skip.
+  // Mark As Menu writer — directional, like Set Active / Set Inactive:
+  // converge the mark of `kind` to `complete` across the eligible
+  // Bulk-Selected Mules; ineligible and already-matching mules silently skip.
   // Writes ride the identity-stable `updateMule`, so a mark re-renders only the
   // affected card (MuleCharacterCard / MuleListRow memo barriers intact).
   const handleBulkMarkAs = useCallback(
-    (kind: ClearMarkKind) => {
+    (kind: ClearMarkKind, complete: boolean) => {
       const now = Date.now();
       for (const mule of mulesInWorld) {
         if (!toDelete.has(mule.id)) continue;
         const metrics = metricsByMule.get(mule.id);
         if (!metrics || !isMarkEligible(metrics, kind)) continue;
-        updateMule(mule.id, clearMarkUpdate(kind, !isMarkValid(mule, kind, now), now));
+        if (isMarkValid(mule, kind, now) === complete) continue;
+        updateMule(mule.id, clearMarkUpdate(kind, complete, now));
       }
     },
     [mulesInWorld, toDelete, metricsByMule, updateMule],

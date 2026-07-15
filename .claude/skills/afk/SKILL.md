@@ -1,6 +1,6 @@
 ---
 name: afk
-description: Orchestrate all open AFK-labeled GitHub issues to completion — parallel worktree agents, wave by wave, merged through an integration branch to main.
+description: Orchestrate open AFK-labeled GitHub issues (PRD epics excluded) to completion — parallel worktree agents, wave by wave, merged through an integration branch to main.
 disable-model-invocation: true
 ---
 
@@ -10,11 +10,11 @@ You are the orchestrator. Builder-agents write all the code; you map, spawn, gat
 
 ## 1. Map the tickets
 
-- `gh issue list --label AFK --state open --json number,title,body,labels`
+- `gh issue list --label AFK --state open --search "-label:PRD" --json number,title,body,labels` — PRD-labeled issues are parent epics, not tickets; they enter the flow only at step 5 close-out.
 - Build the dependency graph from each body's "Blocked by" section.
 - Mirror the graph with TaskCreate/TaskUpdate (`addBlockedBy`) so progress is visible.
 
-Done when: every open AFK issue sits in exactly one wave, the graph has no cycles, and the wave order is reported to the user before any agent spawns.
+Done when: every open AFK issue without the PRD label sits in exactly one wave, the graph has no cycles, and the wave order is reported to the user before any agent spawns.
 
 ## 2. Stage the integration branch
 

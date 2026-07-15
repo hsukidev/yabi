@@ -183,7 +183,7 @@ function KpiStat({ label, value, accent }: { label: string; value: string; accen
       style={{
         ...KPI_BLOCK_CHROME,
         minWidth: 0,
-        padding: '11px 12px 10px',
+        padding: '16px 12px 15px',
       }}
     >
       <div className="eyebrow-plain">{label}</div>
@@ -226,7 +226,7 @@ function CrystalKpiStat({
       style={{
         ...KPI_BLOCK_CHROME,
         minWidth: 0,
-        padding: '11px 12px 10px',
+        padding: '16px 12px 15px',
       }}
     >
       <div className="eyebrow-plain" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

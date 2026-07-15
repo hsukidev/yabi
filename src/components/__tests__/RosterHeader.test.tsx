@@ -264,79 +264,6 @@ describe('RosterHeader', () => {
       });
     });
 
-    describe('Set Active / Set Inactive', () => {
-      const openActiveMenu = () =>
-        fireEvent.click(screen.getByRole('button', { name: /set active flag/i }));
-
-      it('renders the Active trigger in the bar', () => {
-        const { container } = renderHeader({ bulkMode: true, selectedCount: 2 });
-        const bar = container.querySelector('[data-bulk-action-bar]') as HTMLElement;
-        expect(within(bar).getByRole('button', { name: /set active flag/i })).toBeTruthy();
-      });
-
-      it('disables the trigger at 0 selected', () => {
-        renderHeader({ bulkMode: true, selectedCount: 0 });
-        const btn = screen.getByRole('button', { name: /set active flag/i }) as HTMLButtonElement;
-        expect(btn.disabled).toBe(true);
-      });
-
-      it('enables the trigger when N > 0', () => {
-        renderHeader({ bulkMode: true, selectedCount: 3 });
-        const btn = screen.getByRole('button', { name: /set active flag/i }) as HTMLButtonElement;
-        expect(btn.disabled).toBe(false);
-      });
-
-      it('opens to Set Active and Set Inactive rows', async () => {
-        renderHeader({ bulkMode: true, selectedCount: 2 });
-        openActiveMenu();
-        await waitFor(() => {
-          expect(screen.getByRole('menuitem', { name: /set active/i })).toBeTruthy();
-        });
-        expect(screen.getByRole('menuitem', { name: /set inactive/i })).toBeTruthy();
-      });
-
-      it('Set Active converges the selection to active (onSetActive(true))', async () => {
-        const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
-        openActiveMenu();
-        await waitFor(() => {
-          expect(screen.getByRole('menuitem', { name: /set active/i })).toBeTruthy();
-        });
-        fireEvent.click(screen.getByRole('menuitem', { name: /set active/i }));
-        expect(props.onSetActive).toHaveBeenCalledWith(true);
-      });
-
-      it('Set Inactive converges the selection to inactive (onSetActive(false))', async () => {
-        const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
-        openActiveMenu();
-        await waitFor(() => {
-          expect(screen.getByRole('menuitem', { name: /set inactive/i })).toBeTruthy();
-        });
-        fireEvent.click(screen.getByRole('menuitem', { name: /set inactive/i }));
-        expect(props.onSetActive).toHaveBeenCalledWith(false);
-      });
-
-      it('applying an Active action never exits the mode (no onCancel)', async () => {
-        const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
-        openActiveMenu();
-        await waitFor(() => {
-          expect(screen.getByRole('menuitem', { name: /set active/i })).toBeTruthy();
-        });
-        fireEvent.click(screen.getByRole('menuitem', { name: /set active/i }));
-        expect(props.onCancel).not.toHaveBeenCalled();
-      });
-
-      it('stays in the bar on touch (available on all pointer types)', () => {
-        mockCoarsePointer();
-        try {
-          const { container } = renderHeader({ bulkMode: true, selectedCount: 2 });
-          const bar = container.querySelector('[data-bulk-action-bar]') as HTMLElement;
-          expect(within(bar).getByRole('button', { name: /set active flag/i })).toBeTruthy();
-        } finally {
-          restoreMatchMedia();
-        }
-      });
-    });
-
     describe('Delete + inline confirm (pointer)', () => {
       it('renders a disabled Delete at 0 selected', () => {
         renderHeader({ bulkMode: true, selectedCount: 0 });
@@ -482,7 +409,12 @@ describe('RosterHeader', () => {
         expect(trigger.disabled).toBe(false);
       });
 
-      it('renders Daily / Weekly / BM rows with their eligible counts', async () => {
+      it('does not render a separate Active trigger (merged into Mark as)', () => {
+        renderHeader({ bulkMode: true, selectedCount: 2 });
+        expect(screen.queryByRole('button', { name: /set active flag/i })).toBeNull();
+      });
+
+      it('opens to the kebab option set minus Delete', async () => {
         renderHeader({
           bulkMode: true,
           selectedCount: 5,
@@ -490,15 +422,58 @@ describe('RosterHeader', () => {
         });
         openMenu();
         await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
-        const daily = screen.getByRole('menuitem', { name: /daily/i });
-        const weekly = screen.getByRole('menuitem', { name: /weekly/i });
-        const bm = screen.getByRole('menuitem', { name: /bm/i });
-        expect(daily.textContent).toMatch(/2/);
-        expect(weekly.textContent).toMatch(/5/);
-        expect(bm.textContent).toMatch(/1/);
+        for (const name of [
+          /^set active$/i,
+          /^set inactive$/i,
+          /daily complete/i,
+          /daily incomplete/i,
+          /weekly complete/i,
+          /weekly incomplete/i,
+          /bm complete/i,
+          /bm incomplete/i,
+        ]) {
+          expect(screen.getByRole('menuitem', { name })).toBeTruthy();
+        }
+        expect(screen.queryByRole('menuitem', { name: /delete/i })).toBeNull();
       });
 
-      it('disables a row at zero eligible', async () => {
+      it('Set Active converges the selection to active (onSetActive(true))', async () => {
+        const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        openMenu();
+        await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+        fireEvent.click(screen.getByRole('menuitem', { name: /^set active$/i }));
+        expect(props.onSetActive).toHaveBeenCalledWith(true);
+      });
+
+      it('Set Inactive converges the selection to inactive (onSetActive(false))', async () => {
+        const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        openMenu();
+        await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+        fireEvent.click(screen.getByRole('menuitem', { name: /^set inactive$/i }));
+        expect(props.onSetActive).toHaveBeenCalledWith(false);
+      });
+
+      it('renders each cadence pair with its eligible count', async () => {
+        renderHeader({
+          bulkMode: true,
+          selectedCount: 5,
+          markEligibleCounts: { daily: 2, weekly: 5, bm: 1 },
+        });
+        openMenu();
+        await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+        for (const [name, count] of [
+          [/daily complete/i, 2],
+          [/daily incomplete/i, 2],
+          [/weekly complete/i, 5],
+          [/weekly incomplete/i, 5],
+          [/bm complete/i, 1],
+          [/bm incomplete/i, 1],
+        ] as const) {
+          expect(screen.getByRole('menuitem', { name }).textContent).toMatch(String(count));
+        }
+      });
+
+      it('disables both of a cadence pair at zero eligible', async () => {
         renderHeader({
           bulkMode: true,
           selectedCount: 5,
@@ -506,18 +481,22 @@ describe('RosterHeader', () => {
         });
         openMenu();
         await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+        for (const name of [
+          /daily complete/i,
+          /daily incomplete/i,
+          /bm complete/i,
+          /bm incomplete/i,
+        ]) {
+          expect(
+            screen.getByRole('menuitem', { name }).getAttribute('data-disabled'),
+          ).not.toBeNull();
+        }
         expect(
-          screen.getByRole('menuitem', { name: /daily/i }).getAttribute('data-disabled'),
-        ).not.toBeNull();
-        expect(
-          screen.getByRole('menuitem', { name: /^weekly/i }).getAttribute('data-disabled'),
+          screen.getByRole('menuitem', { name: /weekly complete/i }).getAttribute('data-disabled'),
         ).toBeNull();
-        expect(
-          screen.getByRole('menuitem', { name: /bm/i }).getAttribute('data-disabled'),
-        ).not.toBeNull();
       });
 
-      it('calls onMarkAs with the cadence when an eligible row is chosen', async () => {
+      it('calls onMarkAs with the cadence and direction when a row is chosen', async () => {
         const { props } = renderHeader({
           bulkMode: true,
           selectedCount: 5,
@@ -525,8 +504,10 @@ describe('RosterHeader', () => {
         });
         openMenu();
         await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
-        fireEvent.click(screen.getByRole('menuitem', { name: /^weekly/i }));
-        expect(props.onMarkAs).toHaveBeenCalledWith('weekly');
+        fireEvent.click(screen.getByRole('menuitem', { name: /weekly complete/i }));
+        expect(props.onMarkAs).toHaveBeenCalledWith('weekly', true);
+        fireEvent.click(screen.getByRole('menuitem', { name: /weekly incomplete/i }));
+        expect(props.onMarkAs).toHaveBeenCalledWith('weekly', false);
       });
 
       it('keeps the menu open after choosing a row (stay-open, closes on dismiss only)', async () => {
@@ -537,13 +518,55 @@ describe('RosterHeader', () => {
         });
         openMenu();
         await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
-        fireEvent.click(screen.getByRole('menuitem', { name: /^daily/i }));
-        expect(props.onMarkAs).toHaveBeenCalledWith('daily');
-        // Still open — a second cadence can be toggled in the same visit.
+        fireEvent.click(screen.getByRole('menuitem', { name: /daily complete/i }));
+        expect(props.onMarkAs).toHaveBeenCalledWith('daily', true);
+        // Still open — a second action can be applied in the same visit.
         expect(screen.getByRole('menu')).toBeTruthy();
-        fireEvent.click(screen.getByRole('menuitem', { name: /^weekly/i }));
-        expect(props.onMarkAs).toHaveBeenCalledWith('weekly');
+        fireEvent.click(screen.getByRole('menuitem', { name: /^set inactive$/i }));
+        expect(props.onSetActive).toHaveBeenCalledWith(false);
         expect(screen.getByRole('menu')).toBeTruthy();
+      });
+
+      it('applying an action never exits the mode (no onCancel)', async () => {
+        const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
+        openMenu();
+        await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
+        fireEvent.click(screen.getByRole('menuitem', { name: /^set active$/i }));
+        expect(props.onCancel).not.toHaveBeenCalled();
+      });
+
+      it('stays in the bar on touch (available on all pointer types)', () => {
+        mockCoarsePointer();
+        try {
+          const { container } = renderHeader({ bulkMode: true, selectedCount: 2 });
+          const bar = container.querySelector('[data-bulk-action-bar]') as HTMLElement;
+          expect(within(bar).getByRole('button', { name: /mark as/i })).toBeTruthy();
+        } finally {
+          restoreMatchMedia();
+        }
+      });
+
+      it('unmounts while the inline Delete confirm is up and returns on its Cancel', () => {
+        renderHeader({ bulkMode: true, selectedCount: 2 });
+        fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+        expect(screen.queryByRole('button', { name: /mark as/i })).toBeNull();
+        fireEvent.click(screen.getByRole('button', { name: /^cancel$/i }));
+        expect(screen.getByRole('button', { name: /mark as/i })).toBeTruthy();
+      });
+
+      it('unmounts during the Delete Pill confirm on touch', () => {
+        mockCoarsePointer();
+        try {
+          renderHeader({ bulkMode: true, selectedCount: 2 });
+          const pill = document.body.querySelector('[data-bulk-delete-pill]') as HTMLElement;
+          fireEvent.click(within(pill).getByRole('button'));
+          expect(screen.queryByRole('button', { name: /mark as/i })).toBeNull();
+          // Backing out of the pill confirm restores the menu.
+          fireEvent.click(within(pill).getByRole('button', { name: /^cancel$/i }));
+          expect(screen.getByRole('button', { name: /mark as/i })).toBeTruthy();
+        } finally {
+          restoreMatchMedia();
+        }
       });
     });
   });

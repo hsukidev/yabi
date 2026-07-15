@@ -73,7 +73,7 @@ Optional freeform text attached to a **Mule** (≤500 characters); trimmed-empty
 _Avoid_: Comments, description, memo
 
 **Combat Power**:
-The optional whole-number combat stat on a **Mule**, entered manually in the **Drawer** (no **Character Lookup** autofill). `0` ≡ unset — persisted only when positive; every surface hides CP entirely when absent. Rendered full-precision in the **Drawer** header and abbreviated (whole-unit, e.g. `410M`) with the label `CP` on roster surfaces. Never an input to income math.
+The optional whole-number combat stat on a **Mule**, entered manually in the **Drawer** (no **Character Lookup** autofill). `0` ≡ unset — persisted only when positive; every surface hides CP entirely when absent. Rendered full-precision in the **Drawer** header and abbreviated (one decimal, trailing `.0` trimmed — e.g. `410M`, `4.5B`) with the label `CP` on roster surfaces. Never an input to income math.
 _Avoid_: power level, combat level
 
 ### Worlds & regions

@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { ListChecks } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useMatchMedia } from '../hooks/useMatchMedia';
-import { BulkActiveMenu } from './BulkActiveMenu';
 import { DensityToggle } from './DensityToggle';
 import { DisplayToggle } from './DisplayToggle';
 import { WorldSelect } from './WorldSelect';
@@ -23,8 +22,11 @@ export interface RosterHeaderProps {
   onDelete: () => void;
   onSelectAll: () => void;
   onClearSelection: () => void;
-  /** Toggle a Clear Mark across the eligible Bulk-Selected Mules. */
-  onMarkAs: (kind: ClearMarkKind) => void;
+  /**
+   * Converge a Clear Mark to `complete` across the eligible Bulk-Selected
+   * Mules (directional; ineligible and already-matching mules skip).
+   */
+  onMarkAs: (kind: ClearMarkKind, complete: boolean) => void;
   /**
    * Converge every Bulk-Selected Mule to the given Active Flag state
    * (`true` = Set Active, `false` = Set Inactive). Applied to the whole
@@ -168,16 +170,18 @@ export function RosterHeader({
             </button>
           </div>
           <div className="flex items-center gap-2">
-            {/* Mark As Menu lives in the bar on all pointer types. */}
-            <MarkAsMenu
-              selectedCount={selectedCount}
-              eligibleCounts={markEligibleCounts}
-              onMarkAs={onMarkAs}
-            />
-            {/* Set Active / Set Inactive — available on all pointer types and
-                persistent across the Delete confirm swap (only the Delete
-                controls morph). Disabled at zero selected. */}
-            <BulkActiveMenu onSetActive={onSetActive} disabled={selectedCount === 0} />
+            {/* Mark As Menu lives in the bar on all pointer types — it also
+                carries the Set Active / Set Inactive actions. Unmounted while
+                the Delete confirm is up (both the in-bar and Delete Pill
+                confirm flows) so the confirm reads as the bar's sole action. */}
+            {!showConfirm && (
+              <MarkAsMenu
+                selectedCount={selectedCount}
+                eligibleCounts={markEligibleCounts}
+                onMarkAs={onMarkAs}
+                onSetActive={onSetActive}
+              />
+            )}
             {isTouch ? (
               // Touch: Delete lives in the Delete Pill; the bar keeps only the
               // mode-exit Cancel.
@@ -281,14 +285,6 @@ export function RosterHeader({
         <WorldSelect />
       </div>
       <div className="flex items-center gap-3">
-        {muleCount > 1 && (
-          <p
-            className="eyebrow-plain hidden sm:block"
-            style={{ opacity: 0.6, fontSize: 12, lineHeight: 1 }}
-          >
-            drag to reorder
-          </p>
-        )}
         <DisplayToggle />
         <DensityToggle />
         {muleCount > 0 && (

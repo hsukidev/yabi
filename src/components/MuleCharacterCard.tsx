@@ -176,7 +176,10 @@ const MuleCardInner = memo(function MuleCardInner({
         >
           {mule.name || 'Unnamed'}
         </div>
-        <div className="flex flex-row items-center justify-between gap-2" style={{ marginTop: 2 }}>
+        <div
+          className="flex flex-row items-baseline justify-between gap-2"
+          style={{ marginTop: 2 }}
+        >
           <span
             style={{
               color: 'var(--muted-raw, var(--muted-foreground))',

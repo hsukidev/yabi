@@ -38,7 +38,7 @@ export function MuleIdentityFields({ mule, identity, onUpdate }: Props) {
           <CharacterLookupButton mule={mule} draftName={identity.name.draft} onUpdate={onUpdate} />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <div className="space-y-1.5">
           <Label htmlFor="mule-class" className={FIELD_LABEL_CLASS}>
             Class
@@ -53,37 +53,35 @@ export function MuleIdentityFields({ mule, identity, onUpdate }: Props) {
             className={FIELD_INPUT_CLASS}
           />
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="mule-level" className={FIELD_LABEL_CLASS}>
-              Level
-            </Label>
-            <Input
-              id="mule-level"
-              type="text"
-              inputMode="numeric"
-              placeholder="0"
-              value={identity.level.draft}
-              onChange={identity.level.onChange}
-              onBlur={identity.level.onBlur}
-              className={`${FIELD_INPUT_CLASS} font-mono-nums`}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="mule-cp" className={FIELD_LABEL_CLASS}>
-              CP
-            </Label>
-            <Input
-              id="mule-cp"
-              type="text"
-              inputMode="numeric"
-              placeholder="0"
-              value={identity.combatPower.draft}
-              onChange={identity.combatPower.onChange}
-              onBlur={identity.combatPower.onBlur}
-              className={`${FIELD_INPUT_CLASS} font-mono-nums`}
-            />
-          </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="mule-level" className={FIELD_LABEL_CLASS}>
+            Level
+          </Label>
+          <Input
+            id="mule-level"
+            type="text"
+            inputMode="numeric"
+            placeholder="0"
+            value={identity.level.draft}
+            onChange={identity.level.onChange}
+            onBlur={identity.level.onBlur}
+            className={`${FIELD_INPUT_CLASS} font-mono-nums`}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="mule-cp" className={FIELD_LABEL_CLASS}>
+            CP
+          </Label>
+          <Input
+            id="mule-cp"
+            type="text"
+            inputMode="numeric"
+            placeholder="0"
+            value={identity.combatPower.draft}
+            onChange={identity.combatPower.onChange}
+            onBlur={identity.combatPower.onBlur}
+            className={`${FIELD_INPUT_CLASS} font-mono-nums`}
+          />
         </div>
       </div>
     </div>

@@ -53,8 +53,10 @@ async function enterBulkAndSelectAll() {
   fireEvent.click(screen.getByRole('button', { name: /select all/i }));
 }
 
+// Set Active / Set Inactive live inside the Mark As Menu (merged with the
+// cadence mark actions; the standalone Active dropdown was retired).
 async function applyActiveAction(name: RegExp) {
-  fireEvent.click(screen.getByRole('button', { name: /set active flag/i }));
+  fireEvent.click(screen.getByRole('button', { name: /mark as/i }));
   await waitFor(() => {
     expect(screen.getByRole('menuitem', { name })).toBeTruthy();
   });
