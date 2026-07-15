@@ -32,7 +32,11 @@ export const releases: Release[] = [
         category: 'feature',
         text: 'Introduced bulk select mode to quickly manage multiple character cards and rows.',
       },
-      { category: 'feature', text: 'Added  cadence completion marks to characters.' },
+      { category: 'feature', text: 'Added cadence completion marks to characters.' },
+      {
+        category: 'feature',
+        text: 'Completion marks will reset automatically according to in-game reset timers.',
+      },
       {
         category: 'feature',
         text: 'Added Combat Power (CP) to character information.',
