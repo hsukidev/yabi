@@ -6,6 +6,7 @@ import type { Mule } from '../types';
 import { useCurrentCycle } from '../hooks/useCurrentCycle';
 import { isMarkValid, isMarkEligible } from '../utils/clearMark';
 import { formatMeso } from '../utils/meso';
+import { parseCpValue } from '../utils/cpInput';
 import { MuleBossSlate, type SlateKey } from '../data/muleBossSlate';
 import type { PresetKey } from './MatrixToolbar';
 import { resolveWorldGroup } from '../data/worlds';
@@ -141,6 +142,11 @@ export function MuleDetailDrawer({
   }, [muleId, onDelete, onClose]);
   const identity = useMuleIdentityDraft(mule, onUpdate);
   const liveLevel = Number(identity.level.draft) || 0;
+  // Full-precision CP readout under the class/Lv row, driven by the LIVE
+  // lifted draft so it updates on every keystroke. Hidden entirely when
+  // unset (0 ≡ unset); the grouped draft string is already display-ready.
+  const cpDraft = identity.combatPower.draft;
+  const showCp = parseCpValue(cpDraft) > 0;
   // Slate Display Mode is a `useState`-backed primitive with a stable setter
   // callback, so threading it through the memoized MatrixToolbar / grids never
   // busts their memo barriers on keystrokes. See CLAUDE.md (drawer perf).
@@ -231,6 +237,17 @@ export function MuleDetailDrawer({
                       {liveLevel > 0 ? `Lv.${liveLevel}` : 'N/A'}
                     </span>
                   </div>
+                  {showCp && (
+                    <div
+                      data-testid="drawer-cp-readout"
+                      className="mt-1 flex items-center justify-center gap-2 text-xs min-[425px]:justify-start"
+                    >
+                      <span className="font-sans text-[9px] uppercase tracking-[0.26em] text-muted-foreground">
+                        CP
+                      </span>
+                      <span className="font-mono-nums text-(--accent-numeric)">{cpDraft}</span>
+                    </div>
+                  )}
                   <div className="mt-3 flex flex-col items-center gap-2.5 min-[425px]:items-start">
                     <div
                       data-testid="drawer-weekly-income-row"

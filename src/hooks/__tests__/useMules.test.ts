@@ -139,7 +139,7 @@ describe('useMules', () => {
       });
       flushPersist();
       const saved = JSON.parse(localStorageStore['maplestory-mule-tracker']);
-      expect(saved.schemaVersion).toBe(7);
+      expect(saved.schemaVersion).toBe(8);
       expect(saved.mules).toHaveLength(1);
     });
   });

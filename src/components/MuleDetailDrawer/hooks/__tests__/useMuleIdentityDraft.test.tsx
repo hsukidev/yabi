@@ -180,6 +180,138 @@ describe('useMuleIdentityDraft', () => {
   // useCommittedDraft.test.tsx; the switch/unmount cases above stay because
   // they exercise this adapter's two-instance commit wiring.
 
+  // --- Combat Power ---------------------------------------------------
+
+  it('seeds the combatPower draft from the mule (grouped) — empty when unset', () => {
+    const { result: unset } = renderHook(() => useMuleIdentityDraft(baseMule, vi.fn()));
+    expect(unset.current.combatPower.draft).toBe('');
+
+    const withCp: Mule = { ...baseMule, combatPower: 410042525 };
+    const { result: set } = renderHook(() => useMuleIdentityDraft(withCp, vi.fn()));
+    expect(set.current.combatPower.draft).toBe('410,042,525');
+  });
+
+  it('groups combatPower input live and caps at 10 digits', () => {
+    const { result } = renderHook(() => useMuleIdentityDraft(baseMule, vi.fn()));
+
+    act(() => {
+      result.current.combatPower.onChange(makeOnChange('410042525'));
+    });
+    expect(result.current.combatPower.draft).toBe('410,042,525');
+
+    act(() => {
+      result.current.combatPower.onChange(makeOnChange('12345678901234'));
+    });
+    expect(result.current.combatPower.draft).toBe('1,234,567,890');
+  });
+
+  it('restores the caret by digit index after regrouping', () => {
+    const { result } = renderHook(() => useMuleIdentityDraft(baseMule, vi.fn()));
+    const input = document.createElement('input');
+    document.body.appendChild(input);
+    // Browser post-edit raw value after inserting a digit mid-string, caret
+    // sitting after the 4th digit ("4102|,042,525").
+    input.value = '4102,042,525';
+    input.setSelectionRange(4, 4);
+
+    act(() => {
+      result.current.combatPower.onChange({
+        currentTarget: input,
+      } as unknown as React.ChangeEvent<HTMLInputElement>);
+    });
+
+    expect(result.current.combatPower.draft).toBe('4,102,042,525');
+    // 4 digits left of the edit → caret restored just after the 4th digit.
+    expect(input.selectionStart).toBe(5);
+    document.body.removeChild(input);
+  });
+
+  it('combatPower onBlur commits the numeric value when set', () => {
+    const onUpdate = vi.fn();
+    const { result } = renderHook(() => useMuleIdentityDraft(baseMule, onUpdate));
+
+    act(() => {
+      result.current.combatPower.onChange(makeOnChange('410042525'));
+    });
+    act(() => {
+      result.current.combatPower.onBlur();
+    });
+
+    expect(onUpdate).toHaveBeenCalledWith('mule-1', { combatPower: 410042525 });
+  });
+
+  it('combatPower onBlur omits the field (undefined) when a set value is cleared', () => {
+    const withCp: Mule = { ...baseMule, combatPower: 410042525 };
+    const onUpdate = vi.fn();
+    const { result } = renderHook(() => useMuleIdentityDraft(withCp, onUpdate));
+
+    act(() => {
+      result.current.combatPower.onChange(makeOnChange(''));
+    });
+    act(() => {
+      result.current.combatPower.onBlur();
+    });
+
+    expect(onUpdate).toHaveBeenCalledWith('mule-1', { combatPower: undefined });
+  });
+
+  it('combatPower onBlur omits the field when the committed value is 0', () => {
+    const withCp: Mule = { ...baseMule, combatPower: 410042525 };
+    const onUpdate = vi.fn();
+    const { result } = renderHook(() => useMuleIdentityDraft(withCp, onUpdate));
+
+    act(() => {
+      result.current.combatPower.onChange(makeOnChange('0'));
+    });
+    act(() => {
+      result.current.combatPower.onBlur();
+    });
+
+    expect(onUpdate).toHaveBeenCalledWith('mule-1', { combatPower: undefined });
+  });
+
+  it('combatPower onBlur is a no-op when typing 0 into an unset field', () => {
+    const onUpdate = vi.fn();
+    const { result } = renderHook(() => useMuleIdentityDraft(baseMule, onUpdate));
+
+    act(() => {
+      result.current.combatPower.onChange(makeOnChange('0'));
+    });
+    expect(result.current.combatPower.draft).toBe('0');
+    act(() => {
+      result.current.combatPower.onBlur();
+    });
+
+    expect(onUpdate).not.toHaveBeenCalled();
+  });
+
+  it('combatPower onBlur is a no-op when the draft matches the committed value', () => {
+    const withCp: Mule = { ...baseMule, combatPower: 410042525 };
+    const onUpdate = vi.fn();
+    const { result } = renderHook(() => useMuleIdentityDraft(withCp, onUpdate));
+    act(() => {
+      result.current.combatPower.onBlur();
+    });
+    expect(onUpdate).not.toHaveBeenCalled();
+  });
+
+  it('flushes combatPower on Mule Switch', () => {
+    const onUpdate = vi.fn();
+    const { result, rerender } = renderHook(
+      ({ mule }: { mule: Mule }) => useMuleIdentityDraft(mule, onUpdate),
+      { initialProps: { mule: baseMule } },
+    );
+
+    act(() => {
+      result.current.combatPower.onChange(makeOnChange('12345'));
+    });
+
+    const otherMule: Mule = { ...baseMule, id: 'mule-2', name: 'Beta' };
+    rerender({ mule: otherMule });
+
+    expect(onUpdate).toHaveBeenCalledWith('mule-1', { combatPower: 12345 });
+  });
+
   it('an external write to one field does not blow away an unblurred edit on the other', () => {
     const onUpdate = vi.fn();
     const { result, rerender } = renderHook(
