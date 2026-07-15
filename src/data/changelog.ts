@@ -25,6 +25,34 @@ export const ORDERED_CATEGORIES: ChangeCategory[] = (
 
 export const releases: Release[] = [
   {
+    date: '2026-07-15',
+    version: '1.6.0',
+    changes: [
+      {
+        category: 'feature',
+        text: "Bulk Select Mode: the Roster's bulk-delete trash icon becomes a Select button, and the action bar gains neutral/accent chrome with an `N SELECTED` pill and a Select all / Clear selection link. Delete now confirms in place (`Delete N? Yes/Cancel`), prunes the deleted mules, and keeps the mode — Cancel is the only exit. On touch, the floating Delete pill morphs into its own inline confirm.",
+      },
+      { category: 'feature', text: 'Add cadence completion marks to characters.' },
+      {
+        category: 'feature',
+        text: "Add Combat Power: record a mule's CP in the drawer next to Level (with a live full-precision header readout) and see it abbreviated on Character Cards and List View rows, with full-value tooltips.",
+      },
+      {
+        category: 'ui',
+        text: 'Roster CP abbreviations now keep one decimal (4,523,213,145 shows as 4.5B instead of 5B), trimming a trailing .0.',
+      },
+      { category: 'feature', text: 'Update UI to show earned income vs expected income.' },
+      {
+        category: 'ui',
+        text: "Consolidate the mule detail drawer's per-mule controls into the Mule Actions Menu kebab: it now flips the Active Flag, sets or clears the three Clear Marks, and deletes the mule (instant, with an undo toast, closing the drawer). The Active Toggle is now a read-only status chip, the Crystal Tally is a read-only counts display (weekly shows a bare count), and read-only Completion Checks return beside the mule's name.",
+      },
+      {
+        category: 'ui',
+        text: 'Reintroduce the Mule Actions Menu kebab on roster surfaces: always visible top-right on every Character Card and as the trailing column on every List View row (hidden in Bulk Select Mode). It flips the Active Flag, sets or clears the daily/weekly/BM Clear Marks (rows shown per cadence eligibility), and deletes the mule instantly with an undo toast — without opening the drawer or starting a drag.',
+      },
+    ],
+  },
+  {
     date: '2026-07-10',
     version: '1.5.0',
     changes: [
