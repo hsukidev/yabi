@@ -42,6 +42,7 @@ interface RenderRowOpts {
   bulkMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
+  density?: 'comfy' | 'compact';
 }
 
 function renderRow(opts: RenderRowOpts = {}) {
@@ -51,6 +52,9 @@ function renderRow(opts: RenderRowOpts = {}) {
   const onDelete = opts.onDelete ?? vi.fn();
   const mule: Mule = { ...baseMule, ...opts.mule };
   const metrics: RosterRowMetrics = { ...baseMetrics, ...opts.metrics };
+  // DensityProvider reads localStorage['density'] at mount; seed it before
+  // render so density-dependent pill sizing is deterministic per case.
+  localStorage.setItem('density', opts.density ?? 'comfy');
   return {
     ...render(
       <DndContext>
@@ -600,5 +604,132 @@ describe('MuleListRow — dropped-cap indicator', () => {
     renderRow({ metrics: { droppedKeys }, onClick });
     fireEvent.click(screen.getByRole('button', { name: ICON }));
     expect(onClick).not.toHaveBeenCalled();
+  });
+});
+
+describe('MuleListRow — Combat Power (CP) pill', () => {
+  const CP_NAME = /combat power/i;
+  const CP = 410_042_525;
+  const getLevelPill = () => document.querySelector('[data-row-level]') as HTMLElement;
+
+  it('renders the CP eyebrow + abbreviated value when set (comfy)', () => {
+    renderRow({ mule: { combatPower: CP } });
+    expect(screen.getByText('CP')).toBeTruthy();
+    expect(screen.getByText('410M')).toBeTruthy();
+    expect(screen.getByRole('button', { name: CP_NAME })).toBeTruthy();
+  });
+
+  it('keeps the CP pill visible in compact density', () => {
+    renderRow({ mule: { combatPower: CP }, density: 'compact' });
+    expect(screen.getByText('410M')).toBeTruthy();
+    expect(screen.getByRole('button', { name: CP_NAME })).toBeTruthy();
+  });
+
+  it('renders the CP value in accent, independent of muted income', () => {
+    // muted weekly meso → income is dimmed, yet CP stays accent.
+    renderRow({
+      mule: { combatPower: CP },
+      metrics: { displayedWeeklyMeso: { meso: 0, source: 'contributed', muted: true } },
+    });
+    const value = screen.getByText('410M');
+    expect(value.style.color).toContain('accent');
+  });
+
+  it('renders no CP pill when combatPower is unset', () => {
+    renderRow({ mule: { combatPower: undefined } });
+    expect(screen.queryByRole('button', { name: CP_NAME })).toBeNull();
+    expect(screen.queryByText('410M')).toBeNull();
+  });
+
+  it('renders no CP pill when combatPower is 0 (0 ≡ unset)', () => {
+    renderRow({ mule: { combatPower: 0 } });
+    expect(screen.queryByRole('button', { name: CP_NAME })).toBeNull();
+  });
+
+  it('exposes the full grouped value via a Combat Power aria-label', () => {
+    renderRow({ mule: { combatPower: CP } });
+    const trigger = screen.getByRole('button', { name: CP_NAME });
+    expect(trigger.getAttribute('aria-label')).toBe('Combat Power 410,042,525');
+  });
+
+  it('shows the full grouped value in the tooltip on focus', async () => {
+    renderRow({ mule: { combatPower: CP } });
+    const trigger = screen.getByRole('button', { name: CP_NAME });
+    fireEvent.focus(trigger);
+    expect(await screen.findByText('410,042,525')).toBeTruthy();
+  });
+
+  it('does not invoke the row onClick (drawer) when CP is clicked', () => {
+    const onClick = vi.fn();
+    renderRow({ mule: { combatPower: CP }, onClick });
+    fireEvent.click(screen.getByRole('button', { name: CP_NAME }));
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it('swallows pointerdown/click so neither a drag nor the drawer starts from CP', () => {
+    const onAncestorPointerDown = vi.fn();
+    const onAncestorClick = vi.fn();
+    const onClick = vi.fn();
+    const mule: Mule = { ...baseMule, combatPower: CP };
+    render(
+      <div onPointerDown={onAncestorPointerDown} onClick={onAncestorClick}>
+        <DndContext>
+          <SortableContext items={[mule.id]} strategy={verticalListSortingStrategy}>
+            <MuleListRow
+              mule={mule}
+              metrics={baseMetrics}
+              onClick={onClick}
+              updateMule={vi.fn()}
+              onDelete={vi.fn()}
+              onToggleSelect={vi.fn()}
+            />
+          </SortableContext>
+        </DndContext>
+      </div>,
+    );
+    const trigger = screen.getByRole('button', { name: CP_NAME });
+    fireEvent.pointerDown(trigger);
+    fireEvent.click(trigger);
+    expect(onAncestorPointerDown).not.toHaveBeenCalled();
+    expect(onAncestorClick).not.toHaveBeenCalled();
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it('renders CP after the Lv pill and before the Notes icon', () => {
+    renderRow({ mule: { combatPower: CP, notes: 'main mule' } });
+    const cluster = getLevelPill().parentElement as HTMLElement;
+    const levelPill = getLevelPill();
+    const cpTrigger = screen.getByRole('button', { name: CP_NAME });
+    const notesTrigger = screen.getByRole('button', { name: /show character notes/i });
+    const order = Array.from(cluster.children);
+    expect(order.indexOf(levelPill)).toBeLessThan(order.indexOf(cpTrigger));
+    expect(order.indexOf(cpTrigger)).toBeLessThan(order.indexOf(notesTrigger));
+  });
+
+  describe('density pairing', () => {
+    it('comfy enlarges both the Lv pill and the CP pill to the matched-pair metrics', () => {
+      renderRow({ mule: { combatPower: CP }, density: 'comfy' });
+      const levelPill = getLevelPill();
+      const cpPill = screen.getByRole('button', { name: CP_NAME });
+      expect(levelPill.style.padding).toBe('3px 8px');
+      expect(levelPill.style.fontSize).toBe('11px');
+      expect(cpPill.style.padding).toBe('3px 8px');
+      expect(cpPill.style.fontSize).toBe('11px');
+    });
+
+    it('compact reverts both pills to the original smaller metrics (CP still visible)', () => {
+      renderRow({ mule: { combatPower: CP }, density: 'compact' });
+      const levelPill = getLevelPill();
+      const cpPill = screen.getByRole('button', { name: CP_NAME });
+      expect(levelPill.style.padding).toBe('2px 6px');
+      expect(cpPill.style.padding).toBe('2px 6px');
+      // Original metric font tracks the row-level CSS var, not the fixed 11px.
+      expect(cpPill.style.fontSize).toContain('--row-level-size');
+    });
+
+    it('leaves the Lv pill at its original size when CP is absent (comfy)', () => {
+      renderRow({ mule: { combatPower: undefined }, density: 'comfy' });
+      expect(getLevelPill().style.padding).toBe('2px 6px');
+    });
   });
 });
