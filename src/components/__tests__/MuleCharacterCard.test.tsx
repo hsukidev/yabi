@@ -1066,4 +1066,108 @@ describe('MuleCharacterCard', () => {
       expect(await screen.findByText('owes 8 legion levels')).toBeTruthy();
     });
   });
+
+  describe('Combat Power (CP)', () => {
+    const CP_NAME = /combat power/i;
+    const CP = 410_042_525;
+
+    it('renders the CP eyebrow + abbreviated value in comfy density when set', () => {
+      renderCard({ combatPower: CP });
+      expect(screen.getByText('CP')).toBeTruthy();
+      expect(screen.getByText('410M')).toBeTruthy();
+      expect(screen.getByRole('button', { name: CP_NAME })).toBeTruthy();
+    });
+
+    it('renders the CP value in the accent color (independent of income)', () => {
+      // No bosses selected → zero/muted income, yet CP stays accent.
+      renderCard({ combatPower: CP });
+      const value = screen.getByText('410M');
+      expect(value.style.color).toContain('accent');
+    });
+
+    it('renders the CP value at the character-name size and weight 600', () => {
+      renderCard({ combatPower: CP });
+      const value = screen.getByText('410M');
+      expect(value.style.fontSize).toContain('--mule-name-size');
+      expect(value.style.fontWeight).toBe('600');
+    });
+
+    it('renders no CP element when combatPower is unset', () => {
+      renderCard({ combatPower: undefined });
+      expect(screen.queryByRole('button', { name: CP_NAME })).toBeNull();
+      expect(screen.queryByText('CP')).toBeNull();
+    });
+
+    it('renders no CP element when combatPower is 0 (0 ≡ unset)', () => {
+      renderCard({ combatPower: 0 });
+      expect(screen.queryByRole('button', { name: CP_NAME })).toBeNull();
+    });
+
+    it('hides CP in compact density even when set', () => {
+      renderCard({ combatPower: CP }, { density: 'compact' });
+      expect(screen.queryByRole('button', { name: CP_NAME })).toBeNull();
+      expect(screen.queryByText('410M')).toBeNull();
+    });
+
+    it('exposes the full grouped value via a Combat Power aria-label', () => {
+      renderCard({ combatPower: CP });
+      const trigger = screen.getByRole('button', { name: CP_NAME });
+      expect(trigger.getAttribute('aria-label')).toBe('Combat Power 410,042,525');
+    });
+
+    it('shows the full grouped value in the tooltip on focus', async () => {
+      renderCard({ combatPower: CP });
+      const trigger = screen.getByRole('button', { name: CP_NAME });
+      fireEvent.focus(trigger);
+      expect(await screen.findByText('410,042,525')).toBeTruthy();
+    });
+
+    it('does not invoke the card onClick (drawer) when CP is clicked', () => {
+      const { onClick } = renderCard({ combatPower: CP });
+      fireEvent.click(screen.getByRole('button', { name: CP_NAME }));
+      expect(onClick).not.toHaveBeenCalled();
+    });
+
+    it('swallows pointerdown so a dnd-kit drag never starts from the CP metric', () => {
+      // Mirror the kebab/notes guard proof: an ancestor carrying synthetic
+      // handlers must not see the guarded pointerdown/click.
+      const onAncestorPointerDown = vi.fn();
+      const onAncestorClick = vi.fn();
+      const onClick = vi.fn();
+      const mule = { ...baseMule, combatPower: CP };
+      render(
+        <div onPointerDown={onAncestorPointerDown} onClick={onAncestorClick}>
+          <DndContext>
+            <SortableContext items={[mule.id]} strategy={rectSortingStrategy}>
+              <MuleCharacterCard
+                mule={mule}
+                onClick={onClick}
+                updateMule={vi.fn()}
+                onDelete={vi.fn()}
+                onToggleSelect={vi.fn()}
+                metrics={metricsFor(mule)}
+              />
+            </SortableContext>
+          </DndContext>
+        </div>,
+      );
+      const trigger = screen.getByRole('button', { name: CP_NAME });
+      fireEvent.pointerDown(trigger);
+      fireEvent.click(trigger);
+      expect(onAncestorPointerDown).not.toHaveBeenCalled();
+      expect(onAncestorClick).not.toHaveBeenCalled();
+      expect(onClick).not.toHaveBeenCalled();
+    });
+
+    it('renders CP immediately before the Notes icon in the class-row right cluster', () => {
+      renderCard({ combatPower: CP, notes: 'main mule' });
+      const cpTrigger = screen.getByRole('button', { name: CP_NAME });
+      const notesTrigger = screen.getByRole('button', { name: /show character notes/i });
+      // Same cluster; CP precedes Notes in DOM order.
+      const cluster = cpTrigger.parentElement!;
+      expect(cluster).toBe(notesTrigger.parentElement);
+      const order = Array.from(cluster.children);
+      expect(order.indexOf(cpTrigger)).toBeLessThan(order.indexOf(notesTrigger));
+    });
+  });
 });

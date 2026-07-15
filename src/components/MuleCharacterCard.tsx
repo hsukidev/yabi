@@ -11,6 +11,7 @@ import { CharacterAvatar } from './CharacterAvatar';
 import { MesoMetric } from './MesoDisplay';
 import { ROSTER_CARD_ASPECT, ROSTER_CARD_MIN_HEIGHT } from './rosterCardContract';
 import { NotesTooltipTrigger } from './RosterItem/NotesTooltipTrigger';
+import { CardCpMetric } from './RosterItem/CardCpMetric';
 import { CapDropTooltipTrigger } from './RosterItem/CapDropTooltipTrigger';
 import { SelectionIndicator } from './RosterItem/SelectionIndicator';
 import { InactiveDimOverlay } from './RosterItem/InactiveDimOverlay';
@@ -107,6 +108,12 @@ const MuleCardInner = memo(function MuleCardInner({
   const anyCheckValid = dailyValid || weeklyValid || bmValid;
   const showLevelPill = compact ? anyCheckValid : mule.level > 0;
 
+  // Combat Power on the class row: shown only when set (0 ≡ unset) and never
+  // in Compact density. Accent applies whenever CP > 0; the card-wide inactive
+  // dim overlay is what dims it, so no active state is threaded here.
+  const cp = mule.combatPower ?? 0;
+  const showCp = !compact && cp > 0;
+
   return (
     <>
       {!hideLevelBadge && showLevelPill && (
@@ -185,7 +192,12 @@ const MuleCardInner = memo(function MuleCardInner({
           >
             {mule.muleClass || 'No class'}
           </span>
-          <NotesTooltipTrigger notes={notes} iconSize="sm" />
+          {/* Right cluster — CP (nowrap) immediately before the Notes icon.
+              `shrink-0` makes the class name give way first. */}
+          <div className="flex flex-row shrink-0 items-center gap-2">
+            {showCp && <CardCpMetric value={cp} />}
+            <NotesTooltipTrigger notes={notes} iconSize="sm" />
+          </div>
         </div>
       </div>
 
