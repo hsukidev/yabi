@@ -39,9 +39,11 @@ interface MuleListRowProps {
 }
 
 export const MONO = 'Geist Mono, monospace';
-const DESTRUCTIVE = 'var(--destructive)';
-const destructiveAlpha = (pct: number) =>
-  `color-mix(in oklab, var(--destructive) ${pct}%, transparent)`;
+// Bulk-selection highlight matches the Bulk Action Bar's accent chrome (see
+// RosterHeader).
+const SELECTION_ACCENT = 'var(--accent-raw, var(--accent))';
+const selectionAccentAlpha = (pct: number) =>
+  `color-mix(in oklab, var(--accent-raw, var(--accent)) ${pct}%, transparent)`;
 
 const EMPTY_DROPPED: ReadonlyMap<SlateKey, number> = new Map();
 
@@ -170,14 +172,14 @@ export const MuleListRow = memo(function MuleListRow({
     padding: 'var(--row-pad, 14px 18px)',
     border: '1px solid',
     borderColor: isBulkSelected
-      ? DESTRUCTIVE
+      ? SELECTION_ACCENT
       : showPressTint
-        ? destructiveAlpha(40)
+        ? selectionAccentAlpha(40)
         : 'var(--border)',
     background: isBulkSelected
-      ? destructiveAlpha(10)
+      ? selectionAccentAlpha(10)
       : showPressTint
-        ? destructiveAlpha(6)
+        ? selectionAccentAlpha(6)
         : 'var(--surface)',
     borderRadius: 10,
     cursor: 'pointer',

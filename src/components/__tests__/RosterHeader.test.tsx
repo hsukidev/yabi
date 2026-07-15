@@ -423,8 +423,8 @@ describe('RosterHeader', () => {
         openMenu();
         await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
         for (const name of [
-          /^set active$/i,
-          /^set inactive$/i,
+          /^active$/i,
+          /^inactive$/i,
           /daily complete/i,
           /daily incomplete/i,
           /weekly complete/i,
@@ -437,23 +437,23 @@ describe('RosterHeader', () => {
         expect(screen.queryByRole('menuitem', { name: /delete/i })).toBeNull();
       });
 
-      it('Set Active converges the selection to active (onSetActive(true))', async () => {
+      it('Active converges the selection to active (onSetActive(true))', async () => {
         const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
         openMenu();
         await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
-        fireEvent.click(screen.getByRole('menuitem', { name: /^set active$/i }));
+        fireEvent.click(screen.getByRole('menuitem', { name: /^active$/i }));
         expect(props.onSetActive).toHaveBeenCalledWith(true);
       });
 
-      it('Set Inactive converges the selection to inactive (onSetActive(false))', async () => {
+      it('Inactive converges the selection to inactive (onSetActive(false))', async () => {
         const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
         openMenu();
         await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
-        fireEvent.click(screen.getByRole('menuitem', { name: /^set inactive$/i }));
+        fireEvent.click(screen.getByRole('menuitem', { name: /^inactive$/i }));
         expect(props.onSetActive).toHaveBeenCalledWith(false);
       });
 
-      it('renders each cadence pair with its eligible count', async () => {
+      it('renders cadence rows without eligible-count trailers', async () => {
         renderHeader({
           bulkMode: true,
           selectedCount: 5,
@@ -461,15 +461,15 @@ describe('RosterHeader', () => {
         });
         openMenu();
         await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
-        for (const [name, count] of [
-          [/daily complete/i, 2],
-          [/daily incomplete/i, 2],
-          [/weekly complete/i, 5],
-          [/weekly incomplete/i, 5],
-          [/bm complete/i, 1],
-          [/bm incomplete/i, 1],
-        ] as const) {
-          expect(screen.getByRole('menuitem', { name }).textContent).toMatch(String(count));
+        for (const name of [
+          /daily complete/i,
+          /daily incomplete/i,
+          /weekly complete/i,
+          /weekly incomplete/i,
+          /bm complete/i,
+          /bm incomplete/i,
+        ]) {
+          expect(screen.getByRole('menuitem', { name }).textContent).not.toMatch(/\d/);
         }
       });
 
@@ -522,7 +522,7 @@ describe('RosterHeader', () => {
         expect(props.onMarkAs).toHaveBeenCalledWith('daily', true);
         // Still open — a second action can be applied in the same visit.
         expect(screen.getByRole('menu')).toBeTruthy();
-        fireEvent.click(screen.getByRole('menuitem', { name: /^set inactive$/i }));
+        fireEvent.click(screen.getByRole('menuitem', { name: /^inactive$/i }));
         expect(props.onSetActive).toHaveBeenCalledWith(false);
         expect(screen.getByRole('menu')).toBeTruthy();
       });
@@ -531,7 +531,7 @@ describe('RosterHeader', () => {
         const { props } = renderHeader({ bulkMode: true, selectedCount: 2 });
         openMenu();
         await waitFor(() => expect(screen.getByRole('menu')).toBeTruthy());
-        fireEvent.click(screen.getByRole('menuitem', { name: /^set active$/i }));
+        fireEvent.click(screen.getByRole('menuitem', { name: /^active$/i }));
         expect(props.onCancel).not.toHaveBeenCalled();
       });
 

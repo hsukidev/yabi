@@ -10,7 +10,7 @@ import {
 import type { ClearMarkKind } from '../utils/clearMark';
 import { BM_GOLD, DAILY_CYAN, WEEKLY_PURPLE } from './RosterItem/CompletionChecks';
 
-/** Eligible **Bulk-Selected Mule** counts per cadence — the row trailers. */
+/** Eligible **Bulk-Selected Mule** counts per cadence — drive row disabling. */
 export interface MarkEligibleCounts {
   daily: number;
   weekly: number;
@@ -75,12 +75,11 @@ const CADENCES: ReadonlyArray<{
  * Delete. Rows are directional (a bulk selection has mixed states, so each
  * row converges rather than toggles):
  *
- * - **Set Active / Set Inactive** — converge the whole selection's Active
- *   Flag; already-matching mules no-op.
+ * - **Active / Inactive** — converge the whole selection's Active Flag;
+ *   already-matching mules no-op.
  * - **Daily / Weekly / BM Complete + Incomplete** — converge that Clear Mark
  *   across the eligible Bulk-Selected Mules; ineligible mules silently skip.
- *   Each cadence row is trailed by a mono count of eligible mules and both of
- *   a cadence's rows disable at zero eligible.
+ *   Both of a cadence's rows disable at zero eligible.
  *
  * The trigger is disabled at zero selected. Rows stay open on selection so
  * several actions can be applied in one visit; the menu closes on click-away /
@@ -110,7 +109,7 @@ export function MarkAsMenu({
           onClick={() => onSetActive(true)}
         >
           <ColorDot color={ACTIVE_GREEN} />
-          <span style={{ flex: 1 }}>Set Active</span>
+          <span style={{ flex: 1 }}>Active</span>
         </DropdownMenuItem>
         <DropdownMenuItem
           data-mark-as-row="set-inactive"
@@ -118,7 +117,7 @@ export function MarkAsMenu({
           onClick={() => onSetActive(false)}
         >
           <ColorDot color={ACTIVE_GREEN} />
-          <span style={{ flex: 1 }}>Set Inactive</span>
+          <span style={{ flex: 1 }}>Inactive</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         {CADENCES.flatMap(({ kind, label, color, key }) => {
@@ -134,12 +133,6 @@ export function MarkAsMenu({
               <ColorDot color={color} />
               <span style={{ flex: 1 }}>
                 {label} {complete ? 'Complete' : 'Incomplete'}
-              </span>
-              <span
-                className="font-mono-nums"
-                style={{ color: 'var(--muted-raw, var(--muted-foreground))', fontSize: 12 }}
-              >
-                {count}
               </span>
             </DropdownMenuItem>
           ));

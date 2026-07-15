@@ -5,9 +5,10 @@ interface SelectionIndicatorProps {
   selected: boolean;
 }
 
-const DESTRUCTIVE = 'var(--destructive)';
-const destructiveAlpha = (pct: number) =>
-  `color-mix(in oklab, var(--destructive) ${pct}%, transparent)`;
+// Matches the Bulk Action Bar's accent chrome (see RosterHeader).
+const ACCENT = 'var(--accent-raw, var(--accent))';
+const accentAlpha = (pct: number) =>
+  `color-mix(in oklab, var(--accent-raw, var(--accent)) ${pct}%, transparent)`;
 
 export const SelectionIndicator = memo(function SelectionIndicator({
   selected,
@@ -20,9 +21,9 @@ export const SelectionIndicator = memo(function SelectionIndicator({
         width: 22,
         height: 22,
         borderRadius: 6,
-        border: `1.5px solid ${selected ? DESTRUCTIVE : destructiveAlpha(50)}`,
-        background: selected ? DESTRUCTIVE : 'transparent',
-        color: selected ? 'white' : 'transparent',
+        border: `1.5px solid ${selected ? ACCENT : accentAlpha(50)}`,
+        background: selected ? ACCENT : 'transparent',
+        color: selected ? 'var(--accent-foreground)' : 'transparent',
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',

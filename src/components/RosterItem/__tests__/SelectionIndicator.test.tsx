@@ -3,7 +3,7 @@ import { render } from '../../../test/test-utils';
 import { SelectionIndicator } from '../SelectionIndicator';
 
 describe('SelectionIndicator', () => {
-  it('renders the destructive box (with data-selection-indicator) when unselected', () => {
+  it('renders the selection box (with data-selection-indicator) when unselected', () => {
     const { container } = render(<SelectionIndicator selected={false} />);
     const indicator = container.querySelector('[data-selection-indicator]') as HTMLElement;
     expect(indicator).toBeTruthy();
@@ -22,10 +22,11 @@ describe('SelectionIndicator', () => {
     expect(indicator.querySelector('svg')).toBeTruthy();
   });
 
-  it('uses the destructive color tokens for borders/background', () => {
+  it('uses the accent color tokens for borders/background', () => {
     const { container } = render(<SelectionIndicator selected={true} />);
     const indicator = container.querySelector('[data-selection-indicator]') as HTMLElement;
     const compound = indicator.style.borderColor + indicator.style.background;
-    expect(compound).toMatch(/destructive/);
+    expect(compound).toMatch(/--accent/);
+    expect(compound).not.toMatch(/destructive/);
   });
 });

@@ -214,7 +214,7 @@ describe('MuleListRow — drag handle', () => {
 });
 
 describe('MuleListRow — bulk mode', () => {
-  it('replaces the drag handle with a destructive checkbox when bulkMode = true', () => {
+  it('replaces the drag handle with a selection checkbox when bulkMode = true', () => {
     const { container } = renderRow({ bulkMode: true });
     const indicator = container.querySelector('[data-selection-indicator]') as HTMLElement;
     expect(indicator).toBeTruthy();
@@ -222,11 +222,12 @@ describe('MuleListRow — bulk mode', () => {
     expect(screen.queryByRole('button', { name: /drag to reorder/i })).toBeNull();
   });
 
-  it('selected row picks up destructive border + soft destructive bg', () => {
+  it('selected row picks up accent border + soft accent bg', () => {
     const { container } = renderRow({ bulkMode: true, selected: true });
     const row = container.querySelector('[data-mule-row]') as HTMLElement;
     const compound = row.style.borderColor + row.style.background;
-    expect(compound).toMatch(/destructive/);
+    expect(compound).toMatch(/--accent/);
+    expect(compound).not.toMatch(/destructive/);
   });
 
   it('clicking the row in bulk mode fires onToggleSelect (not onClick)', () => {

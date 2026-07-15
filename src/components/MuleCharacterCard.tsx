@@ -48,9 +48,9 @@ interface MuleCharacterCardProps {
   metrics: RosterRowMetrics;
 }
 
-// `--destructive` is stored as `hsl(...)`, not a raw triplet — blend via
-// `color-mix` to get alpha variants without introducing #e05040 literals.
-const DESTRUCTIVE = 'var(--destructive)';
+// Bulk-selection highlight matches the Bulk Action Bar's accent chrome (see
+// RosterHeader) — blend via `color-mix` to get alpha variants from the token.
+const SELECTION_ACCENT = 'var(--accent-raw, var(--accent))';
 
 // Lift applied to the inner `.panel` on touch-hold. Keeping the scale on the
 // inner element (not the outer `setNodeRef` div) means the sortable node's
@@ -58,8 +58,8 @@ const DESTRUCTIVE = 'var(--destructive)';
 // DOM node / overlay is needed; the in-place card is the drag visual itself.
 const PRESS_SCALE = 'scale(1.04)';
 const DEFAULT_PANEL_SHADOW = '0 0 0 1px var(--border)';
-const destructiveAlpha = (pct: number) =>
-  `color-mix(in oklab, var(--destructive) ${pct}%, transparent)`;
+const selectionAccentAlpha = (pct: number) =>
+  `color-mix(in oklab, var(--accent-raw, var(--accent)) ${pct}%, transparent)`;
 
 const EMPTY_DROPPED: ReadonlyMap<SlateKey, number> = new Map();
 
@@ -368,8 +368,8 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
           flexDirection: 'column',
           transform: panelTransform,
           boxShadow: panelBoxShadow,
-          borderColor: bulkMode && selected ? DESTRUCTIVE : undefined,
-          background: bulkMode && selected ? destructiveAlpha(10) : undefined,
+          borderColor: bulkMode && selected ? SELECTION_ACCENT : undefined,
+          background: bulkMode && selected ? selectionAccentAlpha(10) : undefined,
           transition: 'transform 200ms ease-out, box-shadow 200ms ease-out, border-color 150ms',
           WebkitTouchCallout: 'none',
           userSelect: 'none',

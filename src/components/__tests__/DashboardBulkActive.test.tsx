@@ -53,7 +53,7 @@ async function enterBulkAndSelectAll() {
   fireEvent.click(screen.getByRole('button', { name: /select all/i }));
 }
 
-// Set Active / Set Inactive live inside the Mark As Menu (merged with the
+// Active / Inactive live inside the Mark As Menu (merged with the
 // cadence mark actions; the standalone Active dropdown was retired).
 async function applyActiveAction(name: RegExp) {
   fireEvent.click(screen.getByRole('button', { name: /mark as/i }));
@@ -63,8 +63,8 @@ async function applyActiveAction(name: RegExp) {
   fireEvent.click(screen.getByRole('menuitem', { name }));
 }
 
-describe('Bulk Action Bar — Set Active / Set Inactive', () => {
-  it('Set Inactive converges a mixed selection to inactive (matching mules no-op)', async () => {
+describe('Bulk Action Bar — Active / Inactive', () => {
+  it('Inactive converges a mixed selection to inactive (matching mules no-op)', async () => {
     // Two active, one already inactive — the mixed case the action must converge.
     seedMules([
       makeMule({ id: 'a', active: true }),
@@ -75,7 +75,7 @@ describe('Bulk Action Bar — Set Active / Set Inactive', () => {
     expect(inactiveCardCount(container)).toBe(1);
 
     await enterBulkAndSelectAll();
-    await applyActiveAction(/set inactive/i);
+    await applyActiveAction(/^inactive$/i);
 
     // All three converge to inactive; the already-inactive one is a no-op.
     await waitFor(() => {
@@ -83,7 +83,7 @@ describe('Bulk Action Bar — Set Active / Set Inactive', () => {
     });
   });
 
-  it('Set Active converges a mixed selection to active', async () => {
+  it('Active converges a mixed selection to active', async () => {
     seedMules([
       makeMule({ id: 'a', active: false }),
       makeMule({ id: 'b', active: false }),
@@ -93,7 +93,7 @@ describe('Bulk Action Bar — Set Active / Set Inactive', () => {
     expect(inactiveCardCount(container)).toBe(2);
 
     await enterBulkAndSelectAll();
-    await applyActiveAction(/set active/i);
+    await applyActiveAction(/^active$/i);
 
     await waitFor(() => {
       expect(inactiveCardCount(container)).toBe(0);
@@ -105,7 +105,7 @@ describe('Bulk Action Bar — Set Active / Set Inactive', () => {
     const { container } = await renderApp();
 
     await enterBulkAndSelectAll();
-    await applyActiveAction(/set inactive/i);
+    await applyActiveAction(/^inactive$/i);
 
     await waitFor(() => {
       expect(inactiveCardCount(container)).toBe(2);

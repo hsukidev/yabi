@@ -949,12 +949,13 @@ describe('MuleCharacterCard', () => {
       expect(indicator.querySelector('svg')).toBeTruthy();
     });
 
-    it('applies selected styling (destructive border) to the card panel when selected', () => {
+    it('applies selected styling (accent border) to the card panel when selected', () => {
       const { container } = renderCard({}, { bulkMode: true, selected: true });
       const panel = container.querySelector('[data-mule-card] .panel') as HTMLElement;
       const borderColor = panel.style.borderColor + panel.style.boxShadow;
       expect(borderColor.toLowerCase()).not.toContain('#e05040');
-      expect(borderColor).toMatch(/destructive/);
+      expect(borderColor).toMatch(/--accent/);
+      expect(borderColor).not.toMatch(/destructive/);
     });
   });
 
