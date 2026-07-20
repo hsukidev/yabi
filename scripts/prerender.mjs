@@ -104,6 +104,22 @@ try {
       setLink('canonical');
       setMeta('og:url');
 
+      // Strip dnd-kit's screen-reader scaffolding from the static snapshot.
+      // dnd-kit renders a hidden `#DndDescribedBy-*` instructions node ("To
+      // pick up a draggable item, press the space bar…") plus an empty
+      // `#DndLiveRegion-*` announcer. No drag can happen in a crawl snapshot,
+      // so this boilerplate is pure indexable noise — on the near-empty
+      // homepage it was the single largest block of text Google saw, which
+      // feeds the "Crawled – currently not indexed" verdict. The live bundle
+      // recreates both nodes on hydration, so real screen-reader users are
+      // unaffected.
+      document.querySelectorAll('[id^="DndDescribedBy-"], [id^="DndLiveRegion-"]').forEach((el) => {
+        document
+          .querySelectorAll(`[aria-describedby="${el.id}"]`)
+          .forEach((ref) => ref.removeAttribute('aria-describedby'));
+        el.remove();
+      });
+
       return '<!doctype html>\n' + document.documentElement.outerHTML;
     }, route.canonical);
 
