@@ -2,8 +2,12 @@ import { Menu as MenuPrimitive } from '@base-ui/react/menu';
 
 import { cn } from '@/lib/utils';
 
-function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
-  return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
+function DropdownMenu({ modal = false, ...props }: MenuPrimitive.Root.Props) {
+  // Non-modal by default: Base UI's modal scroll lock hides the viewport
+  // scrollbar while the menu is open, which shifts the page layout. These are
+  // lightweight contextual menus — keeping the page scrollable (and the
+  // scrollbar visible) is the better trade.
+  return <MenuPrimitive.Root data-slot="dropdown-menu" modal={modal} {...props} />;
 }
 
 function DropdownMenuTrigger({ ...props }: MenuPrimitive.Trigger.Props) {

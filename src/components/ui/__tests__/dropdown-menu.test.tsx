@@ -56,6 +56,19 @@ describe('DropdownMenu primitive (smoke)', () => {
     });
   });
 
+  it('does not scroll-lock the page while open (scrollbar persists)', async () => {
+    renderMenu();
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
+    await waitFor(() => {
+      expect(screen.getByRole('menu')).toBeTruthy();
+    });
+    // Base UI's modal scroll lock hides the viewport scrollbar via
+    // overflow: hidden on <html>/<body>, shifting the layout. The menu must
+    // stay non-modal so neither element is ever locked.
+    expect(document.documentElement.style.overflowY).not.toBe('hidden');
+    expect(document.body.style.overflowY).not.toBe('hidden');
+  });
+
   it('closes on outside click', async () => {
     renderMenu();
     fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
