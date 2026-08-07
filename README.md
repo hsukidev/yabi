@@ -26,7 +26,7 @@ A personal tool for MapleStory GMS Reboot players to track potential weekly meso
 - **Full boss reference data** for ~75 difficulties grouped into families with one-per-family weekly entry slots.
 - **Cadence filter** (All / Weekly / Daily) and **search**.
 - **Presets** — one-click **CRA**, **LOMIEN**, **CTENE** with multi-tier acceptance and a **Custom** indicator when the slate diverges.
-- **Party-size stepper** (1–6) per family divides the weekly crystal value live.
+- **Party-size stepper** (1 up to the family's max party size — 6 for most bosses, 3 for First Adversary, Malefic Star, Limbo, Baldrix, and Jupiter) per family divides the weekly crystal value live.
 - **Crystal Tally** in the drawer — Weekly / Daily / Monthly counts, with red over-cap warning past 14 weekly.
 
 ### Income & summary

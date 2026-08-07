@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import type { BossCadence } from '../types';
 import type { SlateFamily, SlateKey, SlateRow } from '../data/muleBossSlate';
-import { bossImageUrl } from '../data/bosses';
+import { bossImageUrl, getMaxPartySize } from '../data/bosses';
 import { TIER_COLOR, TIER_HEADER_LABEL } from '../constants/tiers';
 import { MesoValue } from './MesoDisplay';
 import { PartyStepper } from './PartyStepper';
@@ -207,6 +207,7 @@ const BossCard = memo(function BossCard({
             <PartyStepper
               family={family.family}
               party={partySize}
+              max={getMaxPartySize(family.family)}
               onChangePartySize={onChangePartySize}
             />
           ) : (

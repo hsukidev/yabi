@@ -193,6 +193,24 @@ describe('muleMigrate', () => {
       expect(mule.partySizes).toEqual({ lucid: 3 });
     });
 
+    it('clamps persisted partySizes above a family Max Party Size (limbo 6 → 3)', () => {
+      const v3 = {
+        schemaVersion: 3,
+        mules: [
+          {
+            id: 'a',
+            name: 'V3',
+            level: 200,
+            muleClass: 'Hero',
+            selectedBosses: [HARD_LUCID],
+            partySizes: { limbo: 6, 'malefic-star': 4, lucid: 6 },
+          },
+        ],
+      };
+      const [mule] = muleMigrate(JSON.stringify(v3));
+      expect(mule.partySizes).toEqual({ limbo: 3, 'malefic-star': 3, lucid: 6 });
+    });
+
     it('applies Active Default when `active` is missing', () => {
       const v3 = {
         schemaVersion: 3,

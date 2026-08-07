@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { Mule } from '../../../types';
+import { getMaxPartySize } from '../../../data/bosses';
 
 const PARTY_SIZE_MIN = 1;
-const PARTY_SIZE_MAX = 6;
 
 /**
- * Owns the **Party-Size Clamp** [1, 6] write path and the `stablePartySizes`
- * memo that keeps the prop's identity stable across renders, so `BossMatrix`
- * can rely on referential equality for its `partySizes` map.
+ * Owns the **Party-Size Clamp** [1, Max Party Size] write path and the
+ * `stablePartySizes` memo that keeps the prop's identity stable across
+ * renders, so `BossMatrix` can rely on referential equality for its
+ * `partySizes` map. The upper bound is per-family: 6 by default, 3 for
+ * families with a `maxPartySize` override (see `getMaxPartySize`).
  *
  * `setPartySize` no-ops when `muleId === null` (drawer open with no mule).
  */
@@ -36,7 +38,7 @@ export function usePartySizes({
   const setPartySize = useCallback(
     (family: string, n: number) => {
       if (!muleId) return;
-      const clamped = Math.max(PARTY_SIZE_MIN, Math.min(PARTY_SIZE_MAX, n));
+      const clamped = Math.max(PARTY_SIZE_MIN, Math.min(getMaxPartySize(family), n));
       onUpdate(muleId, {
         partySizes: { ...stablePartySizesRef.current, [family]: clamped },
       });

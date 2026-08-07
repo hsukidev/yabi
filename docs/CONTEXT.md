@@ -144,8 +144,12 @@ A group of 1–6 players who defeat a **Boss** together.
 _Avoid_: Group, team
 
 **Party Size**:
-The number of players (1–6) sharing the **Crystal Value** from a defeated **Boss** — divides weekly and monthly income; **ignored for daily**.
+The number of players (1 up to the family's **Max Party Size**) sharing the **Crystal Value** from a defeated **Boss** — divides weekly and monthly income; **ignored for daily**.
 _Avoid_: N players
+
+**Max Party Size**:
+The per-**Boss Family** cap on **Party Size** — 6 by default, 3 for First Adversary, Malefic Star, Limbo, Baldrix, and Jupiter (every tier of those families). Encoded as `Boss.maxPartySize` and read via `getMaxPartySize(family)`.
+_Avoid_: Party limit, party cap
 
 ### Boss cadence
 

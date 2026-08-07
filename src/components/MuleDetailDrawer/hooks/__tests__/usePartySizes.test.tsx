@@ -29,6 +29,30 @@ describe('usePartySizes', () => {
       expect(onUpdate).toHaveBeenCalledWith('mule-1', { partySizes: { lucid: 6 } });
     });
 
+    it('clamps a maxPartySize: 3 family (limbo) to 3', () => {
+      const onUpdate = vi.fn();
+      const { result } = renderHook(() =>
+        usePartySizes({ muleId: 'mule-1', partySizes: undefined, onUpdate }),
+      );
+
+      act(() => {
+        result.current.setPartySize('limbo', 6);
+      });
+      expect(onUpdate).toHaveBeenCalledWith('mule-1', { partySizes: { limbo: 3 } });
+    });
+
+    it('accepts values at a maxPartySize: 3 family cap unchanged', () => {
+      const onUpdate = vi.fn();
+      const { result } = renderHook(() =>
+        usePartySizes({ muleId: 'mule-1', partySizes: undefined, onUpdate }),
+      );
+
+      act(() => {
+        result.current.setPartySize('first-adversary', 3);
+      });
+      expect(onUpdate).toHaveBeenCalledWith('mule-1', { partySizes: { 'first-adversary': 3 } });
+    });
+
     it('clamps values below 1 to 1', () => {
       const onUpdate = vi.fn();
       const { result } = renderHook(() =>

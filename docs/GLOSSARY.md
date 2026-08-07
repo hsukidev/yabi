@@ -101,10 +101,11 @@
 
 ## Party Content
 
-| Term           | Definition                                                                         | Aliases to avoid |
-| -------------- | ---------------------------------------------------------------------------------- | ---------------- |
-| **Party**      | A group of 1–6 players who defeat a **Boss** together                              | Group, team      |
-| **Party Size** | The number of players (1–6) sharing the **Crystal Value** from a defeated **Boss** | N players        |
+| Term               | Definition                                                                                                                                                                   | Aliases to avoid       |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| **Party**          | A group of players (up to the **Max Party Size**) who defeat a **Boss** together                                                                                             | Group, team            |
+| **Party Size**     | The number of players (1 up to the family's **Max Party Size**) sharing the **Crystal Value** from a defeated **Boss**                                                       | N players              |
+| **Max Party Size** | The per-**Boss Family** cap on **Party Size** — 6 by default, 3 for First Adversary, Malefic Star, Limbo, Baldrix, Jupiter (`Boss.maxPartySize`, read via `getMaxPartySize`) | Party limit, party cap |
 
 ## Boss Matrix UI
 

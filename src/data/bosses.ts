@@ -38,6 +38,7 @@ export const bosses: Boss[] = [
     id: '39410585-b9ad-46e3-b332-e163d8d323d7',
     name: 'Jupiter',
     family: 'jupiter',
+    maxPartySize: 3,
     difficulty: [
       {
         tier: 'normal',
@@ -82,6 +83,7 @@ export const bosses: Boss[] = [
     id: 'b4d2a687-ddef-48fa-b6d0-e6873f11a239',
     name: 'First Adversary',
     family: 'first-adversary',
+    maxPartySize: 3,
     difficulty: [
       {
         tier: 'easy',
@@ -158,6 +160,7 @@ export const bosses: Boss[] = [
     id: 'e657dc8d-e2ba-414c-9c6e-51c1ed2ba23c',
     name: 'Baldrix',
     family: 'baldrix',
+    maxPartySize: 3,
     difficulty: [
       {
         tier: 'normal',
@@ -175,6 +178,7 @@ export const bosses: Boss[] = [
     id: '035d4f7e-66d6-4ef1-bf2f-81909441b410',
     name: 'Malefic Star',
     family: 'malefic-star',
+    maxPartySize: 3,
     difficulty: [
       {
         tier: 'normal',
@@ -192,6 +196,7 @@ export const bosses: Boss[] = [
     id: 'd8c9fbda-6887-49e2-bd32-63e08adc62b6',
     name: 'Limbo',
     family: 'limbo',
+    maxPartySize: 3,
     difficulty: [
       {
         tier: 'normal',
@@ -675,6 +680,31 @@ export function getBossById(id: string): Boss | undefined {
 
 export function getBossByFamily(family: string): Boss | undefined {
   return bossByFamily.get(family);
+}
+
+/** Default **Max Party Size** for families with no `maxPartySize` override. */
+export const DEFAULT_MAX_PARTY_SIZE = 6;
+
+/**
+ * Family-wide **Max Party Size**: the override on the `Boss` entry, or the
+ * default of 6. Unknown families get the default so callers never need a
+ * catalog-membership guard.
+ */
+export function getMaxPartySize(family: string): number {
+  return bossByFamily.get(family)?.maxPartySize ?? DEFAULT_MAX_PARTY_SIZE;
+}
+
+/**
+ * Clamp a `Mule.partySizes` map against each family's **Max Party Size**.
+ * Values at or under the cap (and entries for unknown families) pass through
+ * unchanged; the minimum bound stays the caller's concern.
+ */
+export function clampPartySizes(sizes: Record<string, number>): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const [family, n] of Object.entries(sizes)) {
+    out[family] = Math.min(n, getMaxPartySize(family));
+  }
+  return out;
 }
 
 /**

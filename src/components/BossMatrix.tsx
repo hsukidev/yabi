@@ -4,6 +4,7 @@ import type { SlateFamily, SlateKey, SlateRow } from '../data/muleBossSlate';
 import { TIER_COLOR, TIER_HEADER_LABEL } from '../constants/tiers';
 import { MesoValue } from './MesoDisplay';
 import { PartyStepper } from './PartyStepper';
+import { getMaxPartySize } from '../data/bosses';
 
 /** Column order in the Matrix — extreme → easy, hardest first. */
 const MATRIX_TIER_COLUMNS: BossTier[] = ['extreme', 'chaos', 'hard', 'normal', 'easy'];
@@ -92,6 +93,7 @@ const FamilyMatrixRow = memo(function FamilyMatrixRow({
           <PartyStepper
             family={family.family}
             party={partySize}
+            max={getMaxPartySize(family.family)}
             onChangePartySize={onChangePartySize}
           />
         ) : (

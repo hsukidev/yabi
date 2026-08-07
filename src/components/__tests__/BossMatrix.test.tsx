@@ -323,6 +323,22 @@ describe('BossMatrix', () => {
       expect(onChangePartySize).not.toHaveBeenCalled();
     });
 
+    it('caps a maxPartySize: 3 family (Limbo) at 3 — + disabled and inert', () => {
+      const onChangePartySize = vi.fn();
+      renderMatrix([], vi.fn(), { limbo: 3 }, onChangePartySize);
+      const incBtn = screen.getByTestId('party-inc-limbo');
+      expect(incBtn).toHaveProperty('disabled', true);
+      fireEvent.click(incBtn);
+      expect(onChangePartySize).not.toHaveBeenCalled();
+    });
+
+    it('still steps a maxPartySize: 3 family (Limbo) below its cap', () => {
+      const onChangePartySize = vi.fn();
+      renderMatrix([], vi.fn(), { limbo: 2 }, onChangePartySize);
+      fireEvent.click(screen.getByTestId('party-inc-limbo'));
+      expect(onChangePartySize).toHaveBeenCalledWith('limbo', 3);
+    });
+
     it('clicking the + button does NOT toggle the cell (event propagation stopped)', () => {
       const onToggleKey = vi.fn();
       const onChangePartySize = vi.fn();

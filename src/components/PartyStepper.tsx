@@ -3,27 +3,30 @@ const STEPPER_BTN_CLASS =
 
 /**
  * Party count stepper shared across Slate Display Modes (Boss Matrix rows and
- * the upcoming Boss Card). Clamps to 1..6 and stops event propagation so a
+ * the upcoming Boss Card). Clamps to 1..max (the family's **Max Party Size**,
+ * 6 unless the caller passes a lower cap) and stops event propagation so a
  * click never bubbles to an enclosing selection surface.
  */
 export function PartyStepper({
   family,
   party,
+  max = 6,
   onChangePartySize,
 }: {
   family: string;
   party: number;
+  max?: number;
   onChangePartySize: (family: string, n: number) => void;
 }) {
   const atMin = party <= 1;
-  const atMax = party >= 6;
+  const atMax = party >= max;
 
   function step(delta: -1 | 1) {
     return (e: React.MouseEvent) => {
       e.stopPropagation();
       e.preventDefault();
       const next = party + delta;
-      if (next < 1 || next > 6) return;
+      if (next < 1 || next > max) return;
       onChangePartySize(family, next);
     };
   }

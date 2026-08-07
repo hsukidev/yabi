@@ -1,4 +1,5 @@
 import type { UserPreset } from '../data/userPresets';
+import { getMaxPartySize } from '../data/bosses';
 
 /**
  * Schema version for the persisted **User Preset** root. Lives alongside
@@ -35,7 +36,10 @@ function validatePreset(raw: unknown): UserPreset | null {
   if (typeof obj.partySizes === 'object' && obj.partySizes !== null) {
     for (const [family, value] of Object.entries(obj.partySizes as Record<string, unknown>)) {
       if (typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 6) {
-        partySizes[family] = value;
+        // Snapshots saved before a family's Max Party Size cap shipped may
+        // carry a now-invalid size (e.g. Limbo at 6) — clamp on load so
+        // apply and default-aware matching both see the capped value.
+        partySizes[family] = Math.min(value, getMaxPartySize(family));
       }
     }
   }

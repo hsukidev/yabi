@@ -1,5 +1,5 @@
 import type { BossTier, Mule } from '../types';
-import { getBossById } from '../data/bosses';
+import { getBossById, getMaxPartySize } from '../data/bosses';
 import { MuleBossSlate } from '../data/muleBossSlate';
 import { isWorldId } from '../data/worlds';
 
@@ -46,7 +46,11 @@ function readPartySizes(raw: unknown): Record<string, number> {
   if (typeof raw !== 'object' || raw === null) return {};
   const out: Record<string, number> = {};
   for (const [family, n] of Object.entries(raw as Record<string, unknown>)) {
-    if (typeof n === 'number' && Number.isFinite(n)) out[family] = n;
+    // Normalize against the family's Max Party Size on every load — payloads
+    // persisted before a cap shipped (e.g. Limbo at 6) clamp down silently.
+    if (typeof n === 'number' && Number.isFinite(n)) {
+      out[family] = Math.min(n, getMaxPartySize(family));
+    }
   }
   return out;
 }

@@ -108,6 +108,30 @@ describe('createUserPresetStore', () => {
       ]);
     });
 
+    it('clamps snapshot partySizes above a family Max Party Size (limbo 6 → 3)', () => {
+      const payload = JSON.stringify({
+        schemaVersion: CURRENT_USER_PRESET_SCHEMA_VERSION,
+        userPresets: [
+          {
+            id: 'p1',
+            name: 'Pre-cap Snapshot',
+            slateKeys: ['k1'],
+            partySizes: { limbo: 6, jupiter: 4, lucid: 6 },
+          },
+        ],
+      });
+      const port = makeFakePort(payload);
+      const loaded = createUserPresetStore(port).load();
+      expect(loaded).toEqual([
+        {
+          id: 'p1',
+          name: 'Pre-cap Snapshot',
+          slateKeys: ['k1'],
+          partySizes: { limbo: 3, jupiter: 3, lucid: 6 },
+        },
+      ]);
+    });
+
     it('matches userPresetMigrate(port.read()) exactly', () => {
       const payload = JSON.stringify({
         schemaVersion: CURRENT_USER_PRESET_SCHEMA_VERSION,

@@ -35,6 +35,14 @@ export interface Boss {
   family: string;
   /** One entry per difficulty tier offered for this family. */
   difficulty: BossDifficulty[];
+  /**
+   * Family-wide **Max Party Size** cap. Absent → the default of 6. Set to 3
+   * for the newer bosses (First Adversary, Malefic Star, Limbo, Baldrix,
+   * Jupiter) whose in-game party is capped at 3 across every tier. Family-
+   * level (not per-tier) because `Mule.partySizes` is keyed by family.
+   * Always read through `getMaxPartySize(family)` in `bosses.ts`.
+   */
+  maxPartySize?: number;
 }
 
 export interface BossFamily {

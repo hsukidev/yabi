@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import type { Mule } from '../../../types';
 import { MuleBossSlate } from '../../../data/muleBossSlate';
+import { clampPartySizes } from '../../../data/bosses';
 import type { UserPreset } from '../../../data/userPresets';
 import { toast } from '../../../lib/toast';
 import type { PresetKey } from '../../MatrixToolbar';
@@ -86,7 +87,11 @@ export function useSlateActions({
       if (slate.matchedUserPreset([snapshot], partySizes)) return;
       onUpdate(muleId, {
         selectedBosses: MuleBossSlate.from(snapshot.slateKeys).keys as string[],
-        partySizes: { ...snapshot.partySizes },
+        // Defensive re-clamp against each family's Max Party Size — loaded
+        // snapshots are already clamped by `userPresetMigrate`, but this
+        // guards a hand-edited in-memory preset the same way `from` guards
+        // the slate keys.
+        partySizes: clampPartySizes(snapshot.partySizes),
       });
     },
     [muleId, slate, partySizes, userPresets, onUpdate],
