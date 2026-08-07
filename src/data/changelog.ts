@@ -25,6 +25,16 @@ export const ORDERED_CATEGORIES: ChangeCategory[] = (
 
 export const releases: Release[] = [
   {
+    date: '2026-08-07',
+    version: '1.6.1',
+    changes: [
+      {
+        category: 'fix',
+        text: 'Capped party size for First Adversary, Malefic Star, Limbo, Baldrix, and Jupiter to 3.',
+      },
+    ],
+  },
+  {
     date: '2026-07-15',
     version: '1.6.0',
     changes: [
