@@ -25,6 +25,16 @@ export const ORDERED_CATEGORIES: ChangeCategory[] = (
 
 export const releases: Release[] = [
   {
+    date: '2026-08-29',
+    version: '1.6.2',
+    changes: [
+      {
+        category: 'fix',
+        text: 'Fixed Jupiter crystal prices.',
+      },
+    ],
+  },
+  {
     date: '2026-08-07',
     version: '1.6.1',
     changes: [
