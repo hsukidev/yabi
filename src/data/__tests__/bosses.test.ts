@@ -170,6 +170,23 @@ describe('getBossById', () => {
  * with their own non-uniform Interactive pricing.
  */
 describe('bosses.ts — world pricing invariants', () => {
+  it('uses the current Jupiter Crystal Values for both World Groups', () => {
+    const jupiter = bosses.find((boss) => boss.family === 'jupiter')!;
+
+    expect(jupiter.difficulty).toEqual([
+      {
+        tier: 'normal',
+        crystalValue: { Heroic: 2_965_000_000, Interactive: 593_000_000 },
+        cadence: 'weekly',
+      },
+      {
+        tier: 'hard',
+        crystalValue: { Heroic: 5_593_000_000, Interactive: 1_118_600_000 },
+        cadence: 'weekly',
+      },
+    ]);
+  });
+
   it('every boss-tier has both Heroic and Interactive crystal values > 0', () => {
     for (const boss of bosses) {
       for (const diff of boss.difficulty) {

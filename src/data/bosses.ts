@@ -42,12 +42,12 @@ export const bosses: Boss[] = [
     difficulty: [
       {
         tier: 'normal',
-        crystalValue: { Heroic: 8500000000, Interactive: 1700000000 },
+        crystalValue: { Heroic: 2965000000, Interactive: 593000000 },
         cadence: 'weekly',
       },
       {
         tier: 'hard',
-        crystalValue: { Heroic: 25500000000, Interactive: 5100000000 },
+        crystalValue: { Heroic: 5593000000, Interactive: 1118600000 },
         cadence: 'weekly',
       },
     ],

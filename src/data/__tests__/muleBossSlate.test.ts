@@ -281,9 +281,9 @@ describe('MuleBossSlate.view', () => {
     const families = view.map((f) => f.family);
     const expected = [
       'black-mage',
-      'jupiter',
       'kaling',
       'first-adversary',
+      'jupiter',
       'kalos-the-guardian',
       'chosen-seren',
       'baldrix',
