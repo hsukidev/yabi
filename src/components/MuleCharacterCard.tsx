@@ -17,6 +17,7 @@ import { SelectionIndicator } from './RosterItem/SelectionIndicator';
 import { InactiveDimOverlay } from './RosterItem/InactiveDimOverlay';
 import { MuleActionsMenu } from './RosterItem/MuleActionsMenu';
 import { CompletionChecks } from './RosterItem/CompletionChecks';
+import { MapleRanksLink } from './RosterItem/MapleRanksLink';
 import type { RosterRowMetrics } from './rosterRowMetrics';
 
 interface MuleCharacterCardProps {
@@ -116,28 +117,47 @@ const MuleCardInner = memo(function MuleCardInner({
 
   return (
     <>
-      {!hideLevelBadge && showLevelPill && (
+      {!hideLevelBadge && (
         <div
-          data-card-level
           style={{
             position: 'absolute',
             top: 12,
             left: 12,
+            // Reserve the trailing MapleRanks link + menu cluster.
+            maxWidth: 'calc(100% - 84px)',
+            zIndex: 1,
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 5,
-            fontFamily: 'Geist Mono, monospace',
-            fontSize: 'var(--mule-level-size, 11px)',
-            letterSpacing: '0.1em',
-            color: 'var(--muted-raw, var(--muted-foreground))',
-            padding: '3px 8px',
-            borderRadius: 4,
-            border: '1px solid var(--border)',
-            background: 'var(--surface-2, var(--surface-raised))',
+            gap: 4,
           }}
         >
-          {!compact && <span>Lv.{mule.level}</span>}
-          <CompletionChecks daily={dailyValid} weekly={weeklyValid} bm={bmValid} />
+          {showLevelPill && (
+            <div
+              data-card-level
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                minWidth: 0,
+                gap: 5,
+                fontFamily: 'Geist Mono, monospace',
+                fontSize: 'var(--mule-level-size, 11px)',
+                letterSpacing: '0.1em',
+                color: 'var(--muted-raw, var(--muted-foreground))',
+                padding: '3px 8px',
+                borderRadius: 4,
+                border: '1px solid var(--border)',
+                background: 'var(--surface-2, var(--surface-raised))',
+              }}
+            >
+              {!compact && <span>Lv.{mule.level}</span>}
+              {anyCheckValid && (
+                <span style={{ display: 'inline-flex', gap: 5 }}>
+                  <CompletionChecks daily={dailyValid} weekly={weeklyValid} bm={bmValid} />
+                </span>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -400,7 +420,19 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
         {!bulkMode && (
           // zIndex 2 lifts the menu above the InactiveDimOverlay (zIndex 1) so
           // an inactive (dimmed) mule keeps a fully operable menu.
-          <span style={{ position: 'absolute', top: 10, right: 10, display: 'flex', zIndex: 2 }}>
+          <span
+            data-card-actions
+            style={{
+              position: 'absolute',
+              top: 10,
+              right: 10,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              zIndex: 2,
+            }}
+          >
+            <MapleRanksLink name={mule.name} worldId={mule.worldId} />
             <MuleActionsMenu
               mule={mule}
               updateMule={updateMule}

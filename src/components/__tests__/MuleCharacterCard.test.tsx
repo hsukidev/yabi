@@ -146,6 +146,55 @@ function StatefulCard({ initial }: { initial: Mule }) {
 }
 
 describe('MuleCharacterCard', () => {
+  describe('MapleRanks Profile Link', () => {
+    const LINK_NAME = /view TestMule on MapleRanks/i;
+
+    it.each(['comfy', 'compact'] as const)(
+      'places the link immediately before the three-dot menu in %s density',
+      (density) => {
+        const { container } = renderCard(
+          { selectedBosses: [HARD_LUCID], weeklyClearMark: currentWeeklyStamp(Date.now()) },
+          { density },
+        );
+        const actions = container.querySelector('[data-card-actions]');
+        const link = screen.getByRole('link', { name: LINK_NAME });
+        const menu = screen.getByRole('button', { name: 'Mule actions' });
+        expect(actions?.contains(link)).toBe(true);
+        expect(actions?.contains(menu)).toBe(true);
+        expect(link.compareDocumentPosition(menu) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      },
+    );
+
+    it.each(['comfy', 'compact'] as const)(
+      'keeps the link in the action cluster when the level badge is absent in %s density',
+      (density) => {
+        const { container } = renderCard({ level: 0, active: false }, { density });
+        const link = screen.getByRole('link', { name: LINK_NAME });
+        expect(container.querySelector('[data-card-level]')).toBeNull();
+        expect(container.querySelector('[data-card-actions]')?.contains(link)).toBe(true);
+      },
+    );
+
+    it.each([
+      { density: 'comfy', name: '   ', bulkMode: false },
+      { density: 'compact', name: 'TestMule', bulkMode: true },
+    ] as const)(
+      'hides the link for $density with name "$name" and bulkMode=$bulkMode',
+      (testCase) => {
+        renderCard({ name: testCase.name }, testCase);
+        expect(screen.queryByRole('link', { name: /mapleranks/i })).toBeNull();
+      },
+    );
+
+    it('does not open the drawer when the link receives mouse or keyboard activation', () => {
+      const { onClick } = renderCard();
+      const link = screen.getByRole('link', { name: LINK_NAME });
+      fireEvent.keyDown(link, { key: 'Enter' });
+      fireEvent.click(link);
+      expect(onClick).not.toHaveBeenCalled();
+    });
+  });
+
   it('renders the mule name', () => {
     renderCard();
     expect(screen.getByText('TestMule')).toBeTruthy();

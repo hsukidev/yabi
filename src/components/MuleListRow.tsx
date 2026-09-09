@@ -17,6 +17,7 @@ import { InactiveDimOverlay } from './RosterItem/InactiveDimOverlay';
 import { MuleActionsMenu } from './RosterItem/MuleActionsMenu';
 import { CompletionChecks } from './RosterItem/CompletionChecks';
 import { RowCpMetric } from './RosterItem/RowCpMetric';
+import { MapleRanksLink } from './RosterItem/MapleRanksLink';
 import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
 import monthlyCrystalPng from '../assets/monthly-crystal.png';
@@ -69,7 +70,6 @@ const METRIC_VALUE_STYLE: React.CSSProperties = {
 };
 
 const LEVEL_PILL_STYLE: React.CSSProperties = {
-  display: 'inline-flex',
   alignItems: 'center',
   gap: 5,
   fontFamily: MONO,
@@ -166,7 +166,7 @@ export const MuleListRow = memo(function MuleListRow({
     position: 'relative',
     display: 'grid',
     gridTemplateColumns:
-      'var(--row-handle, 24px) var(--row-avatar, 64px) auto minmax(0, 1fr) var(--row-kebab, auto)',
+      'var(--row-handle, 24px) var(--row-avatar, 64px) minmax(0, auto) minmax(min-content, 1fr) var(--row-kebab, auto)',
     alignItems: 'center',
     gap: 'var(--row-gap, 10px)',
     padding: 'var(--row-pad, 14px 18px)',
@@ -238,8 +238,9 @@ export const MuleListRow = memo(function MuleListRow({
           gap: 'var(--row-identity-gap, 6px)',
         }}
       >
-        <div className="flex flex-row items-center gap-2">
+        <div className="flex min-w-0 flex-row items-center gap-2">
           <span
+            className="min-w-0 truncate"
             style={{
               color: mule.name
                 ? 'var(--text, var(--foreground))'
@@ -272,6 +273,7 @@ export const MuleListRow = memo(function MuleListRow({
             // Bulk Select Mode, matching the roster's other per-item chrome.
             <span
               data-row-level
+              className="inline-flex"
               style={
                 pairEnlarged
                   ? { ...LEVEL_PILL_STYLE, padding: '3px 8px', fontSize: 11 }
@@ -284,6 +286,7 @@ export const MuleListRow = memo(function MuleListRow({
               )}
             </span>
           )}
+          {!bulkMode && <MapleRanksLink name={mule.name} worldId={mule.worldId} />}
           {showCp && <RowCpMetric value={cp} enlarged={pairEnlarged} />}
           <NotesTooltipTrigger notes={notes} iconSize="md" />
         </div>
@@ -292,6 +295,7 @@ export const MuleListRow = memo(function MuleListRow({
           style={{
             display: 'flex',
             alignItems: 'center',
+            flexWrap: 'wrap',
             gap: 'var(--row-metric-row-gap, 14px)',
             minWidth: 0,
           }}
@@ -373,10 +377,7 @@ export const MuleListRow = memo(function MuleListRow({
             marginTop: 2,
           }}
         >
-          <span>{(metrics.sharePct * 100).toFixed(1)}%</span>
-          <span data-row-eyebrow style={{ marginLeft: 4 }}>
-            SHARE
-          </span>
+          <span>{(metrics.sharePct * 100).toFixed(1)}%</span> <span data-row-eyebrow>SHARE</span>
         </div>
       </div>
 

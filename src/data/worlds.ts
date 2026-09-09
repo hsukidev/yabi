@@ -11,6 +11,7 @@
 import type { Mule } from '../types';
 
 export type WorldGroup = 'Heroic' | 'Interactive';
+export type Region = 'NA' | 'EU';
 
 export type WorldId =
   | 'heroic-kronos'
@@ -24,15 +25,16 @@ export interface World {
   id: WorldId;
   label: string;
   group: WorldGroup;
+  region: Region;
 }
 
 export const WORLDS: readonly World[] = [
-  { id: 'heroic-kronos', label: 'Kronos', group: 'Heroic' },
-  { id: 'heroic-hyperion', label: 'Hyperion', group: 'Heroic' },
-  { id: 'heroic-solis', label: 'Solis', group: 'Heroic' },
-  { id: 'interactive-scania', label: 'Scania', group: 'Interactive' },
-  { id: 'interactive-bera', label: 'Bera', group: 'Interactive' },
-  { id: 'interactive-luna', label: 'Luna', group: 'Interactive' },
+  { id: 'heroic-kronos', label: 'Kronos', group: 'Heroic', region: 'NA' },
+  { id: 'heroic-hyperion', label: 'Hyperion', group: 'Heroic', region: 'NA' },
+  { id: 'heroic-solis', label: 'Solis', group: 'Heroic', region: 'EU' },
+  { id: 'interactive-scania', label: 'Scania', group: 'Interactive', region: 'NA' },
+  { id: 'interactive-bera', label: 'Bera', group: 'Interactive', region: 'NA' },
+  { id: 'interactive-luna', label: 'Luna', group: 'Interactive', region: 'EU' },
 ];
 
 export const WORLD_IDS: ReadonlySet<WorldId> = new Set(WORLDS.map((w) => w.id));
@@ -71,6 +73,11 @@ export const FALLBACK_WORLD_GROUP: WorldGroup = 'Heroic';
  */
 export function resolveWorldGroup(worldId: string | null | undefined): WorldGroup {
   return findWorld(worldId ?? null)?.group ?? FALLBACK_WORLD_GROUP;
+}
+
+/** Resolve a Mule World Id to its profile-service region. Legacy values are NA. */
+export function resolveRegion(worldId: string | null | undefined): Region {
+  return findWorld(worldId ?? null)?.region ?? 'NA';
 }
 
 /**

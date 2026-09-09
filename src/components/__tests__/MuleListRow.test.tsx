@@ -80,6 +80,50 @@ function renderRow(opts: RenderRowOpts = {}) {
   };
 }
 
+describe('MuleListRow — MapleRanks Profile Link', () => {
+  const LINK_NAME = /view RowMule on MapleRanks/i;
+
+  it.each(['comfy', 'compact'] as const)(
+    'places the link immediately after the level badge and before CP in %s density',
+    (density) => {
+      const { container } = renderRow({ density, mule: { combatPower: 410_042_525 } });
+      const link = screen.getByRole('link', { name: LINK_NAME });
+      expect(container.querySelector('[data-row-level]')?.nextElementSibling).toBe(link);
+      expect(link.nextElementSibling).toBe(screen.getByRole('button', { name: /combat power/i }));
+    },
+  );
+
+  it.each(['comfy', 'compact'] as const)(
+    'keeps the link for an inactive character without a level in %s density',
+    (density) => {
+      const { container } = renderRow({ density, mule: { level: 0, active: false } });
+      expect(container.querySelector('[data-row-level]')).toBeNull();
+      expect(screen.getByRole('link', { name: LINK_NAME }).getAttribute('href')).toBe(
+        'https://mapleranks.com/u/RowMule',
+      );
+    },
+  );
+
+  it.each([
+    { density: 'comfy', name: 'RowMule', bulkMode: true },
+    { density: 'compact', name: '   ', bulkMode: false },
+  ] as const)(
+    'hides the link for $density with name "$name" and bulkMode=$bulkMode',
+    (testCase) => {
+      renderRow({ ...testCase, mule: { name: testCase.name } });
+      expect(screen.queryByRole('link', { name: /mapleranks/i })).toBeNull();
+    },
+  );
+
+  it('does not open the drawer when the link receives mouse or keyboard activation', () => {
+    const { onClick } = renderRow();
+    const link = screen.getByRole('link', { name: LINK_NAME });
+    fireEvent.keyDown(link, { key: 'Enter' });
+    fireEvent.click(link);
+    expect(onClick).not.toHaveBeenCalled();
+  });
+});
+
 describe('MuleListRow — comfy spec', () => {
   it('renders the mule name', () => {
     renderRow();
