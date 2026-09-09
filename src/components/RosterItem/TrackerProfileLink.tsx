@@ -1,34 +1,31 @@
 import { memo } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useTrackerPreference } from '@/context/TrackerPreferenceProvider';
+import { getExternalTracker } from '@/data/externalTrackers';
 import { resolveRegion, type WorldId } from '@/data/worlds';
 
 const stopBubble = (event: React.SyntheticEvent) => event.stopPropagation();
 
-export const MapleRanksLink = memo(function MapleRanksLink({
+export const TrackerProfileLink = memo(function TrackerProfileLink({
   name,
   worldId,
 }: {
   name: string;
   worldId?: WorldId;
 }) {
+  const { trackerPreference } = useTrackerPreference();
   const trimmedName = name.trim();
   if (!trimmedName) return null;
 
-  const label = `View ${trimmedName} on MapleRanks`;
-  const regionSegment = resolveRegion(worldId) === 'EU' ? 'eu/' : '';
+  const tracker = getExternalTracker(trackerPreference);
+  const label = `View ${trimmedName} on ${tracker.name}`;
+  const href = tracker.profileUrl(encodeURIComponent(trimmedName), resolveRegion(worldId));
 
   return (
     <Tooltip>
       <TooltipTrigger
-        render={
-          <a
-            href={`https://mapleranks.com/u/${regionSegment}${encodeURIComponent(trimmedName)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            draggable={false}
-          />
-        }
+        render={<a href={href} target="_blank" rel="noopener noreferrer" draggable={false} />}
         aria-label={`${label} (opens in a new tab)`}
         delay={0}
         onClick={stopBubble}
@@ -41,7 +38,7 @@ export const MapleRanksLink = memo(function MapleRanksLink({
         <ExternalLink className="size-3.5" aria-hidden />
       </TooltipTrigger>
       <TooltipContent className="px-3 py-2 text-xs normal-case tracking-normal">
-        View on MapleRanks
+        View on {tracker.name}
       </TooltipContent>
     </Tooltip>
   );

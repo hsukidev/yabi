@@ -146,7 +146,7 @@ function StatefulCard({ initial }: { initial: Mule }) {
 }
 
 describe('MuleCharacterCard', () => {
-  describe('MapleRanks Profile Link', () => {
+  describe('Tracker Profile Link', () => {
     const LINK_NAME = /view TestMule on MapleRanks/i;
 
     it.each(['comfy', 'compact'] as const)(

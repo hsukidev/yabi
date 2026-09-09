@@ -291,11 +291,13 @@ describe('DataManagementDialog (Replace and reload)', () => {
   }
 
   it('writes imported data to localStorage and reloads on success', async () => {
+    localStorage.setItem('trackerPreference', 'maplehub');
     await openConfirmWith(makeValidCode({ [WORLD_KEY]: 'heroic-kronos' }));
 
     fireEvent.click(screen.getByRole('button', { name: 'Replace and reload' }));
 
     expect(localStorage.getItem(WORLD_KEY)).toBe('heroic-kronos');
+    expect(localStorage.getItem('trackerPreference')).toBe('maplehub');
     expect(reloadSpy).toHaveBeenCalledTimes(1);
     expect(sonnerMock.toast.error).not.toHaveBeenCalled();
   });

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings, Database } from 'lucide-react';
+import { Settings, Database, ExternalLink } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -7,8 +7,9 @@ import {
   DropdownMenuItem,
 } from './ui/dropdown-menu';
 import { DataManagementDialog } from './DataManagementDialog';
+import { TrackerPreferenceDialog } from './TrackerPreferenceDialog';
 
-type ActiveDialog = 'data-management' | null;
+type ActiveDialog = 'data-management' | 'tracker-preference' | null;
 
 export function SettingsMenu() {
   const [activeDialog, setActiveDialog] = useState<ActiveDialog>(null);
@@ -31,11 +32,22 @@ export function SettingsMenu() {
             <Database />
             Data Management
           </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setActiveDialog('tracker-preference')}
+            className="data-highlighted:bg-(--accent-soft) data-highlighted:text-(--accent-raw)"
+          >
+            <ExternalLink />
+            Tracker Preference
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <DataManagementDialog
         open={activeDialog === 'data-management'}
         onOpenChange={(open) => setActiveDialog(open ? 'data-management' : null)}
+      />
+      <TrackerPreferenceDialog
+        open={activeDialog === 'tracker-preference'}
+        onOpenChange={(open) => setActiveDialog(open ? 'tracker-preference' : null)}
       />
     </>
   );

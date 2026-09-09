@@ -17,7 +17,7 @@ import { SelectionIndicator } from './RosterItem/SelectionIndicator';
 import { InactiveDimOverlay } from './RosterItem/InactiveDimOverlay';
 import { MuleActionsMenu } from './RosterItem/MuleActionsMenu';
 import { CompletionChecks } from './RosterItem/CompletionChecks';
-import { MapleRanksLink } from './RosterItem/MapleRanksLink';
+import { TrackerProfileLink } from './RosterItem/TrackerProfileLink';
 import type { RosterRowMetrics } from './rosterRowMetrics';
 
 interface MuleCharacterCardProps {
@@ -123,7 +123,7 @@ const MuleCardInner = memo(function MuleCardInner({
             position: 'absolute',
             top: 12,
             left: 12,
-            // Reserve the trailing MapleRanks link + menu cluster.
+            // Reserve the trailing Tracker Profile Link + menu cluster.
             maxWidth: 'calc(100% - 84px)',
             zIndex: 1,
             display: 'inline-flex',
@@ -432,7 +432,7 @@ export const MuleCharacterCard = memo(function MuleCharacterCard({
               zIndex: 2,
             }}
           >
-            <MapleRanksLink name={mule.name} worldId={mule.worldId} />
+            <TrackerProfileLink name={mule.name} worldId={mule.worldId} />
             <MuleActionsMenu
               mule={mule}
               updateMule={updateMule}

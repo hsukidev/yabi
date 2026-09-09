@@ -80,7 +80,7 @@ function renderRow(opts: RenderRowOpts = {}) {
   };
 }
 
-describe('MuleListRow — MapleRanks Profile Link', () => {
+describe('MuleListRow — Tracker Profile Link', () => {
   const LINK_NAME = /view RowMule on MapleRanks/i;
 
   it.each(['comfy', 'compact'] as const)(

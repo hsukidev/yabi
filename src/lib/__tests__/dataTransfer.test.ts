@@ -103,6 +103,7 @@ describe('buildExport / decodeImport', () => {
     expect(result.payload.data[WORLD_KEY]).toBe('heroic-kronos');
     expect(result.payload.data[CHANGELOG_KEY]).toBe('v1.0.0');
     expect(result.payload.data[USER_PRESET_KEY]).toBe(presetBlob);
+    expect('trackerPreference' in result.payload.data).toBe(false);
   });
 
   it('returns { ok: false } for a corrupt non-base64 code without throwing', () => {

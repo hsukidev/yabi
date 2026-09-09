@@ -1,9 +1,13 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, fireEvent } from '../../../test/test-utils';
-import { MapleRanksLink } from '../MapleRanksLink';
+import { TrackerProfileLink } from '../TrackerProfileLink';
 
-describe('MapleRanksLink', () => {
+describe('TrackerProfileLink', () => {
   const LINK_NAME = /view .* on mapleranks/i;
+
+  beforeEach(() => {
+    localStorage.removeItem('trackerPreference');
+  });
 
   it.each([
     ['heroic-kronos', 'https://mapleranks.com/u/Test'],
@@ -13,12 +17,33 @@ describe('MapleRanksLink', () => {
     ['interactive-bera', 'https://mapleranks.com/u/Test'],
     ['interactive-luna', 'https://mapleranks.com/u/eu/Test'],
   ] as const)('routes %s through its Region', (worldId, destination) => {
-    render(<MapleRanksLink name="Test" worldId={worldId} />);
+    render(<TrackerProfileLink name="Test" worldId={worldId} />);
     expect(screen.getByRole('link', { name: LINK_NAME }).getAttribute('href')).toBe(destination);
   });
 
+  it.each([
+    ['mapleranks', 'heroic-kronos', 'https://mapleranks.com/u/Test'],
+    ['mapleranks', 'heroic-solis', 'https://mapleranks.com/u/eu/Test'],
+    ['maplebot', 'interactive-scania', 'https://maplebot.io/character/Test?region=NA'],
+    ['maplebot', 'interactive-luna', 'https://maplebot.io/character/Test?region=EU'],
+    ['maplehub', 'heroic-hyperion', 'https://maplehub.app/roster/na/Test'],
+    ['maplehub', 'interactive-luna', 'https://maplehub.app/roster/eu/Test'],
+  ] as const)('%s builds its exact %s destination', (tracker, worldId, destination) => {
+    localStorage.setItem('trackerPreference', tracker);
+    render(<TrackerProfileLink name="Test" worldId={worldId} />);
+    expect(screen.getByRole('link').getAttribute('href')).toBe(destination);
+  });
+
+  it('falls back to MapleRanks for an unrecognized saved preference', () => {
+    localStorage.setItem('trackerPreference', 'unknown-site');
+    render(<TrackerProfileLink name="Test" worldId="heroic-kronos" />);
+    expect(screen.getByRole('link', { name: LINK_NAME }).getAttribute('href')).toBe(
+      'https://mapleranks.com/u/Test',
+    );
+  });
+
   it('links to the trimmed, encoded name and announces native new-tab navigation', () => {
-    render(<MapleRanksLink name="  Súki/Den ?#  " worldId="heroic-kronos" />);
+    render(<TrackerProfileLink name="  Súki/Den ?#  " worldId="heroic-kronos" />);
 
     const link = screen.getByRole('link', { name: LINK_NAME });
     expect(link.getAttribute('href')).toBe('https://mapleranks.com/u/S%C3%BAki%2FDen%20%3F%23');
@@ -31,24 +56,24 @@ describe('MapleRanksLink', () => {
   });
 
   it('follows saved name changes and disappears when the name becomes blank', () => {
-    const { rerender } = render(<MapleRanksLink name="sukiden" worldId="heroic-kronos" />);
+    const { rerender } = render(<TrackerProfileLink name="sukiden" worldId="heroic-kronos" />);
     expect(screen.getByRole('link', { name: LINK_NAME }).getAttribute('href')).toBe(
       'https://mapleranks.com/u/sukiden',
     );
 
-    rerender(<MapleRanksLink name="NewName" worldId="heroic-kronos" />);
+    rerender(<TrackerProfileLink name="NewName" worldId="heroic-kronos" />);
     expect(screen.getByRole('link', { name: LINK_NAME }).getAttribute('href')).toBe(
       'https://mapleranks.com/u/NewName',
     );
 
-    rerender(<MapleRanksLink name={' \n\t '} worldId="heroic-kronos" />);
+    rerender(<TrackerProfileLink name={' \n\t '} worldId="heroic-kronos" />);
     expect(screen.queryByRole('link', { name: LINK_NAME })).toBeNull();
-    rerender(<MapleRanksLink name="" worldId="heroic-kronos" />);
+    rerender(<TrackerProfileLink name="" worldId="heroic-kronos" />);
     expect(screen.queryByRole('link', { name: LINK_NAME })).toBeNull();
   });
 
   it('uses the Mule World Id for EU routing and shows the selected site on focus', async () => {
-    render(<MapleRanksLink name="  sukiden  " worldId="interactive-luna" />);
+    render(<TrackerProfileLink name="  sukiden  " worldId="interactive-luna" />);
     expect(screen.getByRole('link', { name: LINK_NAME }).getAttribute('href')).toBe(
       'https://mapleranks.com/u/eu/sukiden',
     );
@@ -66,7 +91,7 @@ describe('MapleRanksLink', () => {
         onKeyDown={onAncestorEvent}
         onTouchStart={onAncestorEvent}
       >
-        <MapleRanksLink name="sukiden" worldId="heroic-kronos" />
+        <TrackerProfileLink name="sukiden" worldId="heroic-kronos" />
       </div>,
     );
 

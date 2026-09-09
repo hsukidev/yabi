@@ -17,7 +17,7 @@ import { InactiveDimOverlay } from './RosterItem/InactiveDimOverlay';
 import { MuleActionsMenu } from './RosterItem/MuleActionsMenu';
 import { CompletionChecks } from './RosterItem/CompletionChecks';
 import { RowCpMetric } from './RosterItem/RowCpMetric';
-import { MapleRanksLink } from './RosterItem/MapleRanksLink';
+import { TrackerProfileLink } from './RosterItem/TrackerProfileLink';
 import weeklyCrystalPng from '../assets/weekly-crystal.png';
 import dailyCrystalPng from '../assets/daily-crystal.png';
 import monthlyCrystalPng from '../assets/monthly-crystal.png';
@@ -286,7 +286,7 @@ export const MuleListRow = memo(function MuleListRow({
               )}
             </span>
           )}
-          {!bulkMode && <MapleRanksLink name={mule.name} worldId={mule.worldId} />}
+          {!bulkMode && <TrackerProfileLink name={mule.name} worldId={mule.worldId} />}
           {showCp && <RowCpMetric value={cp} enlarged={pairEnlarged} />}
           <NotesTooltipTrigger notes={notes} iconSize="md" />
         </div>
