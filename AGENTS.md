@@ -27,6 +27,22 @@ Use `pnpm exec vitest run --exclude '.Codex/**' ...` for focused runs from the
 main checkout, or run tests from the agent worktree itself when you are inside
 one.
 
+## Roster child controls must guard mouse activation too
+
+When adding a link or other interactive child to a Character Card, stop
+`mousedown` propagation as well as click, pointerdown, touchstart, and keydown.
+`Dashboard` configures dnd-kit's `MouseSensor`, which activates on `mousedown`;
+stopping `pointerdown` alone leaves that separate event free to start card drag.
+For native links, preserve default navigation while stopping propagation and
+set `draggable={false}`. Verify mouse and keyboard activation as well as touch.
+
+## Responsive row badges must keep display in CSS
+
+`[data-row-level]` is hidden below 450px by `src/index.css`. An inline
+`display: inline-flex` silently overrides that rule and can push adjacent
+controls outside the row. Keep the default display in a CSS class and verify
+the badge and neighboring links in a real browser at phone widths.
+
 ## Roster income semantics are Potential vs Contributed vs Displayed
 
 This surprised us during #272/#273: older docs said Character Card/List View
@@ -109,3 +125,17 @@ In React DevTools Profiler with "Record why each component rendered" on,
 type into a drawer input. `MuleDetailDrawer` is expected to re-render
 (state hook changed). `BossMatrix` and `MatrixToolbar` must **not** show up
 in the commit. If they do, one of the two patterns above has regressed.
+
+## SEO checks must inspect the deployed prerendered HTML
+
+The September 2026 indexing audit found that the explanatory `<noscript>`
+content in source `index.html` is absent from the deployed homepage:
+`build:prerender` captures React's rendered DOM after it replaces `#root`.
+The anonymous homepage then contains mainly empty-roster controls and zero
+totals. Do not assume the source fallback supplies visible explanatory
+content in production; inspect the built or live HTML. Put any intended
+homepage explanation in the rendered UI so both visitors and crawlers see it.
+
+`Crawled - currently not indexed` alone does not establish a rendering or
+content defect. Check Search Console's crawl date and live test alongside
+the current response before attributing Google's indexing decision to code.
