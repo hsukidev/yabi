@@ -25,6 +25,16 @@ export const ORDERED_CATEGORIES: ChangeCategory[] = (
 
 export const releases: Release[] = [
   {
+    date: '2026-09-10',
+    version: '1.7.0',
+    changes: [
+      {
+        category: 'feature',
+        text: 'Added character profile links to external trackers. Selectable preference in settings.',
+      },
+    ],
+  },
+  {
     date: '2026-08-29',
     version: '1.6.2',
     changes: [
