@@ -1,4 +1,5 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+import LZString from 'lz-string';
 import { seedApp } from './fixtures/seed';
 
 const FULL_APP_DESTINATIONS = [
@@ -57,6 +58,31 @@ async function seedNamedMule(page: Parameters<typeof seedApp>[0], worldId: strin
     },
     { worldId },
   );
+}
+
+async function addSecondNamedMule(page: Page, worldId: string) {
+  await page.addInitScript(
+    ({ worldId }) => {
+      const mules = JSON.parse(localStorage.getItem('maplestory-mule-tracker') ?? '[]');
+      mules.push({
+        id: 'second-mule',
+        name: 'Second',
+        level: 275,
+        muleClass: 'Hero',
+        worldId,
+        selectedBosses: [],
+        active: true,
+      });
+      localStorage.setItem('maplestory-mule-tracker', JSON.stringify(mules));
+    },
+    { worldId },
+  );
+}
+
+async function openTrackerPreference(page: Page) {
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('menuitem', { name: /Tracker Preference/ }).click();
+  return page.getByRole('dialog', { name: 'Tracker Preference' });
 }
 
 test('regional MapleRanks link keeps card activation and drag isolated', async ({ page }) => {
@@ -233,11 +259,90 @@ test('blank names and Bulk Select Mode suppress all Tracker Profile Links', asyn
   await expect(page.getByRole('link', { name: /opens in a new tab/i })).toHaveCount(0);
 });
 
+test('live preference changes reach Card and List Views in both densities', async ({ page }) => {
+  await seedNamedMule(page, 'heroic-solis');
+  await page.goto('/');
+
+  const cases = [
+    {
+      display: 'cards',
+      density: 'comfy',
+      tracker: 'MapleBot',
+      href: 'https://maplebot.io/character/S%C3%BAki%2FDen?region=EU',
+    },
+    {
+      display: 'list',
+      density: 'comfy',
+      tracker: 'MapleHub',
+      href: 'https://maplehub.app/roster/eu/S%C3%BAki%2FDen',
+    },
+    {
+      display: 'cards',
+      density: 'compact',
+      tracker: 'MapleRanks',
+      href: 'https://mapleranks.com/u/eu/S%C3%BAki%2FDen',
+    },
+    {
+      display: 'list',
+      density: 'compact',
+      tracker: 'MapleBot',
+      href: 'https://maplebot.io/character/S%C3%BAki%2FDen?region=EU',
+    },
+  ] as const;
+
+  for (const testCase of cases) {
+    await page.evaluate(({ display, density }) => {
+      localStorage.setItem('display', display);
+      localStorage.setItem('density', density);
+    }, testCase);
+    await page.reload();
+
+    const dialog = await openTrackerPreference(page);
+    await dialog.getByRole('radio', { name: new RegExp(testCase.tracker) }).click();
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: 'Close' }).click();
+    await expect(
+      page.getByRole('link', { name: new RegExp(`on ${testCase.tracker}`) }),
+    ).toHaveAttribute('href', testCase.href);
+  }
+});
+
+test('User Data export and import preserve the receiving browser Tracker Preference', async ({
+  page,
+}) => {
+  await seedNamedMule(page, 'heroic-kronos');
+  await page.addInitScript(() => localStorage.setItem('trackerPreference', 'maplehub'));
+  await page.goto('/');
+
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('menuitem', { name: /Data Management/ }).click();
+  await page.getByRole('button', { name: /Export Data/ }).click();
+  const transferCode = await page.getByRole('textbox').inputValue();
+  const envelope = JSON.parse(LZString.decompressFromEncodedURIComponent(transferCode) ?? '{}');
+  expect(envelope.data.trackerPreference).toBeUndefined();
+  await page.getByRole('button', { name: 'Done' }).click();
+
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('menuitem', { name: /Data Management/ }).click();
+  await page.getByRole('button', { name: /Import Data/ }).click();
+  await page.getByRole('textbox').fill(transferCode);
+  await page.getByRole('button', { name: 'Import' }).click();
+  await page.getByRole('button', { name: 'Replace and reload' }).click();
+  await page.waitForLoadState();
+
+  expect(await page.evaluate(() => localStorage.getItem('trackerPreference'))).toBe('maplehub');
+  await expect(page.getByRole('link', { name: /on MapleHub/ })).toHaveAttribute(
+    'href',
+    'https://maplehub.app/roster/na/S%C3%BAki%2FDen',
+  );
+});
+
 test('keyboard and modified-click activation preserve native tabs without roster side effects', async ({
   page,
   context,
 }) => {
   await seedNamedMule(page, 'heroic-kronos');
+  await addSecondNamedMule(page, 'heroic-kronos');
   await context.route('https://mapleranks.com/**', (route) =>
     route.fulfill({
       status: 200,
@@ -246,7 +351,12 @@ test('keyboard and modified-click activation preserve native tabs without roster
     }),
   );
   await page.goto('/');
-  const link = page.getByRole('link', { name: /opens in a new tab/i });
+  const link = page.getByRole('link', { name: /View Súki\/Den.*opens in a new tab/i });
+  const cards = page.locator('[data-mule-card]');
+  await expect(cards).toHaveCount(2);
+  const originalOrder = await cards.evaluateAll((elements) =>
+    elements.map((element) => element.getAttribute('data-mule-card')),
+  );
 
   for (const activate of [
     () => link.press('Enter'),
@@ -259,7 +369,11 @@ test('keyboard and modified-click activation preserve native tabs without roster
     expect(popup.url()).toBe('https://mapleranks.com/u/S%C3%BAki%2FDen');
     await popup.close();
     await expect(page.getByRole('dialog')).toHaveCount(0);
-    await expect(page.locator('[data-mule-card="profile-mule"]')).toHaveCount(1);
+    expect(
+      await cards.evaluateAll((elements) =>
+        elements.map((element) => element.getAttribute('data-mule-card')),
+      ),
+    ).toEqual(originalOrder);
   }
 });
 
@@ -271,6 +385,7 @@ test.describe('touch Tracker Profile Link activation', () => {
     context,
   }) => {
     await seedNamedMule(page, 'interactive-luna');
+    await addSecondNamedMule(page, 'interactive-luna');
     await context.route('https://mapleranks.com/**', (route) =>
       route.fulfill({
         status: 200,
@@ -279,7 +394,12 @@ test.describe('touch Tracker Profile Link activation', () => {
       }),
     );
     await page.goto('/');
-    const link = page.getByRole('link', { name: /opens in a new tab/i });
+    const link = page.getByRole('link', { name: /View Súki\/Den.*opens in a new tab/i });
+    const cards = page.locator('[data-mule-card]');
+    await expect(cards).toHaveCount(2);
+    const originalOrder = await cards.evaluateAll((elements) =>
+      elements.map((element) => element.getAttribute('data-mule-card')),
+    );
 
     const popupPromise = context.waitForEvent('page');
     await link.tap();
@@ -288,6 +408,10 @@ test.describe('touch Tracker Profile Link activation', () => {
     expect(popup.url()).toBe('https://mapleranks.com/u/eu/S%C3%BAki%2FDen');
     await popup.close();
     await expect(page.getByRole('dialog')).toHaveCount(0);
-    await expect(page.locator('[data-mule-card="profile-mule"]')).toHaveCount(1);
+    expect(
+      await cards.evaluateAll((elements) =>
+        elements.map((element) => element.getAttribute('data-mule-card')),
+      ),
+    ).toEqual(originalOrder);
   });
 });
