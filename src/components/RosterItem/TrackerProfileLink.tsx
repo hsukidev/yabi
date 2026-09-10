@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTrackerPreference } from '@/context/TrackerPreferenceProvider';
-import { getExternalTracker } from '@/data/externalTrackers';
+import { buildTrackerProfileUrl, getExternalTracker } from '@/data/externalTrackers';
 import { resolveRegion, type WorldId } from '@/data/worlds';
 
 const stopBubble = (event: React.SyntheticEvent) => event.stopPropagation();
@@ -20,7 +20,7 @@ export const TrackerProfileLink = memo(function TrackerProfileLink({
 
   const tracker = getExternalTracker(trackerPreference);
   const label = `View ${trimmedName} on ${tracker.name}`;
-  const href = tracker.profileUrl(encodeURIComponent(trimmedName), resolveRegion(worldId));
+  const href = buildTrackerProfileUrl(trackerPreference, trimmedName, resolveRegion(worldId));
 
   return (
     <Tooltip>

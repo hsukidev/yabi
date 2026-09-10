@@ -517,6 +517,22 @@ The character render PNG fetched from Nexon's CDN by **Character Lookup** — re
 The one-click **Drawer** action that fetches a real character's name, level, class, and **Real Avatar** from Nexon's Weekly Ranking by name + **Mule World Id**.
 _Avoid_: Character fetch, name search
 
+**External Tracker**:
+A supported external character-profile service: MapleRanks, MapleBot, or MapleHub.
+_Avoid_: Tracker (unqualified; YABI is also an income tracker)
+
+**Tracker Preference**:
+The **External Tracker** chosen for all **Mules** and **Worlds** in the current browser, with MapleRanks as the default. It is a browser preference, independent of roster transfers.
+_Avoid_: Tracker setting, preferred site, per-character tracker
+
+**Tracker Preference Dialog**:
+The centered settings dialog for choosing the **Tracker Preference**, with exactly one **External Tracker** selected.
+_Avoid_: Tracker picker, tracker modal
+
+**Tracker Profile Link**:
+An external link from a named **Mule's** **Character Card** or **List View** row to the profile identified by its current saved name and **Region** on the chosen **External Tracker**.
+_Avoid_: MapleRanks Profile Link (the service-specific predecessor), jump link, rankings lookup
+
 ## Relationships
 
 - A **Boss Family** contains one or more **Boss Difficulties**.

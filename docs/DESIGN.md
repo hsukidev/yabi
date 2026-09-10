@@ -209,8 +209,8 @@ Plain `panel` wrapping a 260px Recharts donut. Inner radius 66, outer 100, 2° p
 
 `.panel` + `var(--card-pad)`. Hover: translateY(-2px), `0 8px 32px -8px var(--accent-glow)` shadow. Layout:
 
-- **Top-left** — `Lv.NN` badge: 10px mono, bordered, `--surface-2` background. Hidden in **Bulk Delete Mode**.
-- **Top-right** — trash button (shadcn `Popover` for delete confirm), hidden until hover or popover open. Hidden in **Bulk Delete Mode**.
+- **Top-left** — level/completion badge. **Comfy** shows `Lv.NN` when level is set; **Compact** shows only valid completion checks and omits the badge when there are none. Hidden in **Bulk Select Mode**.
+- **Top-right** — the **Tracker Profile Link**, followed immediately by the three-dot **Mule Actions Menu**. Hidden in **Bulk Select Mode**.
 - **Center** — 112px `blank-character.png` placeholder avatar (non-draggable, `aria-hidden`).
 - **Name** — 14px / 600 (13px in compact). Falls back to italic muted "Unnamed".
 - **Class** — 10px mono, uppercase, muted.
@@ -225,6 +225,49 @@ Plain `panel` wrapping a 260px Recharts donut. Inner radius 66, outer 100, 2° p
 - A **Deletion-Marked Mule** gets a destructive-tinted border and a `--destructive` alpha background fill.
 
 Card is also a dnd-kit sortable handle; in **Card View** the full card is the drag surface (no **Drag Handle**). Activation distance is `0` on the **Mouse Sensor** (instant) and gated by the **Long-Press Gate** (250ms / 5px tolerance) on the **Touch Sensor**. **List View** diverges deliberately: reorder activates only from the per-row **Drag Handle** in the leftmost column, the rest of the row is click-to-open. See ADR 0003.
+
+### Tracker Profile Link and Tracker Preference
+
+Status: implemented from the design agreed in the September 2026 interview and published as [implementation spec #337](https://github.com/hsukidev/yabi/issues/337).
+
+#### Tracker Preference dialog
+
+- The **Settings Menu** includes **Tracker Preference** after **Data Management**. The dialog title is also **Tracker Preference**.
+- The centered dialog follows the **Data Management Dialog** shell, spacing, backdrop, and dismissal behavior. Show three selectable rows in order: **MapleRanks**, **MapleBot**, **MapleHub**, with each site's domain as secondary text and a clear selected indicator. Support selecting one option with pointer, touch, or keyboard.
+- **MapleRanks** is selected by default for new and existing users without a saved preference. A missing or unrecognized stored value resolves to that default.
+- Selecting a row immediately updates and saves the preference, updates the selected indicator, and keeps the dialog open. Dismissing the dialog retains the selection; there is no separate Apply step. Selecting the current option is a no-op.
+- The preference applies to every character across all worlds in the current browser and survives reloads. It is excluded from roster export/import, like theme: importing a roster preserves the destination browser's tracker choice.
+- Selecting a tracker updates the roster links and tooltips immediately. Visiting a site happens when the character's profile link is activated.
+
+#### Roster link behavior
+
+- A small external-link arrow appears immediately left of the three-dot menu on **Character Cards**, and immediately right of the level/completion badge in **List View**, in both **Comfy** and **Compact**. In rows it precedes CP and Notes.
+- The link remains visible when the level badge is absent. On narrow **List View** rows it remains visible when CSS hides the level badge.
+- On narrow **Character Cards**, completion checks wrap together beneath the level inside the badge when needed, keeping the badge clear of the top-right link and actions menu.
+- **List View** reserves space for income, truncates long names, and lets crystal counts and share text wrap when needed so neighboring content cannot cover the link.
+- The destination uses the **Tracker Preference**, the **Mule's** current saved name (trimmed and URL-encoded), and the **Region** of its **Mule World Id**. Preserve name casing. Any nonblank name qualifies, including manually entered names; the external site handles profiles it cannot find.
+- Opens in a new tab. Hover/focus tooltip: `View on {tracker site}`, using the full selected name: `View on MapleRanks`, `View on MapleBot`, or `View on MapleHub`. Retain the 12px font and roomier padding. The accessible label identifies the character, the selected site, and the new-tab action. Clicking, tapping, or keyboard activation preserves native link behavior without opening the **Drawer** or starting roster drag.
+- Available for **Active Mules** and **Inactive Mules**; hidden for blank names and during **Bulk Select Mode**.
+
+#### Region and destination mapping
+
+Derive region automatically from the character's world. **Solis** and **Luna** use **EU**; **Kronos**, **Hyperion**, **Scania**, and **Bera** use **NA**. Region is independent of **World Group**: both Heroic and Interactive include EU worlds.
+
+The user supplied the following URL contracts. `{name}` represents the trimmed, encoded saved name.
+
+| External Tracker | NA destination                                   | EU destination                                   |
+| ---------------- | ------------------------------------------------ | ------------------------------------------------ |
+| MapleRanks       | `https://mapleranks.com/u/{name}`                | `https://mapleranks.com/u/eu/{name}`             |
+| MapleBot         | `https://maplebot.io/character/{name}?region=NA` | `https://maplebot.io/character/{name}?region=EU` |
+| MapleHub         | `https://maplehub.app/roster/na/{name}`          | `https://maplehub.app/roster/eu/{name}`          |
+
+#### Implementation and acceptance notes
+
+- Extend the shared roster link boundary described in [ADR 0006](./adr/0006-roster-item-shared-atoms.md); Card and List remain responsible for their own placement.
+- Frontend world metadata lives in `src/data/worlds.ts`; the existing Character Lookup mapping lives in `worker/src/worldIdMap.ts`. Keep both Region mappings consistent across all six Worlds.
+- Use `src/components/SettingsMenu.tsx`, `src/components/DataManagementDialog.tsx`, and `src/context/ThemeProvider.tsx` as the existing settings, dialog, and preference references. The roster transfer boundary is `src/lib/dataTransfer.ts`.
+- Verify all six destinations, including an EU character on each World Group; encoded names; default and persisted selection; immediate updates in both roster display modes; preference preservation through import; and the existing blank-name, bulk-selection, new-tab, and event-guard behavior.
+- The dialog's selection and dismissal, both densities, desktop and phone layouts, and the final Card View icon placement have browser coverage.
 
 ### [AddCard](src/components/AddCard.tsx)
 
