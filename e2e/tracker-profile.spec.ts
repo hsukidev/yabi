@@ -380,6 +380,40 @@ test('keyboard and modified-click activation preserve native tabs without roster
 test.describe('touch Tracker Profile Link activation', () => {
   test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
 
+  test('changes Tracker Preference in the narrow-phone dialog', async ({ page }) => {
+    await seedNamedMule(page, 'interactive-luna');
+    await page.goto('/');
+
+    await page.getByRole('button', { name: 'Settings' }).tap();
+    await page.getByRole('menuitem', { name: /Tracker Preference/ }).tap();
+    const dialog = page.getByRole('dialog', { name: 'Tracker Preference' });
+    const radios = dialog.getByRole('radio');
+    const mapleRanks = dialog.getByRole('radio', { name: /MapleRanks.*mapleranks\.com/ });
+    const mapleBot = dialog.getByRole('radio', { name: /MapleBot.*maplebot\.io/ });
+    const mapleHub = dialog.getByRole('radio', { name: /MapleHub.*maplehub\.app/ });
+
+    await expect(dialog).toBeVisible();
+    await expect(radios).toHaveCount(3);
+    await expect(mapleRanks).toBeChecked();
+    await expect(mapleBot).not.toBeChecked();
+    await expect(mapleHub).not.toBeChecked();
+    await mapleHub.tap();
+    await expect(dialog).toBeVisible();
+    await expect(mapleRanks).not.toBeChecked();
+    await expect(mapleBot).not.toBeChecked();
+    await expect(mapleHub).toBeChecked();
+    await expect(mapleHub).toBeFocused();
+    const updatedLink = page.locator('[data-mule-card="profile-mule"] a');
+    await expect(updatedLink).toHaveAttribute(
+      'href',
+      'https://maplehub.app/roster/eu/S%C3%BAki%2FDen',
+    );
+
+    await dialog.getByRole('button', { name: 'Close' }).tap();
+    await expect(dialog).toHaveCount(0);
+    await expect(page.getByRole('link', { name: /View Súki\/Den on MapleHub/ })).toBeVisible();
+  });
+
   test('opens one intercepted tab without opening the Drawer or reordering', async ({
     page,
     context,
