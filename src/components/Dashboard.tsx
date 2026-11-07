@@ -58,6 +58,20 @@ const dragBoundaryActiveStyle: React.CSSProperties = {
 
 export function Dashboard() {
   const { onboarded, completeOnboarding } = useOnboarding();
+
+  if (!onboarded) {
+    return (
+      <main className="container mx-auto max-w-3xl px-4 sm:px-6 py-10">
+        <ChangelogNotificationBanner />
+        <EmptyRosterIntro onBegin={completeOnboarding} />
+      </main>
+    );
+  }
+
+  return <DashboardContent />;
+}
+
+function DashboardContent() {
   const { mules, addMule, updateMule, deleteMule, deleteMules, reorderMules } = useMuleActions();
   const { world } = useWorld();
   const { display } = useDisplay();
@@ -200,7 +214,6 @@ export function Dashboard() {
     [mulesInWorld, toDelete, metricsByMule, updateMule],
   );
 
-  // Bulk Action Bar — Set Active / Set Inactive. Directional: converge every
   // Bulk-Selected Mule to `active`, skipping already-matching mules so they
   // no-op. Writes through the identity-stable `updateMule`, so a flip
   // re-renders only the affected cards/rows (memo barriers intact). Never
@@ -215,15 +228,6 @@ export function Dashboard() {
     },
     [mulesInWorld, toDelete, updateMule],
   );
-
-  if (!onboarded) {
-    return (
-      <main className="container mx-auto max-w-3xl px-4 sm:px-6 py-10">
-        <ChangelogNotificationBanner />
-        <EmptyRosterIntro onBegin={completeOnboarding} />
-      </main>
-    );
-  }
 
   return (
     <>

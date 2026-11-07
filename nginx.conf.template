@@ -18,7 +18,7 @@ server {
     #     index.html for the Geist + JetBrains Mono webfonts.
     #   - img-src is pinned to the Nexon avatar CDN actually used by the
     #     browser; ranking host (www.nexon.com) is server-side only.
-    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-ScflXWsXSnosKKrUGB9k1DYipbBGADueHel8fXtboJE='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://msavatar1.nexon.net; connect-src 'self'; font-src 'self' data: https://fonts.gstatic.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-09am3bdxnYqAqexxHyFD4GeIzOzrdmvAoUeRNcNcH9E='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://msavatar1.nexon.net; connect-src 'self'; font-src 'self' data: https://fonts.gstatic.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" always;
     add_header Strict-Transport-Security "max-age=63072000; includeSubDomains" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;

@@ -33,31 +33,20 @@ export const ONBOARDING_STEPS = [
 ] as const;
 
 /**
- * Detects whether localStorage already holds data from an active user session
- * (a selected world, at least one saved mule, at least one saved user preset,
- * or a custom tracker preference). Note that `usePersistedState` writes an
- * empty `{ schemaVersion, mules: [] }` envelope to `maplestory-mule-tracker`
- * on mount, so key presence alone is not enough — `mules` / `userPresets`
- * must be non-empty arrays.
+ * Keys that only exist in localStorage after a user has actively used the app
+ * (selected a world, mounted the dashboard roster store, saved presets, or
+ * changed settings). Note that `DashboardContent` (which mounts `useMules`) is
+ * only rendered once `onboarded` is true, so a brand-new visitor never writes
+ * `MULE_STORAGE_KEY` while on the onboarding intro.
  */
-function hasNonEmptyArrayField(storageKey: string, field: string): boolean {
-  const raw = localStorage.getItem(storageKey);
-  if (!raw) return false;
-  try {
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    return Array.isArray(parsed?.[field]) && parsed[field].length > 0;
-  } catch {
-    return false;
-  }
-}
-
-function hasExistingUserData(): boolean {
-  if (localStorage.getItem('world') !== null) return true;
-  if (localStorage.getItem(TRACKER_PREFERENCE_STORAGE_KEY) !== null) return true;
-  if (hasNonEmptyArrayField(MULE_STORAGE_KEY, 'mules')) return true;
-  if (hasNonEmptyArrayField(USER_PRESET_STORAGE_KEY, 'userPresets')) return true;
-  return false;
-}
+const EXISTING_USER_KEYS = [
+  MULE_STORAGE_KEY,
+  'world',
+  USER_PRESET_STORAGE_KEY,
+  TRACKER_PREFERENCE_STORAGE_KEY,
+  'slate-display-mode',
+  'slateDisplayMode',
+] as const;
 
 function syncOnboardedDataset(onboarded: boolean): void {
   if (typeof document === 'undefined') return;
@@ -80,7 +69,8 @@ function readInitialOnboarded(): boolean {
       return false;
     }
 
-    if (hasExistingUserData()) {
+    const hasExistingData = EXISTING_USER_KEYS.some((key) => localStorage.getItem(key) !== null);
+    if (hasExistingData) {
       localStorage.setItem(ONBOARDED_KEY, 'true');
       syncOnboardedDataset(true);
       return true;

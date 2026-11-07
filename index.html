@@ -89,23 +89,19 @@
           document.documentElement.classList.add('dark');
         }
         var o = localStorage.getItem('onboarded');
-        var hasList = function (k, f) {
-          var r = localStorage.getItem(k);
-          if (!r) return false;
-          try {
-            var p = JSON.parse(r);
-            return Array.isArray(p && p[f]) && p[f].length > 0;
-          } catch (e) {
-            return false;
-          }
-        };
         if (
           o === 'true' ||
           (o !== 'false' &&
-            (localStorage.getItem('world') !== null ||
-              localStorage.getItem('trackerPreference') !== null ||
-              hasList('maplestory-mule-tracker', 'mules') ||
-              hasList('maplestory-mule-tracker-user-presets', 'userPresets')))
+            [
+              'maplestory-mule-tracker',
+              'world',
+              'maplestory-mule-tracker-user-presets',
+              'trackerPreference',
+              'slate-display-mode',
+              'slateDisplayMode',
+            ].some(function (k) {
+              return localStorage.getItem(k) !== null;
+            }))
         ) {
           document.documentElement.dataset.onboarded = '1';
         }

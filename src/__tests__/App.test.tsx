@@ -185,18 +185,19 @@ describe('App', () => {
     expect(localStorage.getItem('onboarded')).toBe('true');
   });
 
-  it('keeps showing EmptyRosterIntro on reload when localStorage only has empty store envelopes', async () => {
+  it('does not write mule storage while on the onboarding intro and keeps showing it on reload', async () => {
     localStorage.clear();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(persistedRoot([])));
-    localStorage.setItem(
-      'maplestory-mule-tracker-user-presets',
-      JSON.stringify({ schemaVersion: 1, userPresets: [] }),
-    );
-    await renderApp();
+    const { unmount } = await renderApp();
 
     expect(screen.getByTestId('empty-roster-intro')).toBeTruthy();
-    expect(screen.queryByTestId('roster-section')).toBeNull();
     expect(localStorage.getItem('onboarded')).toBe('false');
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+
+    unmount();
+
+    await renderApp();
+    expect(screen.getByTestId('empty-roster-intro')).toBeTruthy();
+    expect(screen.queryByTestId('roster-section')).toBeNull();
   });
 
   it('renders weekly income section', async () => {
