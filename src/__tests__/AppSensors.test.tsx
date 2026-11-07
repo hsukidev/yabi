@@ -17,6 +17,7 @@ vi.mock('@dnd-kit/core', async (importOriginal) => {
 
 function resetTestEnvironment() {
   localStorage.clear();
+  localStorage.setItem('onboarded', 'true');
   document.documentElement.classList.remove('dark');
 }
 
