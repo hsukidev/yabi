@@ -185,6 +185,20 @@ describe('App', () => {
     expect(localStorage.getItem('onboarded')).toBe('true');
   });
 
+  it('keeps showing EmptyRosterIntro on reload when localStorage only has empty store envelopes', async () => {
+    localStorage.clear();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(persistedRoot([])));
+    localStorage.setItem(
+      'maplestory-mule-tracker-user-presets',
+      JSON.stringify({ schemaVersion: 1, userPresets: [] }),
+    );
+    await renderApp();
+
+    expect(screen.getByTestId('empty-roster-intro')).toBeTruthy();
+    expect(screen.queryByTestId('roster-section')).toBeNull();
+    expect(localStorage.getItem('onboarded')).toBe('false');
+  });
+
   it('renders weekly income section', async () => {
     await renderApp();
     expect(screen.getByText(/WEEKLY INCOME/i)).toBeTruthy();
