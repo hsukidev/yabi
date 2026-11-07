@@ -34,13 +34,40 @@ const ORIGIN = 'https://yabi.henesys.io';
 // Every public route that should ship prerendered HTML. Keep in sync with
 // public/sitemap.xml. Each route's <title> is set by its own component
 // (index.html for `/`, a document.title effect for the others), so the
-// captured markup already carries the right title — we only rewrite the
-// canonical/og:url, which are static in index.html and would otherwise all
-// point at `/`.
+// captured markup already carries the right title — we also rewrite the
+// canonical/og:url and route-specific description/OG/Twitter tags, which are
+// static in index.html and would otherwise all duplicate `/`.
 const routes = [
-  { path: '/', out: 'index.html', canonical: `${ORIGIN}/` },
-  { path: '/about', out: 'about.html', canonical: `${ORIGIN}/about` },
-  { path: '/changelog', out: 'changelog.html', canonical: `${ORIGIN}/changelog` },
+  {
+    path: '/',
+    out: 'index.html',
+    canonical: `${ORIGIN}/`,
+    ogTitle: 'YABI — Yet Another Maplestory Income Tracker',
+    description:
+      'Free MapleStory income tracker for weekly boss crystals. Track mule income, roster totals, and per-world caps.',
+    ogDescription:
+      'Track weekly Maplestory boss crystal income across your roster. Create boss presets and track meso totals by world, crystal caps, and mule share percentages.',
+  },
+  {
+    path: '/about',
+    out: 'about.html',
+    canonical: `${ORIGIN}/about`,
+    ogTitle: 'About — YABI MapleStory Income Tracker',
+    description:
+      'Learn how YABI tracks weekly MapleStory boss crystal income across Heroic and Interactive worlds using browser-local roster storage and Nexon Ranking lookups.',
+    ogDescription:
+      'About YABI, a free fan-made MapleStory weekly boss crystal calculator and mule roster income tracker.',
+  },
+  {
+    path: '/changelog',
+    out: 'changelog.html',
+    canonical: `${ORIGIN}/changelog`,
+    ogTitle: 'Changelog — YABI MapleStory Income Tracker',
+    description:
+      'Release notes and latest updates for YABI, including new MapleStory bosses, crystal price updates, presets, and roster tracking features.',
+    ogDescription:
+      'Stay up to date with the latest MapleStory boss crystal updates, features, and fixes in YABI.',
+  },
 ];
 
 // SPA fallback so deep paths still resolve to index.html, mirroring the
@@ -89,20 +116,29 @@ try {
     // in <head> wins on the user's browser (otherwise dark-theme users
     // would flash whatever class the headless browser captured), and point
     // canonical/og:url at this route so each page isn't a duplicate of `/`.
-    const html = await page.evaluate((canonical) => {
+    const html = await page.evaluate((meta) => {
       document.documentElement.classList.remove('dark', 'light');
       delete document.documentElement.dataset.rendered;
 
-      const setLink = (rel) => {
+      const setLink = (rel, value) => {
         const el = document.head.querySelector(`link[rel="${rel}"]`);
-        if (el) el.setAttribute('href', canonical);
+        if (el) el.setAttribute('href', value);
       };
-      const setMeta = (property) => {
+      const setMetaProperty = (property, value) => {
         const el = document.head.querySelector(`meta[property="${property}"]`);
-        if (el) el.setAttribute('content', canonical);
+        if (el) el.setAttribute('content', value);
       };
-      setLink('canonical');
-      setMeta('og:url');
+      const setMetaName = (name, value) => {
+        const el = document.head.querySelector(`meta[name="${name}"]`);
+        if (el) el.setAttribute('content', value);
+      };
+      setLink('canonical', meta.canonical);
+      setMetaProperty('og:url', meta.canonical);
+      setMetaProperty('og:title', meta.ogTitle);
+      setMetaProperty('og:description', meta.ogDescription);
+      setMetaName('description', meta.description);
+      setMetaName('twitter:title', meta.ogTitle);
+      setMetaName('twitter:description', meta.ogDescription);
 
       // Strip dnd-kit's screen-reader scaffolding from the static snapshot.
       // dnd-kit renders a hidden `#DndDescribedBy-*` instructions node ("To
@@ -121,7 +157,7 @@ try {
       });
 
       return '<!doctype html>\n' + document.documentElement.outerHTML;
-    }, route.canonical);
+    }, route);
 
     captured.push({ route, html });
   }

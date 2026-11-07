@@ -159,6 +159,22 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: /add mule/i })).toBeTruthy();
   });
 
+  it('renders EmptyRosterIntro with h1 heading when roster is empty and hides it once mules exist', async () => {
+    const { unmount } = await renderApp();
+    expect(screen.getByTestId('empty-roster-intro')).toBeTruthy();
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: /YABI — Yet Another MapleStory Income Tracker/i,
+      }),
+    ).toBeTruthy();
+    unmount();
+
+    seedMules(testMules);
+    await renderApp();
+    expect(screen.queryByTestId('empty-roster-intro')).toBeNull();
+  });
+
   it('renders weekly income section', async () => {
     await renderApp();
     expect(screen.getByText(/WEEKLY INCOME/i)).toBeTruthy();
