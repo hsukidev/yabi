@@ -19,7 +19,8 @@
 // the trailing-slash-free canonical/sitemap URLs. `$uri.html` serves `/about`
 // directly with a 200 and no redirect.
 
-import { mkdir, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -118,6 +119,13 @@ try {
     // canonical/og:url at this route so each page isn't a duplicate of `/`.
     const html = await page.evaluate((meta) => {
       document.documentElement.classList.remove('dark', 'light');
+      if (!document.documentElement.className) {
+        document.documentElement.removeAttribute('class');
+      }
+      document.body.classList.remove('dark', 'light');
+      if (!document.body.className) {
+        document.body.removeAttribute('class');
+      }
       delete document.documentElement.dataset.rendered;
       delete document.documentElement.dataset.onboarded;
 
@@ -168,6 +176,23 @@ try {
     await mkdir(dirname(outPath), { recursive: true });
     await writeFile(outPath, html, 'utf8');
     console.log(`[prerender] ${route.path} -> ${route.out} (${html.length} bytes)`);
+  }
+
+  // Verify that the inline bootstrap <script> in dist/index.html matches the
+  // CSP script-src hash in nginx.conf.template. If they drift, the browser
+  // blocks the inline script in production, causing a light-mode and
+  // onboarding-intro flash before React mounts.
+  const nginxConf = await readFile(resolve(__dirname, '..', 'nginx.conf.template'), 'utf8');
+  const indexHtml = captured.find((c) => c.route.out === 'index.html')?.html ?? '';
+  const inlineScriptMatch = indexHtml.match(/<script>([\s\S]*?)<\/script>/);
+  if (inlineScriptMatch) {
+    const expectedCspToken =
+      'sha256-' + createHash('sha256').update(inlineScriptMatch[1], 'utf8').digest('base64');
+    if (!nginxConf.includes(`'${expectedCspToken}'`)) {
+      throw new Error(
+        `[prerender] CSP hash mismatch: index.html inline <script> hashes to '${expectedCspToken}', which is not present in nginx.conf.template.`,
+      );
+    }
   }
 } finally {
   await browser.close();

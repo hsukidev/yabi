@@ -139,3 +139,13 @@ homepage explanation in the rendered UI so both visitors and crawlers see it.
 `Crawled - currently not indexed` alone does not establish a rendering or
 content defect. Check Search Console's crawl date and live test alongside
 the current response before attributing Google's indexing decision to code.
+
+## Editing the inline `<script>` in `index.html` requires updating the CSP hash in `nginx.conf.template`
+
+`nginx.conf.template` pins the exact SHA-256 hash of the inline bootstrap
+`<script>` in `index.html` via `Content-Security-Policy: script-src 'self' 'sha256-...'`.
+If you edit that inline `<script>` without updating the hash in
+`nginx.conf.template`, browsers in production will block the inline script from
+running — causing a light-theme flash and failing to set pre-paint attributes
+like `data-onboarded` before React mounts. `scripts/prerender.mjs` now verifies
+this hash automatically during `pnpm build:prerender`.
