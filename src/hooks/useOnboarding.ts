@@ -47,20 +47,38 @@ const EXISTING_USER_KEYS = [
   'slateDisplayMode',
 ] as const;
 
+function syncOnboardedDataset(onboarded: boolean): void {
+  if (typeof document === 'undefined') return;
+  if (onboarded) {
+    document.documentElement.dataset.onboarded = '1';
+  } else {
+    delete document.documentElement.dataset.onboarded;
+  }
+}
+
 function readInitialOnboarded(): boolean {
   try {
     const explicit = localStorage.getItem(ONBOARDED_KEY);
-    if (explicit === 'true') return true;
-    if (explicit === 'false') return false;
+    if (explicit === 'true') {
+      syncOnboardedDataset(true);
+      return true;
+    }
+    if (explicit === 'false') {
+      syncOnboardedDataset(false);
+      return false;
+    }
 
     const hasExistingData = EXISTING_USER_KEYS.some((key) => localStorage.getItem(key) !== null);
     if (hasExistingData) {
       localStorage.setItem(ONBOARDED_KEY, 'true');
+      syncOnboardedDataset(true);
       return true;
     }
 
+    syncOnboardedDataset(false);
     return false;
   } catch {
+    syncOnboardedDataset(false);
     return false;
   }
 }
@@ -74,6 +92,7 @@ export function useOnboarding() {
     } catch {
       // Storage unavailable — transition in memory.
     }
+    syncOnboardedDataset(true);
     setOnboarded(true);
   }, []);
 

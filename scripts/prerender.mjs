@@ -119,6 +119,7 @@ try {
     const html = await page.evaluate((meta) => {
       document.documentElement.classList.remove('dark', 'light');
       delete document.documentElement.dataset.rendered;
+      delete document.documentElement.dataset.onboarded;
 
       const setLink = (rel, value) => {
         const el = document.head.querySelector(`link[rel="${rel}"]`);

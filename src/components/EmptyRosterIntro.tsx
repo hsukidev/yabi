@@ -10,7 +10,7 @@ export function EmptyRosterIntro({ onBegin }: EmptyRosterIntroProps) {
     <section
       data-testid="empty-roster-intro"
       aria-labelledby="yabi-intro-heading"
-      className="panel panel-glow p-6 sm:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
+      className="panel panel-glow p-6 sm:p-8"
     >
       <div className="eyebrow">
         <span className="dot" aria-hidden="true" />

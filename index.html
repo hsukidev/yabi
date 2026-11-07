@@ -88,8 +88,29 @@
         } else {
           document.documentElement.classList.add('dark');
         }
+        var o = localStorage.getItem('onboarded');
+        if (
+          o === 'true' ||
+          (o !== 'false' &&
+            [
+              'maplestory-mule-tracker',
+              'world',
+              'maplestory-mule-tracker-user-presets',
+              'trackerPreference',
+              'slateDisplayMode',
+            ].some(function (k) {
+              return localStorage.getItem(k) !== null;
+            }))
+        ) {
+          document.documentElement.dataset.onboarded = '1';
+        }
       } catch (e) {}
     </script>
+    <style>
+      html[data-onboarded='1'] [data-testid='empty-roster-intro'] {
+        display: none !important;
+      }
+    </style>
   </head>
   <body>
     <div id="root">
