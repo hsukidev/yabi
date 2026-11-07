@@ -21,6 +21,7 @@ import { useDisplay } from '../context/DisplayProvider';
 import { useWorld } from '../context/WorldProvider';
 import { lensMules } from '../data/worlds';
 import { useMuleActions } from '../hooks/useMuleActions';
+import { useOnboarding } from '../hooks/useOnboarding';
 import { useBulkSelection } from '../hooks/useBulkSelection';
 import { useWorldIncome } from '../modules/worldIncome';
 import { useStableRosterMetrics } from './useStableRosterMetrics';
@@ -56,6 +57,7 @@ const dragBoundaryActiveStyle: React.CSSProperties = {
 };
 
 export function Dashboard() {
+  const { onboarded, completeOnboarding } = useOnboarding();
   const { mules, addMule, updateMule, deleteMule, deleteMules, reorderMules } = useMuleActions();
   const { world } = useWorld();
   const { display } = useDisplay();
@@ -214,11 +216,19 @@ export function Dashboard() {
     [mulesInWorld, toDelete, updateMule],
   );
 
+  if (!onboarded) {
+    return (
+      <main className="container mx-auto max-w-3xl px-4 sm:px-6 py-10">
+        <ChangelogNotificationBanner />
+        <EmptyRosterIntro onBegin={completeOnboarding} />
+      </main>
+    );
+  }
+
   return (
     <>
       <main className="container mx-auto max-w-352 px-4 sm:px-6 py-8">
         <ChangelogNotificationBanner />
-        {mules.length === 0 && <EmptyRosterIntro />}
         <section className="grid grid-cols-1 min-[1100px]:grid-cols-12 gap-6 mb-10">
           <div className="min-[1100px]:col-span-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
             <KpiCard mules={deferredMulesInWorld} />

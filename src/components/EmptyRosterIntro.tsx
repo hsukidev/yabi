@@ -1,36 +1,16 @@
-const stepCardStyle: React.CSSProperties = {
-  borderRadius: 8,
-  border: '1px solid color-mix(in srgb, var(--border) 60%, transparent)',
-  background: 'color-mix(in srgb, var(--surface-2) 92%, transparent)',
-  boxShadow:
-    'inset 0 1px 0 color-mix(in srgb, white 6%, transparent), 0 1px 2px color-mix(in srgb, black 8%, transparent)',
-  padding: '14px 16px',
-};
+import { ArrowRight, ShieldCheck } from 'lucide-react';
+import { ONBOARDING_STEPS, introRecessedCardStyle } from '../hooks/useOnboarding';
 
-const steps = [
-  {
-    step: '01 · WORLD & ROSTER',
-    title: 'Pick your world and add mules',
-    body: 'Choose a Heroic (Kronos, Hyperion, Solis) or Interactive world below, then add your main and bossing mules with optional Nexon Ranking lookup.',
-  },
-  {
-    step: '02 · BOSSES & PRESETS',
-    title: 'Select boss crystals in one click',
-    body: 'Apply CRA, Lomien, Ctene, or custom boss presets, set party sizes from solo to 6-man, and track daily, weekly, and monthly Black Mage clears.',
-  },
-  {
-    step: '03 · WEEKLY CAP & MESO',
-    title: 'Track per-world meso & 180 cap',
-    body: 'See contributed weekly meso per character, automatic top-180 weekly crystal cap cuts, income share percentages, and reset completion marks.',
-  },
-] as const;
+export interface EmptyRosterIntroProps {
+  onBegin: () => void;
+}
 
-export function EmptyRosterIntro() {
+export function EmptyRosterIntro({ onBegin }: EmptyRosterIntroProps) {
   return (
     <section
       data-testid="empty-roster-intro"
       aria-labelledby="yabi-intro-heading"
-      className="panel panel-glow mb-6 p-5 sm:p-6 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
+      className="panel panel-glow p-6 sm:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
     >
       <div className="eyebrow">
         <span className="dot" aria-hidden="true" />
@@ -38,23 +18,28 @@ export function EmptyRosterIntro() {
       </div>
       <h1
         id="yabi-intro-heading"
-        className="mt-2 font-display text-xl sm:text-2xl font-bold tracking-tight"
+        className="mt-2.5 font-display text-2xl sm:text-3xl font-bold tracking-tight"
         style={{ color: 'var(--text, var(--foreground))' }}
       >
         YABI — Yet Another MapleStory Income Tracker
       </h1>
       <p
-        className="mt-2 text-sm/relaxed max-w-3xl"
+        className="mt-2.5 text-sm/relaxed max-w-2xl"
         style={{ color: 'var(--muted-raw, var(--muted-foreground))' }}
       >
-        Free weekly boss crystal calculator and mule roster planner for MapleStory Heroic and
-        Interactive worlds. Plan your weekly boss clears, compare mule share percentages, and
-        automatically enforce the 180 per-world crystal limit. All roster data is saved locally in
-        your browser.
+        MapleStory&apos;s{' '}
+        <em style={{ color: 'var(--text, var(--foreground))', fontStyle: 'normal' }}>
+          <strong>Y</strong>et <strong>A</strong>nother <strong>B</strong>oss <strong>I</strong>
+          ncome
+        </em>{' '}
+        tracker. Plan weekly boss crystal clears across your mule roster for Heroic and Interactive
+        worlds, compare character share percentages, and automatically enforce the 180 per-world
+        crystal cap.
       </p>
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
-        {steps.map((item) => (
-          <div key={item.step} style={stepCardStyle}>
+
+      <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-3">
+        {ONBOARDING_STEPS.map((item) => (
+          <div key={item.step} style={introRecessedCardStyle}>
             <div className="eyebrow-plain">{item.step}</div>
             <div
               className="mt-1.5 text-sm font-semibold"
@@ -70,6 +55,44 @@ export function EmptyRosterIntro() {
             </p>
           </div>
         ))}
+      </div>
+
+      <div
+        className="mt-5 pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        style={{ borderTop: '1px solid color-mix(in srgb, var(--border) 70%, transparent)' }}
+      >
+        <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+          <ShieldCheck
+            size={16}
+            className="mt-0.5 sm:mt-0 shrink-0"
+            style={{ color: 'var(--accent-raw, var(--accent))' }}
+            aria-hidden="true"
+          />
+          <p
+            className="text-xs/relaxed"
+            style={{ color: 'var(--muted-raw, var(--muted-foreground))' }}
+          >
+            Your roster is saved locally in your browser&apos;s{' '}
+            <span className="font-mono">localStorage</span> — nothing leaves your device except
+            optional Nexon Ranking character lookups.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          data-testid="onboarding-begin-button"
+          onClick={onBegin}
+          className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold tracking-tight transition-all duration-150 cursor-pointer shrink-0"
+          style={{
+            background: 'var(--accent-raw, var(--accent))',
+            color: 'var(--primary-foreground)',
+            border: '1px solid transparent',
+            boxShadow: '0 8px 24px -8px var(--accent-glow)',
+          }}
+        >
+          <span>Begin</span>
+          <ArrowRight size={16} strokeWidth={2.25} aria-hidden="true" />
+        </button>
       </div>
     </section>
   );

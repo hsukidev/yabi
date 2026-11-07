@@ -68,6 +68,7 @@ function resetTestEnvironment() {
   // that care about the no-world state override by calling
   // localStorage.removeItem('world') before render.
   localStorage.setItem('world', 'heroic-kronos');
+  localStorage.setItem('onboarded', 'true');
   // Suppress the Changelog Notification Banner by default — its TanStack
   // Link breaks plain `render(<Dashboard />)` calls (no RouterProvider).
   // Tests that exercise the banner explicitly should clear this key.
@@ -159,8 +160,10 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: /add mule/i })).toBeTruthy();
   });
 
-  it('renders EmptyRosterIntro with h1 heading when roster is empty and hides it once mules exist', async () => {
-    const { unmount } = await renderApp();
+  it('renders only EmptyRosterIntro for a first-time user and reveals the dashboard when Begin is clicked', async () => {
+    localStorage.clear();
+    await renderApp();
+
     expect(screen.getByTestId('empty-roster-intro')).toBeTruthy();
     expect(
       screen.getByRole('heading', {
@@ -168,11 +171,18 @@ describe('App', () => {
         name: /YABI — Yet Another MapleStory Income Tracker/i,
       }),
     ).toBeTruthy();
-    unmount();
+    expect(screen.queryByTestId('income-card')).toBeNull();
+    expect(screen.queryByTestId('roster-section')).toBeNull();
 
-    seedMules(testMules);
-    await renderApp();
-    expect(screen.queryByTestId('empty-roster-intro')).toBeNull();
+    fireEvent.click(screen.getByTestId('onboarding-begin-button'));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('empty-roster-intro')).toBeNull();
+      expect(screen.getByTestId('income-card')).toBeTruthy();
+      expect(screen.getByTestId('roster-section')).toBeTruthy();
+      expect(screen.getByRole('button', { name: /add mule/i })).toBeTruthy();
+    });
+    expect(localStorage.getItem('onboarded')).toBe('true');
   });
 
   it('renders weekly income section', async () => {

@@ -14,7 +14,7 @@ describe('Changelog Notification Banner', () => {
   it('does not render for a first-time user and silently catches them up to the latest release', async () => {
     await renderApp({ initialPath: '/' });
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /add mule/i })).toBeTruthy();
+      expect(screen.getByTestId('empty-roster-intro')).toBeTruthy();
     });
     expect(screen.queryByRole('status', { name: /what's new/i })).toBeNull();
     expect(localStorage.getItem(SEEN_KEY)).toBe(releases[0]?.version);
